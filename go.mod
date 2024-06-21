@@ -1,4 +1,4 @@
-module hariki
+module template
 
 go 1.22
 
