@@ -2,7 +2,6 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"hariki/ent/hook"
 )
 
 // User holds the schema definition for the User entity.
@@ -21,12 +20,5 @@ func (User) Edges() []ent.Edge {
 }
 
 func (User) Hooks() []ent.Hook {
-	return []ent.Hook{
-		hook.On(
-			func(next ent.Mutator) ent.Mutator {
-				return hook.UserCreate(next)
-			},
-			ent.OpCreate,
-		),
-	}
+	return nil
 }

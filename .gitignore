@@ -24,4 +24,6 @@ go.work
 # IDE files
 .idea/
 *.iml
+
 pkg
+tmp
