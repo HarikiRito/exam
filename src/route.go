@@ -19,7 +19,7 @@ func RunRoute(router *gin.Engine) {
 		})
 
 		g.GET("/status", func(c *gin.Context) {
-			c.JSON(200, gin.H{"message": "bdf"})
+			c.JSON(200, gin.H{"message": "badaf"})
 		})
 	}
 }
