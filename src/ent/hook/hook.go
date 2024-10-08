@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 	"fmt"
-	"hariki/ent"
+	"template/ent"
 )
 
 // The UserFunc type is an adapter to allow the use of ordinary

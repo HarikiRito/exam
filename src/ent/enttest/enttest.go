@@ -4,11 +4,12 @@ package enttest
 
 import (
 	"context"
-	"hariki/ent"
-	// required by schema hooks.
-	_ "hariki/ent/runtime"
 
-	"hariki/ent/migrate"
+	"template/ent"
+	// required by schema hooks.
+	_ "template/ent/runtime"
+
+	"template/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

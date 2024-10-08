@@ -9,9 +9,9 @@ import (
 	"log"
 	"reflect"
 
-	"hariki/ent/migrate"
+	"template/ent/migrate"
 
-	"hariki/ent/user"
+	"template/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -25,6 +25,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// additional fields for node api
+	tables tables
 }
 
 // NewClient creates a new client configured with the given options.

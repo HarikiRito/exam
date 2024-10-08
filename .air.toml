@@ -7,5 +7,7 @@ cmd = "go build -o ./tmp/main ."
 
 include_ext = ["go"]
 exclude_dir = ["tmp", "vendor", "pkg"]
+include_dir = ["src"]
+bin = "tmp/main"
 
 poll = true

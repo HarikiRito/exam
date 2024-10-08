@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"template/src"
+	"template/src/shared/utilities/snowflake"
+
 	"github.com/gin-gonic/gin"
-	"template/internal"
-	"template/internal/shared/utilities/snowflake"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 
 	fmt.Println("ID: ", snowflake.NextId())
 
-	internal.RunRoute(router)
+	src.RunRoute(router)
 	err := router.Run(":8082")
 	if err != nil {
 		return

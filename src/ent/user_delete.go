@@ -4,8 +4,8 @@ package ent
 
 import (
 	"context"
-	"hariki/ent/predicate"
-	"hariki/ent/user"
+	"template/ent/predicate"
+	"template/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

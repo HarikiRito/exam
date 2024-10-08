@@ -3,7 +3,7 @@
 package user
 
 import (
-	"hariki/ent/predicate"
+	"template/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 )
