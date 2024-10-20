@@ -1,11 +1,10 @@
-package src
+package route
 
 import (
 	"github.com/gin-gonic/gin"
 )
 
-func RunRoute(router *gin.Engine) {
-
+func GenerateRoute(router *gin.Engine) {
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -14,12 +13,9 @@ func RunRoute(router *gin.Engine) {
 
 	g := router.Group("/api")
 	{
-		g.GET("/user", func(c *gin.Context) {
-			c.JSON(200, gin.H{"message": "user"})
-		})
-
 		g.GET("/status", func(c *gin.Context) {
-			c.JSON(200, gin.H{"message": "badaf"})
+			c.JSON(200, gin.H{"message": "bad23"})
 		})
 	}
+
 }
