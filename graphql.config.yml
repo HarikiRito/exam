@@ -1,0 +1,2 @@
+schema: 'graph/schema/schema.gql'
+documents: 'graph/**/*.{graphql,gql}'
