@@ -7,7 +7,7 @@
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx",
     "eslint.config.mjs",
-    "postcss.config.js"
+    "postcss.config.mjs"
   ],
   "compilerOptions": {
     "lib": [
@@ -17,7 +17,6 @@
     ],
     "types": [
       "@remix-run/node",
-      4
       "vite/client"
     ],
     "isolatedModules": true,
