@@ -1,10 +1,11 @@
 // @ts-check
 import js from '@eslint/js';
 import perfectionist from 'eslint-plugin-perfectionist';
-import react from "eslint-plugin-react";
-import reactHooks from "eslint-plugin-react-hooks";
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
 import storybook from 'eslint-plugin-storybook';
 import tseslint from 'typescript-eslint';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 // const compat = new FlatCompat({
@@ -17,7 +18,7 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   ...storybook.configs['flat/recommended'],
-  // eslintPluginPrettierRecommended,
+  eslintPluginPrettierRecommended,
   {
     ...perfectionist.configs['recommended-natural'],
     files: ['app/**/*.{tsx,ts}'],
@@ -27,15 +28,15 @@ export default [
     },
   },
   {
-
+    ...react.configs.flat.recommended,
     ...react.configs.flat['jsx-runtime'],
     plugins: {
-      react
+      react,
     },
     settings: {
       react: {
         version: '19',
-      }
+      },
     },
     rules: {
       'react/jsx-curly-brace-presence': [
@@ -58,7 +59,7 @@ export default [
   },
   {
     files: ['app/**/*.{tsx,ts}'],
-    ignores: ["!**/.server", "!**/.client", "postcss.config.js"],
+    ignores: ['!**/.server', '!**/.client', 'postcss.config.js'],
   },
   {
     languageOptions: {
@@ -69,8 +70,7 @@ export default [
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
-      globals: {
-      }
+      globals: {},
     },
     rules: {
       // 'prettier/prettier': 'error',
