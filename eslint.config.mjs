@@ -1,44 +1,70 @@
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import path from 'node:path';
-import perfectionist from 'eslint-plugin-perfectionist';
-import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
-import storybook from 'eslint-plugin-storybook'
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+import js from '@eslint/js';
+import globals from "globals";
+import perfectionist from 'eslint-plugin-perfectionist';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier';
+import storybook from 'eslint-plugin-storybook';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import tseslint from 'typescript-eslint';
+import reactHooks from "eslint-plugin-react-hooks";
+import react from "eslint-plugin-react";
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// const compat = new FlatCompat({
+//   baseDirectory: __dirname,
+//   recommendedConfig: js.configs.recommended,
+//   allConfig: js.configs.all,
+// });
 
 export default [
-  ...compat.extends('plugin:@typescript-eslint/recommended', 'plugin:tailwindcss/recommended'),
+  js.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
   ...storybook.configs['flat/recommended'],
-  perfectionist.configs['recommended-natural'],
+  // eslintPluginPrettierRecommended,
   {
+    ...perfectionist.configs['recommended-natural'],
     files: ['app/**/*.{tsx,ts}'],
+    rules: {
+      'perfectionist/sort-classes': 'off',
+      'perfectionist/sort-enums': 'off',
+    },
   },
   {
     plugins: {
-      '@typescript-eslint': typescriptEslint,
+      react,
     },
-
+    rules: {
+      'react/jsx-curly-brace-presence': [
+        'error',
+        {
+          props: 'never',
+          children: 'ignore',
+        },
+      ]
+    },
+  },
+  {
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      'react-hooks/exhaustive-deps': 'error',
+    },
+  },
+  {
+    files: ['app/**/*.{tsx,ts}'],
+    ignores: ["!**/.server", "!**/.client"],
+  },
+  {
     languageOptions: {
-      parser: tsParser,
-      ecmaVersion: 5,
-      sourceType: 'script',
       parserOptions: {
-        project: './tsconfig.json',
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
-
     rules: {
-      'prettier/prettier': 'error',
+      // 'prettier/prettier': 'error',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unsafe-enum-comparison': 'error',
       'react/prefer-read-only-props': 'warn',
@@ -46,20 +72,11 @@ export default [
       '@typescript-eslint/no-deprecated': 'warn',
       '@typescript-eslint/no-unsafe-declaration-merging': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
-      'tailwindcss/classnames-order': 'off',
-      'react-hooks/exhaustive-deps': 'error',
       'prefer-template': 'error',
       'no-console': [
         'warn',
         {
           allow: ['error', 'warn', 'info'],
-        },
-      ],
-      'react/jsx-curly-brace-presence': [
-        'error',
-        {
-          props: 'never',
-          children: 'ignore',
         },
       ],
       eqeqeq: 'error',
@@ -69,9 +86,6 @@ export default [
           patterns: ['../../*'],
         },
       ],
-      'perfectionist/sort-classes': 'off',
-      'perfectionist/sort-enums': 'off',
     },
   },
-  eslintPluginPrettierRecommended,
 ];
