@@ -1,14 +1,10 @@
-import { FlatCompat } from '@eslint/eslintrc';
+// @ts-check
 import js from '@eslint/js';
-import globals from "globals";
 import perfectionist from 'eslint-plugin-perfectionist';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier';
-import storybook from 'eslint-plugin-storybook';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import tseslint from 'typescript-eslint';
-import reactHooks from "eslint-plugin-react-hooks";
 import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import storybook from 'eslint-plugin-storybook';
+import tseslint from 'typescript-eslint';
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
 // const compat = new FlatCompat({
@@ -31,8 +27,15 @@ export default [
     },
   },
   {
+
+    ...react.configs.flat['jsx-runtime'],
     plugins: {
-      react,
+      react
+    },
+    settings: {
+      react: {
+        version: '19',
+      }
     },
     rules: {
       'react/jsx-curly-brace-presence': [
@@ -41,11 +44,12 @@ export default [
           props: 'never',
           children: 'ignore',
         },
-      ]
+      ],
     },
   },
   {
     plugins: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       'react-hooks': reactHooks,
     },
     rules: {
@@ -54,17 +58,23 @@ export default [
   },
   {
     files: ['app/**/*.{tsx,ts}'],
-    ignores: ["!**/.server", "!**/.client"],
+    ignores: ["!**/.server", "!**/.client", "postcss.config.js"],
   },
   {
     languageOptions: {
       parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
+      globals: {
+      }
     },
     rules: {
       // 'prettier/prettier': 'error',
+      '@typescript-eslint/prefer-promise-reject-errors': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unsafe-enum-comparison': 'error',
       'react/prefer-read-only-props': 'warn',
