@@ -1,7 +1,7 @@
+@layer theme, base, components, utilities;
+
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/preflight.css" layer(base);
 
 html,
 body {
