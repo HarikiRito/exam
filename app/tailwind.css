@@ -1,11 +1,12 @@
 @layer theme, base, components, utilities;
 
-/* @plugin "tailwindcss-animate"; */
+@import "tailwindcss";
+@import "tailwindcss/preflight.css" layer(base);
+@plugin "tailwindcss-animate";
 
 @custom-variant dark (&:is(.dark *));
 
-@import "tailwindcss";
-@import "tailwindcss/preflight.css" layer(base);
+
 
 
 html,
