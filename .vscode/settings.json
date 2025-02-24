@@ -3,7 +3,7 @@
   "editor.fontFamily": "\"JetBrains Mono\", Menlo, Monaco, 'Courier New', monospace",
   "eslint.useFlatConfig": true,
   "eslint.codeActionsOnSave.mode": "all",
-  "cSpell.words": [
-    "sonner"
-  ],
+  "files.associations": {
+    ".cursorrules": "markdown"
+  }
 }

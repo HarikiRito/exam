@@ -1,0 +1,149 @@
+# Cursor Rules for Remix React Project
+
+## Component Usage Guidelines
+
+### Allowed Components
+Only components from the `app/shared/components` directory are permitted
+
+### Import Path Rules
+- Use absolute imports based on `tsconfig.json` paths
+- Prefix imports with `app/` 
+- Example: `import { Button } from "app/shared/components/button"`
+
+### Styling
+- Utilize TailwindCSS for all styling
+- Avoid inline styles or external CSS files
+- Use Tailwind's utility classes for responsive and dark mode designs
+
+### Component Creation
+- If a required component does not exist in `app/shared/components/`:
+  1. Confirm with the team before creating a new component
+  2. Follow existing component structure and design patterns
+  3. Place new components in the appropriate subdirectory
+  4. Ensure TailwindCSS compatibility
+  5. Add comprehensive documentation
+
+### Performance and Best Practices
+- Prefer functional components
+- Use React hooks for state management
+- Implement proper prop typing
+- Follow accessibility guidelines (WCAG)
+
+### Function Declaration Guidelines
+- Use function declarations (`function functionName()`) for all functions
+- Exceptions ONLY for React hooks:
+  - `useEffect`
+  - `useMemo`
+  - `useCallback`
+  - These hooks MUST use arrow function syntax
+- Benefits of function declarations:
+  - Hoisting allows function usage before declaration
+  - Clearer stack traces
+  - More readable and consistent code structure
+- Naming conventions:
+  - Use descriptive, camelCase function names
+  - Prefix boolean-returning functions with `is`, `has`, or `should`
+
+### Example Function Declarations
+```typescript
+// Preferred: Function declaration for most functions
+function calculateTotal(items: Item[]): number {
+  return items.reduce((total, item) => total + item.price, 0);
+}
+
+// Preferred: Regular function for event handlers
+function handleSubmit(event: React.FormEvent) {
+  event.preventDefault();
+  // Submit logic
+}
+```
+
+### Framework Specifics
+- Use Remix conventions for routing and data loading
+- Leverage Remix's built-in performance optimizations
+- Use `loader` and `action` functions for data fetching and mutations
+
+### Example Component Usage
+```tsx
+import { Button } from "app/shared/components/button"
+import { Input } from "app/shared/components/input"
+
+export default function ExampleComponent() {
+  return (
+    <div className="flex space-x-4">
+      <Input placeholder="Enter text" />
+      <Button variant="primary">Submit</Button>
+    </div>
+  )
+}
+```
+
+### Shared Directory Structure
+- `shared` folder contains the following subdirectories:
+  - `hooks/`: Custom React hooks
+    - Use camelCase naming convention
+    - Prefix hook names with `use`
+    - Example: `useCustomState.ts`, `useDataFetching.ts`
+  
+  - `types/`: TypeScript type declarations
+    - Use PascalCase for type names
+    - Suffix interfaces with `Type` or `Interface`
+    - Example: `UserType.ts`, `ResponseInterface.ts`
+  
+  - `constants/`: Constant variables
+    - Use UPPERCASE_SNAKE_CASE
+    - Group related constants together
+    - Example: `API_ENDPOINTS.ts`, `ERROR_MESSAGES.ts`
+  
+  - `constants/enums/`: Enum declarations
+    - Use PascalCase for enum names
+    - Use UPPERCASE_SNAKE_CASE for enum values
+    - Example: `UserRoles.ts` with values like `ADMIN`, `USER`, `GUEST`
+
+#### Constants and Enums Best Practices
+- Constants should be immutable
+- Use `as const` for type safety when appropriate
+- Enums provide type-safe way to represent a set of named constants
+- Prefer const enums for better performance in TypeScript
+
+### Example Constant and Enum Usage
+```typescript
+// constants/api.ts
+export const API_BASE_URL = 'https://api.example.com';
+export const DEFAULT_TIMEOUT = 5000;
+
+// constants/enums/UserRoles.ts
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+  GUEST = 'GUEST'
+}
+
+// hooks/useUserRole.ts
+function useUserRole() {
+  const [role, setRole] = useState<UserRole>(UserRole.GUEST);
+  // ... hook implementation
+}
+```
+
+### File Naming Conventions
+- React component file names:
+  - Files in `app/routes/` directory: camelCase (e.g., `index.tsx`, `login.tsx`)
+  - All other React component files: PascalCase (e.g., `UserProfile.tsx`, `NavigationBar.tsx`)
+- Non-component TypeScript files: camelCase (e.g., `userService.ts`, `apiClient.ts`)
+- Ensure file names match the primary component or function exported from the file
+
+### Example File Naming
+```
+app/routes/
+├── index.tsx           // camelCase for route files
+├── login.tsx           // camelCase for route files
+
+app/components/
+├── UserProfile.tsx     // PascalCase for components
+├── NavigationBar.tsx   // PascalCase for components
+
+app/shared/
+├── userService.ts      // camelCase for services
+├── apiClient.ts        // camelCase for utility files
+```
