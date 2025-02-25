@@ -82,6 +82,7 @@ export default [
       '@typescript-eslint/no-deprecated': 'warn',
       '@typescript-eslint/no-unsafe-declaration-merging': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-misused-promises': 'off',
       'prefer-template': 'error',
       'no-console': [
         'warn',

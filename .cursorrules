@@ -277,3 +277,104 @@ function UserManagement() {
 - Custom class names should only be added when explicitly requested
 - Existing shared components in `app/shared/components/` should maintain their default styling
 - If styling modifications are necessary, discuss with the team first
+
+### Form Handling Best Practices
+- Use a consistent approach for all forms in the application
+- Combine Zod for validation, React Hook Form for form management, and shared components for UI
+- Follow these guidelines for creating forms:
+
+#### Form Structure
+- Always use `AppForm.*` components from shared components
+- Utilize `AppInput`, `AppButton`, and other shared input components
+- Implement form validation using Zod schemas
+- Use React Hook Form with Zod resolver for form management
+
+#### Example Comprehensive Form Implementation
+```typescript
+// Validation Schema
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[!@#$%^&*()]/, 'Password must contain at least one special character'),
+});
+
+// Form Component
+function LoginForm() {
+  // Use form with Zod resolver
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onBlur', // Validate on field blur
+  });
+
+  // Submit handler
+  function onSubmit(data: LoginFormData) {
+    // Perform login logic
+    console.log('Login submitted:', data);
+  }
+
+  return (
+    <AppForm.Root {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <AppForm.Field
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <AppForm.Item>
+              <AppForm.Label>Email</AppForm.Label>
+              <AppForm.Control>
+                <AppInput 
+                  type="email" 
+                  placeholder="m@example.com" 
+                  {...field} 
+                />
+              </AppForm.Control>
+              <AppForm.Message />
+            </AppForm.Item>
+          )}
+        />
+
+        <AppForm.Field
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <AppForm.Item>
+              <AppForm.Label>Password</AppForm.Label>
+              <AppForm.Control>
+                <AppInput 
+                  type="password" 
+                  {...field} 
+                />
+              </AppForm.Control>
+              <AppForm.Message />
+            </AppForm.Item>
+          )}
+        />
+
+        <AppButton type="submit">Login</AppButton>
+      </form>
+    </AppForm.Root>
+  );
+}
+```
+
+#### Form Handling Guidelines
+- Always use `mode: 'onBlur'` for validation to provide immediate feedback
+- Implement clear, descriptive error messages
+- Use `AppForm.Message` for displaying validation errors
+- Leverage Zod's comprehensive validation capabilities
+- Keep form logic clean and focused
+
+#### Performance Considerations
+- Minimize unnecessary re-renders using React Hook Form's performance optimizations
+- Use `defaultValues` to set initial form state
+- Leverage `watch` and `trigger` methods for advanced form interactions
+
+#### Accessibility
+- Ensure all form fields have associated labels
+- Use `AppForm.Label` and `AppForm.Item` for proper accessibility
+- Provide clear error messages and visual feedback
+- Implement keyboard navigation support
