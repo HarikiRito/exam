@@ -12,23 +12,19 @@ export default function Page() {
           <div className='flex items-center gap-2 px-4'>
             <AppSidebar.Trigger className='-ml-1' />
             <AppSeparator orientation='vertical' className='mr-2 data-[orientation=vertical]:h-4' />
-            <div>
-              <div className='flex items-center gap-2'>
-                <AppBreadcrumb.Root>
-                  <AppBreadcrumb.List>
-                    <AppBreadcrumb.Item>
-                      <AppBreadcrumb.Link href='#' className='hidden md:block'>
-                        Building Your Application
-                      </AppBreadcrumb.Link>
-                    </AppBreadcrumb.Item>
-                    <AppBreadcrumb.Separator className='hidden md:block' />
-                    <AppBreadcrumb.Item>
-                      <AppBreadcrumb.Page>Data Fetching</AppBreadcrumb.Page>
-                    </AppBreadcrumb.Item>
-                  </AppBreadcrumb.List>
-                </AppBreadcrumb.Root>
-              </div>
-            </div>
+            <AppBreadcrumb.Root>
+              <AppBreadcrumb.List>
+                <AppBreadcrumb.Item>
+                  <AppBreadcrumb.Link href='#' className='hidden md:block'>
+                    Building Your Application
+                  </AppBreadcrumb.Link>
+                </AppBreadcrumb.Item>
+                <AppBreadcrumb.Separator className='hidden md:block' />
+                <AppBreadcrumb.Item>
+                  <AppBreadcrumb.Page>Data Fetching</AppBreadcrumb.Page>
+                </AppBreadcrumb.Item>
+              </AppBreadcrumb.List>
+            </AppBreadcrumb.Root>
           </div>
         </header>
         <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
