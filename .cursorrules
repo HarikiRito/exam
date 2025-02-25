@@ -402,3 +402,72 @@ wip
 changes
 updated code
 ```
+
+### PNPM Package Management Guidelines
+
+#### Package Manager
+- Use `pnpm` as the exclusive package manager for this project
+- Never use `npm` or `yarn`
+- Always use `pnpm` commands for all package management tasks
+
+#### Installation and Setup
+- Install dependencies using `pnpm install`
+- Use `pnpm add` for adding new packages
+- Use `pnpm add -D` for adding development dependencies
+- Use `pnpm remove` for removing packages
+
+#### Workspace Management
+- Leverage pnpm workspaces for monorepo management
+- Use `pnpm -F` for running commands in specific workspaces
+- Configure `pnpm-workspace.yaml` for defining workspace structure
+
+#### Dependency Management Best Practices
+- Use `pnpm-lock.yaml` for precise dependency locking
+- Commit `pnpm-lock.yaml` to version control
+- Regularly update dependencies using `pnpm update`
+- Use `pnpm audit` to check for security vulnerabilities
+
+#### Script Execution
+- Use `pnpm run` or `pnpm` to execute scripts defined in `package.json`
+- Prefix workspace-specific scripts with workspace name
+- Example: `pnpm -F web dev` to run dev script in web workspace
+
+#### Performance Optimization
+- Utilize pnpm's built-in performance optimizations
+- Use `pnpm store prune` to clean unused packages
+- Enable content-addressable storage for efficient package management
+
+#### Example Workspace Configuration
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - 'app/*'
+  - 'packages/*'
+```
+
+#### Example Package Scripts
+```json
+{
+  "scripts": {
+    "dev": "pnpm run dev -F web",
+    "build": "pnpm run build -F web",
+    "test": "pnpm run test -r",
+    "lint": "pnpm run lint -r"
+  }
+}
+```
+
+#### Continuous Integration
+- Configure CI/CD pipelines to use `pnpm`
+- Use `pnpm ci` for clean, reproducible installations in CI environments
+- Cache `pnpm` store in CI to improve build times
+
+#### Version Management
+- Use `pnpm version` for managing package versions
+- Follow semantic versioning principles
+- Use `pnpm publish` for publishing packages to registries
+
+#### Troubleshooting
+- Use `pnpm why` to understand dependency trees
+- Use `pnpm list` to view installed packages
+- Clear cache with `pnpm store clean` if experiencing dependency issues

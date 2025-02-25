@@ -25,6 +25,4 @@ function Separator({
   );
 }
 
-export const AppSeparator = {
-  Root: Separator,
-};
+export const AppSeparator = Separator;

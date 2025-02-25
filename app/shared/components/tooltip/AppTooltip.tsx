@@ -48,4 +48,5 @@ export const AppTooltip = {
   Root: Tooltip,
   Trigger: TooltipTrigger,
   Content: TooltipContent,
+  Provider: TooltipProvider,
 };
