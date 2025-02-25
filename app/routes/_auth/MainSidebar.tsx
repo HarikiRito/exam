@@ -1,21 +1,10 @@
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-} from 'lucide-react';
+import { BookOpen, Bot, Frame, Map, PieChart, Settings2, SquareTerminal } from 'lucide-react';
 
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
-import { NavMain } from './nav-main';
-import { NavProjects } from './nav-projects';
-import { NavUser } from './nav-user';
-import { TeamSwitcher } from './team-switcher';
+import { NavMain } from './NavMain';
+import { NavProjects } from './NavProjects';
+import { NavUser } from './NavUser';
+import { TeamSwitcher } from './TeamSwitcher';
 
 // This is sample data.
 const data = {
@@ -24,23 +13,6 @@ const data = {
     email: 'm@example.com',
     avatar: '/avatars/shadcn.jpg',
   },
-  teams: [
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
   navMain: [
     {
       title: 'Playground',
@@ -151,7 +123,7 @@ export function MainSidebar() {
   return (
     <AppSidebar.Root collapsible='icon'>
       <AppSidebar.Header>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher />
       </AppSidebar.Header>
       <AppSidebar.Content>
         <NavMain items={data.navMain} />

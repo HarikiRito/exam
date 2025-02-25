@@ -4,6 +4,11 @@
   "eslint.useFlatConfig": true,
   "eslint.codeActionsOnSave.mode": "all",
   "files.associations": {
-    ".cursorrules": "markdown"
-  }
+    ".cursorrules": "markdown",
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.experimental.configFile": "app/tailwind.css"
 }

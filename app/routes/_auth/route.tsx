@@ -1,7 +1,8 @@
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
-import { MainSidebar } from './app-sidebar';
+import { MainSidebar } from './MainSidebar';
 import { AppBreadcrumb } from 'app/shared/components/breadcrumb/AppBreadcrumb';
+import { Outlet } from '@remix-run/react';
 
 export default function Page() {
   return (
@@ -28,12 +29,7 @@ export default function Page() {
           </div>
         </header>
         <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
-          <div className='grid auto-rows-min gap-4 md:grid-cols-3'>
-            <div className='bg-muted/50 aspect-video rounded-xl' />
-            <div className='bg-muted/50 aspect-video rounded-xl' />
-            <div className='bg-muted/50 aspect-video rounded-xl' />
-          </div>
-          <div className='bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min' />
+          <Outlet />
         </div>
       </AppSidebar.Inset>
     </AppSidebar.Provider>

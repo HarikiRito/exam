@@ -2,6 +2,7 @@
 
 import { ChevronRight, type LucideIcon } from 'lucide-react';
 
+import { Link } from '@remix-run/react';
 import { AppCollapsible } from 'app/shared/components/collapsible/AppCollapsible';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
 
@@ -38,9 +39,9 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <AppSidebar.MenuSubItem key={subItem.title}>
                       <AppSidebar.MenuSubButton asChild>
-                        <a href={subItem.url}>
+                        <Link to={subItem.url}>
                           <span>{subItem.title}</span>
-                        </a>
+                        </Link>
                       </AppSidebar.MenuSubButton>
                     </AppSidebar.MenuSubItem>
                   ))}
