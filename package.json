@@ -10,7 +10,7 @@
     "lint:fix": "eslint ./app --fix",
     "ci:lint": "pnpm lint && pnpm typecheck",
     "start": "remix-serve ./build/server/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.0.0",
