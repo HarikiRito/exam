@@ -65,14 +65,14 @@ function handleSubmit(event: React.FormEvent) {
 
 ### Example Component Usage
 ```tsx
-import { Button } from "app/shared/components/button"
-import { Input } from "app/shared/components/input"
+import { AppButton } from "app/shared/components/button"
+import { AppInput } from "app/shared/components/input"
 
 export default function ExampleComponent() {
   return (
     <div className="flex space-x-4">
-      <Input placeholder="Enter text" />
-      <Button variant="primary">Submit</Button>
+      <AppInput placeholder="Enter text" />
+      <AppButton variant="primary">Submit</AppButton>
     </div>
   )
 }
@@ -147,3 +147,133 @@ app/shared/
 ├── userService.ts      // camelCase for services
 ├── apiClient.ts        // camelCase for utility files
 ```
+
+### Zod Validation Guidelines
+- Use Zod for all form and data validation
+- Create schemas in `app/shared/validation/` directory
+- Follow these schema creation best practices:
+  - Use descriptive, comprehensive validation rules
+  - Leverage Zod's type inference with `z.infer<typeof schema>`
+  - Handle optional and nullable fields explicitly
+  - Create reusable schemas for consistent validation
+
+#### Zod Schema Example
+```typescript
+// app/shared/validation/userSchema.ts
+import { z } from 'zod';
+
+export const userSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  age: z.number().min(18, "Must be at least 18 years old").optional()
+});
+
+export type UserSchema = z.infer<typeof userSchema>;
+```
+
+### React Hook Form Guidelines
+- Use React Hook Form for all form management
+- Integrate with Zod for validation
+- Follow these form handling best practices:
+  - Use `useForm` hook with Zod resolver
+  - Implement clear error handling
+  - Use `handleSubmit` for form submission
+  - Minimize unnecessary re-renders
+
+#### React Hook Form Example
+```typescript
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { userSchema } from 'app/shared/validation/userSchema';
+
+function UserForm() {
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors } 
+  } = useForm({
+    resolver: zodResolver(userSchema)
+  });
+
+  function onSubmit(data) {
+    // Handle form submission
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      {/* Form fields with error handling */}
+    </form>
+  );
+}
+```
+
+### Tanstack Query (React Query) Guidelines
+- Use Tanstack Query for all data fetching and server state management
+- Create query hooks in `app/shared/hooks/queries/`
+- Follow these data fetching best practices:
+  - Use `useQuery` for read operations
+  - Use `useMutation` for write operations
+  - Implement error and loading states
+  - Use query keys for caching and invalidation
+  - Leverage `staleTime` and `cacheTime` for performance
+
+#### Tanstack Query Example
+```typescript
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchUsers, createUser } from 'app/services/userService';
+
+// Read Query
+function useUsers() {
+  return useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  });
+}
+
+// Mutation Query
+function useCreateUser() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      // Invalidate and refetch users query
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    }
+  });
+}
+```
+
+### Integration Best Practices
+- Combine Zod, React Hook Form, and Tanstack Query for robust form handling
+- Use type inference to maintain type safety across the stack
+- Handle loading and error states consistently
+- Implement proper caching and data synchronization
+
+#### Integrated Example
+```typescript
+function UserManagement() {
+  const { data: users, isLoading } = useUsers();
+  const createUserMutation = useCreateUser();
+  const { 
+    register, 
+    handleSubmit, 
+    formState: { errors } 
+  } = useForm({
+    resolver: zodResolver(userSchema)
+  });
+
+  function onSubmit(data) {
+    createUserMutation.mutate(data);
+  }
+
+  // Render component with integrated logic
+}
+```
+
+### Component Custom Class Names
+- Do not add custom class names to existing shared components
+- Custom class names should only be added when explicitly requested
+- Existing shared components in `app/shared/components/` should maintain their default styling
+- If styling modifications are necessary, discuss with the team first
