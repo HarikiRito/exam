@@ -42,7 +42,6 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
 
   function onSubmit(data: LoginFormData) {
     console.log('Login submitted:', data);
-    // TODO: Implement actual login logic
   }
 
   return (
@@ -85,7 +84,11 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                   )}
                 />
 
-                <AppButton type='submit' className='w-full' disabled={!formState.isValid}>
+                <AppButton
+                  type='submit'
+                  className='w-full'
+                  disabled={!formState.isValid}
+                  isLoading={formState.isSubmitting}>
                   Login
                 </AppButton>
 
