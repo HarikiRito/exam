@@ -378,3 +378,27 @@ function LoginForm() {
 - Use `AppForm.Label` and `AppForm.Item` for proper accessibility
 - Provide clear error messages and visual feedback
 - Implement keyboard navigation support
+
+### Commit Message Guidelines
+- Commit messages must be concise and descriptive
+- Maximum length: 100 characters
+- Use imperative mood (e.g., "Add feature" not "Added feature")
+- Capitalize the first letter
+- Do not end with a period
+- Provide a clear, high-level summary of the changes
+- Focus on the "what" and "why", not the "how"
+
+#### Commit Message Examples
+```
+# Good commit messages
+Add user authentication flow
+Fix memory leak in data fetching hook
+Update login form validation rules
+Refactor error handling in API service
+
+# Bad commit messages
+fixed some stuff
+wip
+changes
+updated code
+```
