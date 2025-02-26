@@ -1,3 +1,9 @@
+import { ExampleMultipleChoice } from 'app/components/ExampleMultipleChoice';
+
 export default function AuthDashboard() {
-  return <div>AuthDashboard</div>;
+  return (
+    <div>
+      <ExampleMultipleChoice />
+    </div>
+  );
 }
