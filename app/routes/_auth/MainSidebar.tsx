@@ -5,6 +5,7 @@ import { NavMain } from './NavMain';
 import { NavProjects } from './NavProjects';
 import { NavUser } from './NavUser';
 import { TeamSwitcher } from './TeamSwitcher';
+import { APP_ROUTES, routes } from 'app/shared/constants/routes';
 
 // This is sample data.
 const data = {
@@ -21,12 +22,12 @@ const data = {
       isActive: true,
       items: [
         {
-          title: 'History',
-          url: '#',
+          title: 'Dashboard',
+          url: APP_ROUTES.dashboard,
         },
         {
-          title: 'Starred',
-          url: '#',
+          title: 'Courses',
+          url: APP_ROUTES.courses,
         },
         {
           title: 'Settings',
