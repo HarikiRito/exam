@@ -1,11 +1,13 @@
 import { BookOpen, Bot, Frame, Map, PieChart, Settings2, SquareTerminal } from 'lucide-react';
 
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useElementSpace } from 'app/shared/hooks/useElementSpace';
+import { themeStore, ThemeStoreAtom } from 'app/shared/stores/themeStore';
 import { NavMain } from './NavMain';
 import { NavProjects } from './NavProjects';
 import { NavUser } from './NavUser';
 import { TeamSwitcher } from './TeamSwitcher';
-import { APP_ROUTES, routes } from 'app/shared/constants/routes';
 
 // This is sample data.
 const data = {
@@ -121,8 +123,11 @@ const data = {
 };
 
 export function MainSidebar() {
+  const [ref] = useElementSpace<HTMLDivElement>((space) => {
+    themeStore.set(ThemeStoreAtom.sideBarWidth, space.width);
+  });
   return (
-    <AppSidebar.Root collapsible='icon'>
+    <AppSidebar.Root collapsible='icon' ref={ref}>
       <AppSidebar.Header>
         <TeamSwitcher />
       </AppSidebar.Header>

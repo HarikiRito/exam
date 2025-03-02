@@ -1,11 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppLabel } from 'app/shared/components/label/AppLabel';
-import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
-import { cn } from 'app/shared/utils/className';
 import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppCard } from 'app/shared/components/card/AppCard';
+import { cn } from 'app/shared/utils/className';
 
 export interface MultipleChoiceOption {
   value: string;
@@ -16,34 +13,11 @@ export interface MultipleChoiceGridProps {
   readonly question: string;
   readonly options: MultipleChoiceOption[];
   readonly defaultValue?: string;
-  readonly value?: string;
-  readonly onValueChange?: (value: string) => void;
-  readonly disabled?: boolean;
-  readonly required?: boolean;
   readonly className?: string;
   readonly description?: string;
 }
 
-export function MultipleChoiceGrid({
-  question,
-  options,
-  defaultValue,
-  value,
-  onValueChange,
-  disabled,
-  required,
-  className,
-  description,
-}: MultipleChoiceGridProps) {
-  const [selectedValue, setSelectedValue] = React.useState(value || defaultValue);
-
-  function handleValueChange(value: string) {
-    setSelectedValue(value);
-    if (onValueChange) {
-      onValueChange(value);
-    }
-  }
-
+export function MultipleChoiceGrid({ question, options, className, description }: MultipleChoiceGridProps) {
   return (
     <div className={cn('w-full space-y-4', className)}>
       {/* Question Card */}

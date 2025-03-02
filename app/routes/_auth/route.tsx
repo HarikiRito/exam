@@ -23,13 +23,14 @@ export default function Page() {
 
 function PageOutlet() {
   const headerHeight = useAtomValue(ThemeStoreAtom.headerHeight);
-
+  const sideBarWidth = useAtomValue(ThemeStoreAtom.sideBarWidth);
   return (
     <div
-      className='flex flex-1 flex-col gap-4 p-4 pt-0'
+      className='flex flex-1 flex-col gap-4 p-4 pt-0 pr-0'
       style={{
         paddingTop: `${headerHeight}px`,
-        maxHeight: `calc(100vh - ${headerHeight}px)`,
+        height: `calc(100dvh - ${headerHeight}px)`,
+        width: `calc(100dvw - ${sideBarWidth}px)`,
       }}>
       <Outlet />
     </div>
@@ -48,10 +49,7 @@ function Header() {
       className='fixed flex h-16 shrink-0 items-center gap-2 bg-white transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
       <div className='flex items-center gap-2 px-4'>
         <AppSidebar.Trigger className='-ml-1' />
-        <AppSeparator
-          orientation='vertical'
-          className='mr-2 data-[orientation=vertical]:h-4'
-        />
+        <AppSeparator orientation='vertical' className='mr-2 data-[orientation=vertical]:h-4' />
         <AppBreadcrumb.Root>
           <AppBreadcrumb.List>
             <AppBreadcrumb.Item>

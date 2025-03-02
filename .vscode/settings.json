@@ -10,5 +10,6 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
-  "tailwindCSS.experimental.configFile": "app/tailwind.css"
+  "tailwindCSS.experimental.configFile": "app/tailwind.css",
+  "eslint.validate": ["javascript", "typescript", "typescriptreact"]
 }

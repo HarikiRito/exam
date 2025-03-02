@@ -6,7 +6,6 @@ export function ExampleMultipleChoice() {
 
   function handleChange(value: string) {
     setSelectedOption(value);
-    console.log('Selected option:', value);
   }
 
   return (

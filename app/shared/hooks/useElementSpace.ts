@@ -12,9 +12,7 @@ const useMeasure = ReactUse.useMeasure;
  * Track the space taken in the viewport by an element (including padding, margin, etc.)
  * @returns [ref, elementSpace]
  */
-export function useElementSpace<E extends HTMLElement = HTMLElement>(
-  onViewChange?: (space?: ElementSpace) => void,
-) {
+export function useElementSpace<E extends HTMLElement = HTMLElement>(onViewChange?: (space: ElementSpace) => void) {
   const ref = useRef<E>(null);
   const [measureRef, { height, width }] = useMeasure<E>();
 
