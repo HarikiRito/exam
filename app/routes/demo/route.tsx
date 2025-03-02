@@ -1,9 +1,14 @@
 import { ExampleMultipleChoice } from 'app/routes/demo/ExampleMultipleChoice';
 import { TimesheetCards } from 'app/routes/demo/TimesheetCards';
+import { DataTableExample } from 'app/routes/demo/DataTableExample';
 import { MultipleChoiceGrid } from 'app/shared/components/custom/multiple-choice/MultipleChoiceGrid';
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 
 const DemoMap = {
+  'data-table': {
+    label: 'Data Table',
+    component: DataTableExample,
+  },
   'timesheet-cards': {
     label: 'Timesheet Cards',
     component: TimesheetCards,
