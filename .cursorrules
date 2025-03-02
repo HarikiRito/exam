@@ -23,6 +23,9 @@ Only components from the `app/shared/components` directory are permitted
   4. Ensure TailwindCSS compatibility
   5. Add comprehensive documentation
 
+### Typography Guidelines
+- Prefer using the AppTypography components from "app/shared/components/typography/AppTypography.tsx" for all typography needs to maintain consistency.
+
 ### Performance and Best Practices
 - Prefer functional components
 - Use React hooks for state management
