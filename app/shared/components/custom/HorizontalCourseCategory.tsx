@@ -36,21 +36,14 @@ export function HorizontalCourseCategory({
 
       {/* Horizontal scrolling container */}
       <div className='relative'>
-        {/* Left shadow/gradient for scroll indication */}
-        <div className='from-background pointer-events-none absolute top-0 left-0 z-10 h-full w-12 bg-gradient-to-r to-transparent' />
-
         {/* Horizontally scrollable container */}
         <div className='scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent flex gap-4 overflow-x-auto pr-1 pb-2 pl-1'>
-          {courses &&
-            courses.map((course) => (
-              <div key={course.id} className='max-w-[200px] min-w-[200px] flex-shrink-0'>
-                <HorizontalCourseCard {...course} />
-              </div>
-            ))}
+          {courses.map((course) => (
+            <div key={course.id} className='max-w-[200px] min-w-[200px] flex-shrink-0'>
+              <HorizontalCourseCard {...course} />
+            </div>
+          ))}
         </div>
-
-        {/* Right shadow/gradient for scroll indication */}
-        <div className='from-background pointer-events-none absolute top-0 right-0 z-10 h-full w-12 bg-gradient-to-l to-transparent' />
       </div>
     </section>
   );

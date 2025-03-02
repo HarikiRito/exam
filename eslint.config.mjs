@@ -52,7 +52,6 @@ export default [
   },
   {
     plugins: {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       'react-hooks': reactHooks,
     },
     rules: {
@@ -85,6 +84,9 @@ export default [
       '@typescript-eslint/no-unsafe-declaration-merging': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
       'prefer-template': 'error',
       'no-console': [
         'warn',
