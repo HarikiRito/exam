@@ -1,8 +1,6 @@
-import { atom, createStore } from 'jotai';
+import { proxy } from 'valtio';
 
-export const themeStore = createStore();
-
-export class ThemeStoreAtom {
-  static readonly sideBarWidth = atom(0);
-  static readonly headerHeight = atom(0);
-}
+export const themeStore = proxy({
+  sideBarWidth: 0,
+  headerHeight: 0,
+});
