@@ -1,4 +1,5 @@
 import { CalendarViewCard, TeamComparisonCard } from 'app/shared/components/custom/card/timesheets';
+import { CalendarDay } from 'app/shared/components/custom/card/timesheets/CalendarViewCard';
 
 // Sample data for demonstration
 const sampleAttendanceData = {
@@ -53,7 +54,7 @@ function generateCalendarDays() {
       status = 'weekend';
     }
 
-    days.push({ day, status: status as 'present' | 'weekend' | 'late' | 'none' | 'absent' });
+    days.push({ day, status: status as CalendarDay['status'] });
   }
   return days;
 }

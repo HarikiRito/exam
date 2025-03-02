@@ -29,8 +29,8 @@ export function MultipleChoiceGrid({ question, options, className, description }
       </AppCard.Root>
 
       <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
-        {options.map((option) => (
-          <AppButton variant='outline' className='h-30 w-full cursor-pointer' size='sm'>
+        {options.map((option, index) => (
+          <AppButton key={index} variant='outline' className='h-30 w-full cursor-pointer' size='sm'>
             {option.label}
           </AppButton>
         ))}

@@ -2,7 +2,7 @@ import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCard } from 'app/shared/components/card/AppCard';
 import { cn } from 'app/shared/utils/className';
 
-type Day = {
+export type CalendarDay = {
   day: number;
   status: 'present' | 'absent' | 'leave' | 'weekend' | 'none';
 };
@@ -10,7 +10,7 @@ type Day = {
 type CalendarViewCardProps = {
   readonly month: string;
   readonly year: number;
-  readonly days: Day[];
+  readonly days: CalendarDay[];
   readonly daysPresent: number;
   readonly daysAbsent: number;
   readonly daysLeave: number;
@@ -21,7 +21,7 @@ export function CalendarViewCard({ month, year, days, daysPresent, daysAbsent, d
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Get status class for a day
-  function getStatusClass(status: Day['status']) {
+  function getStatusClass(status: CalendarDay['status']) {
     switch (status) {
       case 'present':
         return cn('bg-green-100 text-green-800');
@@ -70,9 +70,8 @@ export function CalendarViewCard({ month, year, days, daysPresent, daysAbsent, d
 
           {/* Calendar days */}
           {days.map((day) => (
-            <div className='flex w-full items-center justify-center'>
+            <div key={day.day} className='flex w-full items-center justify-center'>
               <span
-                key={day.day}
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-full p-1 text-center text-sm',
                   getStatusClass(day.status),
