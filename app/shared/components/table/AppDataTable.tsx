@@ -24,9 +24,10 @@ interface DataTableProps<TData> {
   readonly columns: ColumnDef<TData, any>[];
   readonly data: TData[];
   readonly searchPlaceholder?: string;
+  readonly totalItems?: number;
 }
 
-function DataTable<TData>({ columns, data, searchPlaceholder = 'Search...' }: DataTableProps<TData>) {
+function DataTable<TData>({ columns, data, searchPlaceholder = 'Search...', totalItems }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
@@ -68,6 +69,11 @@ function DataTable<TData>({ columns, data, searchPlaceholder = 'Search...' }: Da
       },
     },
   });
+
+  const tableState = table.getState();
+  const tablePagination = tableState.pagination;
+  const currentPage = tablePagination.pageIndex + 1;
+  const tableTotalItems = totalItems ?? table.getFilteredRowModel().rows.length;
 
   function handleGlobalFilterChange(e: React.ChangeEvent<HTMLInputElement>) {
     setGlobalFilter(e.target.value);
@@ -190,12 +196,8 @@ function DataTable<TData>({ columns, data, searchPlaceholder = 'Search...' }: Da
 
       <div className='flex items-center justify-between space-x-2 py-4'>
         <div className='text-muted-foreground text-sm'>
-          Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-          {Math.min(
-            (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-            table.getFilteredRowModel().rows.length,
-          )}{' '}
-          of {table.getFilteredRowModel().rows.length} entries
+          Showing {pageIndex * pageSize + 1} to {Math.min(currentPage * pageSize, tableTotalItems)} of {tableTotalItems}{' '}
+          entries
         </div>
         <AppPagination.Root>
           <AppPagination.Content>
