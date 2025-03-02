@@ -430,7 +430,6 @@ updated code
 #### Script Execution
 - Use `pnpm run` or `pnpm` to execute scripts defined in `package.json`
 - Prefix workspace-specific scripts with workspace name
-- Example: `pnpm -F web dev` to run dev script in web workspace
 
 #### Performance Optimization
 - Utilize pnpm's built-in performance optimizations
@@ -449,7 +448,6 @@ packages:
 ```json
 {
   "scripts": {
-    "dev": "pnpm run dev -F web",
     "build": "pnpm run build -F web",
     "test": "pnpm run test -r",
     "lint": "pnpm run lint -r"

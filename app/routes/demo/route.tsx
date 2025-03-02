@@ -1,8 +1,13 @@
 import { ExampleMultipleChoice } from 'app/routes/demo/ExampleMultipleChoice';
+import { TimesheetCards } from 'app/routes/demo/TimesheetCards';
 import { MultipleChoiceGrid } from 'app/shared/components/custom/multiple-choice/MultipleChoiceGrid';
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 
 const DemoMap = {
+  'timesheet-cards': {
+    label: 'Timesheet Cards',
+    component: TimesheetCards,
+  },
   'multiple-choice': {
     label: 'Multiple Choice',
     component: ExampleMultipleChoice,

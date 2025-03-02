@@ -4,7 +4,7 @@ import { cn } from 'app/shared/utils/className';
 
 type Day = {
   day: number;
-  status: 'present' | 'absent' | 'late' | 'weekend' | 'none';
+  status: 'present' | 'absent' | 'leave' | 'weekend' | 'none';
 };
 
 type CalendarViewCardProps = {
@@ -21,13 +21,13 @@ export function CalendarViewCard({ month, year, days, daysPresent, daysAbsent, d
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Get status class for a day
-  function getStatusClass(status: string) {
+  function getStatusClass(status: Day['status']) {
     switch (status) {
       case 'present':
         return cn('bg-green-100 text-green-800');
       case 'absent':
         return cn('bg-red-100 text-red-800');
-      case 'late':
+      case 'leave':
         return cn('bg-amber-100 text-amber-800');
       case 'weekend':
         return cn('bg-gray-50 text-gray-400');
@@ -54,7 +54,7 @@ export function CalendarViewCard({ month, year, days, daysPresent, daysAbsent, d
             </div>
             <div className='flex items-center gap-1'>
               <div className='h-3 w-3 rounded-full bg-amber-500'></div>
-              <span className='text-xs'>Late</span>
+              <span className='text-xs'>Leave</span>
             </div>
           </div>
         </div>
