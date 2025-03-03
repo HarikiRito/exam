@@ -14,7 +14,7 @@ const data = {
   user: {
     name: 'shadcn',
     email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
+    avatar: 'https://picsum.photos/seed/shadcn/200/300',
   },
   navMain: [
     {
@@ -32,8 +32,8 @@ const data = {
           url: APP_ROUTES.courses,
         },
         {
-          title: 'Settings',
-          url: '#',
+          title: 'Profile',
+          url: APP_ROUTES.profile,
         },
       ],
     },

@@ -45,7 +45,7 @@ function Header() {
   return (
     <header
       ref={headerRef}
-      className='fixed flex h-16 shrink-0 items-center gap-2 bg-white transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
+      className='fixed z-[10] flex h-16 w-full shrink-0 items-center gap-2 bg-white transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12'>
       <div className='flex items-center gap-2 px-4'>
         <AppSidebar.Trigger className='-ml-1' />
         <AppSeparator orientation='vertical' className='mr-2 data-[orientation=vertical]:h-4' />

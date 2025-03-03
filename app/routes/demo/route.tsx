@@ -4,6 +4,8 @@ import { DataTableExample } from 'app/routes/demo/DataTableExample';
 import { MultipleChoiceGrid } from 'app/shared/components/custom/multiple-choice/MultipleChoiceGrid';
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { TypographyDemo } from 'app/routes/demo/TypographyDemo';
+import { AppLink } from 'app/shared/components/link/AppLink';
+import { AppButton } from 'app/shared/components/button/AppButton';
 
 const DemoMap = {
   typography: {
@@ -44,23 +46,42 @@ const DemoMap = {
 export default function Demo() {
   function Headline(props: { readonly label: string; readonly link: string }) {
     return (
-      <div>
-        <a href={props.link} className='text-2xl font-bold'>
-          {props.label}
-        </a>
+      <div id={props.link}>
+        <span className='text-2xl font-bold'>{props.label}</span>
         <AppSeparator className='my-4' />
       </div>
     );
   }
 
+  function handleScrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   return (
-    <div className='space-y-4 p-8'>
-      {Object.entries(DemoMap).map(([key, item]) => (
-        <div key={key}>
-          <Headline label={item.label} link={`#${key}`} />
-          <item.component />
+    <div className='relative'>
+      <div className='space-y-4 p-8'>
+        <div className='flex flex-grow gap-4'>
+          {Object.entries(DemoMap).map(([key, item]) => (
+            <AppLink key={key} href={`#${key}`}>
+              {item.label}
+            </AppLink>
+          ))}
         </div>
-      ))}
+        {Object.entries(DemoMap).map(([key, item]) => (
+          <div key={key}>
+            <Headline label={item.label} link={key} />
+            <item.component />
+          </div>
+        ))}
+      </div>
+      <AppButton
+        onClick={handleScrollToTop}
+        variant='default'
+        size='icon'
+        className='fixed right-4 bottom-4'
+        aria-label='Scroll to top'>
+        ↑
+      </AppButton>
     </div>
   );
 }
