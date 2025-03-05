@@ -87,6 +87,97 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'
   );
 }
 
+/**
+ * Detailed Usage Instructions and Example Usage
+ *
+ * The `AppPagination` component provides a flexible and accessible
+ * pagination system for navigating through large datasets.
+ *
+ * ## Key Features
+ * - Responsive pagination controls
+ * - Customizable page navigation
+ * - Accessibility-first design
+ * - Tailwind CSS styling
+ * - Support for various pagination scenarios
+ *
+ * ## Example Usage
+ * ```tsx
+ * import { useState } from 'react';
+ * import { AppPagination } from 'app/shared/components/pagination/AppPagination';
+ *
+ * function DataTablePagination() {
+ *   const [currentPage, setCurrentPage] = useState(1);
+ *   const totalPages = 10;
+ *   const totalItems = 250;
+ *   const itemsPerPage = 25;
+ *
+ *   return (
+ *     <AppPagination.Root>
+ *       <AppPagination.Content>
+ *         <AppPagination.Item>
+ *           <AppPagination.Previous
+ *             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+ *             disabled={currentPage === 1}
+ *           />
+ *         </AppPagination.Item>
+ *
+ *         {Array.from({ length: totalPages }, (_, i) => (
+ *           <AppPagination.Item key={i}>
+ *             <AppPagination.Link
+ *               isActive={currentPage === i + 1}
+ *               onClick={() => setCurrentPage(i + 1)}
+ *             >
+ *               {i + 1}
+ *             </AppPagination.Link>
+ *           </AppPagination.Item>
+ *         ))}
+ *
+ *         <AppPagination.Item>
+ *           <AppPagination.Next
+ *             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+ *             disabled={currentPage === totalPages}
+ *           />
+ *         </AppPagination.Item>
+ *       </AppPagination.Content>
+ *     </AppPagination.Root>
+ *   );
+ * }
+ * ```
+ *
+ * ## Detailed Instructions
+ * 1. Import `AppPagination` components from the correct path
+ * 2. Use `AppPagination.Root` as the container
+ * 3. Wrap pagination items in `AppPagination.Content`
+ * 4. Use `AppPagination.Previous` and `AppPagination.Next` for navigation
+ * 5. Generate page links dynamically or statically
+ * 6. Manage current page state in your component
+ *
+ * ## Pagination Components
+ * - `Root`: Main pagination container
+ * - `Content`: Wrapper for pagination items
+ * - `Item`: Individual pagination item container
+ * - `Link`: Clickable page number link
+ * - `Previous`: Previous page navigation
+ * - `Next`: Next page navigation
+ * - `Ellipsis`: Indicates skipped pages
+ *
+ * ## Customization Options
+ * - Custom page link styling
+ * - Disabled state handling
+ * - Responsive design
+ * - Accessibility attributes
+ *
+ * ## Best Practices
+ * - Always provide clear navigation
+ * - Handle edge cases (first/last page)
+ * - Use meaningful aria labels
+ * - Consider user experience in large datasets
+ * - Implement keyboard navigation
+ *
+ * @see https://ui.shadcn.com/docs/components/pagination Shadcn UI Pagination Documentation
+ * @category Components
+ * @category Navigation
+ */
 export const AppPagination = {
   Root: Pagination,
   Content: PaginationContent,

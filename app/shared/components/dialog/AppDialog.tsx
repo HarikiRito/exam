@@ -94,6 +94,99 @@ function DialogDescription({ className, ...props }: React.ComponentProps<typeof 
   );
 }
 
+/**
+ * Detailed Usage Instructions and Example Usage
+ *
+ * The `AppDialog` component provides a flexible, accessible modal
+ * dialog system for displaying critical information or capturing user input.
+ *
+ * ## Key Features
+ * - Fully accessible dialog interactions
+ * - Customizable content and layout
+ * - Responsive design
+ * - Seamless integration with Radix UI
+ * - Tailwind CSS styling
+ * - Multiple component composition
+ *
+ * ## Example Usage
+ * ```tsx
+ * import { useState } from 'react';
+ * import { AppDialog } from 'app/shared/components/dialog/AppDialog';
+ * import { AppButton } from 'app/shared/components/button/AppButton';
+ * import { AppInput } from 'app/shared/components/input/AppInput';
+ * import { AppTypography } from 'app/shared/components/typography/AppTypography';
+ *
+ * function ConfirmationDialog() {
+ *   const [isOpen, setIsOpen] = useState(false);
+ *
+ *   return (
+ *     <AppDialog.Root open={isOpen} onOpenChange={setIsOpen}>
+ *       <AppDialog.Trigger asChild>
+ *         <AppButton>Open Dialog</AppButton>
+ *       </AppDialog.Trigger>
+ *       <AppDialog.Content>
+ *         <AppDialog.Header>
+ *           <AppDialog.Title>Confirm Action</AppDialog.Title>
+ *           <AppDialog.Description>
+ *             Are you sure you want to proceed with this action?
+ *           </AppDialog.Description>
+ *         </AppDialog.Header>
+ *
+ *         <AppDialog.Footer>
+ *           <AppButton
+ *             variant="outline"
+ *             onClick={() => setIsOpen(false)}
+ *           >
+ *             Cancel
+ *           </AppButton>
+ *           <AppButton>Confirm</AppButton>
+ *         </AppDialog.Footer>
+ *       </AppDialog.Content>
+ *     </AppDialog.Root>
+ *   );
+ * }
+ * ```
+ *
+ * ## Detailed Instructions
+ * 1. Import `AppDialog` components from the correct path
+ * 2. Use `AppDialog.Root` to manage dialog state
+ * 3. Use `AppDialog.Trigger` to open the dialog
+ * 4. Compose dialog content using various sub-components
+ * 5. Handle open/close state with `open` and `onOpenChange` props
+ *
+ * ## Dialog Components
+ * - `Root`: Dialog state management
+ * - `Trigger`: Element that opens the dialog
+ * - `Content`: Main dialog container
+ * - `Header`: Dialog header section
+ * - `Footer`: Dialog footer section
+ * - `Title`: Dialog title
+ * - `Description`: Dialog description text
+ * - `Close`: Close button or trigger
+ * - `Overlay`: Background overlay
+ *
+ * ## State Management
+ * - Controlled via `open` and `onOpenChange` props
+ * - Supports programmatic open/close
+ * - Manages focus and keyboard interactions
+ *
+ * ## Customization Options
+ * - Custom styling through Tailwind CSS
+ * - Responsive design
+ * - Accessibility attributes
+ * - Dynamic content rendering
+ *
+ * ## Best Practices
+ * - Use for critical actions or important information
+ * - Provide clear context in title and description
+ * - Implement keyboard navigation (Esc to close)
+ * - Ensure content is concise
+ * - Handle focus management
+ *
+ * @see https://www.radix-ui.com/primitives/docs/components/dialog Radix UI Dialog Documentation
+ * @category Components
+ * @category Interaction
+ */
 export const AppDialog = {
   Root: Dialog,
   Trigger: DialogTrigger,

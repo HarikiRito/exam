@@ -130,6 +130,45 @@ function SelectScrollDownButton({
   );
 }
 
+/**
+ * Detailed Usage Instructions and Example Usage
+ *
+ * This component provides a fully customizable select dropdown based on Radix UI.
+ *
+ * Example Usage:
+ * ```tsx
+ * import { AppSelect } from "app/shared/components/select/AppSelect";
+ *
+ * function ExampleComponent() {
+ *   const learningCategories = ["Math", "Science", "History"];
+ *   return (
+ *     <AppSelect.Root>
+ *       <AppSelect.Trigger>
+ *         <AppSelect.Value placeholder="Select a category" />
+ *       </AppSelect.Trigger>
+ *       <AppSelect.Content>
+ *         {learningCategories.map((cat) => (
+ *           <AppSelect.Item key={cat} value={cat}>
+ *             {cat}
+ *           </AppSelect.Item>
+ *         ))}
+ *       </AppSelect.Content>
+ *     </AppSelect.Root>
+ *   );
+ * }
+ * ```
+ *
+ * Detailed Instructions:
+ * 1. Import the AppSelect components using absolute import as shown above.
+ * 2. Wrap your select components within <AppSelect.Root> to initialize the select context.
+ * 3. Use <AppSelect.Trigger> to display the select button control.
+ * 4. <AppSelect.Value> is used to show the current selected option. Provide a placeholder as needed.
+ * 5. Define your options within <AppSelect.Content> using <AppSelect.Item> for each option.
+ * 6. Ensure each <AppSelect.Item> has a unique key and a value attribute corresponding to the option value.
+ * 7. For grouping options, use <AppSelect.Group> and <AppSelect.Label>.
+ * 8. The component utilizes TailwindCSS for styling. Adjust Tailwind utility classes if customization is needed.
+ */
+
 export const AppSelect = {
   Root: Select,
   Content: SelectContent,

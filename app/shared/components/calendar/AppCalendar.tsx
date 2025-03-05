@@ -55,4 +55,87 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: R
   );
 }
 
+/**
+ * Detailed Usage Instructions and Example Usage
+ *
+ * The `AppCalendar` component provides a flexible and customizable date selection interface
+ * built on top of React DayPicker, with seamless integration of Tailwind CSS styling.
+ *
+ * ## Key Features
+ * - Single and range date selection modes
+ * - Customizable appearance
+ * - Responsive design
+ * - Accessibility support
+ * - Tailwind CSS styling
+ *
+ * ## Example Usage
+ * ```tsx
+ * import { useState } from 'react';
+ * import { AppCalendar } from 'app/shared/components/calendar/AppCalendar';
+ * import { AppButton } from 'app/shared/components/button/AppButton';
+ *
+ * function DatePickerDemo() {
+ *   const [date, setDate] = useState<Date | undefined>(new Date());
+ *
+ *   return (
+ *     <div className="space-y-4">
+ *       <AppCalendar
+ *         mode="single"
+ *         selected={date}
+ *         onSelect={setDate}
+ *         className="rounded-md border"
+ *       />
+ *       <div>
+ *         Selected Date: {date ? date.toLocaleDateString() : 'No date selected'}
+ *       </div>
+ *     </div>
+ *   );
+ * }
+ *
+ * function DateRangeDemo() {
+ *   const [dateRange, setDateRange] = useState<DateRange | undefined>({
+ *     from: new Date(),
+ *     to: undefined
+ *   });
+ *
+ *   return (
+ *     <AppCalendar
+ *       mode="range"
+ *       selected={dateRange}
+ *       onSelect={setDateRange}
+ *       numberOfMonths={2}
+ *     />
+ *   );
+ * }
+ * ```
+ *
+ * ## Detailed Instructions
+ * 1. Import `AppCalendar` from the correct path
+ * 2. Choose between single and range date selection modes
+ * 3. Use `selected` prop to control the selected date(s)
+ * 4. Provide an `onSelect` handler to update the selected date
+ * 5. Customize appearance using Tailwind CSS classes
+ *
+ * ## Modes of Operation
+ * - `single`: Select a single date
+ * - `range`: Select a date range with start and end dates
+ * - `multiple`: Select multiple individual dates
+ *
+ * ## Customization Options
+ * - `mode`: Selection mode ('single', 'range', 'multiple')
+ * - `selected`: Currently selected date(s)
+ * - `onSelect`: Callback when date(s) are selected
+ * - `disabled`: Disable specific dates or date ranges
+ * - `className`: Apply custom Tailwind CSS classes
+ *
+ * ## Best Practices
+ * - Always provide a default date or initial state
+ * - Handle undefined dates gracefully
+ * - Use TypeScript for type safety
+ * - Consider user experience in date selection
+ *
+ * @see https://react-day-picker.js.org/ React DayPicker Documentation
+ * @category Components
+ * @category Form
+ */
 export const AppCalendar = Calendar;
