@@ -472,3 +472,6 @@ packages:
 - Use `pnpm why` to understand dependency trees
 - Use `pnpm list` to view installed packages
 - Clear cache with `pnpm store clean` if experiencing dependency issues
+
+- Always look at the components folder first to see if there is anything you can reuse before creating a new one
+- Use icons from the existing package instead of generating the SVG inline (lucide-icons)

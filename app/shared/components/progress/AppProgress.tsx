@@ -115,7 +115,4 @@ function Progress({ className, value, classes, ...props }: Props) {
  * @category Feedback
  * @category Interaction
  */
-export const AppProgress = {
-  Root: Progress,
-  Indicator: Progress,
-};
+export const AppProgress = Progress;

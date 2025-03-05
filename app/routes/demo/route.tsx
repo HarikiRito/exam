@@ -6,6 +6,7 @@ import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { TypographyDemo } from 'app/routes/demo/TypographyDemo';
 import { AppLink } from 'app/shared/components/link/AppLink';
 import { AppButton } from 'app/shared/components/button/AppButton';
+import { AttendanceVariant1 } from 'app/routes/demo/attendance/Variant1';
 
 const DemoMap = {
   typography: {
@@ -40,6 +41,10 @@ const DemoMap = {
         ]}
       />
     ),
+  },
+  'attendance-basic': {
+    label: 'Attendance: Basic Tracker',
+    component: AttendanceVariant1,
   },
 };
 
