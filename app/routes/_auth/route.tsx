@@ -3,7 +3,7 @@ import { AppBreadcrumb } from 'app/shared/components/breadcrumb/AppBreadcrumb';
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
-import { themeStore } from 'app/shared/stores/themeStore';
+import { themeStore } from 'app/shared/stores/theme.store';
 import { MainSidebar } from './MainSidebar';
 import { useSnapshot } from 'valtio';
 
@@ -25,11 +25,11 @@ function PageOutlet() {
   const sideBarWidth = theme.sideBarWidth;
   return (
     <div
-      className='flex flex-1 flex-col gap-4 p-4 pt-0 pr-0'
+      className='flex flex-1 flex-col gap-4 p-4 px-0 pt-0'
       style={{
         paddingTop: `${headerHeight}px`,
         height: `calc(100dvh - ${headerHeight}px)`,
-        width: `calc(100dvw - ${sideBarWidth}px)`,
+        width: `calc(100vw - ${sideBarWidth + 16}px)`,
       }}>
       <Outlet />
     </div>

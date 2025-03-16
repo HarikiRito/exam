@@ -3,7 +3,7 @@ import { BookOpen, Bot, Frame, Map, PieChart, Settings2, SquareTerminal } from '
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
-import { themeStore } from 'app/shared/stores/themeStore';
+import { themeStore } from 'app/shared/stores/theme.store';
 import { NavMain } from './NavMain';
 import { NavProjects } from './NavProjects';
 import { NavUser } from './NavUser';
