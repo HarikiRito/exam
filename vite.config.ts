@@ -1,4 +1,5 @@
 import { vitePlugin as remix } from '@remix-run/dev';
+import { flatRoutes } from 'remix-flat-routes';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 declare module '@remix-run/node' {
@@ -17,6 +18,17 @@ export default defineConfig({
         v3_throwAbortReason: true,
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
+      },
+      routes(defineRoutes) {
+        return flatRoutes('routes', defineRoutes, {
+          ignoredRouteFiles: ['**/.*'], // Ignore dot files (like .DS_Store)
+          //appDir: 'app',
+          //routeDir: 'routes',
+          //basePath: '/',
+          //paramPrefixChar: '$',
+          //nestedDirectoryChar: '+',
+          //routeRegex: /((\${nestedDirectoryChar}[\/\\][^\/\\:?*]+)|[\/\\]((index|route|layout|page)|(_[^\/\\:?*]+)|([^\/\\:?*]+\.route)))\.(ts|tsx|js|jsx|md|mdx)$$/,
+        });
       },
     }),
     tsconfigPaths(),

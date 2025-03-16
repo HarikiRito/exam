@@ -9,7 +9,7 @@ import { useSnapshot } from 'valtio';
 
 export default function Page() {
   return (
-    <AppSidebar.Provider className='max-h-screen max-w-screen'>
+    <AppSidebar.Provider className='max-h-screen max-w-screen overflow-x-hidden'>
       <MainSidebar />
       <AppSidebar.Inset>
         <Header />
