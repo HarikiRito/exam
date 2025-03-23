@@ -1,5 +1,6 @@
 import { HorizontalCourseCategory } from 'app/shared/components/custom/HorizontalCourseCategory';
 import { HorizontalCourseCardProps } from 'app/shared/components/custom/card/HorizontalCourseCard';
+import { Link } from '@remix-run/react';
 
 // Mock course data
 const COURSES: Record<string, HorizontalCourseCardProps[]> = {
@@ -164,9 +165,39 @@ export default function CourseRoute() {
       <h1 className='mb-8 text-3xl font-bold'>Courses</h1>
 
       {/* Course categories with horizontal scrolling */}
-      <HorizontalCourseCategory title='Recommended' courses={COURSES.recommended} />
-      <HorizontalCourseCategory title='Featured' courses={COURSES.featured} />
-      <HorizontalCourseCategory title='Learn' courses={COURSES.learn} />
+      <HorizontalCourseCategory
+        title='Recommended'
+        courses={COURSES.recommended.map((course) => ({
+          ...course,
+          renderItem: (courseItem) => (
+            <Link to={`/courses/${courseItem.id}`} className='transition-colors hover:bg-gray-100'>
+              {/* Existing horizontal course card content */}
+            </Link>
+          ),
+        }))}
+      />
+      <HorizontalCourseCategory
+        title='Featured'
+        courses={COURSES.featured.map((course) => ({
+          ...course,
+          renderItem: (courseItem) => (
+            <Link to={`/courses/${courseItem.id}`} className='transition-colors hover:bg-gray-100'>
+              {/* Existing horizontal course card content */}
+            </Link>
+          ),
+        }))}
+      />
+      <HorizontalCourseCategory
+        title='Learn'
+        courses={COURSES.learn.map((course) => ({
+          ...course,
+          renderItem: (courseItem) => (
+            <Link to={`/courses/${courseItem.id}`} className='transition-colors hover:bg-gray-100'>
+              {/* Existing horizontal course card content */}
+            </Link>
+          ),
+        }))}
+      />
     </div>
   );
 }

@@ -65,6 +65,7 @@ function handleSubmit(event: React.FormEvent) {
 - Use Remix conventions for routing and data loading
 - Leverage Remix's built-in performance optimizations
 - Use `loader` and `action` functions for data fetching and mutations
+- **Forbid the use of `loader` in SPA mode**
 
 ### Example Component Usage
 ```tsx
