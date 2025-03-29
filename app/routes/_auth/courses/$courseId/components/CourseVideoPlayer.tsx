@@ -26,8 +26,8 @@ export function CourseVideoPlayer({ video }: CourseVideoPlayerProps) {
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [playing, setPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.8);
+  const [playing, setPlaying] = useState(true);
+  const [volume, setVolume] = useState(0);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
   const [seeking, setSeeking] = useState(false);
@@ -142,6 +142,7 @@ export function CourseVideoPlayer({ video }: CourseVideoPlayerProps) {
             onDuration={handleDuration}
             progressInterval={500}
             // light={video.thumbnail}
+            muted={volume === 0}
             controls={false}
             autoPlay={true}
             config={{
