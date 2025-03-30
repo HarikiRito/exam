@@ -6,7 +6,6 @@ import (
 	"template/graph"
 	"template/route"
 	"template/shared/environment"
-	"template/shared/utilities/snowflake"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -19,7 +18,6 @@ func main() {
 		log.Fatal("Error loading environment variables: ", err)
 	}
 
-	snowflake.SetSnowflakeMachineId(1)
 	db.InitDatabase()
 	router := gin.Default()
 
