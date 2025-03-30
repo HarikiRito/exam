@@ -3,7 +3,7 @@ package mixin
 import (
 	"context"
 	"template/ent/hook"
-	"template/shared/utilities/snowflake"
+	"template/shared/utilities/id"
 	"time"
 
 	"entgo.io/ent"
@@ -17,7 +17,7 @@ type BaseMixin struct {
 
 func (BaseMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Uint64("id").Positive(),
+		field.String("id").Unique(),
 		field.Time("created_at").Default(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.Time("deleted_at").Nillable().Optional(),
@@ -26,19 +26,19 @@ func (BaseMixin) Fields() []ent.Field {
 
 func (BaseMixin) Hooks() []ent.Hook {
 	return []ent.Hook{
-		snowflakeIDHook(),
+		ulidGenerator(),
 	}
 }
 
 type Common interface {
-	SetID(id uint64)
+	SetID(id string)
 }
 
-func snowflakeIDHook() ent.Hook {
+func ulidGenerator() ent.Hook {
 	return hook.On(func(next ent.Mutator) ent.Mutator {
 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
 			if s, ok := m.(Common); ok {
-				ID := snowflake.NextId()
+				ID := id.NextId()
 				s.SetID(ID)
 			}
 			return next.Mutate(ctx, m)

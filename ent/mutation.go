@@ -32,7 +32,7 @@ type UserMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *uint64
+	id            *string
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
@@ -64,7 +64,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id uint64) userOption {
+func withUserID(id string) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -116,13 +116,13 @@ func (m UserMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of User entities.
-func (m *UserMutation) SetID(id uint64) {
+func (m *UserMutation) SetID(id string) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id uint64, exists bool) {
+func (m *UserMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -133,12 +133,12 @@ func (m *UserMutation) ID() (id uint64, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserMutation) IDs(ctx context.Context) ([]uint64, error) {
+func (m *UserMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []uint64{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -286,7 +286,7 @@ func (m *UserMutation) Name() (r string, exists bool) {
 // OldName returns the old "name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldName(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldName(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}

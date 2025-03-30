@@ -75,8 +75,8 @@ func (uc *UserCreate) SetUsername(s string) *UserCreate {
 }
 
 // SetID sets the "id" field.
-func (uc *UserCreate) SetID(u uint64) *UserCreate {
-	uc.mutation.SetID(u)
+func (uc *UserCreate) SetID(s string) *UserCreate {
+	uc.mutation.SetID(s)
 	return uc
 }
 
@@ -148,11 +148,6 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Username(); !ok {
 		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "User.username"`)}
 	}
-	if v, ok := uc.mutation.ID(); ok {
-		if err := user.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "User.id": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -167,9 +162,12 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = uint64(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected User.ID type: %T", _spec.ID.Value)
+		}
 	}
 	uc.mutation.id = &_node.ID
 	uc.mutation.done = true
@@ -179,7 +177,7 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
 		_node = &User{config: uc.config}
-		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUint64))
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	)
 	if id, ok := uc.mutation.ID(); ok {
 		_node.ID = id
@@ -199,7 +197,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
-		_node.Name = value
+		_node.Name = &value
 	}
 	if value, ok := uc.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
@@ -253,10 +251,6 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = uint64(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

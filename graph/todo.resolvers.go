@@ -6,18 +6,25 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"template/graph/model"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+	return &model.Todo{
+		ID:   "1",
+		Text: input.Text,
+	}, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+	return []*model.Todo{
+		{
+			ID:   "1",
+			Text: "Buy groceries",
+		},
+	}, nil
 }
 
 // Mutation returns MutationResolver implementation.

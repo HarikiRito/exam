@@ -29,13 +29,9 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// userDescID is the schema descriptor for id field.
-	userDescID := userMixinFields0[0].Descriptor()
-	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	user.IDValidator = userDescID.Validators[0].(func(uint64) error)
 }
 
 const (
-	Version = "v0.14.1"                                         // Version of ent codegen.
-	Sum     = "h1:fUERL506Pqr92EPHJqr8EYxbPioflJo6PudkrEA8a/s=" // Sum of ent codegen.
+	Version = "v0.14.4"                                         // Version of ent codegen.
+	Sum     = "h1:/DhDraSLXIkBhyiVoJeSshr4ZYi7femzhj6/TckzZuI=" // Sum of ent codegen.
 )

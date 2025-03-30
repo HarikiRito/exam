@@ -16,7 +16,7 @@ import (
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uint64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -24,7 +24,7 @@ type User struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// Username holds the value of the "username" field.
 	Username     string `json:"username,omitempty"`
 	selectValues sql.SelectValues
@@ -35,9 +35,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID:
-			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldUsername:
+		case user.FieldID, user.FieldName, user.FieldUsername:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -57,11 +55,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				u.ID = value.String
 			}
-			u.ID = uint64(value.Int64)
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
@@ -85,7 +83,8 @@ func (u *User) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				u.Name = value.String
+				u.Name = new(string)
+				*u.Name = value.String
 			}
 		case user.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -140,8 +139,10 @@ func (u *User) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("name=")
-	builder.WriteString(u.Name)
+	if v := u.Name; v != nil {
+		builder.WriteString("name=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("username=")
 	builder.WriteString(u.Username)
