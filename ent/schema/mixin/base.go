@@ -26,7 +26,7 @@ func (BaseMixin) Fields() []ent.Field {
 
 func (BaseMixin) Hooks() []ent.Hook {
 	return []ent.Hook{
-		ulidGenerator(),
+		UlidGenerator(),
 	}
 }
 
@@ -34,7 +34,7 @@ type Common interface {
 	SetID(id string)
 }
 
-func ulidGenerator() ent.Hook {
+func UlidGenerator() ent.Hook {
 	return hook.On(func(next ent.Mutator) ent.Mutator {
 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
 			if s, ok := m.(Common); ok {

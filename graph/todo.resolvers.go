@@ -6,14 +6,20 @@ package graph
 
 import (
 	"context"
+	"template/app/todo"
 	"template/graph/model"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+	todo, err := todo.CreateTodo(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.Todo{
-		ID:   "1",
-		Text: input.Text,
+		ID:   todo.ID,
+		Text: todo.Title,
 	}, nil
 }
 

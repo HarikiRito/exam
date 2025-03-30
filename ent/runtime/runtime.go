@@ -4,6 +4,7 @@ package runtime
 
 import (
 	"template/ent/schema"
+	"template/ent/todo"
 	"template/ent/user"
 	"time"
 )
@@ -12,6 +13,23 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	todoMixin := schema.Todo{}.Mixin()
+	todoMixinHooks0 := todoMixin[0].Hooks()
+	todo.Hooks[0] = todoMixinHooks0[0]
+	todoMixinFields0 := todoMixin[0].Fields()
+	_ = todoMixinFields0
+	todoFields := schema.Todo{}.Fields()
+	_ = todoFields
+	// todoDescCreatedAt is the schema descriptor for created_at field.
+	todoDescCreatedAt := todoMixinFields0[1].Descriptor()
+	// todo.DefaultCreatedAt holds the default value on creation for the created_at field.
+	todo.DefaultCreatedAt = todoDescCreatedAt.Default.(func() time.Time)
+	// todoDescUpdatedAt is the schema descriptor for updated_at field.
+	todoDescUpdatedAt := todoMixinFields0[2].Descriptor()
+	// todo.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	todo.DefaultUpdatedAt = todoDescUpdatedAt.Default.(func() time.Time)
+	// todo.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	todo.UpdateDefaultUpdatedAt = todoDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userMixin := schema.User{}.Mixin()
 	userMixinHooks0 := userMixin[0].Hooks()
 	user.Hooks[0] = userMixinHooks0[0]
