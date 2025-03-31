@@ -6,7 +6,7 @@ package graph
 
 import (
 	"context"
-	"template/graph/model"
+	"template/internal/graph/model"
 	"template/internal/todo"
 )
 

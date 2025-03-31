@@ -2,9 +2,9 @@ package todo
 
 import (
 	"context"
-	"template/ent"
-	"template/ent/db"
-	"template/graph/model"
+	"template/internal/ent"
+	"template/internal/ent/db"
+	"template/internal/graph/model"
 )
 
 func CreateTodo(ctx context.Context, input model.NewTodo) (*ent.Todo, error) {

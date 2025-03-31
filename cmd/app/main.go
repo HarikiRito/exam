@@ -2,8 +2,8 @@ package main
 
 import (
 	"log"
-	"template/ent/db"
-	"template/graph"
+	"template/internal/ent/db"
+	"template/internal/graph"
 	"template/route"
 	"template/shared/environment"
 

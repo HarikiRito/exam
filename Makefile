@@ -5,7 +5,7 @@ generate: graphql_generate ent_generate
 
 ent_generate:
 	@echo "Generating ent files..."
-	@go generate ./ent
+	@go generate ./internal/ent
 	@echo "Done"
 
 graphql_generate:
