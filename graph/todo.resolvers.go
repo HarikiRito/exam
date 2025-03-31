@@ -6,8 +6,8 @@ package graph
 
 import (
 	"context"
-	"template/app/todo"
 	"template/graph/model"
+	"template/internal/todo"
 )
 
 // CreateTodo is the resolver for the createTodo field.
