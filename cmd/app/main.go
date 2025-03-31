@@ -1,15 +1,14 @@
 package main
 
 import (
-	"log"
-	"template/internal/ent/db"
-	"template/internal/graph"
-	"template/route"
-	"template/shared/environment"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"log"
+	"template/internal/ent/db"
+	"template/internal/graph"
+	"template/internal/route"
+	"template/internal/shared/environment"
 )
 
 func main() {

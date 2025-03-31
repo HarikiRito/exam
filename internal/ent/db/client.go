@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"template/internal/ent"
 	_ "template/internal/ent/runtime"
-	"template/shared/environment"
+	"template/internal/shared/environment"
 )
 
 func OpenClient() (*ent.Client, error) {

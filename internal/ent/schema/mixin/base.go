@@ -3,7 +3,7 @@ package mixin
 import (
 	"context"
 	"template/internal/ent/hook"
-	"template/shared/utilities/id"
+	"template/internal/shared/utilities/id"
 	"time"
 
 	"entgo.io/ent"
