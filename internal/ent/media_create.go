@@ -81,6 +81,20 @@ func (mc *MediaCreate) SetMimeType(s string) *MediaCreate {
 	return mc
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (mc *MediaCreate) SetUploaderID(s string) *MediaCreate {
+	mc.mutation.SetUploaderID(s)
+	return mc
+}
+
+// SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
+func (mc *MediaCreate) SetNillableUploaderID(s *string) *MediaCreate {
+	if s != nil {
+		mc.SetUploaderID(*s)
+	}
+	return mc
+}
+
 // SetMetadata sets the "metadata" field.
 func (mc *MediaCreate) SetMetadata(m map[string]interface{}) *MediaCreate {
 	mc.mutation.SetMetadata(m)
@@ -106,6 +120,25 @@ func (mc *MediaCreate) AddUserMedia(u ...*User) *MediaCreate {
 		ids[i] = u[i].ID
 	}
 	return mc.AddUserMediumIDs(ids...)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (mc *MediaCreate) SetUserID(id string) *MediaCreate {
+	mc.mutation.SetUserID(id)
+	return mc
+}
+
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (mc *MediaCreate) SetNillableUserID(id *string) *MediaCreate {
+	if id != nil {
+		mc = mc.SetUserID(*id)
+	}
+	return mc
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (mc *MediaCreate) SetUser(u *User) *MediaCreate {
+	return mc.SetUserID(u.ID)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -271,6 +304,23 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.UploaderID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

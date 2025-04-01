@@ -25,6 +25,7 @@ type MediaQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.Media
 	withUserMedia *UserQuery
+	withUser      *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +77,28 @@ func (mq *MediaQuery) QueryUserMedia() *UserQuery {
 			sqlgraph.From(media.Table, media.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, media.UserMediaTable, media.UserMediaColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUser chains the current query on the "user" edge.
+func (mq *MediaQuery) QueryUser() *UserQuery {
+	query := (&UserClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, media.UserTable, media.UserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -276,6 +299,7 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		inters:        append([]Interceptor{}, mq.inters...),
 		predicates:    append([]predicate.Media{}, mq.predicates...),
 		withUserMedia: mq.withUserMedia.Clone(),
+		withUser:      mq.withUser.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
@@ -290,6 +314,17 @@ func (mq *MediaQuery) WithUserMedia(opts ...func(*UserQuery)) *MediaQuery {
 		opt(query)
 	}
 	mq.withUserMedia = query
+	return mq
+}
+
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MediaQuery) WithUser(opts ...func(*UserQuery)) *MediaQuery {
+	query := (&UserClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withUser = query
 	return mq
 }
 
@@ -371,8 +406,9 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 	var (
 		nodes       = []*Media{}
 		_spec       = mq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			mq.withUserMedia != nil,
+			mq.withUser != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -397,6 +433,12 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 		if err := mq.loadUserMedia(ctx, query, nodes,
 			func(n *Media) { n.Edges.UserMedia = []*User{} },
 			func(n *Media, e *User) { n.Edges.UserMedia = append(n.Edges.UserMedia, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withUser; query != nil {
+		if err := mq.loadUser(ctx, query, nodes, nil,
+			func(n *Media, e *User) { n.Edges.User = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -433,6 +475,35 @@ func (mq *MediaQuery) loadUserMedia(ctx context.Context, query *UserQuery, nodes
 	}
 	return nil
 }
+func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Media, init func(*Media), assign func(*Media, *User)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Media)
+	for i := range nodes {
+		fk := nodes[i].UploaderID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "uploader_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (mq *MediaQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
@@ -458,6 +529,9 @@ func (mq *MediaQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != media.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if mq.withUser != nil {
+			_spec.Node.AddColumnOnce(media.FieldUploaderID)
 		}
 	}
 	if ps := mq.predicates; len(ps) > 0 {

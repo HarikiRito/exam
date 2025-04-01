@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 	"template/internal/ent/media"
+	"template/internal/ent/user"
 	"time"
 
 	"entgo.io/ent"
@@ -30,6 +31,8 @@ type Media struct {
 	FileURL string `json:"file_url,omitempty"`
 	// MimeType holds the value of the "mime_type" field.
 	MimeType string `json:"mime_type,omitempty"`
+	// UploaderID holds the value of the "uploader_id" field.
+	UploaderID string `json:"uploader_id,omitempty"`
 	// Additional metadata for the file
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -42,9 +45,11 @@ type Media struct {
 type MediaEdges struct {
 	// UserMedia holds the value of the user_media edge.
 	UserMedia []*User `json:"user_media,omitempty"`
+	// User holds the value of the user edge.
+	User *User `json:"user,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UserMediaOrErr returns the UserMedia value or an error if the edge
@@ -56,6 +61,17 @@ func (e MediaEdges) UserMediaOrErr() ([]*User, error) {
 	return nil, &NotLoadedError{edge: "user_media"}
 }
 
+// UserOrErr returns the User value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MediaEdges) UserOrErr() (*User, error) {
+	if e.User != nil {
+		return e.User, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "user"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Media) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -63,7 +79,7 @@ func (*Media) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case media.FieldMetadata:
 			values[i] = new([]byte)
-		case media.FieldID, media.FieldFileName, media.FieldFileURL, media.FieldMimeType:
+		case media.FieldID, media.FieldFileName, media.FieldFileURL, media.FieldMimeType, media.FieldUploaderID:
 			values[i] = new(sql.NullString)
 		case media.FieldCreatedAt, media.FieldUpdatedAt, media.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -125,6 +141,12 @@ func (m *Media) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.MimeType = value.String
 			}
+		case media.FieldUploaderID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field uploader_id", values[i])
+			} else if value.Valid {
+				m.UploaderID = value.String
+			}
 		case media.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
@@ -149,6 +171,11 @@ func (m *Media) Value(name string) (ent.Value, error) {
 // QueryUserMedia queries the "user_media" edge of the Media entity.
 func (m *Media) QueryUserMedia() *UserQuery {
 	return NewMediaClient(m.config).QueryUserMedia(m)
+}
+
+// QueryUser queries the "user" edge of the Media entity.
+func (m *Media) QueryUser() *UserQuery {
+	return NewMediaClient(m.config).QueryUser(m)
 }
 
 // Update returns a builder for updating this Media.
@@ -193,6 +220,9 @@ func (m *Media) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("mime_type=")
 	builder.WriteString(m.MimeType)
+	builder.WriteString(", ")
+	builder.WriteString("uploader_id=")
+	builder.WriteString(m.UploaderID)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", m.Metadata))

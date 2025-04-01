@@ -111,6 +111,26 @@ func (mu *MediaUpdate) SetNillableMimeType(s *string) *MediaUpdate {
 	return mu
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (mu *MediaUpdate) SetUploaderID(s string) *MediaUpdate {
+	mu.mutation.SetUploaderID(s)
+	return mu
+}
+
+// SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
+func (mu *MediaUpdate) SetNillableUploaderID(s *string) *MediaUpdate {
+	if s != nil {
+		mu.SetUploaderID(*s)
+	}
+	return mu
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (mu *MediaUpdate) ClearUploaderID() *MediaUpdate {
+	mu.mutation.ClearUploaderID()
+	return mu
+}
+
 // SetMetadata sets the "metadata" field.
 func (mu *MediaUpdate) SetMetadata(m map[string]interface{}) *MediaUpdate {
 	mu.mutation.SetMetadata(m)
@@ -138,6 +158,25 @@ func (mu *MediaUpdate) AddUserMedia(u ...*User) *MediaUpdate {
 	return mu.AddUserMediumIDs(ids...)
 }
 
+// SetUserID sets the "user" edge to the User entity by ID.
+func (mu *MediaUpdate) SetUserID(id string) *MediaUpdate {
+	mu.mutation.SetUserID(id)
+	return mu
+}
+
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (mu *MediaUpdate) SetNillableUserID(id *string) *MediaUpdate {
+	if id != nil {
+		mu = mu.SetUserID(*id)
+	}
+	return mu
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (mu *MediaUpdate) SetUser(u *User) *MediaUpdate {
+	return mu.SetUserID(u.ID)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
@@ -162,6 +201,12 @@ func (mu *MediaUpdate) RemoveUserMedia(u ...*User) *MediaUpdate {
 		ids[i] = u[i].ID
 	}
 	return mu.RemoveUserMediumIDs(ids...)
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (mu *MediaUpdate) ClearUser() *MediaUpdate {
+	mu.mutation.ClearUser()
+	return mu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -310,6 +355,35 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -412,6 +486,26 @@ func (muo *MediaUpdateOne) SetNillableMimeType(s *string) *MediaUpdateOne {
 	return muo
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (muo *MediaUpdateOne) SetUploaderID(s string) *MediaUpdateOne {
+	muo.mutation.SetUploaderID(s)
+	return muo
+}
+
+// SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableUploaderID(s *string) *MediaUpdateOne {
+	if s != nil {
+		muo.SetUploaderID(*s)
+	}
+	return muo
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (muo *MediaUpdateOne) ClearUploaderID() *MediaUpdateOne {
+	muo.mutation.ClearUploaderID()
+	return muo
+}
+
 // SetMetadata sets the "metadata" field.
 func (muo *MediaUpdateOne) SetMetadata(m map[string]interface{}) *MediaUpdateOne {
 	muo.mutation.SetMetadata(m)
@@ -439,6 +533,25 @@ func (muo *MediaUpdateOne) AddUserMedia(u ...*User) *MediaUpdateOne {
 	return muo.AddUserMediumIDs(ids...)
 }
 
+// SetUserID sets the "user" edge to the User entity by ID.
+func (muo *MediaUpdateOne) SetUserID(id string) *MediaUpdateOne {
+	muo.mutation.SetUserID(id)
+	return muo
+}
+
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableUserID(id *string) *MediaUpdateOne {
+	if id != nil {
+		muo = muo.SetUserID(*id)
+	}
+	return muo
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (muo *MediaUpdateOne) SetUser(u *User) *MediaUpdateOne {
+	return muo.SetUserID(u.ID)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
@@ -463,6 +576,12 @@ func (muo *MediaUpdateOne) RemoveUserMedia(u ...*User) *MediaUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return muo.RemoveUserMediumIDs(ids...)
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (muo *MediaUpdateOne) ClearUser() *MediaUpdateOne {
+	muo.mutation.ClearUser()
+	return muo
 }
 
 // Where appends a list predicates to the MediaUpdate builder.
@@ -631,6 +750,35 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Inverse: false,
 			Table:   media.UserMediaTable,
 			Columns: []string{media.UserMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),

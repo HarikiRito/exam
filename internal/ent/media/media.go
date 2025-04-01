@@ -27,10 +27,14 @@ const (
 	FieldFileURL = "file_url"
 	// FieldMimeType holds the string denoting the mime_type field in the database.
 	FieldMimeType = "mime_type"
+	// FieldUploaderID holds the string denoting the uploader_id field in the database.
+	FieldUploaderID = "uploader_id"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
 	// EdgeUserMedia holds the string denoting the user_media edge name in mutations.
 	EdgeUserMedia = "user_media"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
 	// Table holds the table name of the media in the database.
 	Table = "media"
 	// UserMediaTable is the table that holds the user_media relation/edge.
@@ -40,6 +44,13 @@ const (
 	UserMediaInverseTable = "users"
 	// UserMediaColumn is the table column denoting the user_media relation/edge.
 	UserMediaColumn = "avatar_id"
+	// UserTable is the table that holds the user relation/edge.
+	UserTable = "media"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "users"
+	// UserColumn is the table column denoting the user relation/edge.
+	UserColumn = "uploader_id"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -51,6 +62,7 @@ var Columns = []string{
 	FieldFileName,
 	FieldFileURL,
 	FieldMimeType,
+	FieldUploaderID,
 	FieldMetadata,
 }
 
@@ -123,6 +135,11 @@ func ByMimeType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMimeType, opts...).ToFunc()
 }
 
+// ByUploaderID orders the results by the uploader_id field.
+func ByUploaderID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUploaderID, opts...).ToFunc()
+}
+
 // ByUserMediaCount orders the results by user_media count.
 func ByUserMediaCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -136,10 +153,24 @@ func ByUserMedia(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserMediaStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUserField orders the results by user field.
+func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newUserMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserMediaInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserMediaTable, UserMediaColumn),
+	)
+}
+func newUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
 	)
 }

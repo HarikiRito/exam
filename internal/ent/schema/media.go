@@ -19,7 +19,7 @@ func (Media) Fields() []ent.Field {
 		field.String("file_name").NotEmpty(),
 		field.String("file_url").NotEmpty(),
 		field.String("mime_type").NotEmpty(),
-		// field.String("uploader_id").Optional(),
+		field.String("uploader_id").Optional(),
 		field.JSON("metadata", map[string]interface{}{}).Optional().Comment("Additional metadata for the file"),
 	}
 }
@@ -28,6 +28,10 @@ func (Media) Fields() []ent.Field {
 func (Media) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("user_media", User.Type),
+		edge.From("user", User.Type).
+			Ref("media_uploader").
+			Field("uploader_id").
+			Unique(),
 	}
 }
 

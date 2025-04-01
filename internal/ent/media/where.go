@@ -95,6 +95,11 @@ func MimeType(v string) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldMimeType, v))
 }
 
+// UploaderID applies equality check predicate on the "uploader_id" field. It's identical to UploaderIDEQ.
+func UploaderID(v string) predicate.Media {
+	return predicate.Media(sql.FieldEQ(FieldUploaderID, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldCreatedAt, v))
@@ -420,6 +425,81 @@ func MimeTypeContainsFold(v string) predicate.Media {
 	return predicate.Media(sql.FieldContainsFold(FieldMimeType, v))
 }
 
+// UploaderIDEQ applies the EQ predicate on the "uploader_id" field.
+func UploaderIDEQ(v string) predicate.Media {
+	return predicate.Media(sql.FieldEQ(FieldUploaderID, v))
+}
+
+// UploaderIDNEQ applies the NEQ predicate on the "uploader_id" field.
+func UploaderIDNEQ(v string) predicate.Media {
+	return predicate.Media(sql.FieldNEQ(FieldUploaderID, v))
+}
+
+// UploaderIDIn applies the In predicate on the "uploader_id" field.
+func UploaderIDIn(vs ...string) predicate.Media {
+	return predicate.Media(sql.FieldIn(FieldUploaderID, vs...))
+}
+
+// UploaderIDNotIn applies the NotIn predicate on the "uploader_id" field.
+func UploaderIDNotIn(vs ...string) predicate.Media {
+	return predicate.Media(sql.FieldNotIn(FieldUploaderID, vs...))
+}
+
+// UploaderIDGT applies the GT predicate on the "uploader_id" field.
+func UploaderIDGT(v string) predicate.Media {
+	return predicate.Media(sql.FieldGT(FieldUploaderID, v))
+}
+
+// UploaderIDGTE applies the GTE predicate on the "uploader_id" field.
+func UploaderIDGTE(v string) predicate.Media {
+	return predicate.Media(sql.FieldGTE(FieldUploaderID, v))
+}
+
+// UploaderIDLT applies the LT predicate on the "uploader_id" field.
+func UploaderIDLT(v string) predicate.Media {
+	return predicate.Media(sql.FieldLT(FieldUploaderID, v))
+}
+
+// UploaderIDLTE applies the LTE predicate on the "uploader_id" field.
+func UploaderIDLTE(v string) predicate.Media {
+	return predicate.Media(sql.FieldLTE(FieldUploaderID, v))
+}
+
+// UploaderIDContains applies the Contains predicate on the "uploader_id" field.
+func UploaderIDContains(v string) predicate.Media {
+	return predicate.Media(sql.FieldContains(FieldUploaderID, v))
+}
+
+// UploaderIDHasPrefix applies the HasPrefix predicate on the "uploader_id" field.
+func UploaderIDHasPrefix(v string) predicate.Media {
+	return predicate.Media(sql.FieldHasPrefix(FieldUploaderID, v))
+}
+
+// UploaderIDHasSuffix applies the HasSuffix predicate on the "uploader_id" field.
+func UploaderIDHasSuffix(v string) predicate.Media {
+	return predicate.Media(sql.FieldHasSuffix(FieldUploaderID, v))
+}
+
+// UploaderIDIsNil applies the IsNil predicate on the "uploader_id" field.
+func UploaderIDIsNil() predicate.Media {
+	return predicate.Media(sql.FieldIsNull(FieldUploaderID))
+}
+
+// UploaderIDNotNil applies the NotNil predicate on the "uploader_id" field.
+func UploaderIDNotNil() predicate.Media {
+	return predicate.Media(sql.FieldNotNull(FieldUploaderID))
+}
+
+// UploaderIDEqualFold applies the EqualFold predicate on the "uploader_id" field.
+func UploaderIDEqualFold(v string) predicate.Media {
+	return predicate.Media(sql.FieldEqualFold(FieldUploaderID, v))
+}
+
+// UploaderIDContainsFold applies the ContainsFold predicate on the "uploader_id" field.
+func UploaderIDContainsFold(v string) predicate.Media {
+	return predicate.Media(sql.FieldContainsFold(FieldUploaderID, v))
+}
+
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.
 func MetadataIsNil() predicate.Media {
 	return predicate.Media(sql.FieldIsNull(FieldMetadata))
@@ -445,6 +525,29 @@ func HasUserMedia() predicate.Media {
 func HasUserMediaWith(preds ...predicate.User) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		step := newUserMediaStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasUser applies the HasEdge predicate on the "user" edge.
+func HasUser() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
+func HasUserWith(preds ...predicate.User) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := newUserStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

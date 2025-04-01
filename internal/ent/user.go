@@ -50,13 +50,15 @@ type UserEdges struct {
 	Media *Media `json:"media,omitempty"`
 	// AuthUser holds the value of the auth_user edge.
 	AuthUser []*Auth `json:"auth_user,omitempty"`
+	// MediaUploader holds the value of the media_uploader edge.
+	MediaUploader []*Media `json:"media_uploader,omitempty"`
 	// Roles holds the value of the roles edge.
 	Roles []*Role `json:"roles,omitempty"`
 	// UserRoles holds the value of the user_roles edge.
 	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -79,10 +81,19 @@ func (e UserEdges) AuthUserOrErr() ([]*Auth, error) {
 	return nil, &NotLoadedError{edge: "auth_user"}
 }
 
+// MediaUploaderOrErr returns the MediaUploader value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) MediaUploaderOrErr() ([]*Media, error) {
+	if e.loadedTypes[2] {
+		return e.MediaUploader, nil
+	}
+	return nil, &NotLoadedError{edge: "media_uploader"}
+}
+
 // RolesOrErr returns the Roles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) RolesOrErr() ([]*Role, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.Roles, nil
 	}
 	return nil, &NotLoadedError{edge: "roles"}
@@ -91,7 +102,7 @@ func (e UserEdges) RolesOrErr() ([]*Role, error) {
 // UserRolesOrErr returns the UserRoles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		return e.UserRoles, nil
 	}
 	return nil, &NotLoadedError{edge: "user_roles"}
@@ -211,6 +222,11 @@ func (u *User) QueryMedia() *MediaQuery {
 // QueryAuthUser queries the "auth_user" edge of the User entity.
 func (u *User) QueryAuthUser() *AuthQuery {
 	return NewUserClient(u.config).QueryAuthUser(u)
+}
+
+// QueryMediaUploader queries the "media_uploader" edge of the User entity.
+func (u *User) QueryMediaUploader() *MediaQuery {
+	return NewUserClient(u.config).QueryMediaUploader(u)
 }
 
 // QueryRoles queries the "roles" edge of the User entity.

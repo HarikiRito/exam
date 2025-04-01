@@ -180,6 +180,21 @@ func (uc *UserCreate) AddAuthUser(a ...*Auth) *UserCreate {
 	return uc.AddAuthUserIDs(ids...)
 }
 
+// AddMediaUploaderIDs adds the "media_uploader" edge to the Media entity by IDs.
+func (uc *UserCreate) AddMediaUploaderIDs(ids ...string) *UserCreate {
+	uc.mutation.AddMediaUploaderIDs(ids...)
+	return uc
+}
+
+// AddMediaUploader adds the "media_uploader" edges to the Media entity.
+func (uc *UserCreate) AddMediaUploader(m ...*Media) *UserCreate {
+	ids := make([]string, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uc.AddMediaUploaderIDs(ids...)
+}
+
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
 func (uc *UserCreate) AddRoleIDs(ids ...string) *UserCreate {
 	uc.mutation.AddRoleIDs(ids...)
@@ -400,6 +415,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.MediaUploaderIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MediaUploaderTable,
+			Columns: []string{user.MediaUploaderColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

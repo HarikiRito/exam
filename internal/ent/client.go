@@ -528,6 +528,22 @@ func (c *MediaClient) QueryUserMedia(m *Media) *UserQuery {
 	return query
 }
 
+// QueryUser queries the user edge of a Media.
+func (c *MediaClient) QueryUser(m *Media) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, media.UserTable, media.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MediaClient) Hooks() []Hook {
 	hooks := c.hooks.Media
@@ -1153,6 +1169,22 @@ func (c *UserClient) QueryAuthUser(u *User) *AuthQuery {
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(auth.Table, auth.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.AuthUserTable, user.AuthUserColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMediaUploader queries the media_uploader edge of a User.
+func (c *UserClient) QueryMediaUploader(u *User) *MediaQuery {
+	query := (&MediaClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MediaUploaderTable, user.MediaUploaderColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

@@ -4,6 +4,7 @@ import (
 	"template/internal/ent/schema/mixin"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -32,6 +33,7 @@ func (User) Edges() []ent.Edge {
 		edge.From("media", Media.Type).
 			Ref("user_media").Field("avatar_id").Unique(),
 		edge.To("auth_user", Auth.Type),
+		edge.To("media_uploader", Media.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("roles", Role.Type).
 			Ref("users").
 			Through("user_roles", UserRole.Type),

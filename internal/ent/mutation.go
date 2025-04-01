@@ -896,6 +896,8 @@ type MediaMutation struct {
 	user_media        map[string]struct{}
 	removeduser_media map[string]struct{}
 	cleareduser_media bool
+	user              *string
+	cleareduser       bool
 	done              bool
 	oldValue          func(context.Context) (*Media, error)
 	predicates        []predicate.Media
@@ -1234,6 +1236,55 @@ func (m *MediaMutation) ResetMimeType() {
 	m.mime_type = nil
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (m *MediaMutation) SetUploaderID(s string) {
+	m.user = &s
+}
+
+// UploaderID returns the value of the "uploader_id" field in the mutation.
+func (m *MediaMutation) UploaderID() (r string, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUploaderID returns the old "uploader_id" field's value of the Media entity.
+// If the Media object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaMutation) OldUploaderID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUploaderID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUploaderID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUploaderID: %w", err)
+	}
+	return oldValue.UploaderID, nil
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (m *MediaMutation) ClearUploaderID() {
+	m.user = nil
+	m.clearedFields[media.FieldUploaderID] = struct{}{}
+}
+
+// UploaderIDCleared returns if the "uploader_id" field was cleared in this mutation.
+func (m *MediaMutation) UploaderIDCleared() bool {
+	_, ok := m.clearedFields[media.FieldUploaderID]
+	return ok
+}
+
+// ResetUploaderID resets all changes to the "uploader_id" field.
+func (m *MediaMutation) ResetUploaderID() {
+	m.user = nil
+	delete(m.clearedFields, media.FieldUploaderID)
+}
+
 // SetMetadata sets the "metadata" field.
 func (m *MediaMutation) SetMetadata(value map[string]interface{}) {
 	m.metadata = &value
@@ -1337,6 +1388,46 @@ func (m *MediaMutation) ResetUserMedia() {
 	m.removeduser_media = nil
 }
 
+// SetUserID sets the "user" edge to the User entity by id.
+func (m *MediaMutation) SetUserID(id string) {
+	m.user = &id
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *MediaMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[media.FieldUploaderID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *MediaMutation) UserCleared() bool {
+	return m.UploaderIDCleared() || m.cleareduser
+}
+
+// UserID returns the "user" edge ID in the mutation.
+func (m *MediaMutation) UserID() (id string, exists bool) {
+	if m.user != nil {
+		return *m.user, true
+	}
+	return
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *MediaMutation) UserIDs() (ids []string) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *MediaMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
 // Where appends a list predicates to the MediaMutation builder.
 func (m *MediaMutation) Where(ps ...predicate.Media) {
 	m.predicates = append(m.predicates, ps...)
@@ -1371,7 +1462,7 @@ func (m *MediaMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MediaMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, media.FieldCreatedAt)
 	}
@@ -1389,6 +1480,9 @@ func (m *MediaMutation) Fields() []string {
 	}
 	if m.mime_type != nil {
 		fields = append(fields, media.FieldMimeType)
+	}
+	if m.user != nil {
+		fields = append(fields, media.FieldUploaderID)
 	}
 	if m.metadata != nil {
 		fields = append(fields, media.FieldMetadata)
@@ -1413,6 +1507,8 @@ func (m *MediaMutation) Field(name string) (ent.Value, bool) {
 		return m.FileURL()
 	case media.FieldMimeType:
 		return m.MimeType()
+	case media.FieldUploaderID:
+		return m.UploaderID()
 	case media.FieldMetadata:
 		return m.Metadata()
 	}
@@ -1436,6 +1532,8 @@ func (m *MediaMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldFileURL(ctx)
 	case media.FieldMimeType:
 		return m.OldMimeType(ctx)
+	case media.FieldUploaderID:
+		return m.OldUploaderID(ctx)
 	case media.FieldMetadata:
 		return m.OldMetadata(ctx)
 	}
@@ -1489,6 +1587,13 @@ func (m *MediaMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMimeType(v)
 		return nil
+	case media.FieldUploaderID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUploaderID(v)
+		return nil
 	case media.FieldMetadata:
 		v, ok := value.(map[string]interface{})
 		if !ok {
@@ -1529,6 +1634,9 @@ func (m *MediaMutation) ClearedFields() []string {
 	if m.FieldCleared(media.FieldDeletedAt) {
 		fields = append(fields, media.FieldDeletedAt)
 	}
+	if m.FieldCleared(media.FieldUploaderID) {
+		fields = append(fields, media.FieldUploaderID)
+	}
 	if m.FieldCleared(media.FieldMetadata) {
 		fields = append(fields, media.FieldMetadata)
 	}
@@ -1548,6 +1656,9 @@ func (m *MediaMutation) ClearField(name string) error {
 	switch name {
 	case media.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case media.FieldUploaderID:
+		m.ClearUploaderID()
 		return nil
 	case media.FieldMetadata:
 		m.ClearMetadata()
@@ -1578,6 +1689,9 @@ func (m *MediaMutation) ResetField(name string) error {
 	case media.FieldMimeType:
 		m.ResetMimeType()
 		return nil
+	case media.FieldUploaderID:
+		m.ResetUploaderID()
+		return nil
 	case media.FieldMetadata:
 		m.ResetMetadata()
 		return nil
@@ -1587,9 +1701,12 @@ func (m *MediaMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MediaMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.user_media != nil {
 		edges = append(edges, media.EdgeUserMedia)
+	}
+	if m.user != nil {
+		edges = append(edges, media.EdgeUser)
 	}
 	return edges
 }
@@ -1604,13 +1721,17 @@ func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case media.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MediaMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removeduser_media != nil {
 		edges = append(edges, media.EdgeUserMedia)
 	}
@@ -1633,9 +1754,12 @@ func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MediaMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.cleareduser_media {
 		edges = append(edges, media.EdgeUserMedia)
+	}
+	if m.cleareduser {
+		edges = append(edges, media.EdgeUser)
 	}
 	return edges
 }
@@ -1646,6 +1770,8 @@ func (m *MediaMutation) EdgeCleared(name string) bool {
 	switch name {
 	case media.EdgeUserMedia:
 		return m.cleareduser_media
+	case media.EdgeUser:
+		return m.cleareduser
 	}
 	return false
 }
@@ -1654,6 +1780,9 @@ func (m *MediaMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *MediaMutation) ClearEdge(name string) error {
 	switch name {
+	case media.EdgeUser:
+		m.ClearUser()
+		return nil
 	}
 	return fmt.Errorf("unknown Media unique edge %s", name)
 }
@@ -1664,6 +1793,9 @@ func (m *MediaMutation) ResetEdge(name string) error {
 	switch name {
 	case media.EdgeUserMedia:
 		m.ResetUserMedia()
+		return nil
+	case media.EdgeUser:
+		m.ResetUser()
 		return nil
 	}
 	return fmt.Errorf("unknown Media edge %s", name)
@@ -3791,33 +3923,36 @@ func (m *TodoMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *string
-	created_at        *time.Time
-	updated_at        *time.Time
-	deleted_at        *time.Time
-	username          *string
-	email             *string
-	password_hash     *string
-	first_name        *string
-	last_name         *string
-	is_active         *bool
-	clearedFields     map[string]struct{}
-	media             *string
-	clearedmedia      bool
-	auth_user         map[string]struct{}
-	removedauth_user  map[string]struct{}
-	clearedauth_user  bool
-	roles             map[string]struct{}
-	removedroles      map[string]struct{}
-	clearedroles      bool
-	user_roles        map[string]struct{}
-	removeduser_roles map[string]struct{}
-	cleareduser_roles bool
-	done              bool
-	oldValue          func(context.Context) (*User, error)
-	predicates        []predicate.User
+	op                    Op
+	typ                   string
+	id                    *string
+	created_at            *time.Time
+	updated_at            *time.Time
+	deleted_at            *time.Time
+	username              *string
+	email                 *string
+	password_hash         *string
+	first_name            *string
+	last_name             *string
+	is_active             *bool
+	clearedFields         map[string]struct{}
+	media                 *string
+	clearedmedia          bool
+	auth_user             map[string]struct{}
+	removedauth_user      map[string]struct{}
+	clearedauth_user      bool
+	media_uploader        map[string]struct{}
+	removedmedia_uploader map[string]struct{}
+	clearedmedia_uploader bool
+	roles                 map[string]struct{}
+	removedroles          map[string]struct{}
+	clearedroles          bool
+	user_roles            map[string]struct{}
+	removeduser_roles     map[string]struct{}
+	cleareduser_roles     bool
+	done                  bool
+	oldValue              func(context.Context) (*User, error)
+	predicates            []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -4430,6 +4565,60 @@ func (m *UserMutation) ResetAuthUser() {
 	m.removedauth_user = nil
 }
 
+// AddMediaUploaderIDs adds the "media_uploader" edge to the Media entity by ids.
+func (m *UserMutation) AddMediaUploaderIDs(ids ...string) {
+	if m.media_uploader == nil {
+		m.media_uploader = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.media_uploader[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMediaUploader clears the "media_uploader" edge to the Media entity.
+func (m *UserMutation) ClearMediaUploader() {
+	m.clearedmedia_uploader = true
+}
+
+// MediaUploaderCleared reports if the "media_uploader" edge to the Media entity was cleared.
+func (m *UserMutation) MediaUploaderCleared() bool {
+	return m.clearedmedia_uploader
+}
+
+// RemoveMediaUploaderIDs removes the "media_uploader" edge to the Media entity by IDs.
+func (m *UserMutation) RemoveMediaUploaderIDs(ids ...string) {
+	if m.removedmedia_uploader == nil {
+		m.removedmedia_uploader = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.media_uploader, ids[i])
+		m.removedmedia_uploader[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMediaUploader returns the removed IDs of the "media_uploader" edge to the Media entity.
+func (m *UserMutation) RemovedMediaUploaderIDs() (ids []string) {
+	for id := range m.removedmedia_uploader {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MediaUploaderIDs returns the "media_uploader" edge IDs in the mutation.
+func (m *UserMutation) MediaUploaderIDs() (ids []string) {
+	for id := range m.media_uploader {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMediaUploader resets all changes to the "media_uploader" edge.
+func (m *UserMutation) ResetMediaUploader() {
+	m.media_uploader = nil
+	m.clearedmedia_uploader = false
+	m.removedmedia_uploader = nil
+}
+
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
 func (m *UserMutation) AddRoleIDs(ids ...string) {
 	if m.roles == nil {
@@ -4851,12 +5040,15 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.media != nil {
 		edges = append(edges, user.EdgeMedia)
 	}
 	if m.auth_user != nil {
 		edges = append(edges, user.EdgeAuthUser)
+	}
+	if m.media_uploader != nil {
+		edges = append(edges, user.EdgeMediaUploader)
 	}
 	if m.roles != nil {
 		edges = append(edges, user.EdgeRoles)
@@ -4881,6 +5073,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeMediaUploader:
+		ids := make([]ent.Value, 0, len(m.media_uploader))
+		for id := range m.media_uploader {
+			ids = append(ids, id)
+		}
+		return ids
 	case user.EdgeRoles:
 		ids := make([]ent.Value, 0, len(m.roles))
 		for id := range m.roles {
@@ -4899,9 +5097,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.removedauth_user != nil {
 		edges = append(edges, user.EdgeAuthUser)
+	}
+	if m.removedmedia_uploader != nil {
+		edges = append(edges, user.EdgeMediaUploader)
 	}
 	if m.removedroles != nil {
 		edges = append(edges, user.EdgeRoles)
@@ -4919,6 +5120,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 	case user.EdgeAuthUser:
 		ids := make([]ent.Value, 0, len(m.removedauth_user))
 		for id := range m.removedauth_user {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeMediaUploader:
+		ids := make([]ent.Value, 0, len(m.removedmedia_uploader))
+		for id := range m.removedmedia_uploader {
 			ids = append(ids, id)
 		}
 		return ids
@@ -4940,12 +5147,15 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 5)
 	if m.clearedmedia {
 		edges = append(edges, user.EdgeMedia)
 	}
 	if m.clearedauth_user {
 		edges = append(edges, user.EdgeAuthUser)
+	}
+	if m.clearedmedia_uploader {
+		edges = append(edges, user.EdgeMediaUploader)
 	}
 	if m.clearedroles {
 		edges = append(edges, user.EdgeRoles)
@@ -4964,6 +5174,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedmedia
 	case user.EdgeAuthUser:
 		return m.clearedauth_user
+	case user.EdgeMediaUploader:
+		return m.clearedmedia_uploader
 	case user.EdgeRoles:
 		return m.clearedroles
 	case user.EdgeUserRoles:
@@ -4992,6 +5204,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeAuthUser:
 		m.ResetAuthUser()
+		return nil
+	case user.EdgeMediaUploader:
+		m.ResetMediaUploader()
 		return nil
 	case user.EdgeRoles:
 		m.ResetRoles()
