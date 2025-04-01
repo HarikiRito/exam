@@ -340,6 +340,10 @@ func init() {
 	videoDescMediaID := videoFields[3].Descriptor()
 	// video.MediaIDValidator is a validator for the "media_id" field. It is called by the builders before save.
 	video.MediaIDValidator = videoDescMediaID.Validators[0].(func(string) error)
+	// videoDescCourseID is the schema descriptor for course_id field.
+	videoDescCourseID := videoFields[4].Descriptor()
+	// video.CourseIDValidator is a validator for the "course_id" field. It is called by the builders before save.
+	video.CourseIDValidator = videoDescCourseID.Validators[0].(func(string) error)
 	videoquestiontimestampMixin := schema.VideoQuestionTimestamp{}.Mixin()
 	videoquestiontimestampMixinHooks0 := videoquestiontimestampMixin[0].Hooks()
 	videoquestiontimestamp.Hooks[0] = videoquestiontimestampMixinHooks0[0]

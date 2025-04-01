@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
 	"template/internal/ent/video"
@@ -97,6 +98,12 @@ func (vc *VideoCreate) SetMediaID(s string) *VideoCreate {
 	return vc
 }
 
+// SetCourseID sets the "course_id" field.
+func (vc *VideoCreate) SetCourseID(s string) *VideoCreate {
+	vc.mutation.SetCourseID(s)
+	return vc
+}
+
 // SetDuration sets the "duration" field.
 func (vc *VideoCreate) SetDuration(i int) *VideoCreate {
 	vc.mutation.SetDuration(i)
@@ -131,6 +138,11 @@ func (vc *VideoCreate) SetCourseSection(c *CourseSection) *VideoCreate {
 // SetMedia sets the "media" edge to the Media entity.
 func (vc *VideoCreate) SetMedia(m *Media) *VideoCreate {
 	return vc.SetMediaID(m.ID)
+}
+
+// SetCourse sets the "course" edge to the Course entity.
+func (vc *VideoCreate) SetCourse(c *Course) *VideoCreate {
+	return vc.SetCourseID(c.ID)
 }
 
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
@@ -234,11 +246,22 @@ func (vc *VideoCreate) check() error {
 			return &ValidationError{Name: "media_id", err: fmt.Errorf(`ent: validator failed for field "Video.media_id": %w`, err)}
 		}
 	}
+	if _, ok := vc.mutation.CourseID(); !ok {
+		return &ValidationError{Name: "course_id", err: errors.New(`ent: missing required field "Video.course_id"`)}
+	}
+	if v, ok := vc.mutation.CourseID(); ok {
+		if err := video.CourseIDValidator(v); err != nil {
+			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "Video.course_id": %w`, err)}
+		}
+	}
 	if len(vc.mutation.CourseSectionIDs()) == 0 {
 		return &ValidationError{Name: "course_section", err: errors.New(`ent: missing required edge "Video.course_section"`)}
 	}
 	if len(vc.mutation.MediaIDs()) == 0 {
 		return &ValidationError{Name: "media", err: errors.New(`ent: missing required edge "Video.media"`)}
+	}
+	if len(vc.mutation.CourseIDs()) == 0 {
+		return &ValidationError{Name: "course", err: errors.New(`ent: missing required edge "Video.course"`)}
 	}
 	return nil
 }
@@ -331,6 +354,23 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.MediaID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := vc.mutation.CourseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   video.CourseTable,
+			Columns: []string{video.CourseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CourseID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := vc.mutation.VideoQuestionTimestampsVideoIDs(); len(nodes) > 0 {

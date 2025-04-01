@@ -102,19 +102,19 @@ func (csc *CourseSectionCreate) SetCourse(c *Course) *CourseSectionCreate {
 	return csc.SetCourseID(c.ID)
 }
 
-// AddCourseVideoIDs adds the "course_videos" edge to the Video entity by IDs.
-func (csc *CourseSectionCreate) AddCourseVideoIDs(ids ...string) *CourseSectionCreate {
-	csc.mutation.AddCourseVideoIDs(ids...)
+// AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
+func (csc *CourseSectionCreate) AddCourseSectionVideoIDs(ids ...string) *CourseSectionCreate {
+	csc.mutation.AddCourseSectionVideoIDs(ids...)
 	return csc
 }
 
-// AddCourseVideos adds the "course_videos" edges to the Video entity.
-func (csc *CourseSectionCreate) AddCourseVideos(v ...*Video) *CourseSectionCreate {
+// AddCourseSectionVideos adds the "course_section_videos" edges to the Video entity.
+func (csc *CourseSectionCreate) AddCourseSectionVideos(v ...*Video) *CourseSectionCreate {
 	ids := make([]string, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return csc.AddCourseVideoIDs(ids...)
+	return csc.AddCourseSectionVideoIDs(ids...)
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
@@ -285,12 +285,12 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 		_node.CourseID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := csc.mutation.CourseVideosIDs(); len(nodes) > 0 {
+	if nodes := csc.mutation.CourseSectionVideosIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),

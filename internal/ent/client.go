@@ -778,15 +778,15 @@ func (c *CourseSectionClient) QueryCourse(cs *CourseSection) *CourseQuery {
 	return query
 }
 
-// QueryCourseVideos queries the course_videos edge of a CourseSection.
-func (c *CourseSectionClient) QueryCourseVideos(cs *CourseSection) *VideoQuery {
+// QueryCourseSectionVideos queries the course_section_videos edge of a CourseSection.
+func (c *CourseSectionClient) QueryCourseSectionVideos(cs *CourseSection) *VideoQuery {
 	query := (&VideoClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := cs.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
 			sqlgraph.To(video.Table, video.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseVideosTable, coursesection.CourseVideosColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseSectionVideosTable, coursesection.CourseSectionVideosColumn),
 		)
 		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
 		return fromV, nil
@@ -2361,6 +2361,22 @@ func (c *VideoClient) QueryMedia(v *Video) *MediaQuery {
 			sqlgraph.From(video.Table, video.FieldID, id),
 			sqlgraph.To(media.Table, media.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, video.MediaTable, video.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourse queries the course edge of a Video.
+func (c *VideoClient) QueryCourse(v *Video) *CourseQuery {
+	query := (&CourseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(video.Table, video.FieldID, id),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, video.CourseTable, video.CourseColumn),
 		)
 		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
 		return fromV, nil

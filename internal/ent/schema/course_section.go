@@ -31,7 +31,7 @@ func (CourseSection) Edges() []ent.Edge {
 			Field("course_id").
 			Unique().
 			Required(),
-		edge.To("course_videos", Video.Type).
+		edge.To("course_section_videos", Video.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("questions", Question.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
@@ -42,4 +42,4 @@ func (CourseSection) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

@@ -21,6 +21,7 @@ func (Video) Fields() []ent.Field {
 		field.String("title").NotEmpty(),
 		field.Text("description").Optional(),
 		field.String("media_id").NotEmpty(),
+		field.String("course_id").NotEmpty(),
 		field.Int("duration").Optional().Comment("Duration in seconds"),
 	}
 }
@@ -29,13 +30,18 @@ func (Video) Fields() []ent.Field {
 func (Video) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("course_section", CourseSection.Type).
-			Ref("course_videos").
+			Ref("course_section_videos").
 			Field("section_id").
 			Unique().
 			Required(),
 		edge.From("media", Media.Type).
 			Ref("video_media").
 			Field("media_id").
+			Unique().
+			Required(),
+		edge.From("course", Course.Type).
+			Ref("course_videos").
+			Field("course_id").
 			Unique().
 			Required(),
 		edge.To("video_question_timestamps_video", VideoQuestionTimestamp.Type).
@@ -47,4 +53,4 @@ func (Video) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

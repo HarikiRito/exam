@@ -282,7 +282,7 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "duration", Type: field.TypeInt, Nullable: true},
-		{Name: "course_course_videos", Type: field.TypeString, Nullable: true},
+		{Name: "course_id", Type: field.TypeString},
 		{Name: "section_id", Type: field.TypeString},
 		{Name: "media_id", Type: field.TypeString},
 	}
@@ -299,7 +299,7 @@ var (
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "videos_course_sections_course_videos",
+				Symbol:     "videos_course_sections_course_section_videos",
 				Columns:    []*schema.Column{VideosColumns[8]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.Cascade,

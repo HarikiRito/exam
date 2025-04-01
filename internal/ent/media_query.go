@@ -632,7 +632,6 @@ func (mq *MediaQuery) loadVideoMedia(ctx context.Context, query *VideoQuery, nod
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(video.FieldMediaID)
 	}

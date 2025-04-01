@@ -22,13 +22,13 @@ import (
 // CourseSectionQuery is the builder for querying CourseSection entities.
 type CourseSectionQuery struct {
 	config
-	ctx              *QueryContext
-	order            []coursesection.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.CourseSection
-	withCourse       *CourseQuery
-	withCourseVideos *VideoQuery
-	withQuestions    *QuestionQuery
+	ctx                     *QueryContext
+	order                   []coursesection.OrderOption
+	inters                  []Interceptor
+	predicates              []predicate.CourseSection
+	withCourse              *CourseQuery
+	withCourseSectionVideos *VideoQuery
+	withQuestions           *QuestionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -87,8 +87,8 @@ func (csq *CourseSectionQuery) QueryCourse() *CourseQuery {
 	return query
 }
 
-// QueryCourseVideos chains the current query on the "course_videos" edge.
-func (csq *CourseSectionQuery) QueryCourseVideos() *VideoQuery {
+// QueryCourseSectionVideos chains the current query on the "course_section_videos" edge.
+func (csq *CourseSectionQuery) QueryCourseSectionVideos() *VideoQuery {
 	query := (&VideoClient{config: csq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := csq.prepareQuery(ctx); err != nil {
@@ -101,7 +101,7 @@ func (csq *CourseSectionQuery) QueryCourseVideos() *VideoQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
 			sqlgraph.To(video.Table, video.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseVideosTable, coursesection.CourseVideosColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseSectionVideosTable, coursesection.CourseSectionVideosColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
 		return fromU, nil
@@ -318,14 +318,14 @@ func (csq *CourseSectionQuery) Clone() *CourseSectionQuery {
 		return nil
 	}
 	return &CourseSectionQuery{
-		config:           csq.config,
-		ctx:              csq.ctx.Clone(),
-		order:            append([]coursesection.OrderOption{}, csq.order...),
-		inters:           append([]Interceptor{}, csq.inters...),
-		predicates:       append([]predicate.CourseSection{}, csq.predicates...),
-		withCourse:       csq.withCourse.Clone(),
-		withCourseVideos: csq.withCourseVideos.Clone(),
-		withQuestions:    csq.withQuestions.Clone(),
+		config:                  csq.config,
+		ctx:                     csq.ctx.Clone(),
+		order:                   append([]coursesection.OrderOption{}, csq.order...),
+		inters:                  append([]Interceptor{}, csq.inters...),
+		predicates:              append([]predicate.CourseSection{}, csq.predicates...),
+		withCourse:              csq.withCourse.Clone(),
+		withCourseSectionVideos: csq.withCourseSectionVideos.Clone(),
+		withQuestions:           csq.withQuestions.Clone(),
 		// clone intermediate query.
 		sql:  csq.sql.Clone(),
 		path: csq.path,
@@ -343,14 +343,14 @@ func (csq *CourseSectionQuery) WithCourse(opts ...func(*CourseQuery)) *CourseSec
 	return csq
 }
 
-// WithCourseVideos tells the query-builder to eager-load the nodes that are connected to
-// the "course_videos" edge. The optional arguments are used to configure the query builder of the edge.
-func (csq *CourseSectionQuery) WithCourseVideos(opts ...func(*VideoQuery)) *CourseSectionQuery {
+// WithCourseSectionVideos tells the query-builder to eager-load the nodes that are connected to
+// the "course_section_videos" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CourseSectionQuery) WithCourseSectionVideos(opts ...func(*VideoQuery)) *CourseSectionQuery {
 	query := (&VideoClient{config: csq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	csq.withCourseVideos = query
+	csq.withCourseSectionVideos = query
 	return csq
 }
 
@@ -445,7 +445,7 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		_spec       = csq.querySpec()
 		loadedTypes = [3]bool{
 			csq.withCourse != nil,
-			csq.withCourseVideos != nil,
+			csq.withCourseSectionVideos != nil,
 			csq.withQuestions != nil,
 		}
 	)
@@ -473,10 +473,10 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			return nil, err
 		}
 	}
-	if query := csq.withCourseVideos; query != nil {
-		if err := csq.loadCourseVideos(ctx, query, nodes,
-			func(n *CourseSection) { n.Edges.CourseVideos = []*Video{} },
-			func(n *CourseSection, e *Video) { n.Edges.CourseVideos = append(n.Edges.CourseVideos, e) }); err != nil {
+	if query := csq.withCourseSectionVideos; query != nil {
+		if err := csq.loadCourseSectionVideos(ctx, query, nodes,
+			func(n *CourseSection) { n.Edges.CourseSectionVideos = []*Video{} },
+			func(n *CourseSection, e *Video) { n.Edges.CourseSectionVideos = append(n.Edges.CourseSectionVideos, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -519,7 +519,7 @@ func (csq *CourseSectionQuery) loadCourse(ctx context.Context, query *CourseQuer
 	}
 	return nil
 }
-func (csq *CourseSectionQuery) loadCourseVideos(ctx context.Context, query *VideoQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Video)) error {
+func (csq *CourseSectionQuery) loadCourseSectionVideos(ctx context.Context, query *VideoQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Video)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*CourseSection)
 	for i := range nodes {
@@ -529,12 +529,11 @@ func (csq *CourseSectionQuery) loadCourseVideos(ctx context.Context, query *Vide
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(video.FieldSectionID)
 	}
 	query.Where(predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(coursesection.CourseVideosColumn), fks...))
+		s.Where(sql.InValues(s.C(coursesection.CourseSectionVideosColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

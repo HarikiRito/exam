@@ -29,8 +29,8 @@ const (
 	FieldDescription = "description"
 	// EdgeCourse holds the string denoting the course edge name in mutations.
 	EdgeCourse = "course"
-	// EdgeCourseVideos holds the string denoting the course_videos edge name in mutations.
-	EdgeCourseVideos = "course_videos"
+	// EdgeCourseSectionVideos holds the string denoting the course_section_videos edge name in mutations.
+	EdgeCourseSectionVideos = "course_section_videos"
 	// EdgeQuestions holds the string denoting the questions edge name in mutations.
 	EdgeQuestions = "questions"
 	// Table holds the table name of the coursesection in the database.
@@ -42,13 +42,13 @@ const (
 	CourseInverseTable = "courses"
 	// CourseColumn is the table column denoting the course relation/edge.
 	CourseColumn = "course_id"
-	// CourseVideosTable is the table that holds the course_videos relation/edge.
-	CourseVideosTable = "videos"
-	// CourseVideosInverseTable is the table name for the Video entity.
+	// CourseSectionVideosTable is the table that holds the course_section_videos relation/edge.
+	CourseSectionVideosTable = "videos"
+	// CourseSectionVideosInverseTable is the table name for the Video entity.
 	// It exists in this package in order to avoid circular dependency with the "video" package.
-	CourseVideosInverseTable = "videos"
-	// CourseVideosColumn is the table column denoting the course_videos relation/edge.
-	CourseVideosColumn = "section_id"
+	CourseSectionVideosInverseTable = "videos"
+	// CourseSectionVideosColumn is the table column denoting the course_section_videos relation/edge.
+	CourseSectionVideosColumn = "section_id"
 	// QuestionsTable is the table that holds the questions relation/edge.
 	QuestionsTable = "questions"
 	// QuestionsInverseTable is the table name for the Question entity.
@@ -143,17 +143,17 @@ func ByCourseField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByCourseVideosCount orders the results by course_videos count.
-func ByCourseVideosCount(opts ...sql.OrderTermOption) OrderOption {
+// ByCourseSectionVideosCount orders the results by course_section_videos count.
+func ByCourseSectionVideosCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCourseVideosStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newCourseSectionVideosStep(), opts...)
 	}
 }
 
-// ByCourseVideos orders the results by course_videos terms.
-func ByCourseVideos(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByCourseSectionVideos orders the results by course_section_videos terms.
+func ByCourseSectionVideos(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCourseVideosStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newCourseSectionVideosStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -177,11 +177,11 @@ func newCourseStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, CourseTable, CourseColumn),
 	)
 }
-func newCourseVideosStep() *sqlgraph.Step {
+func newCourseSectionVideosStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CourseVideosInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CourseVideosTable, CourseVideosColumn),
+		sqlgraph.To(CourseSectionVideosInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CourseSectionVideosTable, CourseSectionVideosColumn),
 	)
 }
 func newQuestionsStep() *sqlgraph.Step {

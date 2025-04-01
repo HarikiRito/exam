@@ -124,19 +124,19 @@ func (csu *CourseSectionUpdate) SetCourse(c *Course) *CourseSectionUpdate {
 	return csu.SetCourseID(c.ID)
 }
 
-// AddCourseVideoIDs adds the "course_videos" edge to the Video entity by IDs.
-func (csu *CourseSectionUpdate) AddCourseVideoIDs(ids ...string) *CourseSectionUpdate {
-	csu.mutation.AddCourseVideoIDs(ids...)
+// AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
+func (csu *CourseSectionUpdate) AddCourseSectionVideoIDs(ids ...string) *CourseSectionUpdate {
+	csu.mutation.AddCourseSectionVideoIDs(ids...)
 	return csu
 }
 
-// AddCourseVideos adds the "course_videos" edges to the Video entity.
-func (csu *CourseSectionUpdate) AddCourseVideos(v ...*Video) *CourseSectionUpdate {
+// AddCourseSectionVideos adds the "course_section_videos" edges to the Video entity.
+func (csu *CourseSectionUpdate) AddCourseSectionVideos(v ...*Video) *CourseSectionUpdate {
 	ids := make([]string, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return csu.AddCourseVideoIDs(ids...)
+	return csu.AddCourseSectionVideoIDs(ids...)
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
@@ -165,25 +165,25 @@ func (csu *CourseSectionUpdate) ClearCourse() *CourseSectionUpdate {
 	return csu
 }
 
-// ClearCourseVideos clears all "course_videos" edges to the Video entity.
-func (csu *CourseSectionUpdate) ClearCourseVideos() *CourseSectionUpdate {
-	csu.mutation.ClearCourseVideos()
+// ClearCourseSectionVideos clears all "course_section_videos" edges to the Video entity.
+func (csu *CourseSectionUpdate) ClearCourseSectionVideos() *CourseSectionUpdate {
+	csu.mutation.ClearCourseSectionVideos()
 	return csu
 }
 
-// RemoveCourseVideoIDs removes the "course_videos" edge to Video entities by IDs.
-func (csu *CourseSectionUpdate) RemoveCourseVideoIDs(ids ...string) *CourseSectionUpdate {
-	csu.mutation.RemoveCourseVideoIDs(ids...)
+// RemoveCourseSectionVideoIDs removes the "course_section_videos" edge to Video entities by IDs.
+func (csu *CourseSectionUpdate) RemoveCourseSectionVideoIDs(ids ...string) *CourseSectionUpdate {
+	csu.mutation.RemoveCourseSectionVideoIDs(ids...)
 	return csu
 }
 
-// RemoveCourseVideos removes "course_videos" edges to Video entities.
-func (csu *CourseSectionUpdate) RemoveCourseVideos(v ...*Video) *CourseSectionUpdate {
+// RemoveCourseSectionVideos removes "course_section_videos" edges to Video entities.
+func (csu *CourseSectionUpdate) RemoveCourseSectionVideos(v ...*Video) *CourseSectionUpdate {
 	ids := make([]string, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return csu.RemoveCourseVideoIDs(ids...)
+	return csu.RemoveCourseSectionVideoIDs(ids...)
 }
 
 // ClearQuestions clears all "questions" edges to the Question entity.
@@ -329,12 +329,12 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if csu.mutation.CourseVideosCleared() {
+	if csu.mutation.CourseSectionVideosCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
@@ -342,12 +342,12 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csu.mutation.RemovedCourseVideosIDs(); len(nodes) > 0 && !csu.mutation.CourseVideosCleared() {
+	if nodes := csu.mutation.RemovedCourseSectionVideosIDs(); len(nodes) > 0 && !csu.mutation.CourseSectionVideosCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
@@ -358,12 +358,12 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csu.mutation.CourseVideosIDs(); len(nodes) > 0 {
+	if nodes := csu.mutation.CourseSectionVideosIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
@@ -532,19 +532,19 @@ func (csuo *CourseSectionUpdateOne) SetCourse(c *Course) *CourseSectionUpdateOne
 	return csuo.SetCourseID(c.ID)
 }
 
-// AddCourseVideoIDs adds the "course_videos" edge to the Video entity by IDs.
-func (csuo *CourseSectionUpdateOne) AddCourseVideoIDs(ids ...string) *CourseSectionUpdateOne {
-	csuo.mutation.AddCourseVideoIDs(ids...)
+// AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
+func (csuo *CourseSectionUpdateOne) AddCourseSectionVideoIDs(ids ...string) *CourseSectionUpdateOne {
+	csuo.mutation.AddCourseSectionVideoIDs(ids...)
 	return csuo
 }
 
-// AddCourseVideos adds the "course_videos" edges to the Video entity.
-func (csuo *CourseSectionUpdateOne) AddCourseVideos(v ...*Video) *CourseSectionUpdateOne {
+// AddCourseSectionVideos adds the "course_section_videos" edges to the Video entity.
+func (csuo *CourseSectionUpdateOne) AddCourseSectionVideos(v ...*Video) *CourseSectionUpdateOne {
 	ids := make([]string, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return csuo.AddCourseVideoIDs(ids...)
+	return csuo.AddCourseSectionVideoIDs(ids...)
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
@@ -573,25 +573,25 @@ func (csuo *CourseSectionUpdateOne) ClearCourse() *CourseSectionUpdateOne {
 	return csuo
 }
 
-// ClearCourseVideos clears all "course_videos" edges to the Video entity.
-func (csuo *CourseSectionUpdateOne) ClearCourseVideos() *CourseSectionUpdateOne {
-	csuo.mutation.ClearCourseVideos()
+// ClearCourseSectionVideos clears all "course_section_videos" edges to the Video entity.
+func (csuo *CourseSectionUpdateOne) ClearCourseSectionVideos() *CourseSectionUpdateOne {
+	csuo.mutation.ClearCourseSectionVideos()
 	return csuo
 }
 
-// RemoveCourseVideoIDs removes the "course_videos" edge to Video entities by IDs.
-func (csuo *CourseSectionUpdateOne) RemoveCourseVideoIDs(ids ...string) *CourseSectionUpdateOne {
-	csuo.mutation.RemoveCourseVideoIDs(ids...)
+// RemoveCourseSectionVideoIDs removes the "course_section_videos" edge to Video entities by IDs.
+func (csuo *CourseSectionUpdateOne) RemoveCourseSectionVideoIDs(ids ...string) *CourseSectionUpdateOne {
+	csuo.mutation.RemoveCourseSectionVideoIDs(ids...)
 	return csuo
 }
 
-// RemoveCourseVideos removes "course_videos" edges to Video entities.
-func (csuo *CourseSectionUpdateOne) RemoveCourseVideos(v ...*Video) *CourseSectionUpdateOne {
+// RemoveCourseSectionVideos removes "course_section_videos" edges to Video entities.
+func (csuo *CourseSectionUpdateOne) RemoveCourseSectionVideos(v ...*Video) *CourseSectionUpdateOne {
 	ids := make([]string, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
-	return csuo.RemoveCourseVideoIDs(ids...)
+	return csuo.RemoveCourseSectionVideoIDs(ids...)
 }
 
 // ClearQuestions clears all "questions" edges to the Question entity.
@@ -767,12 +767,12 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if csuo.mutation.CourseVideosCleared() {
+	if csuo.mutation.CourseSectionVideosCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
@@ -780,12 +780,12 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csuo.mutation.RemovedCourseVideosIDs(); len(nodes) > 0 && !csuo.mutation.CourseVideosCleared() {
+	if nodes := csuo.mutation.RemovedCourseSectionVideosIDs(); len(nodes) > 0 && !csuo.mutation.CourseSectionVideosCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
@@ -796,12 +796,12 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csuo.mutation.CourseVideosIDs(); len(nodes) > 0 {
+	if nodes := csuo.mutation.CourseSectionVideosIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.CourseVideosTable,
-			Columns: []string{coursesection.CourseVideosColumn},
+			Table:   coursesection.CourseSectionVideosTable,
+			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),

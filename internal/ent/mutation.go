@@ -1932,26 +1932,26 @@ func (m *CourseMutation) ResetEdge(name string) error {
 // CourseSectionMutation represents an operation that mutates the CourseSection nodes in the graph.
 type CourseSectionMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *string
-	created_at           *time.Time
-	updated_at           *time.Time
-	deleted_at           *time.Time
-	title                *string
-	description          *string
-	clearedFields        map[string]struct{}
-	course               *string
-	clearedcourse        bool
-	course_videos        map[string]struct{}
-	removedcourse_videos map[string]struct{}
-	clearedcourse_videos bool
-	questions            map[string]struct{}
-	removedquestions     map[string]struct{}
-	clearedquestions     bool
-	done                 bool
-	oldValue             func(context.Context) (*CourseSection, error)
-	predicates           []predicate.CourseSection
+	op                           Op
+	typ                          string
+	id                           *string
+	created_at                   *time.Time
+	updated_at                   *time.Time
+	deleted_at                   *time.Time
+	title                        *string
+	description                  *string
+	clearedFields                map[string]struct{}
+	course                       *string
+	clearedcourse                bool
+	course_section_videos        map[string]struct{}
+	removedcourse_section_videos map[string]struct{}
+	clearedcourse_section_videos bool
+	questions                    map[string]struct{}
+	removedquestions             map[string]struct{}
+	clearedquestions             bool
+	done                         bool
+	oldValue                     func(context.Context) (*CourseSection, error)
+	predicates                   []predicate.CourseSection
 }
 
 var _ ent.Mutation = (*CourseSectionMutation)(nil)
@@ -2327,58 +2327,58 @@ func (m *CourseSectionMutation) ResetCourse() {
 	m.clearedcourse = false
 }
 
-// AddCourseVideoIDs adds the "course_videos" edge to the Video entity by ids.
-func (m *CourseSectionMutation) AddCourseVideoIDs(ids ...string) {
-	if m.course_videos == nil {
-		m.course_videos = make(map[string]struct{})
+// AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by ids.
+func (m *CourseSectionMutation) AddCourseSectionVideoIDs(ids ...string) {
+	if m.course_section_videos == nil {
+		m.course_section_videos = make(map[string]struct{})
 	}
 	for i := range ids {
-		m.course_videos[ids[i]] = struct{}{}
+		m.course_section_videos[ids[i]] = struct{}{}
 	}
 }
 
-// ClearCourseVideos clears the "course_videos" edge to the Video entity.
-func (m *CourseSectionMutation) ClearCourseVideos() {
-	m.clearedcourse_videos = true
+// ClearCourseSectionVideos clears the "course_section_videos" edge to the Video entity.
+func (m *CourseSectionMutation) ClearCourseSectionVideos() {
+	m.clearedcourse_section_videos = true
 }
 
-// CourseVideosCleared reports if the "course_videos" edge to the Video entity was cleared.
-func (m *CourseSectionMutation) CourseVideosCleared() bool {
-	return m.clearedcourse_videos
+// CourseSectionVideosCleared reports if the "course_section_videos" edge to the Video entity was cleared.
+func (m *CourseSectionMutation) CourseSectionVideosCleared() bool {
+	return m.clearedcourse_section_videos
 }
 
-// RemoveCourseVideoIDs removes the "course_videos" edge to the Video entity by IDs.
-func (m *CourseSectionMutation) RemoveCourseVideoIDs(ids ...string) {
-	if m.removedcourse_videos == nil {
-		m.removedcourse_videos = make(map[string]struct{})
+// RemoveCourseSectionVideoIDs removes the "course_section_videos" edge to the Video entity by IDs.
+func (m *CourseSectionMutation) RemoveCourseSectionVideoIDs(ids ...string) {
+	if m.removedcourse_section_videos == nil {
+		m.removedcourse_section_videos = make(map[string]struct{})
 	}
 	for i := range ids {
-		delete(m.course_videos, ids[i])
-		m.removedcourse_videos[ids[i]] = struct{}{}
+		delete(m.course_section_videos, ids[i])
+		m.removedcourse_section_videos[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedCourseVideos returns the removed IDs of the "course_videos" edge to the Video entity.
-func (m *CourseSectionMutation) RemovedCourseVideosIDs() (ids []string) {
-	for id := range m.removedcourse_videos {
+// RemovedCourseSectionVideos returns the removed IDs of the "course_section_videos" edge to the Video entity.
+func (m *CourseSectionMutation) RemovedCourseSectionVideosIDs() (ids []string) {
+	for id := range m.removedcourse_section_videos {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// CourseVideosIDs returns the "course_videos" edge IDs in the mutation.
-func (m *CourseSectionMutation) CourseVideosIDs() (ids []string) {
-	for id := range m.course_videos {
+// CourseSectionVideosIDs returns the "course_section_videos" edge IDs in the mutation.
+func (m *CourseSectionMutation) CourseSectionVideosIDs() (ids []string) {
+	for id := range m.course_section_videos {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetCourseVideos resets all changes to the "course_videos" edge.
-func (m *CourseSectionMutation) ResetCourseVideos() {
-	m.course_videos = nil
-	m.clearedcourse_videos = false
-	m.removedcourse_videos = nil
+// ResetCourseSectionVideos resets all changes to the "course_section_videos" edge.
+func (m *CourseSectionMutation) ResetCourseSectionVideos() {
+	m.course_section_videos = nil
+	m.clearedcourse_section_videos = false
+	m.removedcourse_section_videos = nil
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by ids.
@@ -2672,8 +2672,8 @@ func (m *CourseSectionMutation) AddedEdges() []string {
 	if m.course != nil {
 		edges = append(edges, coursesection.EdgeCourse)
 	}
-	if m.course_videos != nil {
-		edges = append(edges, coursesection.EdgeCourseVideos)
+	if m.course_section_videos != nil {
+		edges = append(edges, coursesection.EdgeCourseSectionVideos)
 	}
 	if m.questions != nil {
 		edges = append(edges, coursesection.EdgeQuestions)
@@ -2689,9 +2689,9 @@ func (m *CourseSectionMutation) AddedIDs(name string) []ent.Value {
 		if id := m.course; id != nil {
 			return []ent.Value{*id}
 		}
-	case coursesection.EdgeCourseVideos:
-		ids := make([]ent.Value, 0, len(m.course_videos))
-		for id := range m.course_videos {
+	case coursesection.EdgeCourseSectionVideos:
+		ids := make([]ent.Value, 0, len(m.course_section_videos))
+		for id := range m.course_section_videos {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2708,8 +2708,8 @@ func (m *CourseSectionMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CourseSectionMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 3)
-	if m.removedcourse_videos != nil {
-		edges = append(edges, coursesection.EdgeCourseVideos)
+	if m.removedcourse_section_videos != nil {
+		edges = append(edges, coursesection.EdgeCourseSectionVideos)
 	}
 	if m.removedquestions != nil {
 		edges = append(edges, coursesection.EdgeQuestions)
@@ -2721,9 +2721,9 @@ func (m *CourseSectionMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *CourseSectionMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case coursesection.EdgeCourseVideos:
-		ids := make([]ent.Value, 0, len(m.removedcourse_videos))
-		for id := range m.removedcourse_videos {
+	case coursesection.EdgeCourseSectionVideos:
+		ids := make([]ent.Value, 0, len(m.removedcourse_section_videos))
+		for id := range m.removedcourse_section_videos {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2743,8 +2743,8 @@ func (m *CourseSectionMutation) ClearedEdges() []string {
 	if m.clearedcourse {
 		edges = append(edges, coursesection.EdgeCourse)
 	}
-	if m.clearedcourse_videos {
-		edges = append(edges, coursesection.EdgeCourseVideos)
+	if m.clearedcourse_section_videos {
+		edges = append(edges, coursesection.EdgeCourseSectionVideos)
 	}
 	if m.clearedquestions {
 		edges = append(edges, coursesection.EdgeQuestions)
@@ -2758,8 +2758,8 @@ func (m *CourseSectionMutation) EdgeCleared(name string) bool {
 	switch name {
 	case coursesection.EdgeCourse:
 		return m.clearedcourse
-	case coursesection.EdgeCourseVideos:
-		return m.clearedcourse_videos
+	case coursesection.EdgeCourseSectionVideos:
+		return m.clearedcourse_section_videos
 	case coursesection.EdgeQuestions:
 		return m.clearedquestions
 	}
@@ -2784,8 +2784,8 @@ func (m *CourseSectionMutation) ResetEdge(name string) error {
 	case coursesection.EdgeCourse:
 		m.ResetCourse()
 		return nil
-	case coursesection.EdgeCourseVideos:
-		m.ResetCourseVideos()
+	case coursesection.EdgeCourseSectionVideos:
+		m.ResetCourseSectionVideos()
 		return nil
 	case coursesection.EdgeQuestions:
 		m.ResetQuestions()
@@ -9540,6 +9540,8 @@ type VideoMutation struct {
 	clearedcourse_section                  bool
 	media                                  *string
 	clearedmedia                           bool
+	course                                 *string
+	clearedcourse                          bool
 	video_question_timestamps_video        map[string]struct{}
 	removedvideo_question_timestamps_video map[string]struct{}
 	clearedvideo_question_timestamps_video bool
@@ -9930,6 +9932,42 @@ func (m *VideoMutation) ResetMediaID() {
 	m.media = nil
 }
 
+// SetCourseID sets the "course_id" field.
+func (m *VideoMutation) SetCourseID(s string) {
+	m.course = &s
+}
+
+// CourseID returns the value of the "course_id" field in the mutation.
+func (m *VideoMutation) CourseID() (r string, exists bool) {
+	v := m.course
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCourseID returns the old "course_id" field's value of the Video entity.
+// If the Video object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VideoMutation) OldCourseID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCourseID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCourseID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCourseID: %w", err)
+	}
+	return oldValue.CourseID, nil
+}
+
+// ResetCourseID resets all changes to the "course_id" field.
+func (m *VideoMutation) ResetCourseID() {
+	m.course = nil
+}
+
 // SetDuration sets the "duration" field.
 func (m *VideoMutation) SetDuration(i int) {
 	m.duration = &i
@@ -10067,6 +10105,33 @@ func (m *VideoMutation) ResetMedia() {
 	m.clearedmedia = false
 }
 
+// ClearCourse clears the "course" edge to the Course entity.
+func (m *VideoMutation) ClearCourse() {
+	m.clearedcourse = true
+	m.clearedFields[video.FieldCourseID] = struct{}{}
+}
+
+// CourseCleared reports if the "course" edge to the Course entity was cleared.
+func (m *VideoMutation) CourseCleared() bool {
+	return m.clearedcourse
+}
+
+// CourseIDs returns the "course" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CourseID instead. It exists only for internal usage by the builders.
+func (m *VideoMutation) CourseIDs() (ids []string) {
+	if id := m.course; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCourse resets all changes to the "course" edge.
+func (m *VideoMutation) ResetCourse() {
+	m.course = nil
+	m.clearedcourse = false
+}
+
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by ids.
 func (m *VideoMutation) AddVideoQuestionTimestampsVideoIDs(ids ...string) {
 	if m.video_question_timestamps_video == nil {
@@ -10155,7 +10220,7 @@ func (m *VideoMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *VideoMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, video.FieldCreatedAt)
 	}
@@ -10176,6 +10241,9 @@ func (m *VideoMutation) Fields() []string {
 	}
 	if m.media != nil {
 		fields = append(fields, video.FieldMediaID)
+	}
+	if m.course != nil {
+		fields = append(fields, video.FieldCourseID)
 	}
 	if m.duration != nil {
 		fields = append(fields, video.FieldDuration)
@@ -10202,6 +10270,8 @@ func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case video.FieldMediaID:
 		return m.MediaID()
+	case video.FieldCourseID:
+		return m.CourseID()
 	case video.FieldDuration:
 		return m.Duration()
 	}
@@ -10227,6 +10297,8 @@ func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDescription(ctx)
 	case video.FieldMediaID:
 		return m.OldMediaID(ctx)
+	case video.FieldCourseID:
+		return m.OldCourseID(ctx)
 	case video.FieldDuration:
 		return m.OldDuration(ctx)
 	}
@@ -10286,6 +10358,13 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMediaID(v)
+		return nil
+	case video.FieldCourseID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCourseID(v)
 		return nil
 	case video.FieldDuration:
 		v, ok := value.(int)
@@ -10400,6 +10479,9 @@ func (m *VideoMutation) ResetField(name string) error {
 	case video.FieldMediaID:
 		m.ResetMediaID()
 		return nil
+	case video.FieldCourseID:
+		m.ResetCourseID()
+		return nil
 	case video.FieldDuration:
 		m.ResetDuration()
 		return nil
@@ -10409,12 +10491,15 @@ func (m *VideoMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *VideoMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.course_section != nil {
 		edges = append(edges, video.EdgeCourseSection)
 	}
 	if m.media != nil {
 		edges = append(edges, video.EdgeMedia)
+	}
+	if m.course != nil {
+		edges = append(edges, video.EdgeCourse)
 	}
 	if m.video_question_timestamps_video != nil {
 		edges = append(edges, video.EdgeVideoQuestionTimestampsVideo)
@@ -10434,6 +10519,10 @@ func (m *VideoMutation) AddedIDs(name string) []ent.Value {
 		if id := m.media; id != nil {
 			return []ent.Value{*id}
 		}
+	case video.EdgeCourse:
+		if id := m.course; id != nil {
+			return []ent.Value{*id}
+		}
 	case video.EdgeVideoQuestionTimestampsVideo:
 		ids := make([]ent.Value, 0, len(m.video_question_timestamps_video))
 		for id := range m.video_question_timestamps_video {
@@ -10446,7 +10535,7 @@ func (m *VideoMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *VideoMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedvideo_question_timestamps_video != nil {
 		edges = append(edges, video.EdgeVideoQuestionTimestampsVideo)
 	}
@@ -10469,12 +10558,15 @@ func (m *VideoMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *VideoMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedcourse_section {
 		edges = append(edges, video.EdgeCourseSection)
 	}
 	if m.clearedmedia {
 		edges = append(edges, video.EdgeMedia)
+	}
+	if m.clearedcourse {
+		edges = append(edges, video.EdgeCourse)
 	}
 	if m.clearedvideo_question_timestamps_video {
 		edges = append(edges, video.EdgeVideoQuestionTimestampsVideo)
@@ -10490,6 +10582,8 @@ func (m *VideoMutation) EdgeCleared(name string) bool {
 		return m.clearedcourse_section
 	case video.EdgeMedia:
 		return m.clearedmedia
+	case video.EdgeCourse:
+		return m.clearedcourse
 	case video.EdgeVideoQuestionTimestampsVideo:
 		return m.clearedvideo_question_timestamps_video
 	}
@@ -10506,6 +10600,9 @@ func (m *VideoMutation) ClearEdge(name string) error {
 	case video.EdgeMedia:
 		m.ClearMedia()
 		return nil
+	case video.EdgeCourse:
+		m.ClearCourse()
+		return nil
 	}
 	return fmt.Errorf("unknown Video unique edge %s", name)
 }
@@ -10519,6 +10616,9 @@ func (m *VideoMutation) ResetEdge(name string) error {
 		return nil
 	case video.EdgeMedia:
 		m.ResetMedia()
+		return nil
+	case video.EdgeCourse:
+		m.ResetCourse()
 		return nil
 	case video.EdgeVideoQuestionTimestampsVideo:
 		m.ResetVideoQuestionTimestampsVideo()

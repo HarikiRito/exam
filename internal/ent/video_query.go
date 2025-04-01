@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
+	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
@@ -28,8 +29,8 @@ type VideoQuery struct {
 	predicates                       []predicate.Video
 	withCourseSection                *CourseSectionQuery
 	withMedia                        *MediaQuery
+	withCourse                       *CourseQuery
 	withVideoQuestionTimestampsVideo *VideoQuestionTimestampQuery
-	withFKs                          bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -103,6 +104,28 @@ func (vq *VideoQuery) QueryMedia() *MediaQuery {
 			sqlgraph.From(video.Table, video.FieldID, selector),
 			sqlgraph.To(media.Table, media.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, video.MediaTable, video.MediaColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(vq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCourse chains the current query on the "course" edge.
+func (vq *VideoQuery) QueryCourse() *CourseQuery {
+	query := (&CourseClient{config: vq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := vq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := vq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(video.Table, video.FieldID, selector),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, video.CourseTable, video.CourseColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(vq.driver.Dialect(), step)
 		return fromU, nil
@@ -326,6 +349,7 @@ func (vq *VideoQuery) Clone() *VideoQuery {
 		predicates:                       append([]predicate.Video{}, vq.predicates...),
 		withCourseSection:                vq.withCourseSection.Clone(),
 		withMedia:                        vq.withMedia.Clone(),
+		withCourse:                       vq.withCourse.Clone(),
 		withVideoQuestionTimestampsVideo: vq.withVideoQuestionTimestampsVideo.Clone(),
 		// clone intermediate query.
 		sql:  vq.sql.Clone(),
@@ -352,6 +376,17 @@ func (vq *VideoQuery) WithMedia(opts ...func(*MediaQuery)) *VideoQuery {
 		opt(query)
 	}
 	vq.withMedia = query
+	return vq
+}
+
+// WithCourse tells the query-builder to eager-load the nodes that are connected to
+// the "course" edge. The optional arguments are used to configure the query builder of the edge.
+func (vq *VideoQuery) WithCourse(opts ...func(*CourseQuery)) *VideoQuery {
+	query := (&CourseClient{config: vq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	vq.withCourse = query
 	return vq
 }
 
@@ -443,17 +478,14 @@ func (vq *VideoQuery) prepareQuery(ctx context.Context) error {
 func (vq *VideoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Video, error) {
 	var (
 		nodes       = []*Video{}
-		withFKs     = vq.withFKs
 		_spec       = vq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			vq.withCourseSection != nil,
 			vq.withMedia != nil,
+			vq.withCourse != nil,
 			vq.withVideoQuestionTimestampsVideo != nil,
 		}
 	)
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, video.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Video).scanValues(nil, columns)
 	}
@@ -481,6 +513,12 @@ func (vq *VideoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Video,
 	if query := vq.withMedia; query != nil {
 		if err := vq.loadMedia(ctx, query, nodes, nil,
 			func(n *Video, e *Media) { n.Edges.Media = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := vq.withCourse; query != nil {
+		if err := vq.loadCourse(ctx, query, nodes, nil,
+			func(n *Video, e *Course) { n.Edges.Course = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -554,6 +592,35 @@ func (vq *VideoQuery) loadMedia(ctx context.Context, query *MediaQuery, nodes []
 	}
 	return nil
 }
+func (vq *VideoQuery) loadCourse(ctx context.Context, query *CourseQuery, nodes []*Video, init func(*Video), assign func(*Video, *Course)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Video)
+	for i := range nodes {
+		fk := nodes[i].CourseID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(course.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "course_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (vq *VideoQuery) loadVideoQuestionTimestampsVideo(ctx context.Context, query *VideoQuestionTimestampQuery, nodes []*Video, init func(*Video), assign func(*Video, *VideoQuestionTimestamp)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*Video)
@@ -615,6 +682,9 @@ func (vq *VideoQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if vq.withMedia != nil {
 			_spec.Node.AddColumnOnce(video.FieldMediaID)
+		}
+		if vq.withCourse != nil {
+			_spec.Node.AddColumnOnce(video.FieldCourseID)
 		}
 	}
 	if ps := vq.predicates; len(ps) > 0 {

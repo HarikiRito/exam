@@ -29,12 +29,16 @@ const (
 	FieldDescription = "description"
 	// FieldMediaID holds the string denoting the media_id field in the database.
 	FieldMediaID = "media_id"
+	// FieldCourseID holds the string denoting the course_id field in the database.
+	FieldCourseID = "course_id"
 	// FieldDuration holds the string denoting the duration field in the database.
 	FieldDuration = "duration"
 	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
 	EdgeCourseSection = "course_section"
 	// EdgeMedia holds the string denoting the media edge name in mutations.
 	EdgeMedia = "media"
+	// EdgeCourse holds the string denoting the course edge name in mutations.
+	EdgeCourse = "course"
 	// EdgeVideoQuestionTimestampsVideo holds the string denoting the video_question_timestamps_video edge name in mutations.
 	EdgeVideoQuestionTimestampsVideo = "video_question_timestamps_video"
 	// Table holds the table name of the video in the database.
@@ -53,6 +57,13 @@ const (
 	MediaInverseTable = "media"
 	// MediaColumn is the table column denoting the media relation/edge.
 	MediaColumn = "media_id"
+	// CourseTable is the table that holds the course relation/edge.
+	CourseTable = "videos"
+	// CourseInverseTable is the table name for the Course entity.
+	// It exists in this package in order to avoid circular dependency with the "course" package.
+	CourseInverseTable = "courses"
+	// CourseColumn is the table column denoting the course relation/edge.
+	CourseColumn = "course_id"
 	// VideoQuestionTimestampsVideoTable is the table that holds the video_question_timestamps_video relation/edge.
 	VideoQuestionTimestampsVideoTable = "video_question_timestamps"
 	// VideoQuestionTimestampsVideoInverseTable is the table name for the VideoQuestionTimestamp entity.
@@ -72,24 +83,14 @@ var Columns = []string{
 	FieldTitle,
 	FieldDescription,
 	FieldMediaID,
+	FieldCourseID,
 	FieldDuration,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "videos"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"course_course_videos",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -115,6 +116,8 @@ var (
 	TitleValidator func(string) error
 	// MediaIDValidator is a validator for the "media_id" field. It is called by the builders before save.
 	MediaIDValidator func(string) error
+	// CourseIDValidator is a validator for the "course_id" field. It is called by the builders before save.
+	CourseIDValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Video queries.
@@ -160,6 +163,11 @@ func ByMediaID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMediaID, opts...).ToFunc()
 }
 
+// ByCourseID orders the results by the course_id field.
+func ByCourseID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCourseID, opts...).ToFunc()
+}
+
 // ByDuration orders the results by the duration field.
 func ByDuration(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDuration, opts...).ToFunc()
@@ -176,6 +184,13 @@ func ByCourseSectionField(field string, opts ...sql.OrderTermOption) OrderOption
 func ByMediaField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newMediaStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByCourseField orders the results by course field.
+func ByCourseField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCourseStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -204,6 +219,13 @@ func newMediaStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MediaInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MediaTable, MediaColumn),
+	)
+}
+func newCourseStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CourseInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CourseTable, CourseColumn),
 	)
 }
 func newVideoQuestionTimestampsVideoStep() *sqlgraph.Step {

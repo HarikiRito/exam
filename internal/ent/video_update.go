@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
@@ -133,6 +134,20 @@ func (vu *VideoUpdate) SetNillableMediaID(s *string) *VideoUpdate {
 	return vu
 }
 
+// SetCourseID sets the "course_id" field.
+func (vu *VideoUpdate) SetCourseID(s string) *VideoUpdate {
+	vu.mutation.SetCourseID(s)
+	return vu
+}
+
+// SetNillableCourseID sets the "course_id" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableCourseID(s *string) *VideoUpdate {
+	if s != nil {
+		vu.SetCourseID(*s)
+	}
+	return vu
+}
+
 // SetDuration sets the "duration" field.
 func (vu *VideoUpdate) SetDuration(i int) *VideoUpdate {
 	vu.mutation.ResetDuration()
@@ -176,6 +191,11 @@ func (vu *VideoUpdate) SetMedia(m *Media) *VideoUpdate {
 	return vu.SetMediaID(m.ID)
 }
 
+// SetCourse sets the "course" edge to the Course entity.
+func (vu *VideoUpdate) SetCourse(c *Course) *VideoUpdate {
+	return vu.SetCourseID(c.ID)
+}
+
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
 func (vu *VideoUpdate) AddVideoQuestionTimestampsVideoIDs(ids ...string) *VideoUpdate {
 	vu.mutation.AddVideoQuestionTimestampsVideoIDs(ids...)
@@ -205,6 +225,12 @@ func (vu *VideoUpdate) ClearCourseSection() *VideoUpdate {
 // ClearMedia clears the "media" edge to the Media entity.
 func (vu *VideoUpdate) ClearMedia() *VideoUpdate {
 	vu.mutation.ClearMedia()
+	return vu
+}
+
+// ClearCourse clears the "course" edge to the Course entity.
+func (vu *VideoUpdate) ClearCourse() *VideoUpdate {
+	vu.mutation.ClearCourse()
 	return vu
 }
 
@@ -288,11 +314,19 @@ func (vu *VideoUpdate) check() error {
 			return &ValidationError{Name: "media_id", err: fmt.Errorf(`ent: validator failed for field "Video.media_id": %w`, err)}
 		}
 	}
+	if v, ok := vu.mutation.CourseID(); ok {
+		if err := video.CourseIDValidator(v); err != nil {
+			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "Video.course_id": %w`, err)}
+		}
+	}
 	if vu.mutation.CourseSectionCleared() && len(vu.mutation.CourseSectionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Video.course_section"`)
 	}
 	if vu.mutation.MediaCleared() && len(vu.mutation.MediaIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Video.media"`)
+	}
+	if vu.mutation.CourseCleared() && len(vu.mutation.CourseIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Video.course"`)
 	}
 	return nil
 }
@@ -390,6 +424,35 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if vu.mutation.CourseCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   video.CourseTable,
+			Columns: []string{video.CourseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := vu.mutation.CourseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   video.CourseTable,
+			Columns: []string{video.CourseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -564,6 +627,20 @@ func (vuo *VideoUpdateOne) SetNillableMediaID(s *string) *VideoUpdateOne {
 	return vuo
 }
 
+// SetCourseID sets the "course_id" field.
+func (vuo *VideoUpdateOne) SetCourseID(s string) *VideoUpdateOne {
+	vuo.mutation.SetCourseID(s)
+	return vuo
+}
+
+// SetNillableCourseID sets the "course_id" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableCourseID(s *string) *VideoUpdateOne {
+	if s != nil {
+		vuo.SetCourseID(*s)
+	}
+	return vuo
+}
+
 // SetDuration sets the "duration" field.
 func (vuo *VideoUpdateOne) SetDuration(i int) *VideoUpdateOne {
 	vuo.mutation.ResetDuration()
@@ -607,6 +684,11 @@ func (vuo *VideoUpdateOne) SetMedia(m *Media) *VideoUpdateOne {
 	return vuo.SetMediaID(m.ID)
 }
 
+// SetCourse sets the "course" edge to the Course entity.
+func (vuo *VideoUpdateOne) SetCourse(c *Course) *VideoUpdateOne {
+	return vuo.SetCourseID(c.ID)
+}
+
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
 func (vuo *VideoUpdateOne) AddVideoQuestionTimestampsVideoIDs(ids ...string) *VideoUpdateOne {
 	vuo.mutation.AddVideoQuestionTimestampsVideoIDs(ids...)
@@ -636,6 +718,12 @@ func (vuo *VideoUpdateOne) ClearCourseSection() *VideoUpdateOne {
 // ClearMedia clears the "media" edge to the Media entity.
 func (vuo *VideoUpdateOne) ClearMedia() *VideoUpdateOne {
 	vuo.mutation.ClearMedia()
+	return vuo
+}
+
+// ClearCourse clears the "course" edge to the Course entity.
+func (vuo *VideoUpdateOne) ClearCourse() *VideoUpdateOne {
+	vuo.mutation.ClearCourse()
 	return vuo
 }
 
@@ -732,11 +820,19 @@ func (vuo *VideoUpdateOne) check() error {
 			return &ValidationError{Name: "media_id", err: fmt.Errorf(`ent: validator failed for field "Video.media_id": %w`, err)}
 		}
 	}
+	if v, ok := vuo.mutation.CourseID(); ok {
+		if err := video.CourseIDValidator(v); err != nil {
+			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "Video.course_id": %w`, err)}
+		}
+	}
 	if vuo.mutation.CourseSectionCleared() && len(vuo.mutation.CourseSectionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Video.course_section"`)
 	}
 	if vuo.mutation.MediaCleared() && len(vuo.mutation.MediaIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Video.media"`)
+	}
+	if vuo.mutation.CourseCleared() && len(vuo.mutation.CourseIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Video.course"`)
 	}
 	return nil
 }
@@ -851,6 +947,35 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if vuo.mutation.CourseCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   video.CourseTable,
+			Columns: []string{video.CourseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := vuo.mutation.CourseIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   video.CourseTable,
+			Columns: []string{video.CourseColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

@@ -100,6 +100,11 @@ func MediaID(v string) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldMediaID, v))
 }
 
+// CourseID applies equality check predicate on the "course_id" field. It's identical to CourseIDEQ.
+func CourseID(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldCourseID, v))
+}
+
 // Duration applies equality check predicate on the "duration" field. It's identical to DurationEQ.
 func Duration(v int) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldDuration, v))
@@ -505,6 +510,71 @@ func MediaIDContainsFold(v string) predicate.Video {
 	return predicate.Video(sql.FieldContainsFold(FieldMediaID, v))
 }
 
+// CourseIDEQ applies the EQ predicate on the "course_id" field.
+func CourseIDEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldEQ(FieldCourseID, v))
+}
+
+// CourseIDNEQ applies the NEQ predicate on the "course_id" field.
+func CourseIDNEQ(v string) predicate.Video {
+	return predicate.Video(sql.FieldNEQ(FieldCourseID, v))
+}
+
+// CourseIDIn applies the In predicate on the "course_id" field.
+func CourseIDIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldIn(FieldCourseID, vs...))
+}
+
+// CourseIDNotIn applies the NotIn predicate on the "course_id" field.
+func CourseIDNotIn(vs ...string) predicate.Video {
+	return predicate.Video(sql.FieldNotIn(FieldCourseID, vs...))
+}
+
+// CourseIDGT applies the GT predicate on the "course_id" field.
+func CourseIDGT(v string) predicate.Video {
+	return predicate.Video(sql.FieldGT(FieldCourseID, v))
+}
+
+// CourseIDGTE applies the GTE predicate on the "course_id" field.
+func CourseIDGTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldGTE(FieldCourseID, v))
+}
+
+// CourseIDLT applies the LT predicate on the "course_id" field.
+func CourseIDLT(v string) predicate.Video {
+	return predicate.Video(sql.FieldLT(FieldCourseID, v))
+}
+
+// CourseIDLTE applies the LTE predicate on the "course_id" field.
+func CourseIDLTE(v string) predicate.Video {
+	return predicate.Video(sql.FieldLTE(FieldCourseID, v))
+}
+
+// CourseIDContains applies the Contains predicate on the "course_id" field.
+func CourseIDContains(v string) predicate.Video {
+	return predicate.Video(sql.FieldContains(FieldCourseID, v))
+}
+
+// CourseIDHasPrefix applies the HasPrefix predicate on the "course_id" field.
+func CourseIDHasPrefix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasPrefix(FieldCourseID, v))
+}
+
+// CourseIDHasSuffix applies the HasSuffix predicate on the "course_id" field.
+func CourseIDHasSuffix(v string) predicate.Video {
+	return predicate.Video(sql.FieldHasSuffix(FieldCourseID, v))
+}
+
+// CourseIDEqualFold applies the EqualFold predicate on the "course_id" field.
+func CourseIDEqualFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldEqualFold(FieldCourseID, v))
+}
+
+// CourseIDContainsFold applies the ContainsFold predicate on the "course_id" field.
+func CourseIDContainsFold(v string) predicate.Video {
+	return predicate.Video(sql.FieldContainsFold(FieldCourseID, v))
+}
+
 // DurationEQ applies the EQ predicate on the "duration" field.
 func DurationEQ(v int) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldDuration, v))
@@ -593,6 +663,29 @@ func HasMedia() predicate.Video {
 func HasMediaWith(preds ...predicate.Media) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		step := newMediaStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCourse applies the HasEdge predicate on the "course" edge.
+func HasCourse() predicate.Video {
+	return predicate.Video(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CourseTable, CourseColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCourseWith applies the HasEdge predicate on the "course" edge with a given conditions (other predicates).
+func HasCourseWith(preds ...predicate.Course) predicate.Video {
+	return predicate.Video(func(s *sql.Selector) {
+		step := newCourseStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

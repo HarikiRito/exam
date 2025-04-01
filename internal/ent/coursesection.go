@@ -40,8 +40,8 @@ type CourseSection struct {
 type CourseSectionEdges struct {
 	// Course holds the value of the course edge.
 	Course *Course `json:"course,omitempty"`
-	// CourseVideos holds the value of the course_videos edge.
-	CourseVideos []*Video `json:"course_videos,omitempty"`
+	// CourseSectionVideos holds the value of the course_section_videos edge.
+	CourseSectionVideos []*Video `json:"course_section_videos,omitempty"`
 	// Questions holds the value of the questions edge.
 	Questions []*Question `json:"questions,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -60,13 +60,13 @@ func (e CourseSectionEdges) CourseOrErr() (*Course, error) {
 	return nil, &NotLoadedError{edge: "course"}
 }
 
-// CourseVideosOrErr returns the CourseVideos value or an error if the edge
+// CourseSectionVideosOrErr returns the CourseSectionVideos value or an error if the edge
 // was not loaded in eager-loading.
-func (e CourseSectionEdges) CourseVideosOrErr() ([]*Video, error) {
+func (e CourseSectionEdges) CourseSectionVideosOrErr() ([]*Video, error) {
 	if e.loadedTypes[1] {
-		return e.CourseVideos, nil
+		return e.CourseSectionVideos, nil
 	}
-	return nil, &NotLoadedError{edge: "course_videos"}
+	return nil, &NotLoadedError{edge: "course_section_videos"}
 }
 
 // QuestionsOrErr returns the Questions value or an error if the edge
@@ -163,9 +163,9 @@ func (cs *CourseSection) QueryCourse() *CourseQuery {
 	return NewCourseSectionClient(cs.config).QueryCourse(cs)
 }
 
-// QueryCourseVideos queries the "course_videos" edge of the CourseSection entity.
-func (cs *CourseSection) QueryCourseVideos() *VideoQuery {
-	return NewCourseSectionClient(cs.config).QueryCourseVideos(cs)
+// QueryCourseSectionVideos queries the "course_section_videos" edge of the CourseSection entity.
+func (cs *CourseSection) QueryCourseSectionVideos() *VideoQuery {
+	return NewCourseSectionClient(cs.config).QueryCourseSectionVideos(cs)
 }
 
 // QueryQuestions queries the "questions" edge of the CourseSection entity.

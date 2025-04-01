@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
 	"template/internal/ent/video"
@@ -33,13 +34,14 @@ type Video struct {
 	Description string `json:"description,omitempty"`
 	// MediaID holds the value of the "media_id" field.
 	MediaID string `json:"media_id,omitempty"`
+	// CourseID holds the value of the "course_id" field.
+	CourseID string `json:"course_id,omitempty"`
 	// Duration in seconds
 	Duration int `json:"duration,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the VideoQuery when eager-loading is set.
-	Edges                VideoEdges `json:"edges"`
-	course_course_videos *string
-	selectValues         sql.SelectValues
+	Edges        VideoEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // VideoEdges holds the relations/edges for other nodes in the graph.
@@ -48,11 +50,13 @@ type VideoEdges struct {
 	CourseSection *CourseSection `json:"course_section,omitempty"`
 	// Media holds the value of the media edge.
 	Media *Media `json:"media,omitempty"`
+	// Course holds the value of the course edge.
+	Course *Course `json:"course,omitempty"`
 	// VideoQuestionTimestampsVideo holds the value of the video_question_timestamps_video edge.
 	VideoQuestionTimestampsVideo []*VideoQuestionTimestamp `json:"video_question_timestamps_video,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // CourseSectionOrErr returns the CourseSection value or an error if the edge
@@ -77,10 +81,21 @@ func (e VideoEdges) MediaOrErr() (*Media, error) {
 	return nil, &NotLoadedError{edge: "media"}
 }
 
+// CourseOrErr returns the Course value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e VideoEdges) CourseOrErr() (*Course, error) {
+	if e.Course != nil {
+		return e.Course, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: course.Label}
+	}
+	return nil, &NotLoadedError{edge: "course"}
+}
+
 // VideoQuestionTimestampsVideoOrErr returns the VideoQuestionTimestampsVideo value or an error if the edge
 // was not loaded in eager-loading.
 func (e VideoEdges) VideoQuestionTimestampsVideoOrErr() ([]*VideoQuestionTimestamp, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.VideoQuestionTimestampsVideo, nil
 	}
 	return nil, &NotLoadedError{edge: "video_question_timestamps_video"}
@@ -93,12 +108,10 @@ func (*Video) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case video.FieldDuration:
 			values[i] = new(sql.NullInt64)
-		case video.FieldID, video.FieldSectionID, video.FieldTitle, video.FieldDescription, video.FieldMediaID:
+		case video.FieldID, video.FieldSectionID, video.FieldTitle, video.FieldDescription, video.FieldMediaID, video.FieldCourseID:
 			values[i] = new(sql.NullString)
 		case video.FieldCreatedAt, video.FieldUpdatedAt, video.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case video.ForeignKeys[0]: // course_course_videos
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -163,18 +176,17 @@ func (v *Video) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				v.MediaID = value.String
 			}
+		case video.FieldCourseID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field course_id", values[i])
+			} else if value.Valid {
+				v.CourseID = value.String
+			}
 		case video.FieldDuration:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field duration", values[i])
 			} else if value.Valid {
 				v.Duration = int(value.Int64)
-			}
-		case video.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field course_course_videos", values[i])
-			} else if value.Valid {
-				v.course_course_videos = new(string)
-				*v.course_course_videos = value.String
 			}
 		default:
 			v.selectValues.Set(columns[i], values[i])
@@ -197,6 +209,11 @@ func (v *Video) QueryCourseSection() *CourseSectionQuery {
 // QueryMedia queries the "media" edge of the Video entity.
 func (v *Video) QueryMedia() *MediaQuery {
 	return NewVideoClient(v.config).QueryMedia(v)
+}
+
+// QueryCourse queries the "course" edge of the Video entity.
+func (v *Video) QueryCourse() *CourseQuery {
+	return NewVideoClient(v.config).QueryCourse(v)
 }
 
 // QueryVideoQuestionTimestampsVideo queries the "video_question_timestamps_video" edge of the Video entity.
@@ -249,6 +266,9 @@ func (v *Video) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("media_id=")
 	builder.WriteString(v.MediaID)
+	builder.WriteString(", ")
+	builder.WriteString("course_id=")
+	builder.WriteString(v.CourseID)
 	builder.WriteString(", ")
 	builder.WriteString("duration=")
 	builder.WriteString(fmt.Sprintf("%v", v.Duration))

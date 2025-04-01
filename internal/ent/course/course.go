@@ -68,7 +68,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "video" package.
 	CourseVideosInverseTable = "videos"
 	// CourseVideosColumn is the table column denoting the course_videos relation/edge.
-	CourseVideosColumn = "course_course_videos"
+	CourseVideosColumn = "course_id"
 )
 
 // Columns holds all SQL columns for course fields.
