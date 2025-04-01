@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 )
+
 
 type BaseMixin struct {
 	mixin.Schema
@@ -18,9 +20,23 @@ type BaseMixin struct {
 func (BaseMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").Unique(),
-		field.Time("created_at").Default(time.Now),
-		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
-		field.Time("deleted_at").Nillable().Optional(),
+		field.Time("created_at").
+			Default(time.Now).
+			SchemaType(map[string]string{
+				dialect.Postgres: "timestamp without time zone",
+			}),
+		field.Time("updated_at").
+			Default(time.Now).
+			UpdateDefault(time.Now).
+			SchemaType(map[string]string{
+				dialect.Postgres: "timestamp without time zone",
+			}),
+		field.Time("deleted_at").
+			Nillable().
+			Optional().
+			SchemaType(map[string]string{
+				dialect.Postgres: "timestamp without time zone",
+			}),
 	}
 }
 
@@ -45,3 +61,4 @@ func UlidGenerator() ent.Hook {
 		})
 	}, ent.OpCreate)
 }
+
