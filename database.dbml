@@ -1,0 +1,207 @@
+// Database schema for Learning Platform
+
+// User Management
+Table users {
+  id varchar [pk]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  passwordHash varchar [not null]
+  firstName varchar
+  lastName varchar
+  profileImageId varchar
+  bio text
+  isActive boolean [default: true]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table roles {
+  id varchar [pk]
+  name varchar [not null, unique]
+  description text
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table permissions {
+  id varchar [pk]
+  name varchar [not null, unique]
+  description text
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table user_roles {
+  id varchar [pk]
+  userId varchar [not null]
+  roleId varchar [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table role_permissions {
+  id varchar [pk]
+  roleId varchar [not null]
+  permissionId varchar [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table auth {
+  id varchar [pk]
+  userId varchar [not null]
+  accessToken varchar [not null]
+  refreshToken varchar [not null]
+  accessTokenExpiresAt timestamp [not null]
+  refreshTokenExpiresAt timestamp [not null]
+  isRevoked boolean [default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+// Media Management
+Table media {
+  id varchar [pk]
+  fileName varchar [not null]
+  fileUrl varchar [not null]
+  mimeType varchar [not null]
+  uploaderId varchar
+  metadata jsonb [note: 'Additional metadata for the file']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+// Course Management
+Table courses {
+  id varchar [pk]
+  title varchar [not null]
+  description text
+  mediaId varchar
+  creatorId varchar [not null]
+  isPublished boolean [default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table sections {
+  id varchar [pk]
+  courseId varchar [not null]
+  title varchar [not null]
+  description text
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table videos {
+  id varchar [pk]
+  sectionId varchar [not null]
+  title varchar [not null]
+  description text
+  mediaId varchar [not null]
+  duration integer [note: 'Duration in seconds']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+// Question Management
+Table questions {
+  id varchar [pk]
+  sectionId varchar [not null]
+  questionText text [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table video_question_timestamps {
+  id varchar [pk]
+  videoId varchar [not null]
+  questionId varchar [not null]
+  timestamp integer [not null, note: 'Timestamp in seconds when question should appear during video playback']
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table question_options {
+  id varchar [pk]
+  questionId varchar [not null]
+  optionText text [not null]
+  isCorrect boolean [not null, default: false]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+// User Progress
+Table user_course_enrollments {
+  id varchar [pk]
+  userId varchar [not null]
+  courseId varchar [not null]
+  enrolledAt timestamp [default: `now()`]
+  completedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table user_section_progress {
+  id varchar [pk]
+  userId varchar [not null]
+  sectionId varchar [not null]
+  isCompleted boolean [default: false]
+  completedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table user_video_progress {
+  id varchar [pk]
+  userId varchar [not null]
+  videoId varchar [not null]
+  watchedSeconds integer [default: 0]
+  isCompleted boolean [default: false]
+  lastWatchedAt timestamp
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+Table user_question_answers {
+  id varchar [pk]
+  userId varchar [not null]
+  questionId varchar [not null]
+  selectedOptionId varchar [not null]
+  createdAt timestamp [default: `now()`]
+  updatedAt timestamp [default: `now()`]
+}
+
+// Relationships
+
+// User Management Relationships
+Ref: users.profileImageId > media.id
+Ref: user_roles.userId > users.id [delete: cascade]
+Ref: user_roles.roleId > roles.id [delete: cascade]
+Ref: role_permissions.roleId > roles.id [delete: cascade]
+Ref: role_permissions.permissionId > permissions.id [delete: cascade]
+Ref: auth.userId > users.id [delete: cascade]
+
+// Media Relationships
+Ref: media.uploaderId > users.id
+Ref: courses.mediaId > media.id
+
+// Course Management Relationships
+Ref: courses.creatorId > users.id
+Ref: sections.courseId > courses.id [delete: cascade]
+Ref: videos.sectionId > sections.id [delete: cascade]
+Ref: videos.mediaId > media.id
+Ref: questions.sectionId > sections.id [delete: cascade]
+Ref: video_question_timestamps.videoId > videos.id [delete: cascade]
+Ref: video_question_timestamps.questionId > questions.id [delete: cascade]
+Ref: question_options.questionId > questions.id [delete: cascade]
+
+// User Progress Relationships
+Ref: user_course_enrollments.userId > users.id [delete: cascade]
+Ref: user_course_enrollments.courseId > courses.id [delete: cascade]
+Ref: user_section_progress.userId > users.id [delete: cascade]
+Ref: user_section_progress.sectionId > sections.id [delete: cascade]
+Ref: user_video_progress.userId > users.id [delete: cascade]
+Ref: user_video_progress.videoId > videos.id [delete: cascade]
+Ref: user_question_answers.userId > users.id [delete: cascade]
+Ref: user_question_answers.questionId > questions.id [delete: cascade]
+Ref: user_question_answers.selectedOptionId > question_options.id [delete: cascade]
