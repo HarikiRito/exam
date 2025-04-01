@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserRoleUpdate is the builder for updating UserRole entities.
@@ -71,29 +72,29 @@ func (uru *UserRoleUpdate) ClearDeletedAt() *UserRoleUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (uru *UserRoleUpdate) SetUserID(s string) *UserRoleUpdate {
-	uru.mutation.SetUserID(s)
+func (uru *UserRoleUpdate) SetUserID(u uuid.UUID) *UserRoleUpdate {
+	uru.mutation.SetUserID(u)
 	return uru
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (uru *UserRoleUpdate) SetNillableUserID(s *string) *UserRoleUpdate {
-	if s != nil {
-		uru.SetUserID(*s)
+func (uru *UserRoleUpdate) SetNillableUserID(u *uuid.UUID) *UserRoleUpdate {
+	if u != nil {
+		uru.SetUserID(*u)
 	}
 	return uru
 }
 
 // SetRoleID sets the "role_id" field.
-func (uru *UserRoleUpdate) SetRoleID(s string) *UserRoleUpdate {
-	uru.mutation.SetRoleID(s)
+func (uru *UserRoleUpdate) SetRoleID(u uuid.UUID) *UserRoleUpdate {
+	uru.mutation.SetRoleID(u)
 	return uru
 }
 
 // SetNillableRoleID sets the "role_id" field if the given value is not nil.
-func (uru *UserRoleUpdate) SetNillableRoleID(s *string) *UserRoleUpdate {
-	if s != nil {
-		uru.SetRoleID(*s)
+func (uru *UserRoleUpdate) SetNillableRoleID(u *uuid.UUID) *UserRoleUpdate {
+	if u != nil {
+		uru.SetRoleID(*u)
 	}
 	return uru
 }
@@ -127,9 +128,7 @@ func (uru *UserRoleUpdate) ClearRole() *UserRoleUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uru *UserRoleUpdate) Save(ctx context.Context) (int, error) {
-	if err := uru.defaults(); err != nil {
-		return 0, err
-	}
+	uru.defaults()
 	return withHooks(ctx, uru.sqlSave, uru.mutation, uru.hooks)
 }
 
@@ -156,29 +155,15 @@ func (uru *UserRoleUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uru *UserRoleUpdate) defaults() error {
+func (uru *UserRoleUpdate) defaults() {
 	if _, ok := uru.mutation.UpdatedAt(); !ok {
-		if userrole.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized userrole.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := userrole.UpdateDefaultUpdatedAt()
 		uru.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (uru *UserRoleUpdate) check() error {
-	if v, ok := uru.mutation.UserID(); ok {
-		if err := userrole.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "UserRole.user_id": %w`, err)}
-		}
-	}
-	if v, ok := uru.mutation.RoleID(); ok {
-		if err := userrole.RoleIDValidator(v); err != nil {
-			return &ValidationError{Name: "role_id", err: fmt.Errorf(`ent: validator failed for field "UserRole.role_id": %w`, err)}
-		}
-	}
 	if uru.mutation.UserCleared() && len(uru.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserRole.user"`)
 	}
@@ -192,7 +177,7 @@ func (uru *UserRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := uru.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userrole.Table, userrole.Columns, sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(userrole.Table, userrole.Columns, sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID))
 	if ps := uru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -220,7 +205,7 @@ func (uru *UserRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{userrole.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -233,7 +218,7 @@ func (uru *UserRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{userrole.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -249,7 +234,7 @@ func (uru *UserRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{userrole.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -262,7 +247,7 @@ func (uru *UserRoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{userrole.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -331,29 +316,29 @@ func (uruo *UserRoleUpdateOne) ClearDeletedAt() *UserRoleUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (uruo *UserRoleUpdateOne) SetUserID(s string) *UserRoleUpdateOne {
-	uruo.mutation.SetUserID(s)
+func (uruo *UserRoleUpdateOne) SetUserID(u uuid.UUID) *UserRoleUpdateOne {
+	uruo.mutation.SetUserID(u)
 	return uruo
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (uruo *UserRoleUpdateOne) SetNillableUserID(s *string) *UserRoleUpdateOne {
-	if s != nil {
-		uruo.SetUserID(*s)
+func (uruo *UserRoleUpdateOne) SetNillableUserID(u *uuid.UUID) *UserRoleUpdateOne {
+	if u != nil {
+		uruo.SetUserID(*u)
 	}
 	return uruo
 }
 
 // SetRoleID sets the "role_id" field.
-func (uruo *UserRoleUpdateOne) SetRoleID(s string) *UserRoleUpdateOne {
-	uruo.mutation.SetRoleID(s)
+func (uruo *UserRoleUpdateOne) SetRoleID(u uuid.UUID) *UserRoleUpdateOne {
+	uruo.mutation.SetRoleID(u)
 	return uruo
 }
 
 // SetNillableRoleID sets the "role_id" field if the given value is not nil.
-func (uruo *UserRoleUpdateOne) SetNillableRoleID(s *string) *UserRoleUpdateOne {
-	if s != nil {
-		uruo.SetRoleID(*s)
+func (uruo *UserRoleUpdateOne) SetNillableRoleID(u *uuid.UUID) *UserRoleUpdateOne {
+	if u != nil {
+		uruo.SetRoleID(*u)
 	}
 	return uruo
 }
@@ -400,9 +385,7 @@ func (uruo *UserRoleUpdateOne) Select(field string, fields ...string) *UserRoleU
 
 // Save executes the query and returns the updated UserRole entity.
 func (uruo *UserRoleUpdateOne) Save(ctx context.Context) (*UserRole, error) {
-	if err := uruo.defaults(); err != nil {
-		return nil, err
-	}
+	uruo.defaults()
 	return withHooks(ctx, uruo.sqlSave, uruo.mutation, uruo.hooks)
 }
 
@@ -429,29 +412,15 @@ func (uruo *UserRoleUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uruo *UserRoleUpdateOne) defaults() error {
+func (uruo *UserRoleUpdateOne) defaults() {
 	if _, ok := uruo.mutation.UpdatedAt(); !ok {
-		if userrole.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized userrole.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := userrole.UpdateDefaultUpdatedAt()
 		uruo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (uruo *UserRoleUpdateOne) check() error {
-	if v, ok := uruo.mutation.UserID(); ok {
-		if err := userrole.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "UserRole.user_id": %w`, err)}
-		}
-	}
-	if v, ok := uruo.mutation.RoleID(); ok {
-		if err := userrole.RoleIDValidator(v); err != nil {
-			return &ValidationError{Name: "role_id", err: fmt.Errorf(`ent: validator failed for field "UserRole.role_id": %w`, err)}
-		}
-	}
 	if uruo.mutation.UserCleared() && len(uruo.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserRole.user"`)
 	}
@@ -465,7 +434,7 @@ func (uruo *UserRoleUpdateOne) sqlSave(ctx context.Context) (_node *UserRole, er
 	if err := uruo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(userrole.Table, userrole.Columns, sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(userrole.Table, userrole.Columns, sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID))
 	id, ok := uruo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "UserRole.id" for update`)}
@@ -510,7 +479,7 @@ func (uruo *UserRoleUpdateOne) sqlSave(ctx context.Context) (_node *UserRole, er
 			Columns: []string{userrole.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -523,7 +492,7 @@ func (uruo *UserRoleUpdateOne) sqlSave(ctx context.Context) (_node *UserRole, er
 			Columns: []string{userrole.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -539,7 +508,7 @@ func (uruo *UserRoleUpdateOne) sqlSave(ctx context.Context) (_node *UserRole, er
 			Columns: []string{userrole.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -552,7 +521,7 @@ func (uruo *UserRoleUpdateOne) sqlSave(ctx context.Context) (_node *UserRole, er
 			Columns: []string{userrole.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -13,6 +13,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoQuestionTimestampCreate is the builder for creating a VideoQuestionTimestamp entity.
@@ -65,14 +66,14 @@ func (vqtc *VideoQuestionTimestampCreate) SetNillableDeletedAt(t *time.Time) *Vi
 }
 
 // SetVideoID sets the "video_id" field.
-func (vqtc *VideoQuestionTimestampCreate) SetVideoID(s string) *VideoQuestionTimestampCreate {
-	vqtc.mutation.SetVideoID(s)
+func (vqtc *VideoQuestionTimestampCreate) SetVideoID(u uuid.UUID) *VideoQuestionTimestampCreate {
+	vqtc.mutation.SetVideoID(u)
 	return vqtc
 }
 
 // SetQuestionID sets the "question_id" field.
-func (vqtc *VideoQuestionTimestampCreate) SetQuestionID(s string) *VideoQuestionTimestampCreate {
-	vqtc.mutation.SetQuestionID(s)
+func (vqtc *VideoQuestionTimestampCreate) SetQuestionID(u uuid.UUID) *VideoQuestionTimestampCreate {
+	vqtc.mutation.SetQuestionID(u)
 	return vqtc
 }
 
@@ -83,8 +84,16 @@ func (vqtc *VideoQuestionTimestampCreate) SetTimestamp(i int) *VideoQuestionTime
 }
 
 // SetID sets the "id" field.
-func (vqtc *VideoQuestionTimestampCreate) SetID(s string) *VideoQuestionTimestampCreate {
-	vqtc.mutation.SetID(s)
+func (vqtc *VideoQuestionTimestampCreate) SetID(u uuid.UUID) *VideoQuestionTimestampCreate {
+	vqtc.mutation.SetID(u)
+	return vqtc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (vqtc *VideoQuestionTimestampCreate) SetNillableID(u *uuid.UUID) *VideoQuestionTimestampCreate {
+	if u != nil {
+		vqtc.SetID(*u)
+	}
 	return vqtc
 }
 
@@ -105,9 +114,7 @@ func (vqtc *VideoQuestionTimestampCreate) Mutation() *VideoQuestionTimestampMuta
 
 // Save creates the VideoQuestionTimestamp in the database.
 func (vqtc *VideoQuestionTimestampCreate) Save(ctx context.Context) (*VideoQuestionTimestamp, error) {
-	if err := vqtc.defaults(); err != nil {
-		return nil, err
-	}
+	vqtc.defaults()
 	return withHooks(ctx, vqtc.sqlSave, vqtc.mutation, vqtc.hooks)
 }
 
@@ -134,22 +141,19 @@ func (vqtc *VideoQuestionTimestampCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vqtc *VideoQuestionTimestampCreate) defaults() error {
+func (vqtc *VideoQuestionTimestampCreate) defaults() {
 	if _, ok := vqtc.mutation.CreatedAt(); !ok {
-		if videoquestiontimestamp.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := videoquestiontimestamp.DefaultCreatedAt()
 		vqtc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := vqtc.mutation.UpdatedAt(); !ok {
-		if videoquestiontimestamp.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := videoquestiontimestamp.DefaultUpdatedAt()
 		vqtc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := vqtc.mutation.ID(); !ok {
+		v := videoquestiontimestamp.DefaultID()
+		vqtc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -163,18 +167,8 @@ func (vqtc *VideoQuestionTimestampCreate) check() error {
 	if _, ok := vqtc.mutation.VideoID(); !ok {
 		return &ValidationError{Name: "video_id", err: errors.New(`ent: missing required field "VideoQuestionTimestamp.video_id"`)}
 	}
-	if v, ok := vqtc.mutation.VideoID(); ok {
-		if err := videoquestiontimestamp.VideoIDValidator(v); err != nil {
-			return &ValidationError{Name: "video_id", err: fmt.Errorf(`ent: validator failed for field "VideoQuestionTimestamp.video_id": %w`, err)}
-		}
-	}
 	if _, ok := vqtc.mutation.QuestionID(); !ok {
 		return &ValidationError{Name: "question_id", err: errors.New(`ent: missing required field "VideoQuestionTimestamp.question_id"`)}
-	}
-	if v, ok := vqtc.mutation.QuestionID(); ok {
-		if err := videoquestiontimestamp.QuestionIDValidator(v); err != nil {
-			return &ValidationError{Name: "question_id", err: fmt.Errorf(`ent: validator failed for field "VideoQuestionTimestamp.question_id": %w`, err)}
-		}
 	}
 	if _, ok := vqtc.mutation.Timestamp(); !ok {
 		return &ValidationError{Name: "timestamp", err: errors.New(`ent: missing required field "VideoQuestionTimestamp.timestamp"`)}
@@ -200,10 +194,10 @@ func (vqtc *VideoQuestionTimestampCreate) sqlSave(ctx context.Context) (*VideoQu
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected VideoQuestionTimestamp.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	vqtc.mutation.id = &_node.ID
@@ -214,11 +208,11 @@ func (vqtc *VideoQuestionTimestampCreate) sqlSave(ctx context.Context) (*VideoQu
 func (vqtc *VideoQuestionTimestampCreate) createSpec() (*VideoQuestionTimestamp, *sqlgraph.CreateSpec) {
 	var (
 		_node = &VideoQuestionTimestamp{config: vqtc.config}
-		_spec = sqlgraph.NewCreateSpec(videoquestiontimestamp.Table, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(videoquestiontimestamp.Table, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID))
 	)
 	if id, ok := vqtc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := vqtc.mutation.CreatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldCreatedAt, field.TypeTime, value)
@@ -244,7 +238,7 @@ func (vqtc *VideoQuestionTimestampCreate) createSpec() (*VideoQuestionTimestamp,
 			Columns: []string{videoquestiontimestamp.VideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -261,7 +255,7 @@ func (vqtc *VideoQuestionTimestampCreate) createSpec() (*VideoQuestionTimestamp,
 			Columns: []string{videoquestiontimestamp.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

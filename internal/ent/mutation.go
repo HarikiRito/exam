@@ -25,6 +25,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -56,7 +57,7 @@ type AuthMutation struct {
 	config
 	op                       Op
 	typ                      string
-	id                       *string
+	id                       *uuid.UUID
 	created_at               *time.Time
 	updated_at               *time.Time
 	deleted_at               *time.Time
@@ -66,7 +67,7 @@ type AuthMutation struct {
 	refresh_token_expires_at *time.Time
 	is_revoked               *bool
 	clearedFields            map[string]struct{}
-	user                     *string
+	user                     *uuid.UUID
 	cleareduser              bool
 	done                     bool
 	oldValue                 func(context.Context) (*Auth, error)
@@ -93,7 +94,7 @@ func newAuthMutation(c config, op Op, opts ...authOption) *AuthMutation {
 }
 
 // withAuthID sets the ID field of the mutation.
-func withAuthID(id string) authOption {
+func withAuthID(id uuid.UUID) authOption {
 	return func(m *AuthMutation) {
 		var (
 			err   error
@@ -145,13 +146,13 @@ func (m AuthMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Auth entities.
-func (m *AuthMutation) SetID(id string) {
+func (m *AuthMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *AuthMutation) ID() (id string, exists bool) {
+func (m *AuthMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -162,12 +163,12 @@ func (m *AuthMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *AuthMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *AuthMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -299,12 +300,12 @@ func (m *AuthMutation) ResetDeletedAt() {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *AuthMutation) SetUserID(s string) {
-	m.user = &s
+func (m *AuthMutation) SetUserID(u uuid.UUID) {
+	m.user = &u
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *AuthMutation) UserID() (r string, exists bool) {
+func (m *AuthMutation) UserID() (r uuid.UUID, exists bool) {
 	v := m.user
 	if v == nil {
 		return
@@ -315,7 +316,7 @@ func (m *AuthMutation) UserID() (r string, exists bool) {
 // OldUserID returns the old "user_id" field's value of the Auth entity.
 // If the Auth object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AuthMutation) OldUserID(ctx context.Context) (v string, err error) {
+func (m *AuthMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -528,7 +529,7 @@ func (m *AuthMutation) UserCleared() bool {
 // UserIDs returns the "user" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UserID instead. It exists only for internal usage by the builders.
-func (m *AuthMutation) UserIDs() (ids []string) {
+func (m *AuthMutation) UserIDs() (ids []uuid.UUID) {
 	if id := m.user; id != nil {
 		ids = append(ids, *id)
 	}
@@ -687,7 +688,7 @@ func (m *AuthMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case auth.FieldUserID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -896,7 +897,7 @@ type CourseMutation struct {
 	config
 	op                     Op
 	typ                    string
-	id                     *string
+	id                     *uuid.UUID
 	created_at             *time.Time
 	updated_at             *time.Time
 	deleted_at             *time.Time
@@ -904,15 +905,15 @@ type CourseMutation struct {
 	description            *string
 	is_published           *bool
 	clearedFields          map[string]struct{}
-	media                  *string
+	media                  *uuid.UUID
 	clearedmedia           bool
-	creator                *string
+	creator                *uuid.UUID
 	clearedcreator         bool
-	course_sections        map[string]struct{}
-	removedcourse_sections map[string]struct{}
+	course_sections        map[uuid.UUID]struct{}
+	removedcourse_sections map[uuid.UUID]struct{}
 	clearedcourse_sections bool
-	course_videos          map[string]struct{}
-	removedcourse_videos   map[string]struct{}
+	course_videos          map[uuid.UUID]struct{}
+	removedcourse_videos   map[uuid.UUID]struct{}
 	clearedcourse_videos   bool
 	done                   bool
 	oldValue               func(context.Context) (*Course, error)
@@ -939,7 +940,7 @@ func newCourseMutation(c config, op Op, opts ...courseOption) *CourseMutation {
 }
 
 // withCourseID sets the ID field of the mutation.
-func withCourseID(id string) courseOption {
+func withCourseID(id uuid.UUID) courseOption {
 	return func(m *CourseMutation) {
 		var (
 			err   error
@@ -991,13 +992,13 @@ func (m CourseMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Course entities.
-func (m *CourseMutation) SetID(id string) {
+func (m *CourseMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *CourseMutation) ID() (id string, exists bool) {
+func (m *CourseMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1008,12 +1009,12 @@ func (m *CourseMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *CourseMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *CourseMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1230,12 +1231,12 @@ func (m *CourseMutation) ResetDescription() {
 }
 
 // SetMediaID sets the "media_id" field.
-func (m *CourseMutation) SetMediaID(s string) {
-	m.media = &s
+func (m *CourseMutation) SetMediaID(u uuid.UUID) {
+	m.media = &u
 }
 
 // MediaID returns the value of the "media_id" field in the mutation.
-func (m *CourseMutation) MediaID() (r string, exists bool) {
+func (m *CourseMutation) MediaID() (r uuid.UUID, exists bool) {
 	v := m.media
 	if v == nil {
 		return
@@ -1246,7 +1247,7 @@ func (m *CourseMutation) MediaID() (r string, exists bool) {
 // OldMediaID returns the old "media_id" field's value of the Course entity.
 // If the Course object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseMutation) OldMediaID(ctx context.Context) (v string, err error) {
+func (m *CourseMutation) OldMediaID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMediaID is only allowed on UpdateOne operations")
 	}
@@ -1279,12 +1280,12 @@ func (m *CourseMutation) ResetMediaID() {
 }
 
 // SetCreatorID sets the "creator_id" field.
-func (m *CourseMutation) SetCreatorID(s string) {
-	m.creator = &s
+func (m *CourseMutation) SetCreatorID(u uuid.UUID) {
+	m.creator = &u
 }
 
 // CreatorID returns the value of the "creator_id" field in the mutation.
-func (m *CourseMutation) CreatorID() (r string, exists bool) {
+func (m *CourseMutation) CreatorID() (r uuid.UUID, exists bool) {
 	v := m.creator
 	if v == nil {
 		return
@@ -1295,7 +1296,7 @@ func (m *CourseMutation) CreatorID() (r string, exists bool) {
 // OldCreatorID returns the old "creator_id" field's value of the Course entity.
 // If the Course object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseMutation) OldCreatorID(ctx context.Context) (v string, err error) {
+func (m *CourseMutation) OldCreatorID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatorID is only allowed on UpdateOne operations")
 	}
@@ -1364,7 +1365,7 @@ func (m *CourseMutation) MediaCleared() bool {
 // MediaIDs returns the "media" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // MediaID instead. It exists only for internal usage by the builders.
-func (m *CourseMutation) MediaIDs() (ids []string) {
+func (m *CourseMutation) MediaIDs() (ids []uuid.UUID) {
 	if id := m.media; id != nil {
 		ids = append(ids, *id)
 	}
@@ -1391,7 +1392,7 @@ func (m *CourseMutation) CreatorCleared() bool {
 // CreatorIDs returns the "creator" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CreatorID instead. It exists only for internal usage by the builders.
-func (m *CourseMutation) CreatorIDs() (ids []string) {
+func (m *CourseMutation) CreatorIDs() (ids []uuid.UUID) {
 	if id := m.creator; id != nil {
 		ids = append(ids, *id)
 	}
@@ -1405,9 +1406,9 @@ func (m *CourseMutation) ResetCreator() {
 }
 
 // AddCourseSectionIDs adds the "course_sections" edge to the CourseSection entity by ids.
-func (m *CourseMutation) AddCourseSectionIDs(ids ...string) {
+func (m *CourseMutation) AddCourseSectionIDs(ids ...uuid.UUID) {
 	if m.course_sections == nil {
-		m.course_sections = make(map[string]struct{})
+		m.course_sections = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.course_sections[ids[i]] = struct{}{}
@@ -1425,9 +1426,9 @@ func (m *CourseMutation) CourseSectionsCleared() bool {
 }
 
 // RemoveCourseSectionIDs removes the "course_sections" edge to the CourseSection entity by IDs.
-func (m *CourseMutation) RemoveCourseSectionIDs(ids ...string) {
+func (m *CourseMutation) RemoveCourseSectionIDs(ids ...uuid.UUID) {
 	if m.removedcourse_sections == nil {
-		m.removedcourse_sections = make(map[string]struct{})
+		m.removedcourse_sections = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.course_sections, ids[i])
@@ -1436,7 +1437,7 @@ func (m *CourseMutation) RemoveCourseSectionIDs(ids ...string) {
 }
 
 // RemovedCourseSections returns the removed IDs of the "course_sections" edge to the CourseSection entity.
-func (m *CourseMutation) RemovedCourseSectionsIDs() (ids []string) {
+func (m *CourseMutation) RemovedCourseSectionsIDs() (ids []uuid.UUID) {
 	for id := range m.removedcourse_sections {
 		ids = append(ids, id)
 	}
@@ -1444,7 +1445,7 @@ func (m *CourseMutation) RemovedCourseSectionsIDs() (ids []string) {
 }
 
 // CourseSectionsIDs returns the "course_sections" edge IDs in the mutation.
-func (m *CourseMutation) CourseSectionsIDs() (ids []string) {
+func (m *CourseMutation) CourseSectionsIDs() (ids []uuid.UUID) {
 	for id := range m.course_sections {
 		ids = append(ids, id)
 	}
@@ -1459,9 +1460,9 @@ func (m *CourseMutation) ResetCourseSections() {
 }
 
 // AddCourseVideoIDs adds the "course_videos" edge to the Video entity by ids.
-func (m *CourseMutation) AddCourseVideoIDs(ids ...string) {
+func (m *CourseMutation) AddCourseVideoIDs(ids ...uuid.UUID) {
 	if m.course_videos == nil {
-		m.course_videos = make(map[string]struct{})
+		m.course_videos = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.course_videos[ids[i]] = struct{}{}
@@ -1479,9 +1480,9 @@ func (m *CourseMutation) CourseVideosCleared() bool {
 }
 
 // RemoveCourseVideoIDs removes the "course_videos" edge to the Video entity by IDs.
-func (m *CourseMutation) RemoveCourseVideoIDs(ids ...string) {
+func (m *CourseMutation) RemoveCourseVideoIDs(ids ...uuid.UUID) {
 	if m.removedcourse_videos == nil {
-		m.removedcourse_videos = make(map[string]struct{})
+		m.removedcourse_videos = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.course_videos, ids[i])
@@ -1490,7 +1491,7 @@ func (m *CourseMutation) RemoveCourseVideoIDs(ids ...string) {
 }
 
 // RemovedCourseVideos returns the removed IDs of the "course_videos" edge to the Video entity.
-func (m *CourseMutation) RemovedCourseVideosIDs() (ids []string) {
+func (m *CourseMutation) RemovedCourseVideosIDs() (ids []uuid.UUID) {
 	for id := range m.removedcourse_videos {
 		ids = append(ids, id)
 	}
@@ -1498,7 +1499,7 @@ func (m *CourseMutation) RemovedCourseVideosIDs() (ids []string) {
 }
 
 // CourseVideosIDs returns the "course_videos" edge IDs in the mutation.
-func (m *CourseMutation) CourseVideosIDs() (ids []string) {
+func (m *CourseMutation) CourseVideosIDs() (ids []uuid.UUID) {
 	for id := range m.course_videos {
 		ids = append(ids, id)
 	}
@@ -1665,14 +1666,14 @@ func (m *CourseMutation) SetField(name string, value ent.Value) error {
 		m.SetDescription(v)
 		return nil
 	case course.FieldMediaID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMediaID(v)
 		return nil
 	case course.FieldCreatorID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1934,20 +1935,20 @@ type CourseSectionMutation struct {
 	config
 	op                           Op
 	typ                          string
-	id                           *string
+	id                           *uuid.UUID
 	created_at                   *time.Time
 	updated_at                   *time.Time
 	deleted_at                   *time.Time
 	title                        *string
 	description                  *string
 	clearedFields                map[string]struct{}
-	course                       *string
+	course                       *uuid.UUID
 	clearedcourse                bool
-	course_section_videos        map[string]struct{}
-	removedcourse_section_videos map[string]struct{}
+	course_section_videos        map[uuid.UUID]struct{}
+	removedcourse_section_videos map[uuid.UUID]struct{}
 	clearedcourse_section_videos bool
-	questions                    map[string]struct{}
-	removedquestions             map[string]struct{}
+	questions                    map[uuid.UUID]struct{}
+	removedquestions             map[uuid.UUID]struct{}
 	clearedquestions             bool
 	done                         bool
 	oldValue                     func(context.Context) (*CourseSection, error)
@@ -1974,7 +1975,7 @@ func newCourseSectionMutation(c config, op Op, opts ...coursesectionOption) *Cou
 }
 
 // withCourseSectionID sets the ID field of the mutation.
-func withCourseSectionID(id string) coursesectionOption {
+func withCourseSectionID(id uuid.UUID) coursesectionOption {
 	return func(m *CourseSectionMutation) {
 		var (
 			err   error
@@ -2026,13 +2027,13 @@ func (m CourseSectionMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of CourseSection entities.
-func (m *CourseSectionMutation) SetID(id string) {
+func (m *CourseSectionMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *CourseSectionMutation) ID() (id string, exists bool) {
+func (m *CourseSectionMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2043,12 +2044,12 @@ func (m *CourseSectionMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *CourseSectionMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *CourseSectionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -2180,12 +2181,12 @@ func (m *CourseSectionMutation) ResetDeletedAt() {
 }
 
 // SetCourseID sets the "course_id" field.
-func (m *CourseSectionMutation) SetCourseID(s string) {
-	m.course = &s
+func (m *CourseSectionMutation) SetCourseID(u uuid.UUID) {
+	m.course = &u
 }
 
 // CourseID returns the value of the "course_id" field in the mutation.
-func (m *CourseSectionMutation) CourseID() (r string, exists bool) {
+func (m *CourseSectionMutation) CourseID() (r uuid.UUID, exists bool) {
 	v := m.course
 	if v == nil {
 		return
@@ -2196,7 +2197,7 @@ func (m *CourseSectionMutation) CourseID() (r string, exists bool) {
 // OldCourseID returns the old "course_id" field's value of the CourseSection entity.
 // If the CourseSection object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSectionMutation) OldCourseID(ctx context.Context) (v string, err error) {
+func (m *CourseSectionMutation) OldCourseID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCourseID is only allowed on UpdateOne operations")
 	}
@@ -2314,7 +2315,7 @@ func (m *CourseSectionMutation) CourseCleared() bool {
 // CourseIDs returns the "course" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CourseID instead. It exists only for internal usage by the builders.
-func (m *CourseSectionMutation) CourseIDs() (ids []string) {
+func (m *CourseSectionMutation) CourseIDs() (ids []uuid.UUID) {
 	if id := m.course; id != nil {
 		ids = append(ids, *id)
 	}
@@ -2328,9 +2329,9 @@ func (m *CourseSectionMutation) ResetCourse() {
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by ids.
-func (m *CourseSectionMutation) AddCourseSectionVideoIDs(ids ...string) {
+func (m *CourseSectionMutation) AddCourseSectionVideoIDs(ids ...uuid.UUID) {
 	if m.course_section_videos == nil {
-		m.course_section_videos = make(map[string]struct{})
+		m.course_section_videos = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.course_section_videos[ids[i]] = struct{}{}
@@ -2348,9 +2349,9 @@ func (m *CourseSectionMutation) CourseSectionVideosCleared() bool {
 }
 
 // RemoveCourseSectionVideoIDs removes the "course_section_videos" edge to the Video entity by IDs.
-func (m *CourseSectionMutation) RemoveCourseSectionVideoIDs(ids ...string) {
+func (m *CourseSectionMutation) RemoveCourseSectionVideoIDs(ids ...uuid.UUID) {
 	if m.removedcourse_section_videos == nil {
-		m.removedcourse_section_videos = make(map[string]struct{})
+		m.removedcourse_section_videos = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.course_section_videos, ids[i])
@@ -2359,7 +2360,7 @@ func (m *CourseSectionMutation) RemoveCourseSectionVideoIDs(ids ...string) {
 }
 
 // RemovedCourseSectionVideos returns the removed IDs of the "course_section_videos" edge to the Video entity.
-func (m *CourseSectionMutation) RemovedCourseSectionVideosIDs() (ids []string) {
+func (m *CourseSectionMutation) RemovedCourseSectionVideosIDs() (ids []uuid.UUID) {
 	for id := range m.removedcourse_section_videos {
 		ids = append(ids, id)
 	}
@@ -2367,7 +2368,7 @@ func (m *CourseSectionMutation) RemovedCourseSectionVideosIDs() (ids []string) {
 }
 
 // CourseSectionVideosIDs returns the "course_section_videos" edge IDs in the mutation.
-func (m *CourseSectionMutation) CourseSectionVideosIDs() (ids []string) {
+func (m *CourseSectionMutation) CourseSectionVideosIDs() (ids []uuid.UUID) {
 	for id := range m.course_section_videos {
 		ids = append(ids, id)
 	}
@@ -2382,9 +2383,9 @@ func (m *CourseSectionMutation) ResetCourseSectionVideos() {
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by ids.
-func (m *CourseSectionMutation) AddQuestionIDs(ids ...string) {
+func (m *CourseSectionMutation) AddQuestionIDs(ids ...uuid.UUID) {
 	if m.questions == nil {
-		m.questions = make(map[string]struct{})
+		m.questions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.questions[ids[i]] = struct{}{}
@@ -2402,9 +2403,9 @@ func (m *CourseSectionMutation) QuestionsCleared() bool {
 }
 
 // RemoveQuestionIDs removes the "questions" edge to the Question entity by IDs.
-func (m *CourseSectionMutation) RemoveQuestionIDs(ids ...string) {
+func (m *CourseSectionMutation) RemoveQuestionIDs(ids ...uuid.UUID) {
 	if m.removedquestions == nil {
-		m.removedquestions = make(map[string]struct{})
+		m.removedquestions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.questions, ids[i])
@@ -2413,7 +2414,7 @@ func (m *CourseSectionMutation) RemoveQuestionIDs(ids ...string) {
 }
 
 // RemovedQuestions returns the removed IDs of the "questions" edge to the Question entity.
-func (m *CourseSectionMutation) RemovedQuestionsIDs() (ids []string) {
+func (m *CourseSectionMutation) RemovedQuestionsIDs() (ids []uuid.UUID) {
 	for id := range m.removedquestions {
 		ids = append(ids, id)
 	}
@@ -2421,7 +2422,7 @@ func (m *CourseSectionMutation) RemovedQuestionsIDs() (ids []string) {
 }
 
 // QuestionsIDs returns the "questions" edge IDs in the mutation.
-func (m *CourseSectionMutation) QuestionsIDs() (ids []string) {
+func (m *CourseSectionMutation) QuestionsIDs() (ids []uuid.UUID) {
 	for id := range m.questions {
 		ids = append(ids, id)
 	}
@@ -2560,7 +2561,7 @@ func (m *CourseSectionMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case coursesection.FieldCourseID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2799,7 +2800,7 @@ type MediaMutation struct {
 	config
 	op                  Op
 	typ                 string
-	id                  *string
+	id                  *uuid.UUID
 	created_at          *time.Time
 	updated_at          *time.Time
 	deleted_at          *time.Time
@@ -2808,16 +2809,16 @@ type MediaMutation struct {
 	mime_type           *string
 	metadata            *map[string]interface{}
 	clearedFields       map[string]struct{}
-	user_media          map[string]struct{}
-	removeduser_media   map[string]struct{}
+	user_media          map[uuid.UUID]struct{}
+	removeduser_media   map[uuid.UUID]struct{}
 	cleareduser_media   bool
-	user                *string
+	user                *uuid.UUID
 	cleareduser         bool
-	course_media        map[string]struct{}
-	removedcourse_media map[string]struct{}
+	course_media        map[uuid.UUID]struct{}
+	removedcourse_media map[uuid.UUID]struct{}
 	clearedcourse_media bool
-	video_media         map[string]struct{}
-	removedvideo_media  map[string]struct{}
+	video_media         map[uuid.UUID]struct{}
+	removedvideo_media  map[uuid.UUID]struct{}
 	clearedvideo_media  bool
 	done                bool
 	oldValue            func(context.Context) (*Media, error)
@@ -2844,7 +2845,7 @@ func newMediaMutation(c config, op Op, opts ...mediaOption) *MediaMutation {
 }
 
 // withMediaID sets the ID field of the mutation.
-func withMediaID(id string) mediaOption {
+func withMediaID(id uuid.UUID) mediaOption {
 	return func(m *MediaMutation) {
 		var (
 			err   error
@@ -2896,13 +2897,13 @@ func (m MediaMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Media entities.
-func (m *MediaMutation) SetID(id string) {
+func (m *MediaMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *MediaMutation) ID() (id string, exists bool) {
+func (m *MediaMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2913,12 +2914,12 @@ func (m *MediaMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *MediaMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *MediaMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -3158,12 +3159,12 @@ func (m *MediaMutation) ResetMimeType() {
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (m *MediaMutation) SetUploaderID(s string) {
-	m.user = &s
+func (m *MediaMutation) SetUploaderID(u uuid.UUID) {
+	m.user = &u
 }
 
 // UploaderID returns the value of the "uploader_id" field in the mutation.
-func (m *MediaMutation) UploaderID() (r string, exists bool) {
+func (m *MediaMutation) UploaderID() (r uuid.UUID, exists bool) {
 	v := m.user
 	if v == nil {
 		return
@@ -3174,7 +3175,7 @@ func (m *MediaMutation) UploaderID() (r string, exists bool) {
 // OldUploaderID returns the old "uploader_id" field's value of the Media entity.
 // If the Media object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaMutation) OldUploaderID(ctx context.Context) (v string, err error) {
+func (m *MediaMutation) OldUploaderID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUploaderID is only allowed on UpdateOne operations")
 	}
@@ -3256,9 +3257,9 @@ func (m *MediaMutation) ResetMetadata() {
 }
 
 // AddUserMediumIDs adds the "user_media" edge to the User entity by ids.
-func (m *MediaMutation) AddUserMediumIDs(ids ...string) {
+func (m *MediaMutation) AddUserMediumIDs(ids ...uuid.UUID) {
 	if m.user_media == nil {
-		m.user_media = make(map[string]struct{})
+		m.user_media = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.user_media[ids[i]] = struct{}{}
@@ -3276,9 +3277,9 @@ func (m *MediaMutation) UserMediaCleared() bool {
 }
 
 // RemoveUserMediumIDs removes the "user_media" edge to the User entity by IDs.
-func (m *MediaMutation) RemoveUserMediumIDs(ids ...string) {
+func (m *MediaMutation) RemoveUserMediumIDs(ids ...uuid.UUID) {
 	if m.removeduser_media == nil {
-		m.removeduser_media = make(map[string]struct{})
+		m.removeduser_media = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.user_media, ids[i])
@@ -3287,7 +3288,7 @@ func (m *MediaMutation) RemoveUserMediumIDs(ids ...string) {
 }
 
 // RemovedUserMedia returns the removed IDs of the "user_media" edge to the User entity.
-func (m *MediaMutation) RemovedUserMediaIDs() (ids []string) {
+func (m *MediaMutation) RemovedUserMediaIDs() (ids []uuid.UUID) {
 	for id := range m.removeduser_media {
 		ids = append(ids, id)
 	}
@@ -3295,7 +3296,7 @@ func (m *MediaMutation) RemovedUserMediaIDs() (ids []string) {
 }
 
 // UserMediaIDs returns the "user_media" edge IDs in the mutation.
-func (m *MediaMutation) UserMediaIDs() (ids []string) {
+func (m *MediaMutation) UserMediaIDs() (ids []uuid.UUID) {
 	for id := range m.user_media {
 		ids = append(ids, id)
 	}
@@ -3310,7 +3311,7 @@ func (m *MediaMutation) ResetUserMedia() {
 }
 
 // SetUserID sets the "user" edge to the User entity by id.
-func (m *MediaMutation) SetUserID(id string) {
+func (m *MediaMutation) SetUserID(id uuid.UUID) {
 	m.user = &id
 }
 
@@ -3326,7 +3327,7 @@ func (m *MediaMutation) UserCleared() bool {
 }
 
 // UserID returns the "user" edge ID in the mutation.
-func (m *MediaMutation) UserID() (id string, exists bool) {
+func (m *MediaMutation) UserID() (id uuid.UUID, exists bool) {
 	if m.user != nil {
 		return *m.user, true
 	}
@@ -3336,7 +3337,7 @@ func (m *MediaMutation) UserID() (id string, exists bool) {
 // UserIDs returns the "user" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UserID instead. It exists only for internal usage by the builders.
-func (m *MediaMutation) UserIDs() (ids []string) {
+func (m *MediaMutation) UserIDs() (ids []uuid.UUID) {
 	if id := m.user; id != nil {
 		ids = append(ids, *id)
 	}
@@ -3350,9 +3351,9 @@ func (m *MediaMutation) ResetUser() {
 }
 
 // AddCourseMediumIDs adds the "course_media" edge to the Course entity by ids.
-func (m *MediaMutation) AddCourseMediumIDs(ids ...string) {
+func (m *MediaMutation) AddCourseMediumIDs(ids ...uuid.UUID) {
 	if m.course_media == nil {
-		m.course_media = make(map[string]struct{})
+		m.course_media = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.course_media[ids[i]] = struct{}{}
@@ -3370,9 +3371,9 @@ func (m *MediaMutation) CourseMediaCleared() bool {
 }
 
 // RemoveCourseMediumIDs removes the "course_media" edge to the Course entity by IDs.
-func (m *MediaMutation) RemoveCourseMediumIDs(ids ...string) {
+func (m *MediaMutation) RemoveCourseMediumIDs(ids ...uuid.UUID) {
 	if m.removedcourse_media == nil {
-		m.removedcourse_media = make(map[string]struct{})
+		m.removedcourse_media = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.course_media, ids[i])
@@ -3381,7 +3382,7 @@ func (m *MediaMutation) RemoveCourseMediumIDs(ids ...string) {
 }
 
 // RemovedCourseMedia returns the removed IDs of the "course_media" edge to the Course entity.
-func (m *MediaMutation) RemovedCourseMediaIDs() (ids []string) {
+func (m *MediaMutation) RemovedCourseMediaIDs() (ids []uuid.UUID) {
 	for id := range m.removedcourse_media {
 		ids = append(ids, id)
 	}
@@ -3389,7 +3390,7 @@ func (m *MediaMutation) RemovedCourseMediaIDs() (ids []string) {
 }
 
 // CourseMediaIDs returns the "course_media" edge IDs in the mutation.
-func (m *MediaMutation) CourseMediaIDs() (ids []string) {
+func (m *MediaMutation) CourseMediaIDs() (ids []uuid.UUID) {
 	for id := range m.course_media {
 		ids = append(ids, id)
 	}
@@ -3404,9 +3405,9 @@ func (m *MediaMutation) ResetCourseMedia() {
 }
 
 // AddVideoMediumIDs adds the "video_media" edge to the Video entity by ids.
-func (m *MediaMutation) AddVideoMediumIDs(ids ...string) {
+func (m *MediaMutation) AddVideoMediumIDs(ids ...uuid.UUID) {
 	if m.video_media == nil {
-		m.video_media = make(map[string]struct{})
+		m.video_media = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.video_media[ids[i]] = struct{}{}
@@ -3424,9 +3425,9 @@ func (m *MediaMutation) VideoMediaCleared() bool {
 }
 
 // RemoveVideoMediumIDs removes the "video_media" edge to the Video entity by IDs.
-func (m *MediaMutation) RemoveVideoMediumIDs(ids ...string) {
+func (m *MediaMutation) RemoveVideoMediumIDs(ids ...uuid.UUID) {
 	if m.removedvideo_media == nil {
-		m.removedvideo_media = make(map[string]struct{})
+		m.removedvideo_media = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.video_media, ids[i])
@@ -3435,7 +3436,7 @@ func (m *MediaMutation) RemoveVideoMediumIDs(ids ...string) {
 }
 
 // RemovedVideoMedia returns the removed IDs of the "video_media" edge to the Video entity.
-func (m *MediaMutation) RemovedVideoMediaIDs() (ids []string) {
+func (m *MediaMutation) RemovedVideoMediaIDs() (ids []uuid.UUID) {
 	for id := range m.removedvideo_media {
 		ids = append(ids, id)
 	}
@@ -3443,7 +3444,7 @@ func (m *MediaMutation) RemovedVideoMediaIDs() (ids []string) {
 }
 
 // VideoMediaIDs returns the "video_media" edge IDs in the mutation.
-func (m *MediaMutation) VideoMediaIDs() (ids []string) {
+func (m *MediaMutation) VideoMediaIDs() (ids []uuid.UUID) {
 	for id := range m.video_media {
 		ids = append(ids, id)
 	}
@@ -3617,7 +3618,7 @@ func (m *MediaMutation) SetField(name string, value ent.Value) error {
 		m.SetMimeType(v)
 		return nil
 	case media.FieldUploaderID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3887,15 +3888,15 @@ type PermissionMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *string
+	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
 	name          *string
 	description   *string
 	clearedFields map[string]struct{}
-	roles         map[string]struct{}
-	removedroles  map[string]struct{}
+	roles         map[uuid.UUID]struct{}
+	removedroles  map[uuid.UUID]struct{}
 	clearedroles  bool
 	done          bool
 	oldValue      func(context.Context) (*Permission, error)
@@ -3922,7 +3923,7 @@ func newPermissionMutation(c config, op Op, opts ...permissionOption) *Permissio
 }
 
 // withPermissionID sets the ID field of the mutation.
-func withPermissionID(id string) permissionOption {
+func withPermissionID(id uuid.UUID) permissionOption {
 	return func(m *PermissionMutation) {
 		var (
 			err   error
@@ -3974,13 +3975,13 @@ func (m PermissionMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Permission entities.
-func (m *PermissionMutation) SetID(id string) {
+func (m *PermissionMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *PermissionMutation) ID() (id string, exists bool) {
+func (m *PermissionMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -3991,12 +3992,12 @@ func (m *PermissionMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *PermissionMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *PermissionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -4213,9 +4214,9 @@ func (m *PermissionMutation) ResetDescription() {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
-func (m *PermissionMutation) AddRoleIDs(ids ...string) {
+func (m *PermissionMutation) AddRoleIDs(ids ...uuid.UUID) {
 	if m.roles == nil {
-		m.roles = make(map[string]struct{})
+		m.roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.roles[ids[i]] = struct{}{}
@@ -4233,9 +4234,9 @@ func (m *PermissionMutation) RolesCleared() bool {
 }
 
 // RemoveRoleIDs removes the "roles" edge to the Role entity by IDs.
-func (m *PermissionMutation) RemoveRoleIDs(ids ...string) {
+func (m *PermissionMutation) RemoveRoleIDs(ids ...uuid.UUID) {
 	if m.removedroles == nil {
-		m.removedroles = make(map[string]struct{})
+		m.removedroles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.roles, ids[i])
@@ -4244,7 +4245,7 @@ func (m *PermissionMutation) RemoveRoleIDs(ids ...string) {
 }
 
 // RemovedRoles returns the removed IDs of the "roles" edge to the Role entity.
-func (m *PermissionMutation) RemovedRolesIDs() (ids []string) {
+func (m *PermissionMutation) RemovedRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removedroles {
 		ids = append(ids, id)
 	}
@@ -4252,7 +4253,7 @@ func (m *PermissionMutation) RemovedRolesIDs() (ids []string) {
 }
 
 // RolesIDs returns the "roles" edge IDs in the mutation.
-func (m *PermissionMutation) RolesIDs() (ids []string) {
+func (m *PermissionMutation) RolesIDs() (ids []uuid.UUID) {
 	for id := range m.roles {
 		ids = append(ids, id)
 	}
@@ -4569,19 +4570,19 @@ type QuestionMutation struct {
 	config
 	op                                        Op
 	typ                                       string
-	id                                        *string
+	id                                        *uuid.UUID
 	created_at                                *time.Time
 	updated_at                                *time.Time
 	deleted_at                                *time.Time
 	question_text                             *string
 	clearedFields                             map[string]struct{}
-	section                                   *string
+	section                                   *uuid.UUID
 	clearedsection                            bool
-	question_options                          map[string]struct{}
-	removedquestion_options                   map[string]struct{}
+	question_options                          map[uuid.UUID]struct{}
+	removedquestion_options                   map[uuid.UUID]struct{}
 	clearedquestion_options                   bool
-	video_question_timestamps_question        map[string]struct{}
-	removedvideo_question_timestamps_question map[string]struct{}
+	video_question_timestamps_question        map[uuid.UUID]struct{}
+	removedvideo_question_timestamps_question map[uuid.UUID]struct{}
 	clearedvideo_question_timestamps_question bool
 	done                                      bool
 	oldValue                                  func(context.Context) (*Question, error)
@@ -4608,7 +4609,7 @@ func newQuestionMutation(c config, op Op, opts ...questionOption) *QuestionMutat
 }
 
 // withQuestionID sets the ID field of the mutation.
-func withQuestionID(id string) questionOption {
+func withQuestionID(id uuid.UUID) questionOption {
 	return func(m *QuestionMutation) {
 		var (
 			err   error
@@ -4660,13 +4661,13 @@ func (m QuestionMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Question entities.
-func (m *QuestionMutation) SetID(id string) {
+func (m *QuestionMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *QuestionMutation) ID() (id string, exists bool) {
+func (m *QuestionMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -4677,12 +4678,12 @@ func (m *QuestionMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *QuestionMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *QuestionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -4814,12 +4815,12 @@ func (m *QuestionMutation) ResetDeletedAt() {
 }
 
 // SetSectionID sets the "section_id" field.
-func (m *QuestionMutation) SetSectionID(s string) {
-	m.section = &s
+func (m *QuestionMutation) SetSectionID(u uuid.UUID) {
+	m.section = &u
 }
 
 // SectionID returns the value of the "section_id" field in the mutation.
-func (m *QuestionMutation) SectionID() (r string, exists bool) {
+func (m *QuestionMutation) SectionID() (r uuid.UUID, exists bool) {
 	v := m.section
 	if v == nil {
 		return
@@ -4830,7 +4831,7 @@ func (m *QuestionMutation) SectionID() (r string, exists bool) {
 // OldSectionID returns the old "section_id" field's value of the Question entity.
 // If the Question object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *QuestionMutation) OldSectionID(ctx context.Context) (v string, err error) {
+func (m *QuestionMutation) OldSectionID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSectionID is only allowed on UpdateOne operations")
 	}
@@ -4899,7 +4900,7 @@ func (m *QuestionMutation) SectionCleared() bool {
 // SectionIDs returns the "section" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // SectionID instead. It exists only for internal usage by the builders.
-func (m *QuestionMutation) SectionIDs() (ids []string) {
+func (m *QuestionMutation) SectionIDs() (ids []uuid.UUID) {
 	if id := m.section; id != nil {
 		ids = append(ids, *id)
 	}
@@ -4913,9 +4914,9 @@ func (m *QuestionMutation) ResetSection() {
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by ids.
-func (m *QuestionMutation) AddQuestionOptionIDs(ids ...string) {
+func (m *QuestionMutation) AddQuestionOptionIDs(ids ...uuid.UUID) {
 	if m.question_options == nil {
-		m.question_options = make(map[string]struct{})
+		m.question_options = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.question_options[ids[i]] = struct{}{}
@@ -4933,9 +4934,9 @@ func (m *QuestionMutation) QuestionOptionsCleared() bool {
 }
 
 // RemoveQuestionOptionIDs removes the "question_options" edge to the QuestionOption entity by IDs.
-func (m *QuestionMutation) RemoveQuestionOptionIDs(ids ...string) {
+func (m *QuestionMutation) RemoveQuestionOptionIDs(ids ...uuid.UUID) {
 	if m.removedquestion_options == nil {
-		m.removedquestion_options = make(map[string]struct{})
+		m.removedquestion_options = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.question_options, ids[i])
@@ -4944,7 +4945,7 @@ func (m *QuestionMutation) RemoveQuestionOptionIDs(ids ...string) {
 }
 
 // RemovedQuestionOptions returns the removed IDs of the "question_options" edge to the QuestionOption entity.
-func (m *QuestionMutation) RemovedQuestionOptionsIDs() (ids []string) {
+func (m *QuestionMutation) RemovedQuestionOptionsIDs() (ids []uuid.UUID) {
 	for id := range m.removedquestion_options {
 		ids = append(ids, id)
 	}
@@ -4952,7 +4953,7 @@ func (m *QuestionMutation) RemovedQuestionOptionsIDs() (ids []string) {
 }
 
 // QuestionOptionsIDs returns the "question_options" edge IDs in the mutation.
-func (m *QuestionMutation) QuestionOptionsIDs() (ids []string) {
+func (m *QuestionMutation) QuestionOptionsIDs() (ids []uuid.UUID) {
 	for id := range m.question_options {
 		ids = append(ids, id)
 	}
@@ -4967,9 +4968,9 @@ func (m *QuestionMutation) ResetQuestionOptions() {
 }
 
 // AddVideoQuestionTimestampsQuestionIDs adds the "video_question_timestamps_question" edge to the VideoQuestionTimestamp entity by ids.
-func (m *QuestionMutation) AddVideoQuestionTimestampsQuestionIDs(ids ...string) {
+func (m *QuestionMutation) AddVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) {
 	if m.video_question_timestamps_question == nil {
-		m.video_question_timestamps_question = make(map[string]struct{})
+		m.video_question_timestamps_question = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.video_question_timestamps_question[ids[i]] = struct{}{}
@@ -4987,9 +4988,9 @@ func (m *QuestionMutation) VideoQuestionTimestampsQuestionCleared() bool {
 }
 
 // RemoveVideoQuestionTimestampsQuestionIDs removes the "video_question_timestamps_question" edge to the VideoQuestionTimestamp entity by IDs.
-func (m *QuestionMutation) RemoveVideoQuestionTimestampsQuestionIDs(ids ...string) {
+func (m *QuestionMutation) RemoveVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) {
 	if m.removedvideo_question_timestamps_question == nil {
-		m.removedvideo_question_timestamps_question = make(map[string]struct{})
+		m.removedvideo_question_timestamps_question = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.video_question_timestamps_question, ids[i])
@@ -4998,7 +4999,7 @@ func (m *QuestionMutation) RemoveVideoQuestionTimestampsQuestionIDs(ids ...strin
 }
 
 // RemovedVideoQuestionTimestampsQuestion returns the removed IDs of the "video_question_timestamps_question" edge to the VideoQuestionTimestamp entity.
-func (m *QuestionMutation) RemovedVideoQuestionTimestampsQuestionIDs() (ids []string) {
+func (m *QuestionMutation) RemovedVideoQuestionTimestampsQuestionIDs() (ids []uuid.UUID) {
 	for id := range m.removedvideo_question_timestamps_question {
 		ids = append(ids, id)
 	}
@@ -5006,7 +5007,7 @@ func (m *QuestionMutation) RemovedVideoQuestionTimestampsQuestionIDs() (ids []st
 }
 
 // VideoQuestionTimestampsQuestionIDs returns the "video_question_timestamps_question" edge IDs in the mutation.
-func (m *QuestionMutation) VideoQuestionTimestampsQuestionIDs() (ids []string) {
+func (m *QuestionMutation) VideoQuestionTimestampsQuestionIDs() (ids []uuid.UUID) {
 	for id := range m.video_question_timestamps_question {
 		ids = append(ids, id)
 	}
@@ -5138,7 +5139,7 @@ func (m *QuestionMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case question.FieldSectionID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5361,14 +5362,14 @@ type QuestionOptionMutation struct {
 	config
 	op              Op
 	typ             string
-	id              *string
+	id              *uuid.UUID
 	created_at      *time.Time
 	updated_at      *time.Time
 	deleted_at      *time.Time
 	option_text     *string
 	is_correct      *bool
 	clearedFields   map[string]struct{}
-	question        *string
+	question        *uuid.UUID
 	clearedquestion bool
 	done            bool
 	oldValue        func(context.Context) (*QuestionOption, error)
@@ -5395,7 +5396,7 @@ func newQuestionOptionMutation(c config, op Op, opts ...questionoptionOption) *Q
 }
 
 // withQuestionOptionID sets the ID field of the mutation.
-func withQuestionOptionID(id string) questionoptionOption {
+func withQuestionOptionID(id uuid.UUID) questionoptionOption {
 	return func(m *QuestionOptionMutation) {
 		var (
 			err   error
@@ -5447,13 +5448,13 @@ func (m QuestionOptionMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of QuestionOption entities.
-func (m *QuestionOptionMutation) SetID(id string) {
+func (m *QuestionOptionMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *QuestionOptionMutation) ID() (id string, exists bool) {
+func (m *QuestionOptionMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -5464,12 +5465,12 @@ func (m *QuestionOptionMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *QuestionOptionMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *QuestionOptionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -5601,12 +5602,12 @@ func (m *QuestionOptionMutation) ResetDeletedAt() {
 }
 
 // SetQuestionID sets the "question_id" field.
-func (m *QuestionOptionMutation) SetQuestionID(s string) {
-	m.question = &s
+func (m *QuestionOptionMutation) SetQuestionID(u uuid.UUID) {
+	m.question = &u
 }
 
 // QuestionID returns the value of the "question_id" field in the mutation.
-func (m *QuestionOptionMutation) QuestionID() (r string, exists bool) {
+func (m *QuestionOptionMutation) QuestionID() (r uuid.UUID, exists bool) {
 	v := m.question
 	if v == nil {
 		return
@@ -5617,7 +5618,7 @@ func (m *QuestionOptionMutation) QuestionID() (r string, exists bool) {
 // OldQuestionID returns the old "question_id" field's value of the QuestionOption entity.
 // If the QuestionOption object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *QuestionOptionMutation) OldQuestionID(ctx context.Context) (v string, err error) {
+func (m *QuestionOptionMutation) OldQuestionID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldQuestionID is only allowed on UpdateOne operations")
 	}
@@ -5722,7 +5723,7 @@ func (m *QuestionOptionMutation) QuestionCleared() bool {
 // QuestionIDs returns the "question" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // QuestionID instead. It exists only for internal usage by the builders.
-func (m *QuestionOptionMutation) QuestionIDs() (ids []string) {
+func (m *QuestionOptionMutation) QuestionIDs() (ids []uuid.UUID) {
 	if id := m.question; id != nil {
 		ids = append(ids, *id)
 	}
@@ -5860,7 +5861,7 @@ func (m *QuestionOptionMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case questionoption.FieldQuestionID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6039,21 +6040,21 @@ type RoleMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *string
+	id                 *uuid.UUID
 	created_at         *time.Time
 	updated_at         *time.Time
 	deleted_at         *time.Time
 	name               *string
 	description        *string
 	clearedFields      map[string]struct{}
-	users              map[string]struct{}
-	removedusers       map[string]struct{}
+	users              map[uuid.UUID]struct{}
+	removedusers       map[uuid.UUID]struct{}
 	clearedusers       bool
-	permissions        map[string]struct{}
-	removedpermissions map[string]struct{}
+	permissions        map[uuid.UUID]struct{}
+	removedpermissions map[uuid.UUID]struct{}
 	clearedpermissions bool
-	user_roles         map[string]struct{}
-	removeduser_roles  map[string]struct{}
+	user_roles         map[uuid.UUID]struct{}
+	removeduser_roles  map[uuid.UUID]struct{}
 	cleareduser_roles  bool
 	done               bool
 	oldValue           func(context.Context) (*Role, error)
@@ -6080,7 +6081,7 @@ func newRoleMutation(c config, op Op, opts ...roleOption) *RoleMutation {
 }
 
 // withRoleID sets the ID field of the mutation.
-func withRoleID(id string) roleOption {
+func withRoleID(id uuid.UUID) roleOption {
 	return func(m *RoleMutation) {
 		var (
 			err   error
@@ -6132,13 +6133,13 @@ func (m RoleMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Role entities.
-func (m *RoleMutation) SetID(id string) {
+func (m *RoleMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *RoleMutation) ID() (id string, exists bool) {
+func (m *RoleMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -6149,12 +6150,12 @@ func (m *RoleMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *RoleMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *RoleMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -6371,9 +6372,9 @@ func (m *RoleMutation) ResetDescription() {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *RoleMutation) AddUserIDs(ids ...string) {
+func (m *RoleMutation) AddUserIDs(ids ...uuid.UUID) {
 	if m.users == nil {
-		m.users = make(map[string]struct{})
+		m.users = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.users[ids[i]] = struct{}{}
@@ -6391,9 +6392,9 @@ func (m *RoleMutation) UsersCleared() bool {
 }
 
 // RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *RoleMutation) RemoveUserIDs(ids ...string) {
+func (m *RoleMutation) RemoveUserIDs(ids ...uuid.UUID) {
 	if m.removedusers == nil {
-		m.removedusers = make(map[string]struct{})
+		m.removedusers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.users, ids[i])
@@ -6402,7 +6403,7 @@ func (m *RoleMutation) RemoveUserIDs(ids ...string) {
 }
 
 // RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *RoleMutation) RemovedUsersIDs() (ids []string) {
+func (m *RoleMutation) RemovedUsersIDs() (ids []uuid.UUID) {
 	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
@@ -6410,7 +6411,7 @@ func (m *RoleMutation) RemovedUsersIDs() (ids []string) {
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
-func (m *RoleMutation) UsersIDs() (ids []string) {
+func (m *RoleMutation) UsersIDs() (ids []uuid.UUID) {
 	for id := range m.users {
 		ids = append(ids, id)
 	}
@@ -6425,9 +6426,9 @@ func (m *RoleMutation) ResetUsers() {
 }
 
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by ids.
-func (m *RoleMutation) AddPermissionIDs(ids ...string) {
+func (m *RoleMutation) AddPermissionIDs(ids ...uuid.UUID) {
 	if m.permissions == nil {
-		m.permissions = make(map[string]struct{})
+		m.permissions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.permissions[ids[i]] = struct{}{}
@@ -6445,9 +6446,9 @@ func (m *RoleMutation) PermissionsCleared() bool {
 }
 
 // RemovePermissionIDs removes the "permissions" edge to the Permission entity by IDs.
-func (m *RoleMutation) RemovePermissionIDs(ids ...string) {
+func (m *RoleMutation) RemovePermissionIDs(ids ...uuid.UUID) {
 	if m.removedpermissions == nil {
-		m.removedpermissions = make(map[string]struct{})
+		m.removedpermissions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.permissions, ids[i])
@@ -6456,7 +6457,7 @@ func (m *RoleMutation) RemovePermissionIDs(ids ...string) {
 }
 
 // RemovedPermissions returns the removed IDs of the "permissions" edge to the Permission entity.
-func (m *RoleMutation) RemovedPermissionsIDs() (ids []string) {
+func (m *RoleMutation) RemovedPermissionsIDs() (ids []uuid.UUID) {
 	for id := range m.removedpermissions {
 		ids = append(ids, id)
 	}
@@ -6464,7 +6465,7 @@ func (m *RoleMutation) RemovedPermissionsIDs() (ids []string) {
 }
 
 // PermissionsIDs returns the "permissions" edge IDs in the mutation.
-func (m *RoleMutation) PermissionsIDs() (ids []string) {
+func (m *RoleMutation) PermissionsIDs() (ids []uuid.UUID) {
 	for id := range m.permissions {
 		ids = append(ids, id)
 	}
@@ -6479,9 +6480,9 @@ func (m *RoleMutation) ResetPermissions() {
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by ids.
-func (m *RoleMutation) AddUserRoleIDs(ids ...string) {
+func (m *RoleMutation) AddUserRoleIDs(ids ...uuid.UUID) {
 	if m.user_roles == nil {
-		m.user_roles = make(map[string]struct{})
+		m.user_roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.user_roles[ids[i]] = struct{}{}
@@ -6499,9 +6500,9 @@ func (m *RoleMutation) UserRolesCleared() bool {
 }
 
 // RemoveUserRoleIDs removes the "user_roles" edge to the UserRole entity by IDs.
-func (m *RoleMutation) RemoveUserRoleIDs(ids ...string) {
+func (m *RoleMutation) RemoveUserRoleIDs(ids ...uuid.UUID) {
 	if m.removeduser_roles == nil {
-		m.removeduser_roles = make(map[string]struct{})
+		m.removeduser_roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.user_roles, ids[i])
@@ -6510,7 +6511,7 @@ func (m *RoleMutation) RemoveUserRoleIDs(ids ...string) {
 }
 
 // RemovedUserRoles returns the removed IDs of the "user_roles" edge to the UserRole entity.
-func (m *RoleMutation) RemovedUserRolesIDs() (ids []string) {
+func (m *RoleMutation) RemovedUserRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removeduser_roles {
 		ids = append(ids, id)
 	}
@@ -6518,7 +6519,7 @@ func (m *RoleMutation) RemovedUserRolesIDs() (ids []string) {
 }
 
 // UserRolesIDs returns the "user_roles" edge IDs in the mutation.
-func (m *RoleMutation) UserRolesIDs() (ids []string) {
+func (m *RoleMutation) UserRolesIDs() (ids []uuid.UUID) {
 	for id := range m.user_roles {
 		ids = append(ids, id)
 	}
@@ -6887,7 +6888,7 @@ type TodoMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *string
+	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
@@ -6919,7 +6920,7 @@ func newTodoMutation(c config, op Op, opts ...todoOption) *TodoMutation {
 }
 
 // withTodoID sets the ID field of the mutation.
-func withTodoID(id string) todoOption {
+func withTodoID(id uuid.UUID) todoOption {
 	return func(m *TodoMutation) {
 		var (
 			err   error
@@ -6971,13 +6972,13 @@ func (m TodoMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Todo entities.
-func (m *TodoMutation) SetID(id string) {
+func (m *TodoMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *TodoMutation) ID() (id string, exists bool) {
+func (m *TodoMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -6988,12 +6989,12 @@ func (m *TodoMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *TodoMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *TodoMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -7476,7 +7477,7 @@ type UserMutation struct {
 	config
 	op                    Op
 	typ                   string
-	id                    *string
+	id                    *uuid.UUID
 	created_at            *time.Time
 	updated_at            *time.Time
 	deleted_at            *time.Time
@@ -7487,22 +7488,22 @@ type UserMutation struct {
 	last_name             *string
 	is_active             *bool
 	clearedFields         map[string]struct{}
-	media                 *string
+	media                 *uuid.UUID
 	clearedmedia          bool
-	auth_user             map[string]struct{}
-	removedauth_user      map[string]struct{}
+	auth_user             map[uuid.UUID]struct{}
+	removedauth_user      map[uuid.UUID]struct{}
 	clearedauth_user      bool
-	media_uploader        map[string]struct{}
-	removedmedia_uploader map[string]struct{}
+	media_uploader        map[uuid.UUID]struct{}
+	removedmedia_uploader map[uuid.UUID]struct{}
 	clearedmedia_uploader bool
-	roles                 map[string]struct{}
-	removedroles          map[string]struct{}
+	roles                 map[uuid.UUID]struct{}
+	removedroles          map[uuid.UUID]struct{}
 	clearedroles          bool
-	course_creator        map[string]struct{}
-	removedcourse_creator map[string]struct{}
+	course_creator        map[uuid.UUID]struct{}
+	removedcourse_creator map[uuid.UUID]struct{}
 	clearedcourse_creator bool
-	user_roles            map[string]struct{}
-	removeduser_roles     map[string]struct{}
+	user_roles            map[uuid.UUID]struct{}
+	removeduser_roles     map[uuid.UUID]struct{}
 	cleareduser_roles     bool
 	done                  bool
 	oldValue              func(context.Context) (*User, error)
@@ -7529,7 +7530,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id string) userOption {
+func withUserID(id uuid.UUID) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -7581,13 +7582,13 @@ func (m UserMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of User entities.
-func (m *UserMutation) SetID(id string) {
+func (m *UserMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id string, exists bool) {
+func (m *UserMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -7598,12 +7599,12 @@ func (m *UserMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *UserMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -7941,12 +7942,12 @@ func (m *UserMutation) ResetLastName() {
 }
 
 // SetAvatarID sets the "avatar_id" field.
-func (m *UserMutation) SetAvatarID(s string) {
-	m.media = &s
+func (m *UserMutation) SetAvatarID(u uuid.UUID) {
+	m.media = &u
 }
 
 // AvatarID returns the value of the "avatar_id" field in the mutation.
-func (m *UserMutation) AvatarID() (r string, exists bool) {
+func (m *UserMutation) AvatarID() (r uuid.UUID, exists bool) {
 	v := m.media
 	if v == nil {
 		return
@@ -7957,7 +7958,7 @@ func (m *UserMutation) AvatarID() (r string, exists bool) {
 // OldAvatarID returns the old "avatar_id" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldAvatarID(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldAvatarID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAvatarID is only allowed on UpdateOne operations")
 	}
@@ -8026,7 +8027,7 @@ func (m *UserMutation) ResetIsActive() {
 }
 
 // SetMediaID sets the "media" edge to the Media entity by id.
-func (m *UserMutation) SetMediaID(id string) {
+func (m *UserMutation) SetMediaID(id uuid.UUID) {
 	m.media = &id
 }
 
@@ -8042,7 +8043,7 @@ func (m *UserMutation) MediaCleared() bool {
 }
 
 // MediaID returns the "media" edge ID in the mutation.
-func (m *UserMutation) MediaID() (id string, exists bool) {
+func (m *UserMutation) MediaID() (id uuid.UUID, exists bool) {
 	if m.media != nil {
 		return *m.media, true
 	}
@@ -8052,7 +8053,7 @@ func (m *UserMutation) MediaID() (id string, exists bool) {
 // MediaIDs returns the "media" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // MediaID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) MediaIDs() (ids []string) {
+func (m *UserMutation) MediaIDs() (ids []uuid.UUID) {
 	if id := m.media; id != nil {
 		ids = append(ids, *id)
 	}
@@ -8066,9 +8067,9 @@ func (m *UserMutation) ResetMedia() {
 }
 
 // AddAuthUserIDs adds the "auth_user" edge to the Auth entity by ids.
-func (m *UserMutation) AddAuthUserIDs(ids ...string) {
+func (m *UserMutation) AddAuthUserIDs(ids ...uuid.UUID) {
 	if m.auth_user == nil {
-		m.auth_user = make(map[string]struct{})
+		m.auth_user = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.auth_user[ids[i]] = struct{}{}
@@ -8086,9 +8087,9 @@ func (m *UserMutation) AuthUserCleared() bool {
 }
 
 // RemoveAuthUserIDs removes the "auth_user" edge to the Auth entity by IDs.
-func (m *UserMutation) RemoveAuthUserIDs(ids ...string) {
+func (m *UserMutation) RemoveAuthUserIDs(ids ...uuid.UUID) {
 	if m.removedauth_user == nil {
-		m.removedauth_user = make(map[string]struct{})
+		m.removedauth_user = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.auth_user, ids[i])
@@ -8097,7 +8098,7 @@ func (m *UserMutation) RemoveAuthUserIDs(ids ...string) {
 }
 
 // RemovedAuthUser returns the removed IDs of the "auth_user" edge to the Auth entity.
-func (m *UserMutation) RemovedAuthUserIDs() (ids []string) {
+func (m *UserMutation) RemovedAuthUserIDs() (ids []uuid.UUID) {
 	for id := range m.removedauth_user {
 		ids = append(ids, id)
 	}
@@ -8105,7 +8106,7 @@ func (m *UserMutation) RemovedAuthUserIDs() (ids []string) {
 }
 
 // AuthUserIDs returns the "auth_user" edge IDs in the mutation.
-func (m *UserMutation) AuthUserIDs() (ids []string) {
+func (m *UserMutation) AuthUserIDs() (ids []uuid.UUID) {
 	for id := range m.auth_user {
 		ids = append(ids, id)
 	}
@@ -8120,9 +8121,9 @@ func (m *UserMutation) ResetAuthUser() {
 }
 
 // AddMediaUploaderIDs adds the "media_uploader" edge to the Media entity by ids.
-func (m *UserMutation) AddMediaUploaderIDs(ids ...string) {
+func (m *UserMutation) AddMediaUploaderIDs(ids ...uuid.UUID) {
 	if m.media_uploader == nil {
-		m.media_uploader = make(map[string]struct{})
+		m.media_uploader = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.media_uploader[ids[i]] = struct{}{}
@@ -8140,9 +8141,9 @@ func (m *UserMutation) MediaUploaderCleared() bool {
 }
 
 // RemoveMediaUploaderIDs removes the "media_uploader" edge to the Media entity by IDs.
-func (m *UserMutation) RemoveMediaUploaderIDs(ids ...string) {
+func (m *UserMutation) RemoveMediaUploaderIDs(ids ...uuid.UUID) {
 	if m.removedmedia_uploader == nil {
-		m.removedmedia_uploader = make(map[string]struct{})
+		m.removedmedia_uploader = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.media_uploader, ids[i])
@@ -8151,7 +8152,7 @@ func (m *UserMutation) RemoveMediaUploaderIDs(ids ...string) {
 }
 
 // RemovedMediaUploader returns the removed IDs of the "media_uploader" edge to the Media entity.
-func (m *UserMutation) RemovedMediaUploaderIDs() (ids []string) {
+func (m *UserMutation) RemovedMediaUploaderIDs() (ids []uuid.UUID) {
 	for id := range m.removedmedia_uploader {
 		ids = append(ids, id)
 	}
@@ -8159,7 +8160,7 @@ func (m *UserMutation) RemovedMediaUploaderIDs() (ids []string) {
 }
 
 // MediaUploaderIDs returns the "media_uploader" edge IDs in the mutation.
-func (m *UserMutation) MediaUploaderIDs() (ids []string) {
+func (m *UserMutation) MediaUploaderIDs() (ids []uuid.UUID) {
 	for id := range m.media_uploader {
 		ids = append(ids, id)
 	}
@@ -8174,9 +8175,9 @@ func (m *UserMutation) ResetMediaUploader() {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
-func (m *UserMutation) AddRoleIDs(ids ...string) {
+func (m *UserMutation) AddRoleIDs(ids ...uuid.UUID) {
 	if m.roles == nil {
-		m.roles = make(map[string]struct{})
+		m.roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.roles[ids[i]] = struct{}{}
@@ -8194,9 +8195,9 @@ func (m *UserMutation) RolesCleared() bool {
 }
 
 // RemoveRoleIDs removes the "roles" edge to the Role entity by IDs.
-func (m *UserMutation) RemoveRoleIDs(ids ...string) {
+func (m *UserMutation) RemoveRoleIDs(ids ...uuid.UUID) {
 	if m.removedroles == nil {
-		m.removedroles = make(map[string]struct{})
+		m.removedroles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.roles, ids[i])
@@ -8205,7 +8206,7 @@ func (m *UserMutation) RemoveRoleIDs(ids ...string) {
 }
 
 // RemovedRoles returns the removed IDs of the "roles" edge to the Role entity.
-func (m *UserMutation) RemovedRolesIDs() (ids []string) {
+func (m *UserMutation) RemovedRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removedroles {
 		ids = append(ids, id)
 	}
@@ -8213,7 +8214,7 @@ func (m *UserMutation) RemovedRolesIDs() (ids []string) {
 }
 
 // RolesIDs returns the "roles" edge IDs in the mutation.
-func (m *UserMutation) RolesIDs() (ids []string) {
+func (m *UserMutation) RolesIDs() (ids []uuid.UUID) {
 	for id := range m.roles {
 		ids = append(ids, id)
 	}
@@ -8228,9 +8229,9 @@ func (m *UserMutation) ResetRoles() {
 }
 
 // AddCourseCreatorIDs adds the "course_creator" edge to the Course entity by ids.
-func (m *UserMutation) AddCourseCreatorIDs(ids ...string) {
+func (m *UserMutation) AddCourseCreatorIDs(ids ...uuid.UUID) {
 	if m.course_creator == nil {
-		m.course_creator = make(map[string]struct{})
+		m.course_creator = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.course_creator[ids[i]] = struct{}{}
@@ -8248,9 +8249,9 @@ func (m *UserMutation) CourseCreatorCleared() bool {
 }
 
 // RemoveCourseCreatorIDs removes the "course_creator" edge to the Course entity by IDs.
-func (m *UserMutation) RemoveCourseCreatorIDs(ids ...string) {
+func (m *UserMutation) RemoveCourseCreatorIDs(ids ...uuid.UUID) {
 	if m.removedcourse_creator == nil {
-		m.removedcourse_creator = make(map[string]struct{})
+		m.removedcourse_creator = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.course_creator, ids[i])
@@ -8259,7 +8260,7 @@ func (m *UserMutation) RemoveCourseCreatorIDs(ids ...string) {
 }
 
 // RemovedCourseCreator returns the removed IDs of the "course_creator" edge to the Course entity.
-func (m *UserMutation) RemovedCourseCreatorIDs() (ids []string) {
+func (m *UserMutation) RemovedCourseCreatorIDs() (ids []uuid.UUID) {
 	for id := range m.removedcourse_creator {
 		ids = append(ids, id)
 	}
@@ -8267,7 +8268,7 @@ func (m *UserMutation) RemovedCourseCreatorIDs() (ids []string) {
 }
 
 // CourseCreatorIDs returns the "course_creator" edge IDs in the mutation.
-func (m *UserMutation) CourseCreatorIDs() (ids []string) {
+func (m *UserMutation) CourseCreatorIDs() (ids []uuid.UUID) {
 	for id := range m.course_creator {
 		ids = append(ids, id)
 	}
@@ -8282,9 +8283,9 @@ func (m *UserMutation) ResetCourseCreator() {
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by ids.
-func (m *UserMutation) AddUserRoleIDs(ids ...string) {
+func (m *UserMutation) AddUserRoleIDs(ids ...uuid.UUID) {
 	if m.user_roles == nil {
-		m.user_roles = make(map[string]struct{})
+		m.user_roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.user_roles[ids[i]] = struct{}{}
@@ -8302,9 +8303,9 @@ func (m *UserMutation) UserRolesCleared() bool {
 }
 
 // RemoveUserRoleIDs removes the "user_roles" edge to the UserRole entity by IDs.
-func (m *UserMutation) RemoveUserRoleIDs(ids ...string) {
+func (m *UserMutation) RemoveUserRoleIDs(ids ...uuid.UUID) {
 	if m.removeduser_roles == nil {
-		m.removeduser_roles = make(map[string]struct{})
+		m.removeduser_roles = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.user_roles, ids[i])
@@ -8313,7 +8314,7 @@ func (m *UserMutation) RemoveUserRoleIDs(ids ...string) {
 }
 
 // RemovedUserRoles returns the removed IDs of the "user_roles" edge to the UserRole entity.
-func (m *UserMutation) RemovedUserRolesIDs() (ids []string) {
+func (m *UserMutation) RemovedUserRolesIDs() (ids []uuid.UUID) {
 	for id := range m.removeduser_roles {
 		ids = append(ids, id)
 	}
@@ -8321,7 +8322,7 @@ func (m *UserMutation) RemovedUserRolesIDs() (ids []string) {
 }
 
 // UserRolesIDs returns the "user_roles" edge IDs in the mutation.
-func (m *UserMutation) UserRolesIDs() (ids []string) {
+func (m *UserMutation) UserRolesIDs() (ids []uuid.UUID) {
 	for id := range m.user_roles {
 		ids = append(ids, id)
 	}
@@ -8523,7 +8524,7 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		m.SetLastName(v)
 		return nil
 	case user.FieldAvatarID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -8857,14 +8858,14 @@ type UserRoleMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *string
+	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
 	clearedFields map[string]struct{}
-	user          *string
+	user          *uuid.UUID
 	cleareduser   bool
-	role          *string
+	role          *uuid.UUID
 	clearedrole   bool
 	done          bool
 	oldValue      func(context.Context) (*UserRole, error)
@@ -8891,7 +8892,7 @@ func newUserRoleMutation(c config, op Op, opts ...userroleOption) *UserRoleMutat
 }
 
 // withUserRoleID sets the ID field of the mutation.
-func withUserRoleID(id string) userroleOption {
+func withUserRoleID(id uuid.UUID) userroleOption {
 	return func(m *UserRoleMutation) {
 		var (
 			err   error
@@ -8943,13 +8944,13 @@ func (m UserRoleMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of UserRole entities.
-func (m *UserRoleMutation) SetID(id string) {
+func (m *UserRoleMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserRoleMutation) ID() (id string, exists bool) {
+func (m *UserRoleMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -8960,12 +8961,12 @@ func (m *UserRoleMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserRoleMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *UserRoleMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -9097,12 +9098,12 @@ func (m *UserRoleMutation) ResetDeletedAt() {
 }
 
 // SetUserID sets the "user_id" field.
-func (m *UserRoleMutation) SetUserID(s string) {
-	m.user = &s
+func (m *UserRoleMutation) SetUserID(u uuid.UUID) {
+	m.user = &u
 }
 
 // UserID returns the value of the "user_id" field in the mutation.
-func (m *UserRoleMutation) UserID() (r string, exists bool) {
+func (m *UserRoleMutation) UserID() (r uuid.UUID, exists bool) {
 	v := m.user
 	if v == nil {
 		return
@@ -9113,7 +9114,7 @@ func (m *UserRoleMutation) UserID() (r string, exists bool) {
 // OldUserID returns the old "user_id" field's value of the UserRole entity.
 // If the UserRole object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserRoleMutation) OldUserID(ctx context.Context) (v string, err error) {
+func (m *UserRoleMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
 	}
@@ -9133,12 +9134,12 @@ func (m *UserRoleMutation) ResetUserID() {
 }
 
 // SetRoleID sets the "role_id" field.
-func (m *UserRoleMutation) SetRoleID(s string) {
-	m.role = &s
+func (m *UserRoleMutation) SetRoleID(u uuid.UUID) {
+	m.role = &u
 }
 
 // RoleID returns the value of the "role_id" field in the mutation.
-func (m *UserRoleMutation) RoleID() (r string, exists bool) {
+func (m *UserRoleMutation) RoleID() (r uuid.UUID, exists bool) {
 	v := m.role
 	if v == nil {
 		return
@@ -9149,7 +9150,7 @@ func (m *UserRoleMutation) RoleID() (r string, exists bool) {
 // OldRoleID returns the old "role_id" field's value of the UserRole entity.
 // If the UserRole object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserRoleMutation) OldRoleID(ctx context.Context) (v string, err error) {
+func (m *UserRoleMutation) OldRoleID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldRoleID is only allowed on UpdateOne operations")
 	}
@@ -9182,7 +9183,7 @@ func (m *UserRoleMutation) UserCleared() bool {
 // UserIDs returns the "user" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UserID instead. It exists only for internal usage by the builders.
-func (m *UserRoleMutation) UserIDs() (ids []string) {
+func (m *UserRoleMutation) UserIDs() (ids []uuid.UUID) {
 	if id := m.user; id != nil {
 		ids = append(ids, *id)
 	}
@@ -9209,7 +9210,7 @@ func (m *UserRoleMutation) RoleCleared() bool {
 // RoleIDs returns the "role" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // RoleID instead. It exists only for internal usage by the builders.
-func (m *UserRoleMutation) RoleIDs() (ids []string) {
+func (m *UserRoleMutation) RoleIDs() (ids []uuid.UUID) {
 	if id := m.role; id != nil {
 		ids = append(ids, *id)
 	}
@@ -9340,14 +9341,14 @@ func (m *UserRoleMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case userrole.FieldUserID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
 		return nil
 	case userrole.FieldRoleID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -9527,7 +9528,7 @@ type VideoMutation struct {
 	config
 	op                                     Op
 	typ                                    string
-	id                                     *string
+	id                                     *uuid.UUID
 	created_at                             *time.Time
 	updated_at                             *time.Time
 	deleted_at                             *time.Time
@@ -9536,14 +9537,14 @@ type VideoMutation struct {
 	duration                               *int
 	addduration                            *int
 	clearedFields                          map[string]struct{}
-	course_section                         *string
+	course_section                         *uuid.UUID
 	clearedcourse_section                  bool
-	media                                  *string
+	media                                  *uuid.UUID
 	clearedmedia                           bool
-	course                                 *string
+	course                                 *uuid.UUID
 	clearedcourse                          bool
-	video_question_timestamps_video        map[string]struct{}
-	removedvideo_question_timestamps_video map[string]struct{}
+	video_question_timestamps_video        map[uuid.UUID]struct{}
+	removedvideo_question_timestamps_video map[uuid.UUID]struct{}
 	clearedvideo_question_timestamps_video bool
 	done                                   bool
 	oldValue                               func(context.Context) (*Video, error)
@@ -9570,7 +9571,7 @@ func newVideoMutation(c config, op Op, opts ...videoOption) *VideoMutation {
 }
 
 // withVideoID sets the ID field of the mutation.
-func withVideoID(id string) videoOption {
+func withVideoID(id uuid.UUID) videoOption {
 	return func(m *VideoMutation) {
 		var (
 			err   error
@@ -9622,13 +9623,13 @@ func (m VideoMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Video entities.
-func (m *VideoMutation) SetID(id string) {
+func (m *VideoMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *VideoMutation) ID() (id string, exists bool) {
+func (m *VideoMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -9639,12 +9640,12 @@ func (m *VideoMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *VideoMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *VideoMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -9776,12 +9777,12 @@ func (m *VideoMutation) ResetDeletedAt() {
 }
 
 // SetSectionID sets the "section_id" field.
-func (m *VideoMutation) SetSectionID(s string) {
-	m.course_section = &s
+func (m *VideoMutation) SetSectionID(u uuid.UUID) {
+	m.course_section = &u
 }
 
 // SectionID returns the value of the "section_id" field in the mutation.
-func (m *VideoMutation) SectionID() (r string, exists bool) {
+func (m *VideoMutation) SectionID() (r uuid.UUID, exists bool) {
 	v := m.course_section
 	if v == nil {
 		return
@@ -9792,7 +9793,7 @@ func (m *VideoMutation) SectionID() (r string, exists bool) {
 // OldSectionID returns the old "section_id" field's value of the Video entity.
 // If the Video object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldSectionID(ctx context.Context) (v string, err error) {
+func (m *VideoMutation) OldSectionID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSectionID is only allowed on UpdateOne operations")
 	}
@@ -9897,12 +9898,12 @@ func (m *VideoMutation) ResetDescription() {
 }
 
 // SetMediaID sets the "media_id" field.
-func (m *VideoMutation) SetMediaID(s string) {
-	m.media = &s
+func (m *VideoMutation) SetMediaID(u uuid.UUID) {
+	m.media = &u
 }
 
 // MediaID returns the value of the "media_id" field in the mutation.
-func (m *VideoMutation) MediaID() (r string, exists bool) {
+func (m *VideoMutation) MediaID() (r uuid.UUID, exists bool) {
 	v := m.media
 	if v == nil {
 		return
@@ -9913,7 +9914,7 @@ func (m *VideoMutation) MediaID() (r string, exists bool) {
 // OldMediaID returns the old "media_id" field's value of the Video entity.
 // If the Video object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldMediaID(ctx context.Context) (v string, err error) {
+func (m *VideoMutation) OldMediaID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMediaID is only allowed on UpdateOne operations")
 	}
@@ -9933,12 +9934,12 @@ func (m *VideoMutation) ResetMediaID() {
 }
 
 // SetCourseID sets the "course_id" field.
-func (m *VideoMutation) SetCourseID(s string) {
-	m.course = &s
+func (m *VideoMutation) SetCourseID(u uuid.UUID) {
+	m.course = &u
 }
 
 // CourseID returns the value of the "course_id" field in the mutation.
-func (m *VideoMutation) CourseID() (r string, exists bool) {
+func (m *VideoMutation) CourseID() (r uuid.UUID, exists bool) {
 	v := m.course
 	if v == nil {
 		return
@@ -9949,7 +9950,7 @@ func (m *VideoMutation) CourseID() (r string, exists bool) {
 // OldCourseID returns the old "course_id" field's value of the Video entity.
 // If the Video object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldCourseID(ctx context.Context) (v string, err error) {
+func (m *VideoMutation) OldCourseID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCourseID is only allowed on UpdateOne operations")
 	}
@@ -10039,7 +10040,7 @@ func (m *VideoMutation) ResetDuration() {
 }
 
 // SetCourseSectionID sets the "course_section" edge to the CourseSection entity by id.
-func (m *VideoMutation) SetCourseSectionID(id string) {
+func (m *VideoMutation) SetCourseSectionID(id uuid.UUID) {
 	m.course_section = &id
 }
 
@@ -10055,7 +10056,7 @@ func (m *VideoMutation) CourseSectionCleared() bool {
 }
 
 // CourseSectionID returns the "course_section" edge ID in the mutation.
-func (m *VideoMutation) CourseSectionID() (id string, exists bool) {
+func (m *VideoMutation) CourseSectionID() (id uuid.UUID, exists bool) {
 	if m.course_section != nil {
 		return *m.course_section, true
 	}
@@ -10065,7 +10066,7 @@ func (m *VideoMutation) CourseSectionID() (id string, exists bool) {
 // CourseSectionIDs returns the "course_section" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CourseSectionID instead. It exists only for internal usage by the builders.
-func (m *VideoMutation) CourseSectionIDs() (ids []string) {
+func (m *VideoMutation) CourseSectionIDs() (ids []uuid.UUID) {
 	if id := m.course_section; id != nil {
 		ids = append(ids, *id)
 	}
@@ -10092,7 +10093,7 @@ func (m *VideoMutation) MediaCleared() bool {
 // MediaIDs returns the "media" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // MediaID instead. It exists only for internal usage by the builders.
-func (m *VideoMutation) MediaIDs() (ids []string) {
+func (m *VideoMutation) MediaIDs() (ids []uuid.UUID) {
 	if id := m.media; id != nil {
 		ids = append(ids, *id)
 	}
@@ -10119,7 +10120,7 @@ func (m *VideoMutation) CourseCleared() bool {
 // CourseIDs returns the "course" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CourseID instead. It exists only for internal usage by the builders.
-func (m *VideoMutation) CourseIDs() (ids []string) {
+func (m *VideoMutation) CourseIDs() (ids []uuid.UUID) {
 	if id := m.course; id != nil {
 		ids = append(ids, *id)
 	}
@@ -10133,9 +10134,9 @@ func (m *VideoMutation) ResetCourse() {
 }
 
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by ids.
-func (m *VideoMutation) AddVideoQuestionTimestampsVideoIDs(ids ...string) {
+func (m *VideoMutation) AddVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) {
 	if m.video_question_timestamps_video == nil {
-		m.video_question_timestamps_video = make(map[string]struct{})
+		m.video_question_timestamps_video = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		m.video_question_timestamps_video[ids[i]] = struct{}{}
@@ -10153,9 +10154,9 @@ func (m *VideoMutation) VideoQuestionTimestampsVideoCleared() bool {
 }
 
 // RemoveVideoQuestionTimestampsVideoIDs removes the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
-func (m *VideoMutation) RemoveVideoQuestionTimestampsVideoIDs(ids ...string) {
+func (m *VideoMutation) RemoveVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) {
 	if m.removedvideo_question_timestamps_video == nil {
-		m.removedvideo_question_timestamps_video = make(map[string]struct{})
+		m.removedvideo_question_timestamps_video = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
 		delete(m.video_question_timestamps_video, ids[i])
@@ -10164,7 +10165,7 @@ func (m *VideoMutation) RemoveVideoQuestionTimestampsVideoIDs(ids ...string) {
 }
 
 // RemovedVideoQuestionTimestampsVideo returns the removed IDs of the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity.
-func (m *VideoMutation) RemovedVideoQuestionTimestampsVideoIDs() (ids []string) {
+func (m *VideoMutation) RemovedVideoQuestionTimestampsVideoIDs() (ids []uuid.UUID) {
 	for id := range m.removedvideo_question_timestamps_video {
 		ids = append(ids, id)
 	}
@@ -10172,7 +10173,7 @@ func (m *VideoMutation) RemovedVideoQuestionTimestampsVideoIDs() (ids []string) 
 }
 
 // VideoQuestionTimestampsVideoIDs returns the "video_question_timestamps_video" edge IDs in the mutation.
-func (m *VideoMutation) VideoQuestionTimestampsVideoIDs() (ids []string) {
+func (m *VideoMutation) VideoQuestionTimestampsVideoIDs() (ids []uuid.UUID) {
 	for id := range m.video_question_timestamps_video {
 		ids = append(ids, id)
 	}
@@ -10332,7 +10333,7 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 		m.SetDeletedAt(v)
 		return nil
 	case video.FieldSectionID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -10353,14 +10354,14 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 		m.SetDescription(v)
 		return nil
 	case video.FieldMediaID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMediaID(v)
 		return nil
 	case video.FieldCourseID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -10632,16 +10633,16 @@ type VideoQuestionTimestampMutation struct {
 	config
 	op              Op
 	typ             string
-	id              *string
+	id              *uuid.UUID
 	created_at      *time.Time
 	updated_at      *time.Time
 	deleted_at      *time.Time
 	timestamp       *int
 	addtimestamp    *int
 	clearedFields   map[string]struct{}
-	video           *string
+	video           *uuid.UUID
 	clearedvideo    bool
-	question        *string
+	question        *uuid.UUID
 	clearedquestion bool
 	done            bool
 	oldValue        func(context.Context) (*VideoQuestionTimestamp, error)
@@ -10668,7 +10669,7 @@ func newVideoQuestionTimestampMutation(c config, op Op, opts ...videoquestiontim
 }
 
 // withVideoQuestionTimestampID sets the ID field of the mutation.
-func withVideoQuestionTimestampID(id string) videoquestiontimestampOption {
+func withVideoQuestionTimestampID(id uuid.UUID) videoquestiontimestampOption {
 	return func(m *VideoQuestionTimestampMutation) {
 		var (
 			err   error
@@ -10720,13 +10721,13 @@ func (m VideoQuestionTimestampMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of VideoQuestionTimestamp entities.
-func (m *VideoQuestionTimestampMutation) SetID(id string) {
+func (m *VideoQuestionTimestampMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *VideoQuestionTimestampMutation) ID() (id string, exists bool) {
+func (m *VideoQuestionTimestampMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -10737,12 +10738,12 @@ func (m *VideoQuestionTimestampMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *VideoQuestionTimestampMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *VideoQuestionTimestampMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -10874,12 +10875,12 @@ func (m *VideoQuestionTimestampMutation) ResetDeletedAt() {
 }
 
 // SetVideoID sets the "video_id" field.
-func (m *VideoQuestionTimestampMutation) SetVideoID(s string) {
-	m.video = &s
+func (m *VideoQuestionTimestampMutation) SetVideoID(u uuid.UUID) {
+	m.video = &u
 }
 
 // VideoID returns the value of the "video_id" field in the mutation.
-func (m *VideoQuestionTimestampMutation) VideoID() (r string, exists bool) {
+func (m *VideoQuestionTimestampMutation) VideoID() (r uuid.UUID, exists bool) {
 	v := m.video
 	if v == nil {
 		return
@@ -10890,7 +10891,7 @@ func (m *VideoQuestionTimestampMutation) VideoID() (r string, exists bool) {
 // OldVideoID returns the old "video_id" field's value of the VideoQuestionTimestamp entity.
 // If the VideoQuestionTimestamp object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoQuestionTimestampMutation) OldVideoID(ctx context.Context) (v string, err error) {
+func (m *VideoQuestionTimestampMutation) OldVideoID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldVideoID is only allowed on UpdateOne operations")
 	}
@@ -10910,12 +10911,12 @@ func (m *VideoQuestionTimestampMutation) ResetVideoID() {
 }
 
 // SetQuestionID sets the "question_id" field.
-func (m *VideoQuestionTimestampMutation) SetQuestionID(s string) {
-	m.question = &s
+func (m *VideoQuestionTimestampMutation) SetQuestionID(u uuid.UUID) {
+	m.question = &u
 }
 
 // QuestionID returns the value of the "question_id" field in the mutation.
-func (m *VideoQuestionTimestampMutation) QuestionID() (r string, exists bool) {
+func (m *VideoQuestionTimestampMutation) QuestionID() (r uuid.UUID, exists bool) {
 	v := m.question
 	if v == nil {
 		return
@@ -10926,7 +10927,7 @@ func (m *VideoQuestionTimestampMutation) QuestionID() (r string, exists bool) {
 // OldQuestionID returns the old "question_id" field's value of the VideoQuestionTimestamp entity.
 // If the VideoQuestionTimestamp object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoQuestionTimestampMutation) OldQuestionID(ctx context.Context) (v string, err error) {
+func (m *VideoQuestionTimestampMutation) OldQuestionID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldQuestionID is only allowed on UpdateOne operations")
 	}
@@ -11015,7 +11016,7 @@ func (m *VideoQuestionTimestampMutation) VideoCleared() bool {
 // VideoIDs returns the "video" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // VideoID instead. It exists only for internal usage by the builders.
-func (m *VideoQuestionTimestampMutation) VideoIDs() (ids []string) {
+func (m *VideoQuestionTimestampMutation) VideoIDs() (ids []uuid.UUID) {
 	if id := m.video; id != nil {
 		ids = append(ids, *id)
 	}
@@ -11042,7 +11043,7 @@ func (m *VideoQuestionTimestampMutation) QuestionCleared() bool {
 // QuestionIDs returns the "question" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // QuestionID instead. It exists only for internal usage by the builders.
-func (m *VideoQuestionTimestampMutation) QuestionIDs() (ids []string) {
+func (m *VideoQuestionTimestampMutation) QuestionIDs() (ids []uuid.UUID) {
 	if id := m.question; id != nil {
 		ids = append(ids, *id)
 	}
@@ -11180,14 +11181,14 @@ func (m *VideoQuestionTimestampMutation) SetField(name string, value ent.Value) 
 		m.SetDeletedAt(v)
 		return nil
 	case videoquestiontimestamp.FieldVideoID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetVideoID(v)
 		return nil
 	case videoquestiontimestamp.FieldQuestionID:
-		v, ok := value.(string)
+		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

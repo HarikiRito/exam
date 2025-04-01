@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // TodoCreate is the builder for creating a Todo entity.
@@ -83,8 +84,16 @@ func (tc *TodoCreate) SetNillableDescription(s *string) *TodoCreate {
 }
 
 // SetID sets the "id" field.
-func (tc *TodoCreate) SetID(s string) *TodoCreate {
-	tc.mutation.SetID(s)
+func (tc *TodoCreate) SetID(u uuid.UUID) *TodoCreate {
+	tc.mutation.SetID(u)
+	return tc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (tc *TodoCreate) SetNillableID(u *uuid.UUID) *TodoCreate {
+	if u != nil {
+		tc.SetID(*u)
+	}
 	return tc
 }
 
@@ -95,9 +104,7 @@ func (tc *TodoCreate) Mutation() *TodoMutation {
 
 // Save creates the Todo in the database.
 func (tc *TodoCreate) Save(ctx context.Context) (*Todo, error) {
-	if err := tc.defaults(); err != nil {
-		return nil, err
-	}
+	tc.defaults()
 	return withHooks(ctx, tc.sqlSave, tc.mutation, tc.hooks)
 }
 
@@ -124,22 +131,19 @@ func (tc *TodoCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tc *TodoCreate) defaults() error {
+func (tc *TodoCreate) defaults() {
 	if _, ok := tc.mutation.CreatedAt(); !ok {
-		if todo.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized todo.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := todo.DefaultCreatedAt()
 		tc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
-		if todo.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized todo.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := todo.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := tc.mutation.ID(); !ok {
+		v := todo.DefaultID()
+		tc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -168,10 +172,10 @@ func (tc *TodoCreate) sqlSave(ctx context.Context) (*Todo, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Todo.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	tc.mutation.id = &_node.ID
@@ -182,11 +186,11 @@ func (tc *TodoCreate) sqlSave(ctx context.Context) (*Todo, error) {
 func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Todo{config: tc.config}
-		_spec = sqlgraph.NewCreateSpec(todo.Table, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(todo.Table, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeUUID))
 	)
 	if id, ok := tc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := tc.mutation.CreatedAt(); ok {
 		_spec.SetField(todo.FieldCreatedAt, field.TypeTime, value)

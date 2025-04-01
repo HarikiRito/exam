@@ -10,7 +10,7 @@ import (
 var (
 	// AuthsColumns holds the columns for the "auths" table.
 	AuthsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
@@ -19,7 +19,7 @@ var (
 		{Name: "access_token_expires_at", Type: field.TypeTime},
 		{Name: "refresh_token_expires_at", Type: field.TypeTime},
 		{Name: "is_revoked", Type: field.TypeBool, Default: false},
-		{Name: "user_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// AuthsTable holds the schema information for the "auths" table.
 	AuthsTable = &schema.Table{
@@ -37,15 +37,15 @@ var (
 	}
 	// CoursesColumns holds the columns for the "courses" table.
 	CoursesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "is_published", Type: field.TypeBool, Default: false},
-		{Name: "media_id", Type: field.TypeString, Nullable: true},
-		{Name: "creator_id", Type: field.TypeString},
+		{Name: "media_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "creator_id", Type: field.TypeUUID},
 	}
 	// CoursesTable holds the schema information for the "courses" table.
 	CoursesTable = &schema.Table{
@@ -69,13 +69,13 @@ var (
 	}
 	// CourseSectionsColumns holds the columns for the "course_sections" table.
 	CourseSectionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "course_id", Type: field.TypeString},
+		{Name: "course_id", Type: field.TypeUUID},
 	}
 	// CourseSectionsTable holds the schema information for the "course_sections" table.
 	CourseSectionsTable = &schema.Table{
@@ -93,7 +93,7 @@ var (
 	}
 	// MediaColumns holds the columns for the "media" table.
 	MediaColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
@@ -101,7 +101,7 @@ var (
 		{Name: "file_url", Type: field.TypeString},
 		{Name: "mime_type", Type: field.TypeString},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "uploader_id", Type: field.TypeString, Nullable: true},
+		{Name: "uploader_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// MediaTable holds the schema information for the "media" table.
 	MediaTable = &schema.Table{
@@ -119,7 +119,7 @@ var (
 	}
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
@@ -134,12 +134,12 @@ var (
 	}
 	// QuestionsColumns holds the columns for the "questions" table.
 	QuestionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "question_text", Type: field.TypeString, Size: 2147483647},
-		{Name: "section_id", Type: field.TypeString},
+		{Name: "section_id", Type: field.TypeUUID},
 	}
 	// QuestionsTable holds the schema information for the "questions" table.
 	QuestionsTable = &schema.Table{
@@ -157,13 +157,13 @@ var (
 	}
 	// QuestionOptionsColumns holds the columns for the "question_options" table.
 	QuestionOptionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "option_text", Type: field.TypeString, Size: 2147483647},
 		{Name: "is_correct", Type: field.TypeBool, Default: false},
-		{Name: "question_id", Type: field.TypeString},
+		{Name: "question_id", Type: field.TypeUUID},
 	}
 	// QuestionOptionsTable holds the schema information for the "question_options" table.
 	QuestionOptionsTable = &schema.Table{
@@ -181,7 +181,7 @@ var (
 	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
@@ -196,7 +196,7 @@ var (
 	}
 	// TodosColumns holds the columns for the "todos" table.
 	TodosColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
@@ -211,7 +211,7 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
@@ -221,7 +221,7 @@ var (
 		{Name: "first_name", Type: field.TypeString, Nullable: true},
 		{Name: "last_name", Type: field.TypeString, Nullable: true},
 		{Name: "is_active", Type: field.TypeBool, Default: true},
-		{Name: "avatar_id", Type: field.TypeString, Nullable: true},
+		{Name: "avatar_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -239,12 +239,12 @@ var (
 	}
 	// UserRolesColumns holds the columns for the "user_roles" table.
 	UserRolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "user_id", Type: field.TypeString},
-		{Name: "role_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role_id", Type: field.TypeUUID},
 	}
 	// UserRolesTable holds the schema information for the "user_roles" table.
 	UserRolesTable = &schema.Table{
@@ -275,16 +275,16 @@ var (
 	}
 	// VideosColumns holds the columns for the "videos" table.
 	VideosColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "duration", Type: field.TypeInt, Nullable: true},
-		{Name: "course_id", Type: field.TypeString},
-		{Name: "section_id", Type: field.TypeString},
-		{Name: "media_id", Type: field.TypeString},
+		{Name: "course_id", Type: field.TypeUUID},
+		{Name: "section_id", Type: field.TypeUUID},
+		{Name: "media_id", Type: field.TypeUUID},
 	}
 	// VideosTable holds the schema information for the "videos" table.
 	VideosTable = &schema.Table{
@@ -314,13 +314,13 @@ var (
 	}
 	// VideoQuestionTimestampsColumns holds the columns for the "video_question_timestamps" table.
 	VideoQuestionTimestampsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "timestamp", Type: field.TypeInt},
-		{Name: "question_id", Type: field.TypeString},
-		{Name: "video_id", Type: field.TypeString},
+		{Name: "question_id", Type: field.TypeUUID},
+		{Name: "video_id", Type: field.TypeUUID},
 	}
 	// VideoQuestionTimestampsTable holds the schema information for the "video_question_timestamps" table.
 	VideoQuestionTimestampsTable = &schema.Table{
@@ -344,8 +344,8 @@ var (
 	}
 	// RolePermissionsColumns holds the columns for the "role_permissions" table.
 	RolePermissionsColumns = []*schema.Column{
-		{Name: "role_id", Type: field.TypeString},
-		{Name: "permission_id", Type: field.TypeString},
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "permission_id", Type: field.TypeUUID},
 	}
 	// RolePermissionsTable holds the schema information for the "role_permissions" table.
 	RolePermissionsTable = &schema.Table{

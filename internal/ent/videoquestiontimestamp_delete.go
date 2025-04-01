@@ -40,7 +40,7 @@ func (vqtd *VideoQuestionTimestampDelete) ExecX(ctx context.Context) int {
 }
 
 func (vqtd *VideoQuestionTimestampDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(videoquestiontimestamp.Table, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString))
+	_spec := sqlgraph.NewDeleteSpec(videoquestiontimestamp.Table, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID))
 	if ps := vqtd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

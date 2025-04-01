@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.CourseSection {
+func ID(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.CourseSection {
+func IDEQ(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.CourseSection {
+func IDNEQ(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.CourseSection {
+func IDIn(ids ...uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.CourseSection {
+func IDNotIn(ids ...uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.CourseSection {
+func IDGT(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.CourseSection {
+func IDGTE(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.CourseSection {
+func IDLT(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.CourseSection {
+func IDLTE(id uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -81,7 +72,7 @@ func DeletedAt(v time.Time) predicate.CourseSection {
 }
 
 // CourseID applies equality check predicate on the "course_id" field. It's identical to CourseIDEQ.
-func CourseID(v string) predicate.CourseSection {
+func CourseID(v uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldCourseID, v))
 }
 
@@ -226,68 +217,23 @@ func DeletedAtNotNil() predicate.CourseSection {
 }
 
 // CourseIDEQ applies the EQ predicate on the "course_id" field.
-func CourseIDEQ(v string) predicate.CourseSection {
+func CourseIDEQ(v uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldCourseID, v))
 }
 
 // CourseIDNEQ applies the NEQ predicate on the "course_id" field.
-func CourseIDNEQ(v string) predicate.CourseSection {
+func CourseIDNEQ(v uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldNEQ(FieldCourseID, v))
 }
 
 // CourseIDIn applies the In predicate on the "course_id" field.
-func CourseIDIn(vs ...string) predicate.CourseSection {
+func CourseIDIn(vs ...uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldIn(FieldCourseID, vs...))
 }
 
 // CourseIDNotIn applies the NotIn predicate on the "course_id" field.
-func CourseIDNotIn(vs ...string) predicate.CourseSection {
+func CourseIDNotIn(vs ...uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldNotIn(FieldCourseID, vs...))
-}
-
-// CourseIDGT applies the GT predicate on the "course_id" field.
-func CourseIDGT(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldGT(FieldCourseID, v))
-}
-
-// CourseIDGTE applies the GTE predicate on the "course_id" field.
-func CourseIDGTE(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldGTE(FieldCourseID, v))
-}
-
-// CourseIDLT applies the LT predicate on the "course_id" field.
-func CourseIDLT(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldLT(FieldCourseID, v))
-}
-
-// CourseIDLTE applies the LTE predicate on the "course_id" field.
-func CourseIDLTE(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldLTE(FieldCourseID, v))
-}
-
-// CourseIDContains applies the Contains predicate on the "course_id" field.
-func CourseIDContains(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldContains(FieldCourseID, v))
-}
-
-// CourseIDHasPrefix applies the HasPrefix predicate on the "course_id" field.
-func CourseIDHasPrefix(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldHasPrefix(FieldCourseID, v))
-}
-
-// CourseIDHasSuffix applies the HasSuffix predicate on the "course_id" field.
-func CourseIDHasSuffix(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldHasSuffix(FieldCourseID, v))
-}
-
-// CourseIDEqualFold applies the EqualFold predicate on the "course_id" field.
-func CourseIDEqualFold(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldEqualFold(FieldCourseID, v))
-}
-
-// CourseIDContainsFold applies the ContainsFold predicate on the "course_id" field.
-func CourseIDContainsFold(v string) predicate.CourseSection {
-	return predicate.CourseSection(sql.FieldContainsFold(FieldCourseID, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.

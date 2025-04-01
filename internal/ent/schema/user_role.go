@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserRole holds the schema definition for the UserRole entity.
@@ -16,8 +17,8 @@ type UserRole struct {
 // Fields of the UserRole.
 func (UserRole) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("user_id").NotEmpty(),
-		field.String("role_id").NotEmpty(),
+		field.UUID("user_id", uuid.UUID{}),
+		field.UUID("role_id", uuid.UUID{}),
 	}
 }
 
@@ -39,4 +40,4 @@ func (UserRole) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

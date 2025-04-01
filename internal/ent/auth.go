@@ -11,13 +11,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Auth is the model entity for the Auth schema.
 type Auth struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,7 +26,7 @@ type Auth struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID string `json:"user_id,omitempty"`
+	UserID uuid.UUID `json:"user_id,omitempty"`
 	// AccessToken holds the value of the "access_token" field.
 	AccessToken string `json:"access_token,omitempty"`
 	// RefreshToken holds the value of the "refresh_token" field.
@@ -69,10 +70,12 @@ func (*Auth) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case auth.FieldIsRevoked:
 			values[i] = new(sql.NullBool)
-		case auth.FieldID, auth.FieldUserID, auth.FieldAccessToken, auth.FieldRefreshToken:
+		case auth.FieldAccessToken, auth.FieldRefreshToken:
 			values[i] = new(sql.NullString)
 		case auth.FieldCreatedAt, auth.FieldUpdatedAt, auth.FieldDeletedAt, auth.FieldAccessTokenExpiresAt, auth.FieldRefreshTokenExpiresAt:
 			values[i] = new(sql.NullTime)
+		case auth.FieldID, auth.FieldUserID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -89,10 +92,10 @@ func (a *Auth) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case auth.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				a.ID = value.String
+			} else if value != nil {
+				a.ID = *value
 			}
 		case auth.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -114,10 +117,10 @@ func (a *Auth) assignValues(columns []string, values []any) error {
 				*a.DeletedAt = value.Time
 			}
 		case auth.FieldUserID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value.Valid {
-				a.UserID = value.String
+			} else if value != nil {
+				a.UserID = *value
 			}
 		case auth.FieldAccessToken:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -202,7 +205,7 @@ func (a *Auth) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(a.UserID)
+	builder.WriteString(fmt.Sprintf("%v", a.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("access_token=")
 	builder.WriteString(a.AccessToken)

@@ -16,6 +16,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -114,15 +115,15 @@ func (uc *UserCreate) SetNillableLastName(s *string) *UserCreate {
 }
 
 // SetAvatarID sets the "avatar_id" field.
-func (uc *UserCreate) SetAvatarID(s string) *UserCreate {
-	uc.mutation.SetAvatarID(s)
+func (uc *UserCreate) SetAvatarID(u uuid.UUID) *UserCreate {
+	uc.mutation.SetAvatarID(u)
 	return uc
 }
 
 // SetNillableAvatarID sets the "avatar_id" field if the given value is not nil.
-func (uc *UserCreate) SetNillableAvatarID(s *string) *UserCreate {
-	if s != nil {
-		uc.SetAvatarID(*s)
+func (uc *UserCreate) SetNillableAvatarID(u *uuid.UUID) *UserCreate {
+	if u != nil {
+		uc.SetAvatarID(*u)
 	}
 	return uc
 }
@@ -142,19 +143,27 @@ func (uc *UserCreate) SetNillableIsActive(b *bool) *UserCreate {
 }
 
 // SetID sets the "id" field.
-func (uc *UserCreate) SetID(s string) *UserCreate {
-	uc.mutation.SetID(s)
+func (uc *UserCreate) SetID(u uuid.UUID) *UserCreate {
+	uc.mutation.SetID(u)
+	return uc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (uc *UserCreate) SetNillableID(u *uuid.UUID) *UserCreate {
+	if u != nil {
+		uc.SetID(*u)
+	}
 	return uc
 }
 
 // SetMediaID sets the "media" edge to the Media entity by ID.
-func (uc *UserCreate) SetMediaID(id string) *UserCreate {
+func (uc *UserCreate) SetMediaID(id uuid.UUID) *UserCreate {
 	uc.mutation.SetMediaID(id)
 	return uc
 }
 
 // SetNillableMediaID sets the "media" edge to the Media entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableMediaID(id *string) *UserCreate {
+func (uc *UserCreate) SetNillableMediaID(id *uuid.UUID) *UserCreate {
 	if id != nil {
 		uc = uc.SetMediaID(*id)
 	}
@@ -167,14 +176,14 @@ func (uc *UserCreate) SetMedia(m *Media) *UserCreate {
 }
 
 // AddAuthUserIDs adds the "auth_user" edge to the Auth entity by IDs.
-func (uc *UserCreate) AddAuthUserIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddAuthUserIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddAuthUserIDs(ids...)
 	return uc
 }
 
 // AddAuthUser adds the "auth_user" edges to the Auth entity.
 func (uc *UserCreate) AddAuthUser(a ...*Auth) *UserCreate {
-	ids := make([]string, len(a))
+	ids := make([]uuid.UUID, len(a))
 	for i := range a {
 		ids[i] = a[i].ID
 	}
@@ -182,14 +191,14 @@ func (uc *UserCreate) AddAuthUser(a ...*Auth) *UserCreate {
 }
 
 // AddMediaUploaderIDs adds the "media_uploader" edge to the Media entity by IDs.
-func (uc *UserCreate) AddMediaUploaderIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddMediaUploaderIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddMediaUploaderIDs(ids...)
 	return uc
 }
 
 // AddMediaUploader adds the "media_uploader" edges to the Media entity.
 func (uc *UserCreate) AddMediaUploader(m ...*Media) *UserCreate {
-	ids := make([]string, len(m))
+	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
@@ -197,14 +206,14 @@ func (uc *UserCreate) AddMediaUploader(m ...*Media) *UserCreate {
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (uc *UserCreate) AddRoleIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddRoleIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddRoleIDs(ids...)
 	return uc
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (uc *UserCreate) AddRoles(r ...*Role) *UserCreate {
-	ids := make([]string, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -212,14 +221,14 @@ func (uc *UserCreate) AddRoles(r ...*Role) *UserCreate {
 }
 
 // AddCourseCreatorIDs adds the "course_creator" edge to the Course entity by IDs.
-func (uc *UserCreate) AddCourseCreatorIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddCourseCreatorIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddCourseCreatorIDs(ids...)
 	return uc
 }
 
 // AddCourseCreator adds the "course_creator" edges to the Course entity.
 func (uc *UserCreate) AddCourseCreator(c ...*Course) *UserCreate {
-	ids := make([]string, len(c))
+	ids := make([]uuid.UUID, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -227,14 +236,14 @@ func (uc *UserCreate) AddCourseCreator(c ...*Course) *UserCreate {
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
-func (uc *UserCreate) AddUserRoleIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddUserRoleIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddUserRoleIDs(ids...)
 	return uc
 }
 
 // AddUserRoles adds the "user_roles" edges to the UserRole entity.
 func (uc *UserCreate) AddUserRoles(u ...*UserRole) *UserCreate {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -248,9 +257,7 @@ func (uc *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
-	if err := uc.defaults(); err != nil {
-		return nil, err
-	}
+	uc.defaults()
 	return withHooks(ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -277,18 +284,12 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uc *UserCreate) defaults() error {
+func (uc *UserCreate) defaults() {
 	if _, ok := uc.mutation.CreatedAt(); !ok {
-		if user.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized user.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := user.DefaultCreatedAt()
 		uc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := uc.mutation.UpdatedAt(); !ok {
-		if user.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized user.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := user.DefaultUpdatedAt()
 		uc.mutation.SetUpdatedAt(v)
 	}
@@ -296,7 +297,10 @@ func (uc *UserCreate) defaults() error {
 		v := user.DefaultIsActive
 		uc.mutation.SetIsActive(v)
 	}
-	return nil
+	if _, ok := uc.mutation.ID(); !ok {
+		v := user.DefaultID()
+		uc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -349,10 +353,10 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected User.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	uc.mutation.id = &_node.ID
@@ -363,11 +367,11 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
 		_node = &User{config: uc.config}
-		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	)
 	if id, ok := uc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := uc.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
@@ -413,7 +417,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.MediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -430,7 +434,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.AuthUserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -446,7 +450,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.MediaUploaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -462,16 +466,19 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: user.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		createE := &UserRoleCreate{config: uc.config, mutation: newUserRoleMutation(uc.config, OpCreate)}
-		_ = createE.defaults()
+		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
+		if specE.ID.Value != nil {
+			edge.Target.Fields = append(edge.Target.Fields, specE.ID)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uc.mutation.CourseCreatorIDs(); len(nodes) > 0 {
@@ -482,7 +489,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.CourseCreatorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -498,7 +505,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.UserRolesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

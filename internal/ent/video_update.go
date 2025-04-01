@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoUpdate is the builder for updating Video entities.
@@ -73,15 +74,15 @@ func (vu *VideoUpdate) ClearDeletedAt() *VideoUpdate {
 }
 
 // SetSectionID sets the "section_id" field.
-func (vu *VideoUpdate) SetSectionID(s string) *VideoUpdate {
-	vu.mutation.SetSectionID(s)
+func (vu *VideoUpdate) SetSectionID(u uuid.UUID) *VideoUpdate {
+	vu.mutation.SetSectionID(u)
 	return vu
 }
 
 // SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableSectionID(s *string) *VideoUpdate {
-	if s != nil {
-		vu.SetSectionID(*s)
+func (vu *VideoUpdate) SetNillableSectionID(u *uuid.UUID) *VideoUpdate {
+	if u != nil {
+		vu.SetSectionID(*u)
 	}
 	return vu
 }
@@ -121,29 +122,29 @@ func (vu *VideoUpdate) ClearDescription() *VideoUpdate {
 }
 
 // SetMediaID sets the "media_id" field.
-func (vu *VideoUpdate) SetMediaID(s string) *VideoUpdate {
-	vu.mutation.SetMediaID(s)
+func (vu *VideoUpdate) SetMediaID(u uuid.UUID) *VideoUpdate {
+	vu.mutation.SetMediaID(u)
 	return vu
 }
 
 // SetNillableMediaID sets the "media_id" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableMediaID(s *string) *VideoUpdate {
-	if s != nil {
-		vu.SetMediaID(*s)
+func (vu *VideoUpdate) SetNillableMediaID(u *uuid.UUID) *VideoUpdate {
+	if u != nil {
+		vu.SetMediaID(*u)
 	}
 	return vu
 }
 
 // SetCourseID sets the "course_id" field.
-func (vu *VideoUpdate) SetCourseID(s string) *VideoUpdate {
-	vu.mutation.SetCourseID(s)
+func (vu *VideoUpdate) SetCourseID(u uuid.UUID) *VideoUpdate {
+	vu.mutation.SetCourseID(u)
 	return vu
 }
 
 // SetNillableCourseID sets the "course_id" field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableCourseID(s *string) *VideoUpdate {
-	if s != nil {
-		vu.SetCourseID(*s)
+func (vu *VideoUpdate) SetNillableCourseID(u *uuid.UUID) *VideoUpdate {
+	if u != nil {
+		vu.SetCourseID(*u)
 	}
 	return vu
 }
@@ -176,7 +177,7 @@ func (vu *VideoUpdate) ClearDuration() *VideoUpdate {
 }
 
 // SetCourseSectionID sets the "course_section" edge to the CourseSection entity by ID.
-func (vu *VideoUpdate) SetCourseSectionID(id string) *VideoUpdate {
+func (vu *VideoUpdate) SetCourseSectionID(id uuid.UUID) *VideoUpdate {
 	vu.mutation.SetCourseSectionID(id)
 	return vu
 }
@@ -197,14 +198,14 @@ func (vu *VideoUpdate) SetCourse(c *Course) *VideoUpdate {
 }
 
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
-func (vu *VideoUpdate) AddVideoQuestionTimestampsVideoIDs(ids ...string) *VideoUpdate {
+func (vu *VideoUpdate) AddVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) *VideoUpdate {
 	vu.mutation.AddVideoQuestionTimestampsVideoIDs(ids...)
 	return vu
 }
 
 // AddVideoQuestionTimestampsVideo adds the "video_question_timestamps_video" edges to the VideoQuestionTimestamp entity.
 func (vu *VideoUpdate) AddVideoQuestionTimestampsVideo(v ...*VideoQuestionTimestamp) *VideoUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -241,14 +242,14 @@ func (vu *VideoUpdate) ClearVideoQuestionTimestampsVideo() *VideoUpdate {
 }
 
 // RemoveVideoQuestionTimestampsVideoIDs removes the "video_question_timestamps_video" edge to VideoQuestionTimestamp entities by IDs.
-func (vu *VideoUpdate) RemoveVideoQuestionTimestampsVideoIDs(ids ...string) *VideoUpdate {
+func (vu *VideoUpdate) RemoveVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) *VideoUpdate {
 	vu.mutation.RemoveVideoQuestionTimestampsVideoIDs(ids...)
 	return vu
 }
 
 // RemoveVideoQuestionTimestampsVideo removes "video_question_timestamps_video" edges to VideoQuestionTimestamp entities.
 func (vu *VideoUpdate) RemoveVideoQuestionTimestampsVideo(v ...*VideoQuestionTimestamp) *VideoUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -257,9 +258,7 @@ func (vu *VideoUpdate) RemoveVideoQuestionTimestampsVideo(v ...*VideoQuestionTim
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (vu *VideoUpdate) Save(ctx context.Context) (int, error) {
-	if err := vu.defaults(); err != nil {
-		return 0, err
-	}
+	vu.defaults()
 	return withHooks(ctx, vu.sqlSave, vu.mutation, vu.hooks)
 }
 
@@ -286,37 +285,18 @@ func (vu *VideoUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vu *VideoUpdate) defaults() error {
+func (vu *VideoUpdate) defaults() {
 	if _, ok := vu.mutation.UpdatedAt(); !ok {
-		if video.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized video.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := video.UpdateDefaultUpdatedAt()
 		vu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (vu *VideoUpdate) check() error {
-	if v, ok := vu.mutation.SectionID(); ok {
-		if err := video.SectionIDValidator(v); err != nil {
-			return &ValidationError{Name: "section_id", err: fmt.Errorf(`ent: validator failed for field "Video.section_id": %w`, err)}
-		}
-	}
 	if v, ok := vu.mutation.Title(); ok {
 		if err := video.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Video.title": %w`, err)}
-		}
-	}
-	if v, ok := vu.mutation.MediaID(); ok {
-		if err := video.MediaIDValidator(v); err != nil {
-			return &ValidationError{Name: "media_id", err: fmt.Errorf(`ent: validator failed for field "Video.media_id": %w`, err)}
-		}
-	}
-	if v, ok := vu.mutation.CourseID(); ok {
-		if err := video.CourseIDValidator(v); err != nil {
-			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "Video.course_id": %w`, err)}
 		}
 	}
 	if vu.mutation.CourseSectionCleared() && len(vu.mutation.CourseSectionIDs()) > 0 {
@@ -335,7 +315,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := vu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(video.Table, video.Columns, sqlgraph.NewFieldSpec(video.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(video.Table, video.Columns, sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID))
 	if ps := vu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -381,7 +361,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -394,7 +374,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -410,7 +390,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.MediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -423,7 +403,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.MediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -439,7 +419,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -452,7 +432,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -468,7 +448,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -481,7 +461,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -497,7 +477,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -566,15 +546,15 @@ func (vuo *VideoUpdateOne) ClearDeletedAt() *VideoUpdateOne {
 }
 
 // SetSectionID sets the "section_id" field.
-func (vuo *VideoUpdateOne) SetSectionID(s string) *VideoUpdateOne {
-	vuo.mutation.SetSectionID(s)
+func (vuo *VideoUpdateOne) SetSectionID(u uuid.UUID) *VideoUpdateOne {
+	vuo.mutation.SetSectionID(u)
 	return vuo
 }
 
 // SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableSectionID(s *string) *VideoUpdateOne {
-	if s != nil {
-		vuo.SetSectionID(*s)
+func (vuo *VideoUpdateOne) SetNillableSectionID(u *uuid.UUID) *VideoUpdateOne {
+	if u != nil {
+		vuo.SetSectionID(*u)
 	}
 	return vuo
 }
@@ -614,29 +594,29 @@ func (vuo *VideoUpdateOne) ClearDescription() *VideoUpdateOne {
 }
 
 // SetMediaID sets the "media_id" field.
-func (vuo *VideoUpdateOne) SetMediaID(s string) *VideoUpdateOne {
-	vuo.mutation.SetMediaID(s)
+func (vuo *VideoUpdateOne) SetMediaID(u uuid.UUID) *VideoUpdateOne {
+	vuo.mutation.SetMediaID(u)
 	return vuo
 }
 
 // SetNillableMediaID sets the "media_id" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableMediaID(s *string) *VideoUpdateOne {
-	if s != nil {
-		vuo.SetMediaID(*s)
+func (vuo *VideoUpdateOne) SetNillableMediaID(u *uuid.UUID) *VideoUpdateOne {
+	if u != nil {
+		vuo.SetMediaID(*u)
 	}
 	return vuo
 }
 
 // SetCourseID sets the "course_id" field.
-func (vuo *VideoUpdateOne) SetCourseID(s string) *VideoUpdateOne {
-	vuo.mutation.SetCourseID(s)
+func (vuo *VideoUpdateOne) SetCourseID(u uuid.UUID) *VideoUpdateOne {
+	vuo.mutation.SetCourseID(u)
 	return vuo
 }
 
 // SetNillableCourseID sets the "course_id" field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableCourseID(s *string) *VideoUpdateOne {
-	if s != nil {
-		vuo.SetCourseID(*s)
+func (vuo *VideoUpdateOne) SetNillableCourseID(u *uuid.UUID) *VideoUpdateOne {
+	if u != nil {
+		vuo.SetCourseID(*u)
 	}
 	return vuo
 }
@@ -669,7 +649,7 @@ func (vuo *VideoUpdateOne) ClearDuration() *VideoUpdateOne {
 }
 
 // SetCourseSectionID sets the "course_section" edge to the CourseSection entity by ID.
-func (vuo *VideoUpdateOne) SetCourseSectionID(id string) *VideoUpdateOne {
+func (vuo *VideoUpdateOne) SetCourseSectionID(id uuid.UUID) *VideoUpdateOne {
 	vuo.mutation.SetCourseSectionID(id)
 	return vuo
 }
@@ -690,14 +670,14 @@ func (vuo *VideoUpdateOne) SetCourse(c *Course) *VideoUpdateOne {
 }
 
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
-func (vuo *VideoUpdateOne) AddVideoQuestionTimestampsVideoIDs(ids ...string) *VideoUpdateOne {
+func (vuo *VideoUpdateOne) AddVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) *VideoUpdateOne {
 	vuo.mutation.AddVideoQuestionTimestampsVideoIDs(ids...)
 	return vuo
 }
 
 // AddVideoQuestionTimestampsVideo adds the "video_question_timestamps_video" edges to the VideoQuestionTimestamp entity.
 func (vuo *VideoUpdateOne) AddVideoQuestionTimestampsVideo(v ...*VideoQuestionTimestamp) *VideoUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -734,14 +714,14 @@ func (vuo *VideoUpdateOne) ClearVideoQuestionTimestampsVideo() *VideoUpdateOne {
 }
 
 // RemoveVideoQuestionTimestampsVideoIDs removes the "video_question_timestamps_video" edge to VideoQuestionTimestamp entities by IDs.
-func (vuo *VideoUpdateOne) RemoveVideoQuestionTimestampsVideoIDs(ids ...string) *VideoUpdateOne {
+func (vuo *VideoUpdateOne) RemoveVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) *VideoUpdateOne {
 	vuo.mutation.RemoveVideoQuestionTimestampsVideoIDs(ids...)
 	return vuo
 }
 
 // RemoveVideoQuestionTimestampsVideo removes "video_question_timestamps_video" edges to VideoQuestionTimestamp entities.
 func (vuo *VideoUpdateOne) RemoveVideoQuestionTimestampsVideo(v ...*VideoQuestionTimestamp) *VideoUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -763,9 +743,7 @@ func (vuo *VideoUpdateOne) Select(field string, fields ...string) *VideoUpdateOn
 
 // Save executes the query and returns the updated Video entity.
 func (vuo *VideoUpdateOne) Save(ctx context.Context) (*Video, error) {
-	if err := vuo.defaults(); err != nil {
-		return nil, err
-	}
+	vuo.defaults()
 	return withHooks(ctx, vuo.sqlSave, vuo.mutation, vuo.hooks)
 }
 
@@ -792,37 +770,18 @@ func (vuo *VideoUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vuo *VideoUpdateOne) defaults() error {
+func (vuo *VideoUpdateOne) defaults() {
 	if _, ok := vuo.mutation.UpdatedAt(); !ok {
-		if video.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized video.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := video.UpdateDefaultUpdatedAt()
 		vuo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (vuo *VideoUpdateOne) check() error {
-	if v, ok := vuo.mutation.SectionID(); ok {
-		if err := video.SectionIDValidator(v); err != nil {
-			return &ValidationError{Name: "section_id", err: fmt.Errorf(`ent: validator failed for field "Video.section_id": %w`, err)}
-		}
-	}
 	if v, ok := vuo.mutation.Title(); ok {
 		if err := video.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Video.title": %w`, err)}
-		}
-	}
-	if v, ok := vuo.mutation.MediaID(); ok {
-		if err := video.MediaIDValidator(v); err != nil {
-			return &ValidationError{Name: "media_id", err: fmt.Errorf(`ent: validator failed for field "Video.media_id": %w`, err)}
-		}
-	}
-	if v, ok := vuo.mutation.CourseID(); ok {
-		if err := video.CourseIDValidator(v); err != nil {
-			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "Video.course_id": %w`, err)}
 		}
 	}
 	if vuo.mutation.CourseSectionCleared() && len(vuo.mutation.CourseSectionIDs()) > 0 {
@@ -841,7 +800,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 	if err := vuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(video.Table, video.Columns, sqlgraph.NewFieldSpec(video.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(video.Table, video.Columns, sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID))
 	id, ok := vuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Video.id" for update`)}
@@ -904,7 +863,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -917,7 +876,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -933,7 +892,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.MediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -946,7 +905,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.MediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -962,7 +921,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -975,7 +934,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -991,7 +950,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1004,7 +963,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1020,7 +979,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // AuthUpdate is the builder for updating Auth entities.
@@ -70,15 +71,15 @@ func (au *AuthUpdate) ClearDeletedAt() *AuthUpdate {
 }
 
 // SetUserID sets the "user_id" field.
-func (au *AuthUpdate) SetUserID(s string) *AuthUpdate {
-	au.mutation.SetUserID(s)
+func (au *AuthUpdate) SetUserID(u uuid.UUID) *AuthUpdate {
+	au.mutation.SetUserID(u)
 	return au
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (au *AuthUpdate) SetNillableUserID(s *string) *AuthUpdate {
-	if s != nil {
-		au.SetUserID(*s)
+func (au *AuthUpdate) SetNillableUserID(u *uuid.UUID) *AuthUpdate {
+	if u != nil {
+		au.SetUserID(*u)
 	}
 	return au
 }
@@ -171,9 +172,7 @@ func (au *AuthUpdate) ClearUser() *AuthUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (au *AuthUpdate) Save(ctx context.Context) (int, error) {
-	if err := au.defaults(); err != nil {
-		return 0, err
-	}
+	au.defaults()
 	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
 }
 
@@ -200,24 +199,15 @@ func (au *AuthUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (au *AuthUpdate) defaults() error {
+func (au *AuthUpdate) defaults() {
 	if _, ok := au.mutation.UpdatedAt(); !ok {
-		if auth.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized auth.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := auth.UpdateDefaultUpdatedAt()
 		au.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (au *AuthUpdate) check() error {
-	if v, ok := au.mutation.UserID(); ok {
-		if err := auth.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "Auth.user_id": %w`, err)}
-		}
-	}
 	if v, ok := au.mutation.AccessToken(); ok {
 		if err := auth.AccessTokenValidator(v); err != nil {
 			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Auth.access_token": %w`, err)}
@@ -238,7 +228,7 @@ func (au *AuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := au.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(auth.Table, auth.Columns, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(auth.Table, auth.Columns, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeUUID))
 	if ps := au.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -281,7 +271,7 @@ func (au *AuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{auth.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -294,7 +284,7 @@ func (au *AuthUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{auth.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -363,15 +353,15 @@ func (auo *AuthUpdateOne) ClearDeletedAt() *AuthUpdateOne {
 }
 
 // SetUserID sets the "user_id" field.
-func (auo *AuthUpdateOne) SetUserID(s string) *AuthUpdateOne {
-	auo.mutation.SetUserID(s)
+func (auo *AuthUpdateOne) SetUserID(u uuid.UUID) *AuthUpdateOne {
+	auo.mutation.SetUserID(u)
 	return auo
 }
 
 // SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (auo *AuthUpdateOne) SetNillableUserID(s *string) *AuthUpdateOne {
-	if s != nil {
-		auo.SetUserID(*s)
+func (auo *AuthUpdateOne) SetNillableUserID(u *uuid.UUID) *AuthUpdateOne {
+	if u != nil {
+		auo.SetUserID(*u)
 	}
 	return auo
 }
@@ -477,9 +467,7 @@ func (auo *AuthUpdateOne) Select(field string, fields ...string) *AuthUpdateOne 
 
 // Save executes the query and returns the updated Auth entity.
 func (auo *AuthUpdateOne) Save(ctx context.Context) (*Auth, error) {
-	if err := auo.defaults(); err != nil {
-		return nil, err
-	}
+	auo.defaults()
 	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
 }
 
@@ -506,24 +494,15 @@ func (auo *AuthUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (auo *AuthUpdateOne) defaults() error {
+func (auo *AuthUpdateOne) defaults() {
 	if _, ok := auo.mutation.UpdatedAt(); !ok {
-		if auth.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized auth.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := auth.UpdateDefaultUpdatedAt()
 		auo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (auo *AuthUpdateOne) check() error {
-	if v, ok := auo.mutation.UserID(); ok {
-		if err := auth.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "Auth.user_id": %w`, err)}
-		}
-	}
 	if v, ok := auo.mutation.AccessToken(); ok {
 		if err := auth.AccessTokenValidator(v); err != nil {
 			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Auth.access_token": %w`, err)}
@@ -544,7 +523,7 @@ func (auo *AuthUpdateOne) sqlSave(ctx context.Context) (_node *Auth, err error) 
 	if err := auo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(auth.Table, auth.Columns, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(auth.Table, auth.Columns, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeUUID))
 	id, ok := auo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Auth.id" for update`)}
@@ -604,7 +583,7 @@ func (auo *AuthUpdateOne) sqlSave(ctx context.Context) (_node *Auth, err error) 
 			Columns: []string{auth.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -617,7 +596,7 @@ func (auo *AuthUpdateOne) sqlSave(ctx context.Context) (_node *Auth, err error) 
 			Columns: []string{auth.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

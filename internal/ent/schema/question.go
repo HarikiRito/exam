@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Question holds the schema definition for the Question entity.
@@ -17,7 +18,7 @@ type Question struct {
 // Fields of the Question.
 func (Question) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("section_id").NotEmpty(),
+		field.UUID("section_id", uuid.UUID{}),
 		field.Text("question_text").NotEmpty(),
 	}
 }
@@ -40,4 +41,4 @@ func (Question) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

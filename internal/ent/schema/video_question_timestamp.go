@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoQuestionTimestamp holds the schema definition for the VideoQuestionTimestamp entity.
@@ -16,8 +17,8 @@ type VideoQuestionTimestamp struct {
 // Fields of the VideoQuestionTimestamp.
 func (VideoQuestionTimestamp) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("video_id").NotEmpty(),
-		field.String("question_id").NotEmpty(),
+		field.UUID("video_id", uuid.UUID{}),
+		field.UUID("question_id", uuid.UUID{}),
 		field.Int("timestamp").Comment("Timestamp in seconds when question should appear during video playback"),
 	}
 }
@@ -42,4 +43,4 @@ func (VideoQuestionTimestamp) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

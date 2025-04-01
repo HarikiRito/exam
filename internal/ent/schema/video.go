@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Video holds the schema definition for the Video entity.
@@ -17,11 +18,11 @@ type Video struct {
 // Fields of the Video.
 func (Video) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("section_id").NotEmpty(),
+		field.UUID("section_id", uuid.UUID{}),
 		field.String("title").NotEmpty(),
 		field.Text("description").Optional(),
-		field.String("media_id").NotEmpty(),
-		field.String("course_id").NotEmpty(),
+		field.UUID("media_id", uuid.UUID{}),
+		field.UUID("course_id", uuid.UUID{}),
 		field.Int("duration").Optional().Comment("Duration in seconds"),
 	}
 }

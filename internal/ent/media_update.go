@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // MediaUpdate is the builder for updating Media entities.
@@ -114,15 +115,15 @@ func (mu *MediaUpdate) SetNillableMimeType(s *string) *MediaUpdate {
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (mu *MediaUpdate) SetUploaderID(s string) *MediaUpdate {
-	mu.mutation.SetUploaderID(s)
+func (mu *MediaUpdate) SetUploaderID(u uuid.UUID) *MediaUpdate {
+	mu.mutation.SetUploaderID(u)
 	return mu
 }
 
 // SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
-func (mu *MediaUpdate) SetNillableUploaderID(s *string) *MediaUpdate {
-	if s != nil {
-		mu.SetUploaderID(*s)
+func (mu *MediaUpdate) SetNillableUploaderID(u *uuid.UUID) *MediaUpdate {
+	if u != nil {
+		mu.SetUploaderID(*u)
 	}
 	return mu
 }
@@ -146,14 +147,14 @@ func (mu *MediaUpdate) ClearMetadata() *MediaUpdate {
 }
 
 // AddUserMediumIDs adds the "user_media" edge to the User entity by IDs.
-func (mu *MediaUpdate) AddUserMediumIDs(ids ...string) *MediaUpdate {
+func (mu *MediaUpdate) AddUserMediumIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.AddUserMediumIDs(ids...)
 	return mu
 }
 
 // AddUserMedia adds the "user_media" edges to the User entity.
 func (mu *MediaUpdate) AddUserMedia(u ...*User) *MediaUpdate {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -161,13 +162,13 @@ func (mu *MediaUpdate) AddUserMedia(u ...*User) *MediaUpdate {
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (mu *MediaUpdate) SetUserID(id string) *MediaUpdate {
+func (mu *MediaUpdate) SetUserID(id uuid.UUID) *MediaUpdate {
 	mu.mutation.SetUserID(id)
 	return mu
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (mu *MediaUpdate) SetNillableUserID(id *string) *MediaUpdate {
+func (mu *MediaUpdate) SetNillableUserID(id *uuid.UUID) *MediaUpdate {
 	if id != nil {
 		mu = mu.SetUserID(*id)
 	}
@@ -180,14 +181,14 @@ func (mu *MediaUpdate) SetUser(u *User) *MediaUpdate {
 }
 
 // AddCourseMediumIDs adds the "course_media" edge to the Course entity by IDs.
-func (mu *MediaUpdate) AddCourseMediumIDs(ids ...string) *MediaUpdate {
+func (mu *MediaUpdate) AddCourseMediumIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.AddCourseMediumIDs(ids...)
 	return mu
 }
 
 // AddCourseMedia adds the "course_media" edges to the Course entity.
 func (mu *MediaUpdate) AddCourseMedia(c ...*Course) *MediaUpdate {
-	ids := make([]string, len(c))
+	ids := make([]uuid.UUID, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -195,14 +196,14 @@ func (mu *MediaUpdate) AddCourseMedia(c ...*Course) *MediaUpdate {
 }
 
 // AddVideoMediumIDs adds the "video_media" edge to the Video entity by IDs.
-func (mu *MediaUpdate) AddVideoMediumIDs(ids ...string) *MediaUpdate {
+func (mu *MediaUpdate) AddVideoMediumIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.AddVideoMediumIDs(ids...)
 	return mu
 }
 
 // AddVideoMedia adds the "video_media" edges to the Video entity.
 func (mu *MediaUpdate) AddVideoMedia(v ...*Video) *MediaUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -221,14 +222,14 @@ func (mu *MediaUpdate) ClearUserMedia() *MediaUpdate {
 }
 
 // RemoveUserMediumIDs removes the "user_media" edge to User entities by IDs.
-func (mu *MediaUpdate) RemoveUserMediumIDs(ids ...string) *MediaUpdate {
+func (mu *MediaUpdate) RemoveUserMediumIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.RemoveUserMediumIDs(ids...)
 	return mu
 }
 
 // RemoveUserMedia removes "user_media" edges to User entities.
 func (mu *MediaUpdate) RemoveUserMedia(u ...*User) *MediaUpdate {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -248,14 +249,14 @@ func (mu *MediaUpdate) ClearCourseMedia() *MediaUpdate {
 }
 
 // RemoveCourseMediumIDs removes the "course_media" edge to Course entities by IDs.
-func (mu *MediaUpdate) RemoveCourseMediumIDs(ids ...string) *MediaUpdate {
+func (mu *MediaUpdate) RemoveCourseMediumIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.RemoveCourseMediumIDs(ids...)
 	return mu
 }
 
 // RemoveCourseMedia removes "course_media" edges to Course entities.
 func (mu *MediaUpdate) RemoveCourseMedia(c ...*Course) *MediaUpdate {
-	ids := make([]string, len(c))
+	ids := make([]uuid.UUID, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -269,14 +270,14 @@ func (mu *MediaUpdate) ClearVideoMedia() *MediaUpdate {
 }
 
 // RemoveVideoMediumIDs removes the "video_media" edge to Video entities by IDs.
-func (mu *MediaUpdate) RemoveVideoMediumIDs(ids ...string) *MediaUpdate {
+func (mu *MediaUpdate) RemoveVideoMediumIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.RemoveVideoMediumIDs(ids...)
 	return mu
 }
 
 // RemoveVideoMedia removes "video_media" edges to Video entities.
 func (mu *MediaUpdate) RemoveVideoMedia(v ...*Video) *MediaUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -285,9 +286,7 @@ func (mu *MediaUpdate) RemoveVideoMedia(v ...*Video) *MediaUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (mu *MediaUpdate) Save(ctx context.Context) (int, error) {
-	if err := mu.defaults(); err != nil {
-		return 0, err
-	}
+	mu.defaults()
 	return withHooks(ctx, mu.sqlSave, mu.mutation, mu.hooks)
 }
 
@@ -314,15 +313,11 @@ func (mu *MediaUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mu *MediaUpdate) defaults() error {
+func (mu *MediaUpdate) defaults() {
 	if _, ok := mu.mutation.UpdatedAt(); !ok {
-		if media.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized media.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := media.UpdateDefaultUpdatedAt()
 		mu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -349,7 +344,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := mu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(media.Table, media.Columns, sqlgraph.NewFieldSpec(media.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(media.Table, media.Columns, sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID))
 	if ps := mu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -392,7 +387,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -405,7 +400,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -421,7 +416,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -437,7 +432,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -450,7 +445,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -466,7 +461,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -479,7 +474,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -495,7 +490,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -511,7 +506,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -524,7 +519,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -540,7 +535,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -651,15 +646,15 @@ func (muo *MediaUpdateOne) SetNillableMimeType(s *string) *MediaUpdateOne {
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (muo *MediaUpdateOne) SetUploaderID(s string) *MediaUpdateOne {
-	muo.mutation.SetUploaderID(s)
+func (muo *MediaUpdateOne) SetUploaderID(u uuid.UUID) *MediaUpdateOne {
+	muo.mutation.SetUploaderID(u)
 	return muo
 }
 
 // SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
-func (muo *MediaUpdateOne) SetNillableUploaderID(s *string) *MediaUpdateOne {
-	if s != nil {
-		muo.SetUploaderID(*s)
+func (muo *MediaUpdateOne) SetNillableUploaderID(u *uuid.UUID) *MediaUpdateOne {
+	if u != nil {
+		muo.SetUploaderID(*u)
 	}
 	return muo
 }
@@ -683,14 +678,14 @@ func (muo *MediaUpdateOne) ClearMetadata() *MediaUpdateOne {
 }
 
 // AddUserMediumIDs adds the "user_media" edge to the User entity by IDs.
-func (muo *MediaUpdateOne) AddUserMediumIDs(ids ...string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) AddUserMediumIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.AddUserMediumIDs(ids...)
 	return muo
 }
 
 // AddUserMedia adds the "user_media" edges to the User entity.
 func (muo *MediaUpdateOne) AddUserMedia(u ...*User) *MediaUpdateOne {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -698,13 +693,13 @@ func (muo *MediaUpdateOne) AddUserMedia(u ...*User) *MediaUpdateOne {
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (muo *MediaUpdateOne) SetUserID(id string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) SetUserID(id uuid.UUID) *MediaUpdateOne {
 	muo.mutation.SetUserID(id)
 	return muo
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (muo *MediaUpdateOne) SetNillableUserID(id *string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) SetNillableUserID(id *uuid.UUID) *MediaUpdateOne {
 	if id != nil {
 		muo = muo.SetUserID(*id)
 	}
@@ -717,14 +712,14 @@ func (muo *MediaUpdateOne) SetUser(u *User) *MediaUpdateOne {
 }
 
 // AddCourseMediumIDs adds the "course_media" edge to the Course entity by IDs.
-func (muo *MediaUpdateOne) AddCourseMediumIDs(ids ...string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) AddCourseMediumIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.AddCourseMediumIDs(ids...)
 	return muo
 }
 
 // AddCourseMedia adds the "course_media" edges to the Course entity.
 func (muo *MediaUpdateOne) AddCourseMedia(c ...*Course) *MediaUpdateOne {
-	ids := make([]string, len(c))
+	ids := make([]uuid.UUID, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -732,14 +727,14 @@ func (muo *MediaUpdateOne) AddCourseMedia(c ...*Course) *MediaUpdateOne {
 }
 
 // AddVideoMediumIDs adds the "video_media" edge to the Video entity by IDs.
-func (muo *MediaUpdateOne) AddVideoMediumIDs(ids ...string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) AddVideoMediumIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.AddVideoMediumIDs(ids...)
 	return muo
 }
 
 // AddVideoMedia adds the "video_media" edges to the Video entity.
 func (muo *MediaUpdateOne) AddVideoMedia(v ...*Video) *MediaUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -758,14 +753,14 @@ func (muo *MediaUpdateOne) ClearUserMedia() *MediaUpdateOne {
 }
 
 // RemoveUserMediumIDs removes the "user_media" edge to User entities by IDs.
-func (muo *MediaUpdateOne) RemoveUserMediumIDs(ids ...string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) RemoveUserMediumIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.RemoveUserMediumIDs(ids...)
 	return muo
 }
 
 // RemoveUserMedia removes "user_media" edges to User entities.
 func (muo *MediaUpdateOne) RemoveUserMedia(u ...*User) *MediaUpdateOne {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -785,14 +780,14 @@ func (muo *MediaUpdateOne) ClearCourseMedia() *MediaUpdateOne {
 }
 
 // RemoveCourseMediumIDs removes the "course_media" edge to Course entities by IDs.
-func (muo *MediaUpdateOne) RemoveCourseMediumIDs(ids ...string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) RemoveCourseMediumIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.RemoveCourseMediumIDs(ids...)
 	return muo
 }
 
 // RemoveCourseMedia removes "course_media" edges to Course entities.
 func (muo *MediaUpdateOne) RemoveCourseMedia(c ...*Course) *MediaUpdateOne {
-	ids := make([]string, len(c))
+	ids := make([]uuid.UUID, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -806,14 +801,14 @@ func (muo *MediaUpdateOne) ClearVideoMedia() *MediaUpdateOne {
 }
 
 // RemoveVideoMediumIDs removes the "video_media" edge to Video entities by IDs.
-func (muo *MediaUpdateOne) RemoveVideoMediumIDs(ids ...string) *MediaUpdateOne {
+func (muo *MediaUpdateOne) RemoveVideoMediumIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.RemoveVideoMediumIDs(ids...)
 	return muo
 }
 
 // RemoveVideoMedia removes "video_media" edges to Video entities.
 func (muo *MediaUpdateOne) RemoveVideoMedia(v ...*Video) *MediaUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -835,9 +830,7 @@ func (muo *MediaUpdateOne) Select(field string, fields ...string) *MediaUpdateOn
 
 // Save executes the query and returns the updated Media entity.
 func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
-	if err := muo.defaults(); err != nil {
-		return nil, err
-	}
+	muo.defaults()
 	return withHooks(ctx, muo.sqlSave, muo.mutation, muo.hooks)
 }
 
@@ -864,15 +857,11 @@ func (muo *MediaUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (muo *MediaUpdateOne) defaults() error {
+func (muo *MediaUpdateOne) defaults() {
 	if _, ok := muo.mutation.UpdatedAt(); !ok {
-		if media.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized media.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := media.UpdateDefaultUpdatedAt()
 		muo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -899,7 +888,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 	if err := muo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(media.Table, media.Columns, sqlgraph.NewFieldSpec(media.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(media.Table, media.Columns, sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID))
 	id, ok := muo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Media.id" for update`)}
@@ -959,7 +948,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -972,7 +961,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -988,7 +977,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1004,7 +993,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1017,7 +1006,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1033,7 +1022,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1046,7 +1035,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1062,7 +1051,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1078,7 +1067,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1091,7 +1080,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1107,7 +1096,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

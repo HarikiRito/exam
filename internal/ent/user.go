@@ -11,13 +11,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // User is the model entity for the User schema.
 type User struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -35,7 +36,7 @@ type User struct {
 	// LastName holds the value of the "last_name" field.
 	LastName string `json:"last_name,omitempty"`
 	// AvatarID holds the value of the "avatar_id" field.
-	AvatarID string `json:"avatar_id,omitempty"`
+	AvatarID uuid.UUID `json:"avatar_id,omitempty"`
 	// IsActive holds the value of the "is_active" field.
 	IsActive bool `json:"is_active,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -126,10 +127,12 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldIsActive:
 			values[i] = new(sql.NullBool)
-		case user.FieldID, user.FieldUsername, user.FieldEmail, user.FieldPasswordHash, user.FieldFirstName, user.FieldLastName, user.FieldAvatarID:
+		case user.FieldUsername, user.FieldEmail, user.FieldPasswordHash, user.FieldFirstName, user.FieldLastName:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case user.FieldID, user.FieldAvatarID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -146,10 +149,10 @@ func (u *User) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case user.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				u.ID = value.String
+			} else if value != nil {
+				u.ID = *value
 			}
 		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -201,10 +204,10 @@ func (u *User) assignValues(columns []string, values []any) error {
 				u.LastName = value.String
 			}
 		case user.FieldAvatarID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field avatar_id", values[i])
-			} else if value.Valid {
-				u.AvatarID = value.String
+			} else if value != nil {
+				u.AvatarID = *value
 			}
 		case user.FieldIsActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -305,7 +308,7 @@ func (u *User) String() string {
 	builder.WriteString(u.LastName)
 	builder.WriteString(", ")
 	builder.WriteString("avatar_id=")
-	builder.WriteString(u.AvatarID)
+	builder.WriteString(fmt.Sprintf("%v", u.AvatarID))
 	builder.WriteString(", ")
 	builder.WriteString("is_active=")
 	builder.WriteString(fmt.Sprintf("%v", u.IsActive))

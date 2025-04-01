@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionCreate is the builder for creating a Question entity.
@@ -66,8 +67,8 @@ func (qc *QuestionCreate) SetNillableDeletedAt(t *time.Time) *QuestionCreate {
 }
 
 // SetSectionID sets the "section_id" field.
-func (qc *QuestionCreate) SetSectionID(s string) *QuestionCreate {
-	qc.mutation.SetSectionID(s)
+func (qc *QuestionCreate) SetSectionID(u uuid.UUID) *QuestionCreate {
+	qc.mutation.SetSectionID(u)
 	return qc
 }
 
@@ -78,8 +79,16 @@ func (qc *QuestionCreate) SetQuestionText(s string) *QuestionCreate {
 }
 
 // SetID sets the "id" field.
-func (qc *QuestionCreate) SetID(s string) *QuestionCreate {
-	qc.mutation.SetID(s)
+func (qc *QuestionCreate) SetID(u uuid.UUID) *QuestionCreate {
+	qc.mutation.SetID(u)
+	return qc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (qc *QuestionCreate) SetNillableID(u *uuid.UUID) *QuestionCreate {
+	if u != nil {
+		qc.SetID(*u)
+	}
 	return qc
 }
 
@@ -89,14 +98,14 @@ func (qc *QuestionCreate) SetSection(c *CourseSection) *QuestionCreate {
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by IDs.
-func (qc *QuestionCreate) AddQuestionOptionIDs(ids ...string) *QuestionCreate {
+func (qc *QuestionCreate) AddQuestionOptionIDs(ids ...uuid.UUID) *QuestionCreate {
 	qc.mutation.AddQuestionOptionIDs(ids...)
 	return qc
 }
 
 // AddQuestionOptions adds the "question_options" edges to the QuestionOption entity.
 func (qc *QuestionCreate) AddQuestionOptions(q ...*QuestionOption) *QuestionCreate {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -104,14 +113,14 @@ func (qc *QuestionCreate) AddQuestionOptions(q ...*QuestionOption) *QuestionCrea
 }
 
 // AddVideoQuestionTimestampsQuestionIDs adds the "video_question_timestamps_question" edge to the VideoQuestionTimestamp entity by IDs.
-func (qc *QuestionCreate) AddVideoQuestionTimestampsQuestionIDs(ids ...string) *QuestionCreate {
+func (qc *QuestionCreate) AddVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) *QuestionCreate {
 	qc.mutation.AddVideoQuestionTimestampsQuestionIDs(ids...)
 	return qc
 }
 
 // AddVideoQuestionTimestampsQuestion adds the "video_question_timestamps_question" edges to the VideoQuestionTimestamp entity.
 func (qc *QuestionCreate) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestionTimestamp) *QuestionCreate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -125,9 +134,7 @@ func (qc *QuestionCreate) Mutation() *QuestionMutation {
 
 // Save creates the Question in the database.
 func (qc *QuestionCreate) Save(ctx context.Context) (*Question, error) {
-	if err := qc.defaults(); err != nil {
-		return nil, err
-	}
+	qc.defaults()
 	return withHooks(ctx, qc.sqlSave, qc.mutation, qc.hooks)
 }
 
@@ -154,22 +161,19 @@ func (qc *QuestionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qc *QuestionCreate) defaults() error {
+func (qc *QuestionCreate) defaults() {
 	if _, ok := qc.mutation.CreatedAt(); !ok {
-		if question.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized question.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := question.DefaultCreatedAt()
 		qc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := qc.mutation.UpdatedAt(); !ok {
-		if question.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized question.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := question.DefaultUpdatedAt()
 		qc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := qc.mutation.ID(); !ok {
+		v := question.DefaultID()
+		qc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -182,11 +186,6 @@ func (qc *QuestionCreate) check() error {
 	}
 	if _, ok := qc.mutation.SectionID(); !ok {
 		return &ValidationError{Name: "section_id", err: errors.New(`ent: missing required field "Question.section_id"`)}
-	}
-	if v, ok := qc.mutation.SectionID(); ok {
-		if err := question.SectionIDValidator(v); err != nil {
-			return &ValidationError{Name: "section_id", err: fmt.Errorf(`ent: validator failed for field "Question.section_id": %w`, err)}
-		}
 	}
 	if _, ok := qc.mutation.QuestionText(); !ok {
 		return &ValidationError{Name: "question_text", err: errors.New(`ent: missing required field "Question.question_text"`)}
@@ -214,10 +213,10 @@ func (qc *QuestionCreate) sqlSave(ctx context.Context) (*Question, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Question.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	qc.mutation.id = &_node.ID
@@ -228,11 +227,11 @@ func (qc *QuestionCreate) sqlSave(ctx context.Context) (*Question, error) {
 func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Question{config: qc.config}
-		_spec = sqlgraph.NewCreateSpec(question.Table, sqlgraph.NewFieldSpec(question.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(question.Table, sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID))
 	)
 	if id, ok := qc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := qc.mutation.CreatedAt(); ok {
 		_spec.SetField(question.FieldCreatedAt, field.TypeTime, value)
@@ -258,7 +257,7 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 			Columns: []string{question.SectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -275,7 +274,7 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -291,7 +290,7 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

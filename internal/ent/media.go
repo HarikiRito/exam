@@ -12,13 +12,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Media is the model entity for the Media schema.
 type Media struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -32,7 +33,7 @@ type Media struct {
 	// MimeType holds the value of the "mime_type" field.
 	MimeType string `json:"mime_type,omitempty"`
 	// UploaderID holds the value of the "uploader_id" field.
-	UploaderID string `json:"uploader_id,omitempty"`
+	UploaderID uuid.UUID `json:"uploader_id,omitempty"`
 	// Additional metadata for the file
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -101,10 +102,12 @@ func (*Media) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case media.FieldMetadata:
 			values[i] = new([]byte)
-		case media.FieldID, media.FieldFileName, media.FieldFileURL, media.FieldMimeType, media.FieldUploaderID:
+		case media.FieldFileName, media.FieldFileURL, media.FieldMimeType:
 			values[i] = new(sql.NullString)
 		case media.FieldCreatedAt, media.FieldUpdatedAt, media.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case media.FieldID, media.FieldUploaderID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -121,10 +124,10 @@ func (m *Media) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case media.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				m.ID = value.String
+			} else if value != nil {
+				m.ID = *value
 			}
 		case media.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -164,10 +167,10 @@ func (m *Media) assignValues(columns []string, values []any) error {
 				m.MimeType = value.String
 			}
 		case media.FieldUploaderID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field uploader_id", values[i])
-			} else if value.Valid {
-				m.UploaderID = value.String
+			} else if value != nil {
+				m.UploaderID = *value
 			}
 		case media.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -254,7 +257,7 @@ func (m *Media) String() string {
 	builder.WriteString(m.MimeType)
 	builder.WriteString(", ")
 	builder.WriteString("uploader_id=")
-	builder.WriteString(m.UploaderID)
+	builder.WriteString(fmt.Sprintf("%v", m.UploaderID))
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", m.Metadata))

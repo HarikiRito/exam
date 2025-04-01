@@ -13,6 +13,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // UserRoleCreate is the builder for creating a UserRole entity.
@@ -65,20 +66,28 @@ func (urc *UserRoleCreate) SetNillableDeletedAt(t *time.Time) *UserRoleCreate {
 }
 
 // SetUserID sets the "user_id" field.
-func (urc *UserRoleCreate) SetUserID(s string) *UserRoleCreate {
-	urc.mutation.SetUserID(s)
+func (urc *UserRoleCreate) SetUserID(u uuid.UUID) *UserRoleCreate {
+	urc.mutation.SetUserID(u)
 	return urc
 }
 
 // SetRoleID sets the "role_id" field.
-func (urc *UserRoleCreate) SetRoleID(s string) *UserRoleCreate {
-	urc.mutation.SetRoleID(s)
+func (urc *UserRoleCreate) SetRoleID(u uuid.UUID) *UserRoleCreate {
+	urc.mutation.SetRoleID(u)
 	return urc
 }
 
 // SetID sets the "id" field.
-func (urc *UserRoleCreate) SetID(s string) *UserRoleCreate {
-	urc.mutation.SetID(s)
+func (urc *UserRoleCreate) SetID(u uuid.UUID) *UserRoleCreate {
+	urc.mutation.SetID(u)
+	return urc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (urc *UserRoleCreate) SetNillableID(u *uuid.UUID) *UserRoleCreate {
+	if u != nil {
+		urc.SetID(*u)
+	}
 	return urc
 }
 
@@ -99,9 +108,7 @@ func (urc *UserRoleCreate) Mutation() *UserRoleMutation {
 
 // Save creates the UserRole in the database.
 func (urc *UserRoleCreate) Save(ctx context.Context) (*UserRole, error) {
-	if err := urc.defaults(); err != nil {
-		return nil, err
-	}
+	urc.defaults()
 	return withHooks(ctx, urc.sqlSave, urc.mutation, urc.hooks)
 }
 
@@ -128,22 +135,19 @@ func (urc *UserRoleCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (urc *UserRoleCreate) defaults() error {
+func (urc *UserRoleCreate) defaults() {
 	if _, ok := urc.mutation.CreatedAt(); !ok {
-		if userrole.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized userrole.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := userrole.DefaultCreatedAt()
 		urc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := urc.mutation.UpdatedAt(); !ok {
-		if userrole.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized userrole.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := userrole.DefaultUpdatedAt()
 		urc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := urc.mutation.ID(); !ok {
+		v := userrole.DefaultID()
+		urc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -157,18 +161,8 @@ func (urc *UserRoleCreate) check() error {
 	if _, ok := urc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "UserRole.user_id"`)}
 	}
-	if v, ok := urc.mutation.UserID(); ok {
-		if err := userrole.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "UserRole.user_id": %w`, err)}
-		}
-	}
 	if _, ok := urc.mutation.RoleID(); !ok {
 		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "UserRole.role_id"`)}
-	}
-	if v, ok := urc.mutation.RoleID(); ok {
-		if err := userrole.RoleIDValidator(v); err != nil {
-			return &ValidationError{Name: "role_id", err: fmt.Errorf(`ent: validator failed for field "UserRole.role_id": %w`, err)}
-		}
 	}
 	if len(urc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "UserRole.user"`)}
@@ -191,10 +185,10 @@ func (urc *UserRoleCreate) sqlSave(ctx context.Context) (*UserRole, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected UserRole.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	urc.mutation.id = &_node.ID
@@ -205,11 +199,11 @@ func (urc *UserRoleCreate) sqlSave(ctx context.Context) (*UserRole, error) {
 func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 	var (
 		_node = &UserRole{config: urc.config}
-		_spec = sqlgraph.NewCreateSpec(userrole.Table, sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(userrole.Table, sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID))
 	)
 	if id, ok := urc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := urc.mutation.CreatedAt(); ok {
 		_spec.SetField(userrole.FieldCreatedAt, field.TypeTime, value)
@@ -231,7 +225,7 @@ func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 			Columns: []string{userrole.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -248,7 +242,7 @@ func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 			Columns: []string{userrole.RoleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

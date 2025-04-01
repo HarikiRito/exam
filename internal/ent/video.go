@@ -13,13 +13,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Video is the model entity for the Video schema.
 type Video struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -27,15 +28,15 @@ type Video struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// SectionID holds the value of the "section_id" field.
-	SectionID string `json:"section_id,omitempty"`
+	SectionID uuid.UUID `json:"section_id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// MediaID holds the value of the "media_id" field.
-	MediaID string `json:"media_id,omitempty"`
+	MediaID uuid.UUID `json:"media_id,omitempty"`
 	// CourseID holds the value of the "course_id" field.
-	CourseID string `json:"course_id,omitempty"`
+	CourseID uuid.UUID `json:"course_id,omitempty"`
 	// Duration in seconds
 	Duration int `json:"duration,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -108,10 +109,12 @@ func (*Video) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case video.FieldDuration:
 			values[i] = new(sql.NullInt64)
-		case video.FieldID, video.FieldSectionID, video.FieldTitle, video.FieldDescription, video.FieldMediaID, video.FieldCourseID:
+		case video.FieldTitle, video.FieldDescription:
 			values[i] = new(sql.NullString)
 		case video.FieldCreatedAt, video.FieldUpdatedAt, video.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case video.FieldID, video.FieldSectionID, video.FieldMediaID, video.FieldCourseID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -128,10 +131,10 @@ func (v *Video) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case video.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				v.ID = value.String
+			} else if value != nil {
+				v.ID = *value
 			}
 		case video.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -153,10 +156,10 @@ func (v *Video) assignValues(columns []string, values []any) error {
 				*v.DeletedAt = value.Time
 			}
 		case video.FieldSectionID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field section_id", values[i])
-			} else if value.Valid {
-				v.SectionID = value.String
+			} else if value != nil {
+				v.SectionID = *value
 			}
 		case video.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -171,16 +174,16 @@ func (v *Video) assignValues(columns []string, values []any) error {
 				v.Description = value.String
 			}
 		case video.FieldMediaID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field media_id", values[i])
-			} else if value.Valid {
-				v.MediaID = value.String
+			} else if value != nil {
+				v.MediaID = *value
 			}
 		case video.FieldCourseID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field course_id", values[i])
-			} else if value.Valid {
-				v.CourseID = value.String
+			} else if value != nil {
+				v.CourseID = *value
 			}
 		case video.FieldDuration:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -256,7 +259,7 @@ func (v *Video) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("section_id=")
-	builder.WriteString(v.SectionID)
+	builder.WriteString(fmt.Sprintf("%v", v.SectionID))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(v.Title)
@@ -265,10 +268,10 @@ func (v *Video) String() string {
 	builder.WriteString(v.Description)
 	builder.WriteString(", ")
 	builder.WriteString("media_id=")
-	builder.WriteString(v.MediaID)
+	builder.WriteString(fmt.Sprintf("%v", v.MediaID))
 	builder.WriteString(", ")
 	builder.WriteString("course_id=")
-	builder.WriteString(v.CourseID)
+	builder.WriteString(fmt.Sprintf("%v", v.CourseID))
 	builder.WriteString(", ")
 	builder.WriteString("duration=")
 	builder.WriteString(fmt.Sprintf("%v", v.Duration))

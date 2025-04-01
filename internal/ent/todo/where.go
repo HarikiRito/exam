@@ -7,61 +7,52 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Todo {
+func ID(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Todo {
+func IDEQ(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Todo {
+func IDNEQ(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Todo {
+func IDIn(ids ...uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Todo {
+func IDNotIn(ids ...uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Todo {
+func IDGT(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Todo {
+func IDGTE(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Todo {
+func IDLT(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Todo {
+func IDLTE(id uuid.UUID) predicate.Todo {
 	return predicate.Todo(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Todo {
-	return predicate.Todo(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Todo {
-	return predicate.Todo(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.

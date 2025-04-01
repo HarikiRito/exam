@@ -18,7 +18,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 	}
 
 	return &model.Todo{
-		ID:   todoRes.ID,
+		ID:   todoRes.ID.String(),
 		Text: todoRes.Title,
 	}, nil
 }

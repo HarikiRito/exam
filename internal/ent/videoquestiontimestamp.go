@@ -12,13 +12,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // VideoQuestionTimestamp is the model entity for the VideoQuestionTimestamp schema.
 type VideoQuestionTimestamp struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -26,9 +27,9 @@ type VideoQuestionTimestamp struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// VideoID holds the value of the "video_id" field.
-	VideoID string `json:"video_id,omitempty"`
+	VideoID uuid.UUID `json:"video_id,omitempty"`
 	// QuestionID holds the value of the "question_id" field.
-	QuestionID string `json:"question_id,omitempty"`
+	QuestionID uuid.UUID `json:"question_id,omitempty"`
 	// Timestamp in seconds when question should appear during video playback
 	Timestamp int `json:"timestamp,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -77,10 +78,10 @@ func (*VideoQuestionTimestamp) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case videoquestiontimestamp.FieldTimestamp:
 			values[i] = new(sql.NullInt64)
-		case videoquestiontimestamp.FieldID, videoquestiontimestamp.FieldVideoID, videoquestiontimestamp.FieldQuestionID:
-			values[i] = new(sql.NullString)
 		case videoquestiontimestamp.FieldCreatedAt, videoquestiontimestamp.FieldUpdatedAt, videoquestiontimestamp.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case videoquestiontimestamp.FieldID, videoquestiontimestamp.FieldVideoID, videoquestiontimestamp.FieldQuestionID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -97,10 +98,10 @@ func (vqt *VideoQuestionTimestamp) assignValues(columns []string, values []any) 
 	for i := range columns {
 		switch columns[i] {
 		case videoquestiontimestamp.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				vqt.ID = value.String
+			} else if value != nil {
+				vqt.ID = *value
 			}
 		case videoquestiontimestamp.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -122,16 +123,16 @@ func (vqt *VideoQuestionTimestamp) assignValues(columns []string, values []any) 
 				*vqt.DeletedAt = value.Time
 			}
 		case videoquestiontimestamp.FieldVideoID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field video_id", values[i])
-			} else if value.Valid {
-				vqt.VideoID = value.String
+			} else if value != nil {
+				vqt.VideoID = *value
 			}
 		case videoquestiontimestamp.FieldQuestionID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field question_id", values[i])
-			} else if value.Valid {
-				vqt.QuestionID = value.String
+			} else if value != nil {
+				vqt.QuestionID = *value
 			}
 		case videoquestiontimestamp.FieldTimestamp:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -197,10 +198,10 @@ func (vqt *VideoQuestionTimestamp) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("video_id=")
-	builder.WriteString(vqt.VideoID)
+	builder.WriteString(fmt.Sprintf("%v", vqt.VideoID))
 	builder.WriteString(", ")
 	builder.WriteString("question_id=")
-	builder.WriteString(vqt.QuestionID)
+	builder.WriteString(fmt.Sprintf("%v", vqt.QuestionID))
 	builder.WriteString(", ")
 	builder.WriteString("timestamp=")
 	builder.WriteString(fmt.Sprintf("%v", vqt.Timestamp))

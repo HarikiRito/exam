@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Video {
+func ID(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Video {
+func IDEQ(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Video {
+func IDNEQ(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Video {
+func IDIn(ids ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Video {
+func IDNotIn(ids ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Video {
+func IDGT(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Video {
+func IDGTE(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Video {
+func IDLT(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Video {
+func IDLTE(id uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -81,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Video {
 }
 
 // SectionID applies equality check predicate on the "section_id" field. It's identical to SectionIDEQ.
-func SectionID(v string) predicate.Video {
+func SectionID(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldSectionID, v))
 }
 
@@ -96,12 +87,12 @@ func Description(v string) predicate.Video {
 }
 
 // MediaID applies equality check predicate on the "media_id" field. It's identical to MediaIDEQ.
-func MediaID(v string) predicate.Video {
+func MediaID(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldMediaID, v))
 }
 
 // CourseID applies equality check predicate on the "course_id" field. It's identical to CourseIDEQ.
-func CourseID(v string) predicate.Video {
+func CourseID(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldCourseID, v))
 }
 
@@ -241,68 +232,23 @@ func DeletedAtNotNil() predicate.Video {
 }
 
 // SectionIDEQ applies the EQ predicate on the "section_id" field.
-func SectionIDEQ(v string) predicate.Video {
+func SectionIDEQ(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldSectionID, v))
 }
 
 // SectionIDNEQ applies the NEQ predicate on the "section_id" field.
-func SectionIDNEQ(v string) predicate.Video {
+func SectionIDNEQ(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNEQ(FieldSectionID, v))
 }
 
 // SectionIDIn applies the In predicate on the "section_id" field.
-func SectionIDIn(vs ...string) predicate.Video {
+func SectionIDIn(vs ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldIn(FieldSectionID, vs...))
 }
 
 // SectionIDNotIn applies the NotIn predicate on the "section_id" field.
-func SectionIDNotIn(vs ...string) predicate.Video {
+func SectionIDNotIn(vs ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNotIn(FieldSectionID, vs...))
-}
-
-// SectionIDGT applies the GT predicate on the "section_id" field.
-func SectionIDGT(v string) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldSectionID, v))
-}
-
-// SectionIDGTE applies the GTE predicate on the "section_id" field.
-func SectionIDGTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldSectionID, v))
-}
-
-// SectionIDLT applies the LT predicate on the "section_id" field.
-func SectionIDLT(v string) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldSectionID, v))
-}
-
-// SectionIDLTE applies the LTE predicate on the "section_id" field.
-func SectionIDLTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldSectionID, v))
-}
-
-// SectionIDContains applies the Contains predicate on the "section_id" field.
-func SectionIDContains(v string) predicate.Video {
-	return predicate.Video(sql.FieldContains(FieldSectionID, v))
-}
-
-// SectionIDHasPrefix applies the HasPrefix predicate on the "section_id" field.
-func SectionIDHasPrefix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasPrefix(FieldSectionID, v))
-}
-
-// SectionIDHasSuffix applies the HasSuffix predicate on the "section_id" field.
-func SectionIDHasSuffix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasSuffix(FieldSectionID, v))
-}
-
-// SectionIDEqualFold applies the EqualFold predicate on the "section_id" field.
-func SectionIDEqualFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldSectionID, v))
-}
-
-// SectionIDContainsFold applies the ContainsFold predicate on the "section_id" field.
-func SectionIDContainsFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldSectionID, v))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.
@@ -446,133 +392,43 @@ func DescriptionContainsFold(v string) predicate.Video {
 }
 
 // MediaIDEQ applies the EQ predicate on the "media_id" field.
-func MediaIDEQ(v string) predicate.Video {
+func MediaIDEQ(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldMediaID, v))
 }
 
 // MediaIDNEQ applies the NEQ predicate on the "media_id" field.
-func MediaIDNEQ(v string) predicate.Video {
+func MediaIDNEQ(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNEQ(FieldMediaID, v))
 }
 
 // MediaIDIn applies the In predicate on the "media_id" field.
-func MediaIDIn(vs ...string) predicate.Video {
+func MediaIDIn(vs ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldIn(FieldMediaID, vs...))
 }
 
 // MediaIDNotIn applies the NotIn predicate on the "media_id" field.
-func MediaIDNotIn(vs ...string) predicate.Video {
+func MediaIDNotIn(vs ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNotIn(FieldMediaID, vs...))
 }
 
-// MediaIDGT applies the GT predicate on the "media_id" field.
-func MediaIDGT(v string) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldMediaID, v))
-}
-
-// MediaIDGTE applies the GTE predicate on the "media_id" field.
-func MediaIDGTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldMediaID, v))
-}
-
-// MediaIDLT applies the LT predicate on the "media_id" field.
-func MediaIDLT(v string) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldMediaID, v))
-}
-
-// MediaIDLTE applies the LTE predicate on the "media_id" field.
-func MediaIDLTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldMediaID, v))
-}
-
-// MediaIDContains applies the Contains predicate on the "media_id" field.
-func MediaIDContains(v string) predicate.Video {
-	return predicate.Video(sql.FieldContains(FieldMediaID, v))
-}
-
-// MediaIDHasPrefix applies the HasPrefix predicate on the "media_id" field.
-func MediaIDHasPrefix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasPrefix(FieldMediaID, v))
-}
-
-// MediaIDHasSuffix applies the HasSuffix predicate on the "media_id" field.
-func MediaIDHasSuffix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasSuffix(FieldMediaID, v))
-}
-
-// MediaIDEqualFold applies the EqualFold predicate on the "media_id" field.
-func MediaIDEqualFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldMediaID, v))
-}
-
-// MediaIDContainsFold applies the ContainsFold predicate on the "media_id" field.
-func MediaIDContainsFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldMediaID, v))
-}
-
 // CourseIDEQ applies the EQ predicate on the "course_id" field.
-func CourseIDEQ(v string) predicate.Video {
+func CourseIDEQ(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldEQ(FieldCourseID, v))
 }
 
 // CourseIDNEQ applies the NEQ predicate on the "course_id" field.
-func CourseIDNEQ(v string) predicate.Video {
+func CourseIDNEQ(v uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNEQ(FieldCourseID, v))
 }
 
 // CourseIDIn applies the In predicate on the "course_id" field.
-func CourseIDIn(vs ...string) predicate.Video {
+func CourseIDIn(vs ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldIn(FieldCourseID, vs...))
 }
 
 // CourseIDNotIn applies the NotIn predicate on the "course_id" field.
-func CourseIDNotIn(vs ...string) predicate.Video {
+func CourseIDNotIn(vs ...uuid.UUID) predicate.Video {
 	return predicate.Video(sql.FieldNotIn(FieldCourseID, vs...))
-}
-
-// CourseIDGT applies the GT predicate on the "course_id" field.
-func CourseIDGT(v string) predicate.Video {
-	return predicate.Video(sql.FieldGT(FieldCourseID, v))
-}
-
-// CourseIDGTE applies the GTE predicate on the "course_id" field.
-func CourseIDGTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldGTE(FieldCourseID, v))
-}
-
-// CourseIDLT applies the LT predicate on the "course_id" field.
-func CourseIDLT(v string) predicate.Video {
-	return predicate.Video(sql.FieldLT(FieldCourseID, v))
-}
-
-// CourseIDLTE applies the LTE predicate on the "course_id" field.
-func CourseIDLTE(v string) predicate.Video {
-	return predicate.Video(sql.FieldLTE(FieldCourseID, v))
-}
-
-// CourseIDContains applies the Contains predicate on the "course_id" field.
-func CourseIDContains(v string) predicate.Video {
-	return predicate.Video(sql.FieldContains(FieldCourseID, v))
-}
-
-// CourseIDHasPrefix applies the HasPrefix predicate on the "course_id" field.
-func CourseIDHasPrefix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasPrefix(FieldCourseID, v))
-}
-
-// CourseIDHasSuffix applies the HasSuffix predicate on the "course_id" field.
-func CourseIDHasSuffix(v string) predicate.Video {
-	return predicate.Video(sql.FieldHasSuffix(FieldCourseID, v))
-}
-
-// CourseIDEqualFold applies the EqualFold predicate on the "course_id" field.
-func CourseIDEqualFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldEqualFold(FieldCourseID, v))
-}
-
-// CourseIDContainsFold applies the ContainsFold predicate on the "course_id" field.
-func CourseIDContainsFold(v string) predicate.Video {
-	return predicate.Video(sql.FieldContainsFold(FieldCourseID, v))
 }
 
 // DurationEQ applies the EQ predicate on the "duration" field.

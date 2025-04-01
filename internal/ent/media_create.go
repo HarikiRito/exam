@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // MediaCreate is the builder for creating a Media entity.
@@ -84,15 +85,15 @@ func (mc *MediaCreate) SetMimeType(s string) *MediaCreate {
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (mc *MediaCreate) SetUploaderID(s string) *MediaCreate {
-	mc.mutation.SetUploaderID(s)
+func (mc *MediaCreate) SetUploaderID(u uuid.UUID) *MediaCreate {
+	mc.mutation.SetUploaderID(u)
 	return mc
 }
 
 // SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
-func (mc *MediaCreate) SetNillableUploaderID(s *string) *MediaCreate {
-	if s != nil {
-		mc.SetUploaderID(*s)
+func (mc *MediaCreate) SetNillableUploaderID(u *uuid.UUID) *MediaCreate {
+	if u != nil {
+		mc.SetUploaderID(*u)
 	}
 	return mc
 }
@@ -104,20 +105,28 @@ func (mc *MediaCreate) SetMetadata(m map[string]interface{}) *MediaCreate {
 }
 
 // SetID sets the "id" field.
-func (mc *MediaCreate) SetID(s string) *MediaCreate {
-	mc.mutation.SetID(s)
+func (mc *MediaCreate) SetID(u uuid.UUID) *MediaCreate {
+	mc.mutation.SetID(u)
+	return mc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (mc *MediaCreate) SetNillableID(u *uuid.UUID) *MediaCreate {
+	if u != nil {
+		mc.SetID(*u)
+	}
 	return mc
 }
 
 // AddUserMediumIDs adds the "user_media" edge to the User entity by IDs.
-func (mc *MediaCreate) AddUserMediumIDs(ids ...string) *MediaCreate {
+func (mc *MediaCreate) AddUserMediumIDs(ids ...uuid.UUID) *MediaCreate {
 	mc.mutation.AddUserMediumIDs(ids...)
 	return mc
 }
 
 // AddUserMedia adds the "user_media" edges to the User entity.
 func (mc *MediaCreate) AddUserMedia(u ...*User) *MediaCreate {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -125,13 +134,13 @@ func (mc *MediaCreate) AddUserMedia(u ...*User) *MediaCreate {
 }
 
 // SetUserID sets the "user" edge to the User entity by ID.
-func (mc *MediaCreate) SetUserID(id string) *MediaCreate {
+func (mc *MediaCreate) SetUserID(id uuid.UUID) *MediaCreate {
 	mc.mutation.SetUserID(id)
 	return mc
 }
 
 // SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (mc *MediaCreate) SetNillableUserID(id *string) *MediaCreate {
+func (mc *MediaCreate) SetNillableUserID(id *uuid.UUID) *MediaCreate {
 	if id != nil {
 		mc = mc.SetUserID(*id)
 	}
@@ -144,14 +153,14 @@ func (mc *MediaCreate) SetUser(u *User) *MediaCreate {
 }
 
 // AddCourseMediumIDs adds the "course_media" edge to the Course entity by IDs.
-func (mc *MediaCreate) AddCourseMediumIDs(ids ...string) *MediaCreate {
+func (mc *MediaCreate) AddCourseMediumIDs(ids ...uuid.UUID) *MediaCreate {
 	mc.mutation.AddCourseMediumIDs(ids...)
 	return mc
 }
 
 // AddCourseMedia adds the "course_media" edges to the Course entity.
 func (mc *MediaCreate) AddCourseMedia(c ...*Course) *MediaCreate {
-	ids := make([]string, len(c))
+	ids := make([]uuid.UUID, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -159,14 +168,14 @@ func (mc *MediaCreate) AddCourseMedia(c ...*Course) *MediaCreate {
 }
 
 // AddVideoMediumIDs adds the "video_media" edge to the Video entity by IDs.
-func (mc *MediaCreate) AddVideoMediumIDs(ids ...string) *MediaCreate {
+func (mc *MediaCreate) AddVideoMediumIDs(ids ...uuid.UUID) *MediaCreate {
 	mc.mutation.AddVideoMediumIDs(ids...)
 	return mc
 }
 
 // AddVideoMedia adds the "video_media" edges to the Video entity.
 func (mc *MediaCreate) AddVideoMedia(v ...*Video) *MediaCreate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -180,9 +189,7 @@ func (mc *MediaCreate) Mutation() *MediaMutation {
 
 // Save creates the Media in the database.
 func (mc *MediaCreate) Save(ctx context.Context) (*Media, error) {
-	if err := mc.defaults(); err != nil {
-		return nil, err
-	}
+	mc.defaults()
 	return withHooks(ctx, mc.sqlSave, mc.mutation, mc.hooks)
 }
 
@@ -209,22 +216,19 @@ func (mc *MediaCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mc *MediaCreate) defaults() error {
+func (mc *MediaCreate) defaults() {
 	if _, ok := mc.mutation.CreatedAt(); !ok {
-		if media.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized media.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := media.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := mc.mutation.UpdatedAt(); !ok {
-		if media.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized media.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := media.DefaultUpdatedAt()
 		mc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := mc.mutation.ID(); !ok {
+		v := media.DefaultID()
+		mc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -274,10 +278,10 @@ func (mc *MediaCreate) sqlSave(ctx context.Context) (*Media, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Media.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	mc.mutation.id = &_node.ID
@@ -288,11 +292,11 @@ func (mc *MediaCreate) sqlSave(ctx context.Context) (*Media, error) {
 func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Media{config: mc.config}
-		_spec = sqlgraph.NewCreateSpec(media.Table, sqlgraph.NewFieldSpec(media.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(media.Table, sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID))
 	)
 	if id, ok := mc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := mc.mutation.CreatedAt(); ok {
 		_spec.SetField(media.FieldCreatedAt, field.TypeTime, value)
@@ -330,7 +334,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -346,7 +350,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Columns: []string{media.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -363,7 +367,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Columns: []string{media.CourseMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -379,7 +383,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Columns: []string{media.VideoMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

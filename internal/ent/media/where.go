@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Media {
+func ID(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Media {
+func IDEQ(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Media {
+func IDNEQ(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Media {
+func IDIn(ids ...uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Media {
+func IDNotIn(ids ...uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Media {
+func IDGT(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Media {
+func IDGTE(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Media {
+func IDLT(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Media {
+func IDLTE(id uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Media {
-	return predicate.Media(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Media {
-	return predicate.Media(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -96,7 +87,7 @@ func MimeType(v string) predicate.Media {
 }
 
 // UploaderID applies equality check predicate on the "uploader_id" field. It's identical to UploaderIDEQ.
-func UploaderID(v string) predicate.Media {
+func UploaderID(v uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldUploaderID, v))
 }
 
@@ -426,58 +417,23 @@ func MimeTypeContainsFold(v string) predicate.Media {
 }
 
 // UploaderIDEQ applies the EQ predicate on the "uploader_id" field.
-func UploaderIDEQ(v string) predicate.Media {
+func UploaderIDEQ(v uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldUploaderID, v))
 }
 
 // UploaderIDNEQ applies the NEQ predicate on the "uploader_id" field.
-func UploaderIDNEQ(v string) predicate.Media {
+func UploaderIDNEQ(v uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldNEQ(FieldUploaderID, v))
 }
 
 // UploaderIDIn applies the In predicate on the "uploader_id" field.
-func UploaderIDIn(vs ...string) predicate.Media {
+func UploaderIDIn(vs ...uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldIn(FieldUploaderID, vs...))
 }
 
 // UploaderIDNotIn applies the NotIn predicate on the "uploader_id" field.
-func UploaderIDNotIn(vs ...string) predicate.Media {
+func UploaderIDNotIn(vs ...uuid.UUID) predicate.Media {
 	return predicate.Media(sql.FieldNotIn(FieldUploaderID, vs...))
-}
-
-// UploaderIDGT applies the GT predicate on the "uploader_id" field.
-func UploaderIDGT(v string) predicate.Media {
-	return predicate.Media(sql.FieldGT(FieldUploaderID, v))
-}
-
-// UploaderIDGTE applies the GTE predicate on the "uploader_id" field.
-func UploaderIDGTE(v string) predicate.Media {
-	return predicate.Media(sql.FieldGTE(FieldUploaderID, v))
-}
-
-// UploaderIDLT applies the LT predicate on the "uploader_id" field.
-func UploaderIDLT(v string) predicate.Media {
-	return predicate.Media(sql.FieldLT(FieldUploaderID, v))
-}
-
-// UploaderIDLTE applies the LTE predicate on the "uploader_id" field.
-func UploaderIDLTE(v string) predicate.Media {
-	return predicate.Media(sql.FieldLTE(FieldUploaderID, v))
-}
-
-// UploaderIDContains applies the Contains predicate on the "uploader_id" field.
-func UploaderIDContains(v string) predicate.Media {
-	return predicate.Media(sql.FieldContains(FieldUploaderID, v))
-}
-
-// UploaderIDHasPrefix applies the HasPrefix predicate on the "uploader_id" field.
-func UploaderIDHasPrefix(v string) predicate.Media {
-	return predicate.Media(sql.FieldHasPrefix(FieldUploaderID, v))
-}
-
-// UploaderIDHasSuffix applies the HasSuffix predicate on the "uploader_id" field.
-func UploaderIDHasSuffix(v string) predicate.Media {
-	return predicate.Media(sql.FieldHasSuffix(FieldUploaderID, v))
 }
 
 // UploaderIDIsNil applies the IsNil predicate on the "uploader_id" field.
@@ -488,16 +444,6 @@ func UploaderIDIsNil() predicate.Media {
 // UploaderIDNotNil applies the NotNil predicate on the "uploader_id" field.
 func UploaderIDNotNil() predicate.Media {
 	return predicate.Media(sql.FieldNotNull(FieldUploaderID))
-}
-
-// UploaderIDEqualFold applies the EqualFold predicate on the "uploader_id" field.
-func UploaderIDEqualFold(v string) predicate.Media {
-	return predicate.Media(sql.FieldEqualFold(FieldUploaderID, v))
-}
-
-// UploaderIDContainsFold applies the ContainsFold predicate on the "uploader_id" field.
-func UploaderIDContainsFold(v string) predicate.Media {
-	return predicate.Media(sql.FieldContainsFold(FieldUploaderID, v))
 }
 
 // MetadataIsNil applies the IsNil predicate on the "metadata" field.

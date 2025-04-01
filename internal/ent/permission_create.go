@@ -12,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // PermissionCreate is the builder for creating a Permission entity.
@@ -84,20 +85,28 @@ func (pc *PermissionCreate) SetNillableDescription(s *string) *PermissionCreate 
 }
 
 // SetID sets the "id" field.
-func (pc *PermissionCreate) SetID(s string) *PermissionCreate {
-	pc.mutation.SetID(s)
+func (pc *PermissionCreate) SetID(u uuid.UUID) *PermissionCreate {
+	pc.mutation.SetID(u)
+	return pc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableID(u *uuid.UUID) *PermissionCreate {
+	if u != nil {
+		pc.SetID(*u)
+	}
 	return pc
 }
 
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
-func (pc *PermissionCreate) AddRoleIDs(ids ...string) *PermissionCreate {
+func (pc *PermissionCreate) AddRoleIDs(ids ...uuid.UUID) *PermissionCreate {
 	pc.mutation.AddRoleIDs(ids...)
 	return pc
 }
 
 // AddRoles adds the "roles" edges to the Role entity.
 func (pc *PermissionCreate) AddRoles(r ...*Role) *PermissionCreate {
-	ids := make([]string, len(r))
+	ids := make([]uuid.UUID, len(r))
 	for i := range r {
 		ids[i] = r[i].ID
 	}
@@ -111,9 +120,7 @@ func (pc *PermissionCreate) Mutation() *PermissionMutation {
 
 // Save creates the Permission in the database.
 func (pc *PermissionCreate) Save(ctx context.Context) (*Permission, error) {
-	if err := pc.defaults(); err != nil {
-		return nil, err
-	}
+	pc.defaults()
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -140,22 +147,19 @@ func (pc *PermissionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (pc *PermissionCreate) defaults() error {
+func (pc *PermissionCreate) defaults() {
 	if _, ok := pc.mutation.CreatedAt(); !ok {
-		if permission.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized permission.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := permission.DefaultCreatedAt()
 		pc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := pc.mutation.UpdatedAt(); !ok {
-		if permission.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized permission.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := permission.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := pc.mutation.ID(); !ok {
+		v := permission.DefaultID()
+		pc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -189,10 +193,10 @@ func (pc *PermissionCreate) sqlSave(ctx context.Context) (*Permission, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Permission.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	pc.mutation.id = &_node.ID
@@ -203,11 +207,11 @@ func (pc *PermissionCreate) sqlSave(ctx context.Context) (*Permission, error) {
 func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Permission{config: pc.config}
-		_spec = sqlgraph.NewCreateSpec(permission.Table, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(permission.Table, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID))
 	)
 	if id, ok := pc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := pc.mutation.CreatedAt(); ok {
 		_spec.SetField(permission.FieldCreatedAt, field.TypeTime, value)
@@ -237,7 +241,7 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 			Columns: permission.RolesPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

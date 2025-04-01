@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // User holds the schema definition for the User entity.
@@ -22,7 +23,7 @@ func (User) Fields() []ent.Field {
 		field.String("password_hash").NotEmpty(),
 		field.String("first_name").Optional(),
 		field.String("last_name").Optional(),
-		field.String("avatar_id").Optional(),
+		field.UUID("avatar_id", uuid.UUID{}).Optional(),
 		field.Bool("is_active").Default(true),
 	}
 }

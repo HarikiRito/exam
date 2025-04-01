@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // RoleCreate is the builder for creating a Role entity.
@@ -86,20 +87,28 @@ func (rc *RoleCreate) SetNillableDescription(s *string) *RoleCreate {
 }
 
 // SetID sets the "id" field.
-func (rc *RoleCreate) SetID(s string) *RoleCreate {
-	rc.mutation.SetID(s)
+func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
+	rc.mutation.SetID(u)
+	return rc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableID(u *uuid.UUID) *RoleCreate {
+	if u != nil {
+		rc.SetID(*u)
+	}
 	return rc
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (rc *RoleCreate) AddUserIDs(ids ...string) *RoleCreate {
+func (rc *RoleCreate) AddUserIDs(ids ...uuid.UUID) *RoleCreate {
 	rc.mutation.AddUserIDs(ids...)
 	return rc
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -107,14 +116,14 @@ func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
 }
 
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
-func (rc *RoleCreate) AddPermissionIDs(ids ...string) *RoleCreate {
+func (rc *RoleCreate) AddPermissionIDs(ids ...uuid.UUID) *RoleCreate {
 	rc.mutation.AddPermissionIDs(ids...)
 	return rc
 }
 
 // AddPermissions adds the "permissions" edges to the Permission entity.
 func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
-	ids := make([]string, len(p))
+	ids := make([]uuid.UUID, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -122,14 +131,14 @@ func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
-func (rc *RoleCreate) AddUserRoleIDs(ids ...string) *RoleCreate {
+func (rc *RoleCreate) AddUserRoleIDs(ids ...uuid.UUID) *RoleCreate {
 	rc.mutation.AddUserRoleIDs(ids...)
 	return rc
 }
 
 // AddUserRoles adds the "user_roles" edges to the UserRole entity.
 func (rc *RoleCreate) AddUserRoles(u ...*UserRole) *RoleCreate {
-	ids := make([]string, len(u))
+	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -143,9 +152,7 @@ func (rc *RoleCreate) Mutation() *RoleMutation {
 
 // Save creates the Role in the database.
 func (rc *RoleCreate) Save(ctx context.Context) (*Role, error) {
-	if err := rc.defaults(); err != nil {
-		return nil, err
-	}
+	rc.defaults()
 	return withHooks(ctx, rc.sqlSave, rc.mutation, rc.hooks)
 }
 
@@ -172,22 +179,19 @@ func (rc *RoleCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (rc *RoleCreate) defaults() error {
+func (rc *RoleCreate) defaults() {
 	if _, ok := rc.mutation.CreatedAt(); !ok {
-		if role.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized role.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := role.DefaultCreatedAt()
 		rc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := rc.mutation.UpdatedAt(); !ok {
-		if role.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized role.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := role.DefaultUpdatedAt()
 		rc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := rc.mutation.ID(); !ok {
+		v := role.DefaultID()
+		rc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -221,10 +225,10 @@ func (rc *RoleCreate) sqlSave(ctx context.Context) (*Role, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Role.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	rc.mutation.id = &_node.ID
@@ -235,11 +239,11 @@ func (rc *RoleCreate) sqlSave(ctx context.Context) (*Role, error) {
 func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Role{config: rc.config}
-		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeUUID))
 	)
 	if id, ok := rc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := rc.mutation.CreatedAt(); ok {
 		_spec.SetField(role.FieldCreatedAt, field.TypeTime, value)
@@ -269,16 +273,19 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Columns: role.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		createE := &UserRoleCreate{config: rc.config, mutation: newUserRoleMutation(rc.config, OpCreate)}
-		_ = createE.defaults()
+		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
+		if specE.ID.Value != nil {
+			edge.Target.Fields = append(edge.Target.Fields, specE.ID)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := rc.mutation.PermissionsIDs(); len(nodes) > 0 {
@@ -289,7 +296,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Columns: role.PermissionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -305,7 +312,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Columns: []string{role.UserRolesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

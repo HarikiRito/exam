@@ -18,6 +18,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoQuery is the builder for querying Video entities.
@@ -179,8 +180,8 @@ func (vq *VideoQuery) FirstX(ctx context.Context) *Video {
 
 // FirstID returns the first Video ID from the query.
 // Returns a *NotFoundError when no Video ID was found.
-func (vq *VideoQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (vq *VideoQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = vq.Limit(1).IDs(setContextOp(ctx, vq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -192,7 +193,7 @@ func (vq *VideoQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (vq *VideoQuery) FirstIDX(ctx context.Context) string {
+func (vq *VideoQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := vq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -230,8 +231,8 @@ func (vq *VideoQuery) OnlyX(ctx context.Context) *Video {
 // OnlyID is like Only, but returns the only Video ID in the query.
 // Returns a *NotSingularError when more than one Video ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (vq *VideoQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (vq *VideoQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = vq.Limit(2).IDs(setContextOp(ctx, vq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -247,7 +248,7 @@ func (vq *VideoQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (vq *VideoQuery) OnlyIDX(ctx context.Context) string {
+func (vq *VideoQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := vq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -275,7 +276,7 @@ func (vq *VideoQuery) AllX(ctx context.Context) []*Video {
 }
 
 // IDs executes the query and returns a list of Video IDs.
-func (vq *VideoQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (vq *VideoQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if vq.ctx.Unique == nil && vq.path != nil {
 		vq.Unique(true)
 	}
@@ -287,7 +288,7 @@ func (vq *VideoQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (vq *VideoQuery) IDsX(ctx context.Context) []string {
+func (vq *VideoQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := vq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -535,8 +536,8 @@ func (vq *VideoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Video,
 }
 
 func (vq *VideoQuery) loadCourseSection(ctx context.Context, query *CourseSectionQuery, nodes []*Video, init func(*Video), assign func(*Video, *CourseSection)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Video)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Video)
 	for i := range nodes {
 		fk := nodes[i].SectionID
 		if _, ok := nodeids[fk]; !ok {
@@ -564,8 +565,8 @@ func (vq *VideoQuery) loadCourseSection(ctx context.Context, query *CourseSectio
 	return nil
 }
 func (vq *VideoQuery) loadMedia(ctx context.Context, query *MediaQuery, nodes []*Video, init func(*Video), assign func(*Video, *Media)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Video)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Video)
 	for i := range nodes {
 		fk := nodes[i].MediaID
 		if _, ok := nodeids[fk]; !ok {
@@ -593,8 +594,8 @@ func (vq *VideoQuery) loadMedia(ctx context.Context, query *MediaQuery, nodes []
 	return nil
 }
 func (vq *VideoQuery) loadCourse(ctx context.Context, query *CourseQuery, nodes []*Video, init func(*Video), assign func(*Video, *Course)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Video)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Video)
 	for i := range nodes {
 		fk := nodes[i].CourseID
 		if _, ok := nodeids[fk]; !ok {
@@ -623,7 +624,7 @@ func (vq *VideoQuery) loadCourse(ctx context.Context, query *CourseQuery, nodes 
 }
 func (vq *VideoQuery) loadVideoQuestionTimestampsVideo(ctx context.Context, query *VideoQuestionTimestampQuery, nodes []*Video, init func(*Video), assign func(*Video, *VideoQuestionTimestamp)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Video)
+	nodeids := make(map[uuid.UUID]*Video)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -662,7 +663,7 @@ func (vq *VideoQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (vq *VideoQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(video.Table, video.Columns, sqlgraph.NewFieldSpec(video.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(video.Table, video.Columns, sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID))
 	_spec.From = vq.sql
 	if unique := vq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

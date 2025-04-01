@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionQuery is the builder for querying Question entities.
@@ -155,8 +156,8 @@ func (qq *QuestionQuery) FirstX(ctx context.Context) *Question {
 
 // FirstID returns the first Question ID from the query.
 // Returns a *NotFoundError when no Question ID was found.
-func (qq *QuestionQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (qq *QuestionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = qq.Limit(1).IDs(setContextOp(ctx, qq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -168,7 +169,7 @@ func (qq *QuestionQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (qq *QuestionQuery) FirstIDX(ctx context.Context) string {
+func (qq *QuestionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := qq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -206,8 +207,8 @@ func (qq *QuestionQuery) OnlyX(ctx context.Context) *Question {
 // OnlyID is like Only, but returns the only Question ID in the query.
 // Returns a *NotSingularError when more than one Question ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (qq *QuestionQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (qq *QuestionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = qq.Limit(2).IDs(setContextOp(ctx, qq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -223,7 +224,7 @@ func (qq *QuestionQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (qq *QuestionQuery) OnlyIDX(ctx context.Context) string {
+func (qq *QuestionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := qq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -251,7 +252,7 @@ func (qq *QuestionQuery) AllX(ctx context.Context) []*Question {
 }
 
 // IDs executes the query and returns a list of Question IDs.
-func (qq *QuestionQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (qq *QuestionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if qq.ctx.Unique == nil && qq.path != nil {
 		qq.Unique(true)
 	}
@@ -263,7 +264,7 @@ func (qq *QuestionQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (qq *QuestionQuery) IDsX(ctx context.Context) []string {
+func (qq *QuestionQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := qq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -493,8 +494,8 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 }
 
 func (qq *QuestionQuery) loadSection(ctx context.Context, query *CourseSectionQuery, nodes []*Question, init func(*Question), assign func(*Question, *CourseSection)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Question)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Question)
 	for i := range nodes {
 		fk := nodes[i].SectionID
 		if _, ok := nodeids[fk]; !ok {
@@ -523,7 +524,7 @@ func (qq *QuestionQuery) loadSection(ctx context.Context, query *CourseSectionQu
 }
 func (qq *QuestionQuery) loadQuestionOptions(ctx context.Context, query *QuestionOptionQuery, nodes []*Question, init func(*Question), assign func(*Question, *QuestionOption)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Question)
+	nodeids := make(map[uuid.UUID]*Question)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -553,7 +554,7 @@ func (qq *QuestionQuery) loadQuestionOptions(ctx context.Context, query *Questio
 }
 func (qq *QuestionQuery) loadVideoQuestionTimestampsQuestion(ctx context.Context, query *VideoQuestionTimestampQuery, nodes []*Question, init func(*Question), assign func(*Question, *VideoQuestionTimestamp)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Question)
+	nodeids := make(map[uuid.UUID]*Question)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -592,7 +593,7 @@ func (qq *QuestionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (qq *QuestionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(question.Table, question.Columns, sqlgraph.NewFieldSpec(question.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(question.Table, question.Columns, sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID))
 	_spec.From = qq.sql
 	if unique := qq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

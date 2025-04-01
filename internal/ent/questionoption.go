@@ -11,13 +11,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // QuestionOption is the model entity for the QuestionOption schema.
 type QuestionOption struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,7 +26,7 @@ type QuestionOption struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// QuestionID holds the value of the "question_id" field.
-	QuestionID string `json:"question_id,omitempty"`
+	QuestionID uuid.UUID `json:"question_id,omitempty"`
 	// OptionText holds the value of the "option_text" field.
 	OptionText string `json:"option_text,omitempty"`
 	// IsCorrect holds the value of the "is_correct" field.
@@ -63,10 +64,12 @@ func (*QuestionOption) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case questionoption.FieldIsCorrect:
 			values[i] = new(sql.NullBool)
-		case questionoption.FieldID, questionoption.FieldQuestionID, questionoption.FieldOptionText:
+		case questionoption.FieldOptionText:
 			values[i] = new(sql.NullString)
 		case questionoption.FieldCreatedAt, questionoption.FieldUpdatedAt, questionoption.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case questionoption.FieldID, questionoption.FieldQuestionID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -83,10 +86,10 @@ func (qo *QuestionOption) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case questionoption.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				qo.ID = value.String
+			} else if value != nil {
+				qo.ID = *value
 			}
 		case questionoption.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -108,10 +111,10 @@ func (qo *QuestionOption) assignValues(columns []string, values []any) error {
 				*qo.DeletedAt = value.Time
 			}
 		case questionoption.FieldQuestionID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field question_id", values[i])
-			} else if value.Valid {
-				qo.QuestionID = value.String
+			} else if value != nil {
+				qo.QuestionID = *value
 			}
 		case questionoption.FieldOptionText:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -178,7 +181,7 @@ func (qo *QuestionOption) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("question_id=")
-	builder.WriteString(qo.QuestionID)
+	builder.WriteString(fmt.Sprintf("%v", qo.QuestionID))
 	builder.WriteString(", ")
 	builder.WriteString("option_text=")
 	builder.WriteString(qo.OptionText)

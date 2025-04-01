@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Auth holds the schema definition for the Auth entity.
@@ -16,7 +17,7 @@ type Auth struct {
 // Fields of the Auth.
 func (Auth) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("user_id").NotEmpty(),
+		field.UUID("user_id", uuid.UUID{}),
 		field.String("access_token").NotEmpty(),
 		field.String("refresh_token").NotEmpty(),
 		field.Time("access_token_expires_at"),
@@ -38,4 +39,4 @@ func (Auth) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

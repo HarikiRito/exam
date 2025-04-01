@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // CourseSectionQuery is the builder for querying CourseSection entities.
@@ -155,8 +156,8 @@ func (csq *CourseSectionQuery) FirstX(ctx context.Context) *CourseSection {
 
 // FirstID returns the first CourseSection ID from the query.
 // Returns a *NotFoundError when no CourseSection ID was found.
-func (csq *CourseSectionQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (csq *CourseSectionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = csq.Limit(1).IDs(setContextOp(ctx, csq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -168,7 +169,7 @@ func (csq *CourseSectionQuery) FirstID(ctx context.Context) (id string, err erro
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (csq *CourseSectionQuery) FirstIDX(ctx context.Context) string {
+func (csq *CourseSectionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := csq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -206,8 +207,8 @@ func (csq *CourseSectionQuery) OnlyX(ctx context.Context) *CourseSection {
 // OnlyID is like Only, but returns the only CourseSection ID in the query.
 // Returns a *NotSingularError when more than one CourseSection ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (csq *CourseSectionQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (csq *CourseSectionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = csq.Limit(2).IDs(setContextOp(ctx, csq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -223,7 +224,7 @@ func (csq *CourseSectionQuery) OnlyID(ctx context.Context) (id string, err error
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (csq *CourseSectionQuery) OnlyIDX(ctx context.Context) string {
+func (csq *CourseSectionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := csq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -251,7 +252,7 @@ func (csq *CourseSectionQuery) AllX(ctx context.Context) []*CourseSection {
 }
 
 // IDs executes the query and returns a list of CourseSection IDs.
-func (csq *CourseSectionQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (csq *CourseSectionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if csq.ctx.Unique == nil && csq.path != nil {
 		csq.Unique(true)
 	}
@@ -263,7 +264,7 @@ func (csq *CourseSectionQuery) IDs(ctx context.Context) (ids []string, err error
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (csq *CourseSectionQuery) IDsX(ctx context.Context) []string {
+func (csq *CourseSectionQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := csq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -491,8 +492,8 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 }
 
 func (csq *CourseSectionQuery) loadCourse(ctx context.Context, query *CourseQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Course)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*CourseSection)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*CourseSection)
 	for i := range nodes {
 		fk := nodes[i].CourseID
 		if _, ok := nodeids[fk]; !ok {
@@ -521,7 +522,7 @@ func (csq *CourseSectionQuery) loadCourse(ctx context.Context, query *CourseQuer
 }
 func (csq *CourseSectionQuery) loadCourseSectionVideos(ctx context.Context, query *VideoQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Video)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*CourseSection)
+	nodeids := make(map[uuid.UUID]*CourseSection)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -551,7 +552,7 @@ func (csq *CourseSectionQuery) loadCourseSectionVideos(ctx context.Context, quer
 }
 func (csq *CourseSectionQuery) loadQuestions(ctx context.Context, query *QuestionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Question)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*CourseSection)
+	nodeids := make(map[uuid.UUID]*CourseSection)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -590,7 +591,7 @@ func (csq *CourseSectionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (csq *CourseSectionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(coursesection.Table, coursesection.Columns, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(coursesection.Table, coursesection.Columns, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID))
 	_spec.From = csq.sql
 	if unique := csq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

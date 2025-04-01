@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // CourseSectionCreate is the builder for creating a CourseSection entity.
@@ -66,8 +67,8 @@ func (csc *CourseSectionCreate) SetNillableDeletedAt(t *time.Time) *CourseSectio
 }
 
 // SetCourseID sets the "course_id" field.
-func (csc *CourseSectionCreate) SetCourseID(s string) *CourseSectionCreate {
-	csc.mutation.SetCourseID(s)
+func (csc *CourseSectionCreate) SetCourseID(u uuid.UUID) *CourseSectionCreate {
+	csc.mutation.SetCourseID(u)
 	return csc
 }
 
@@ -92,8 +93,16 @@ func (csc *CourseSectionCreate) SetNillableDescription(s *string) *CourseSection
 }
 
 // SetID sets the "id" field.
-func (csc *CourseSectionCreate) SetID(s string) *CourseSectionCreate {
-	csc.mutation.SetID(s)
+func (csc *CourseSectionCreate) SetID(u uuid.UUID) *CourseSectionCreate {
+	csc.mutation.SetID(u)
+	return csc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (csc *CourseSectionCreate) SetNillableID(u *uuid.UUID) *CourseSectionCreate {
+	if u != nil {
+		csc.SetID(*u)
+	}
 	return csc
 }
 
@@ -103,14 +112,14 @@ func (csc *CourseSectionCreate) SetCourse(c *Course) *CourseSectionCreate {
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
-func (csc *CourseSectionCreate) AddCourseSectionVideoIDs(ids ...string) *CourseSectionCreate {
+func (csc *CourseSectionCreate) AddCourseSectionVideoIDs(ids ...uuid.UUID) *CourseSectionCreate {
 	csc.mutation.AddCourseSectionVideoIDs(ids...)
 	return csc
 }
 
 // AddCourseSectionVideos adds the "course_section_videos" edges to the Video entity.
 func (csc *CourseSectionCreate) AddCourseSectionVideos(v ...*Video) *CourseSectionCreate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -118,14 +127,14 @@ func (csc *CourseSectionCreate) AddCourseSectionVideos(v ...*Video) *CourseSecti
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (csc *CourseSectionCreate) AddQuestionIDs(ids ...string) *CourseSectionCreate {
+func (csc *CourseSectionCreate) AddQuestionIDs(ids ...uuid.UUID) *CourseSectionCreate {
 	csc.mutation.AddQuestionIDs(ids...)
 	return csc
 }
 
 // AddQuestions adds the "questions" edges to the Question entity.
 func (csc *CourseSectionCreate) AddQuestions(q ...*Question) *CourseSectionCreate {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -139,9 +148,7 @@ func (csc *CourseSectionCreate) Mutation() *CourseSectionMutation {
 
 // Save creates the CourseSection in the database.
 func (csc *CourseSectionCreate) Save(ctx context.Context) (*CourseSection, error) {
-	if err := csc.defaults(); err != nil {
-		return nil, err
-	}
+	csc.defaults()
 	return withHooks(ctx, csc.sqlSave, csc.mutation, csc.hooks)
 }
 
@@ -168,22 +175,19 @@ func (csc *CourseSectionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (csc *CourseSectionCreate) defaults() error {
+func (csc *CourseSectionCreate) defaults() {
 	if _, ok := csc.mutation.CreatedAt(); !ok {
-		if coursesection.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized coursesection.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := coursesection.DefaultCreatedAt()
 		csc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := csc.mutation.UpdatedAt(); !ok {
-		if coursesection.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized coursesection.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := coursesection.DefaultUpdatedAt()
 		csc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := csc.mutation.ID(); !ok {
+		v := coursesection.DefaultID()
+		csc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -196,11 +200,6 @@ func (csc *CourseSectionCreate) check() error {
 	}
 	if _, ok := csc.mutation.CourseID(); !ok {
 		return &ValidationError{Name: "course_id", err: errors.New(`ent: missing required field "CourseSection.course_id"`)}
-	}
-	if v, ok := csc.mutation.CourseID(); ok {
-		if err := coursesection.CourseIDValidator(v); err != nil {
-			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "CourseSection.course_id": %w`, err)}
-		}
 	}
 	if _, ok := csc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "CourseSection.title"`)}
@@ -228,10 +227,10 @@ func (csc *CourseSectionCreate) sqlSave(ctx context.Context) (*CourseSection, er
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected CourseSection.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	csc.mutation.id = &_node.ID
@@ -242,11 +241,11 @@ func (csc *CourseSectionCreate) sqlSave(ctx context.Context) (*CourseSection, er
 func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSpec) {
 	var (
 		_node = &CourseSection{config: csc.config}
-		_spec = sqlgraph.NewCreateSpec(coursesection.Table, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(coursesection.Table, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID))
 	)
 	if id, ok := csc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := csc.mutation.CreatedAt(); ok {
 		_spec.SetField(coursesection.FieldCreatedAt, field.TypeTime, value)
@@ -276,7 +275,7 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 			Columns: []string{coursesection.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -293,7 +292,7 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -309,7 +308,7 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

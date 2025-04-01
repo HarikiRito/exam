@@ -109,9 +109,7 @@ func (tu *TodoUpdate) Mutation() *TodoMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (tu *TodoUpdate) Save(ctx context.Context) (int, error) {
-	if err := tu.defaults(); err != nil {
-		return 0, err
-	}
+	tu.defaults()
 	return withHooks(ctx, tu.sqlSave, tu.mutation, tu.hooks)
 }
 
@@ -138,19 +136,15 @@ func (tu *TodoUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tu *TodoUpdate) defaults() error {
+func (tu *TodoUpdate) defaults() {
 	if _, ok := tu.mutation.UpdatedAt(); !ok {
-		if todo.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized todo.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := todo.UpdateDefaultUpdatedAt()
 		tu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(todo.Table, todo.Columns, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(todo.Table, todo.Columns, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeUUID))
 	if ps := tu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -293,9 +287,7 @@ func (tuo *TodoUpdateOne) Select(field string, fields ...string) *TodoUpdateOne 
 
 // Save executes the query and returns the updated Todo entity.
 func (tuo *TodoUpdateOne) Save(ctx context.Context) (*Todo, error) {
-	if err := tuo.defaults(); err != nil {
-		return nil, err
-	}
+	tuo.defaults()
 	return withHooks(ctx, tuo.sqlSave, tuo.mutation, tuo.hooks)
 }
 
@@ -322,19 +314,15 @@ func (tuo *TodoUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tuo *TodoUpdateOne) defaults() error {
+func (tuo *TodoUpdateOne) defaults() {
 	if _, ok := tuo.mutation.UpdatedAt(); !ok {
-		if todo.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized todo.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := todo.UpdateDefaultUpdatedAt()
 		tuo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) {
-	_spec := sqlgraph.NewUpdateSpec(todo.Table, todo.Columns, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(todo.Table, todo.Columns, sqlgraph.NewFieldSpec(todo.FieldID, field.TypeUUID))
 	id, ok := tuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Todo.id" for update`)}

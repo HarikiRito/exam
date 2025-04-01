@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // CourseSection holds the schema definition for the CourseSection entity.
@@ -17,7 +18,7 @@ type CourseSection struct {
 // Fields of the CourseSection.
 func (CourseSection) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("course_id").NotEmpty(),
+		field.UUID("course_id", uuid.UUID{}),
 		field.String("title").NotEmpty(),
 		field.Text("description").Optional(),
 	}

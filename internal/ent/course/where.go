@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Course {
+func ID(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Course {
+func IDEQ(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Course {
+func IDNEQ(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Course {
+func IDIn(ids ...uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Course {
+func IDNotIn(ids ...uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Course {
+func IDGT(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Course {
+func IDGTE(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Course {
+func IDLT(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Course {
+func IDLTE(id uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Course {
-	return predicate.Course(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Course {
-	return predicate.Course(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -91,12 +82,12 @@ func Description(v string) predicate.Course {
 }
 
 // MediaID applies equality check predicate on the "media_id" field. It's identical to MediaIDEQ.
-func MediaID(v string) predicate.Course {
+func MediaID(v uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldMediaID, v))
 }
 
 // CreatorID applies equality check predicate on the "creator_id" field. It's identical to CreatorIDEQ.
-func CreatorID(v string) predicate.Course {
+func CreatorID(v uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldCreatorID, v))
 }
 
@@ -376,58 +367,23 @@ func DescriptionContainsFold(v string) predicate.Course {
 }
 
 // MediaIDEQ applies the EQ predicate on the "media_id" field.
-func MediaIDEQ(v string) predicate.Course {
+func MediaIDEQ(v uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldMediaID, v))
 }
 
 // MediaIDNEQ applies the NEQ predicate on the "media_id" field.
-func MediaIDNEQ(v string) predicate.Course {
+func MediaIDNEQ(v uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldNEQ(FieldMediaID, v))
 }
 
 // MediaIDIn applies the In predicate on the "media_id" field.
-func MediaIDIn(vs ...string) predicate.Course {
+func MediaIDIn(vs ...uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldIn(FieldMediaID, vs...))
 }
 
 // MediaIDNotIn applies the NotIn predicate on the "media_id" field.
-func MediaIDNotIn(vs ...string) predicate.Course {
+func MediaIDNotIn(vs ...uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldNotIn(FieldMediaID, vs...))
-}
-
-// MediaIDGT applies the GT predicate on the "media_id" field.
-func MediaIDGT(v string) predicate.Course {
-	return predicate.Course(sql.FieldGT(FieldMediaID, v))
-}
-
-// MediaIDGTE applies the GTE predicate on the "media_id" field.
-func MediaIDGTE(v string) predicate.Course {
-	return predicate.Course(sql.FieldGTE(FieldMediaID, v))
-}
-
-// MediaIDLT applies the LT predicate on the "media_id" field.
-func MediaIDLT(v string) predicate.Course {
-	return predicate.Course(sql.FieldLT(FieldMediaID, v))
-}
-
-// MediaIDLTE applies the LTE predicate on the "media_id" field.
-func MediaIDLTE(v string) predicate.Course {
-	return predicate.Course(sql.FieldLTE(FieldMediaID, v))
-}
-
-// MediaIDContains applies the Contains predicate on the "media_id" field.
-func MediaIDContains(v string) predicate.Course {
-	return predicate.Course(sql.FieldContains(FieldMediaID, v))
-}
-
-// MediaIDHasPrefix applies the HasPrefix predicate on the "media_id" field.
-func MediaIDHasPrefix(v string) predicate.Course {
-	return predicate.Course(sql.FieldHasPrefix(FieldMediaID, v))
-}
-
-// MediaIDHasSuffix applies the HasSuffix predicate on the "media_id" field.
-func MediaIDHasSuffix(v string) predicate.Course {
-	return predicate.Course(sql.FieldHasSuffix(FieldMediaID, v))
 }
 
 // MediaIDIsNil applies the IsNil predicate on the "media_id" field.
@@ -440,79 +396,24 @@ func MediaIDNotNil() predicate.Course {
 	return predicate.Course(sql.FieldNotNull(FieldMediaID))
 }
 
-// MediaIDEqualFold applies the EqualFold predicate on the "media_id" field.
-func MediaIDEqualFold(v string) predicate.Course {
-	return predicate.Course(sql.FieldEqualFold(FieldMediaID, v))
-}
-
-// MediaIDContainsFold applies the ContainsFold predicate on the "media_id" field.
-func MediaIDContainsFold(v string) predicate.Course {
-	return predicate.Course(sql.FieldContainsFold(FieldMediaID, v))
-}
-
 // CreatorIDEQ applies the EQ predicate on the "creator_id" field.
-func CreatorIDEQ(v string) predicate.Course {
+func CreatorIDEQ(v uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldEQ(FieldCreatorID, v))
 }
 
 // CreatorIDNEQ applies the NEQ predicate on the "creator_id" field.
-func CreatorIDNEQ(v string) predicate.Course {
+func CreatorIDNEQ(v uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldNEQ(FieldCreatorID, v))
 }
 
 // CreatorIDIn applies the In predicate on the "creator_id" field.
-func CreatorIDIn(vs ...string) predicate.Course {
+func CreatorIDIn(vs ...uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldIn(FieldCreatorID, vs...))
 }
 
 // CreatorIDNotIn applies the NotIn predicate on the "creator_id" field.
-func CreatorIDNotIn(vs ...string) predicate.Course {
+func CreatorIDNotIn(vs ...uuid.UUID) predicate.Course {
 	return predicate.Course(sql.FieldNotIn(FieldCreatorID, vs...))
-}
-
-// CreatorIDGT applies the GT predicate on the "creator_id" field.
-func CreatorIDGT(v string) predicate.Course {
-	return predicate.Course(sql.FieldGT(FieldCreatorID, v))
-}
-
-// CreatorIDGTE applies the GTE predicate on the "creator_id" field.
-func CreatorIDGTE(v string) predicate.Course {
-	return predicate.Course(sql.FieldGTE(FieldCreatorID, v))
-}
-
-// CreatorIDLT applies the LT predicate on the "creator_id" field.
-func CreatorIDLT(v string) predicate.Course {
-	return predicate.Course(sql.FieldLT(FieldCreatorID, v))
-}
-
-// CreatorIDLTE applies the LTE predicate on the "creator_id" field.
-func CreatorIDLTE(v string) predicate.Course {
-	return predicate.Course(sql.FieldLTE(FieldCreatorID, v))
-}
-
-// CreatorIDContains applies the Contains predicate on the "creator_id" field.
-func CreatorIDContains(v string) predicate.Course {
-	return predicate.Course(sql.FieldContains(FieldCreatorID, v))
-}
-
-// CreatorIDHasPrefix applies the HasPrefix predicate on the "creator_id" field.
-func CreatorIDHasPrefix(v string) predicate.Course {
-	return predicate.Course(sql.FieldHasPrefix(FieldCreatorID, v))
-}
-
-// CreatorIDHasSuffix applies the HasSuffix predicate on the "creator_id" field.
-func CreatorIDHasSuffix(v string) predicate.Course {
-	return predicate.Course(sql.FieldHasSuffix(FieldCreatorID, v))
-}
-
-// CreatorIDEqualFold applies the EqualFold predicate on the "creator_id" field.
-func CreatorIDEqualFold(v string) predicate.Course {
-	return predicate.Course(sql.FieldEqualFold(FieldCreatorID, v))
-}
-
-// CreatorIDContainsFold applies the ContainsFold predicate on the "creator_id" field.
-func CreatorIDContainsFold(v string) predicate.Course {
-	return predicate.Course(sql.FieldContainsFold(FieldCreatorID, v))
 }
 
 // IsPublishedEQ applies the EQ predicate on the "is_published" field.

@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // MediaQuery is the builder for querying Media entities.
@@ -178,8 +179,8 @@ func (mq *MediaQuery) FirstX(ctx context.Context) *Media {
 
 // FirstID returns the first Media ID from the query.
 // Returns a *NotFoundError when no Media ID was found.
-func (mq *MediaQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (mq *MediaQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = mq.Limit(1).IDs(setContextOp(ctx, mq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -191,7 +192,7 @@ func (mq *MediaQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (mq *MediaQuery) FirstIDX(ctx context.Context) string {
+func (mq *MediaQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := mq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -229,8 +230,8 @@ func (mq *MediaQuery) OnlyX(ctx context.Context) *Media {
 // OnlyID is like Only, but returns the only Media ID in the query.
 // Returns a *NotSingularError when more than one Media ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (mq *MediaQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (mq *MediaQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = mq.Limit(2).IDs(setContextOp(ctx, mq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -246,7 +247,7 @@ func (mq *MediaQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (mq *MediaQuery) OnlyIDX(ctx context.Context) string {
+func (mq *MediaQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := mq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -274,7 +275,7 @@ func (mq *MediaQuery) AllX(ctx context.Context) []*Media {
 }
 
 // IDs executes the query and returns a list of Media IDs.
-func (mq *MediaQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (mq *MediaQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if mq.ctx.Unique == nil && mq.path != nil {
 		mq.Unique(true)
 	}
@@ -286,7 +287,7 @@ func (mq *MediaQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (mq *MediaQuery) IDsX(ctx context.Context) []string {
+func (mq *MediaQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := mq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -535,7 +536,7 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 
 func (mq *MediaQuery) loadUserMedia(ctx context.Context, query *UserQuery, nodes []*Media, init func(*Media), assign func(*Media, *User)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Media)
+	nodeids := make(map[uuid.UUID]*Media)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -564,8 +565,8 @@ func (mq *MediaQuery) loadUserMedia(ctx context.Context, query *UserQuery, nodes
 	return nil
 }
 func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Media, init func(*Media), assign func(*Media, *User)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Media)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Media)
 	for i := range nodes {
 		fk := nodes[i].UploaderID
 		if _, ok := nodeids[fk]; !ok {
@@ -594,7 +595,7 @@ func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*M
 }
 func (mq *MediaQuery) loadCourseMedia(ctx context.Context, query *CourseQuery, nodes []*Media, init func(*Media), assign func(*Media, *Course)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Media)
+	nodeids := make(map[uuid.UUID]*Media)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -624,7 +625,7 @@ func (mq *MediaQuery) loadCourseMedia(ctx context.Context, query *CourseQuery, n
 }
 func (mq *MediaQuery) loadVideoMedia(ctx context.Context, query *VideoQuery, nodes []*Media, init func(*Media), assign func(*Media, *Video)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Media)
+	nodeids := make(map[uuid.UUID]*Media)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -663,7 +664,7 @@ func (mq *MediaQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (mq *MediaQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(media.Table, media.Columns, sqlgraph.NewFieldSpec(media.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(media.Table, media.Columns, sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID))
 	_spec.From = mq.sql
 	if unique := mq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

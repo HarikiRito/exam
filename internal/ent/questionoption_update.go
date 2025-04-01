@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionOptionUpdate is the builder for updating QuestionOption entities.
@@ -70,15 +71,15 @@ func (qou *QuestionOptionUpdate) ClearDeletedAt() *QuestionOptionUpdate {
 }
 
 // SetQuestionID sets the "question_id" field.
-func (qou *QuestionOptionUpdate) SetQuestionID(s string) *QuestionOptionUpdate {
-	qou.mutation.SetQuestionID(s)
+func (qou *QuestionOptionUpdate) SetQuestionID(u uuid.UUID) *QuestionOptionUpdate {
+	qou.mutation.SetQuestionID(u)
 	return qou
 }
 
 // SetNillableQuestionID sets the "question_id" field if the given value is not nil.
-func (qou *QuestionOptionUpdate) SetNillableQuestionID(s *string) *QuestionOptionUpdate {
-	if s != nil {
-		qou.SetQuestionID(*s)
+func (qou *QuestionOptionUpdate) SetNillableQuestionID(u *uuid.UUID) *QuestionOptionUpdate {
+	if u != nil {
+		qou.SetQuestionID(*u)
 	}
 	return qou
 }
@@ -129,9 +130,7 @@ func (qou *QuestionOptionUpdate) ClearQuestion() *QuestionOptionUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (qou *QuestionOptionUpdate) Save(ctx context.Context) (int, error) {
-	if err := qou.defaults(); err != nil {
-		return 0, err
-	}
+	qou.defaults()
 	return withHooks(ctx, qou.sqlSave, qou.mutation, qou.hooks)
 }
 
@@ -158,24 +157,15 @@ func (qou *QuestionOptionUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qou *QuestionOptionUpdate) defaults() error {
+func (qou *QuestionOptionUpdate) defaults() {
 	if _, ok := qou.mutation.UpdatedAt(); !ok {
-		if questionoption.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized questionoption.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := questionoption.UpdateDefaultUpdatedAt()
 		qou.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (qou *QuestionOptionUpdate) check() error {
-	if v, ok := qou.mutation.QuestionID(); ok {
-		if err := questionoption.QuestionIDValidator(v); err != nil {
-			return &ValidationError{Name: "question_id", err: fmt.Errorf(`ent: validator failed for field "QuestionOption.question_id": %w`, err)}
-		}
-	}
 	if v, ok := qou.mutation.OptionText(); ok {
 		if err := questionoption.OptionTextValidator(v); err != nil {
 			return &ValidationError{Name: "option_text", err: fmt.Errorf(`ent: validator failed for field "QuestionOption.option_text": %w`, err)}
@@ -191,7 +181,7 @@ func (qou *QuestionOptionUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if err := qou.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(questionoption.Table, questionoption.Columns, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(questionoption.Table, questionoption.Columns, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID))
 	if ps := qou.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -225,7 +215,7 @@ func (qou *QuestionOptionUpdate) sqlSave(ctx context.Context) (n int, err error)
 			Columns: []string{questionoption.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -238,7 +228,7 @@ func (qou *QuestionOptionUpdate) sqlSave(ctx context.Context) (n int, err error)
 			Columns: []string{questionoption.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -307,15 +297,15 @@ func (qouo *QuestionOptionUpdateOne) ClearDeletedAt() *QuestionOptionUpdateOne {
 }
 
 // SetQuestionID sets the "question_id" field.
-func (qouo *QuestionOptionUpdateOne) SetQuestionID(s string) *QuestionOptionUpdateOne {
-	qouo.mutation.SetQuestionID(s)
+func (qouo *QuestionOptionUpdateOne) SetQuestionID(u uuid.UUID) *QuestionOptionUpdateOne {
+	qouo.mutation.SetQuestionID(u)
 	return qouo
 }
 
 // SetNillableQuestionID sets the "question_id" field if the given value is not nil.
-func (qouo *QuestionOptionUpdateOne) SetNillableQuestionID(s *string) *QuestionOptionUpdateOne {
-	if s != nil {
-		qouo.SetQuestionID(*s)
+func (qouo *QuestionOptionUpdateOne) SetNillableQuestionID(u *uuid.UUID) *QuestionOptionUpdateOne {
+	if u != nil {
+		qouo.SetQuestionID(*u)
 	}
 	return qouo
 }
@@ -379,9 +369,7 @@ func (qouo *QuestionOptionUpdateOne) Select(field string, fields ...string) *Que
 
 // Save executes the query and returns the updated QuestionOption entity.
 func (qouo *QuestionOptionUpdateOne) Save(ctx context.Context) (*QuestionOption, error) {
-	if err := qouo.defaults(); err != nil {
-		return nil, err
-	}
+	qouo.defaults()
 	return withHooks(ctx, qouo.sqlSave, qouo.mutation, qouo.hooks)
 }
 
@@ -408,24 +396,15 @@ func (qouo *QuestionOptionUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qouo *QuestionOptionUpdateOne) defaults() error {
+func (qouo *QuestionOptionUpdateOne) defaults() {
 	if _, ok := qouo.mutation.UpdatedAt(); !ok {
-		if questionoption.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized questionoption.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := questionoption.UpdateDefaultUpdatedAt()
 		qouo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (qouo *QuestionOptionUpdateOne) check() error {
-	if v, ok := qouo.mutation.QuestionID(); ok {
-		if err := questionoption.QuestionIDValidator(v); err != nil {
-			return &ValidationError{Name: "question_id", err: fmt.Errorf(`ent: validator failed for field "QuestionOption.question_id": %w`, err)}
-		}
-	}
 	if v, ok := qouo.mutation.OptionText(); ok {
 		if err := questionoption.OptionTextValidator(v); err != nil {
 			return &ValidationError{Name: "option_text", err: fmt.Errorf(`ent: validator failed for field "QuestionOption.option_text": %w`, err)}
@@ -441,7 +420,7 @@ func (qouo *QuestionOptionUpdateOne) sqlSave(ctx context.Context) (_node *Questi
 	if err := qouo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(questionoption.Table, questionoption.Columns, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(questionoption.Table, questionoption.Columns, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID))
 	id, ok := qouo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "QuestionOption.id" for update`)}
@@ -492,7 +471,7 @@ func (qouo *QuestionOptionUpdateOne) sqlSave(ctx context.Context) (_node *Questi
 			Columns: []string{questionoption.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -505,7 +484,7 @@ func (qouo *QuestionOptionUpdateOne) sqlSave(ctx context.Context) (_node *Questi
 			Columns: []string{questionoption.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionUpdate is the builder for updating Question entities.
@@ -72,15 +73,15 @@ func (qu *QuestionUpdate) ClearDeletedAt() *QuestionUpdate {
 }
 
 // SetSectionID sets the "section_id" field.
-func (qu *QuestionUpdate) SetSectionID(s string) *QuestionUpdate {
-	qu.mutation.SetSectionID(s)
+func (qu *QuestionUpdate) SetSectionID(u uuid.UUID) *QuestionUpdate {
+	qu.mutation.SetSectionID(u)
 	return qu
 }
 
 // SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (qu *QuestionUpdate) SetNillableSectionID(s *string) *QuestionUpdate {
-	if s != nil {
-		qu.SetSectionID(*s)
+func (qu *QuestionUpdate) SetNillableSectionID(u *uuid.UUID) *QuestionUpdate {
+	if u != nil {
+		qu.SetSectionID(*u)
 	}
 	return qu
 }
@@ -105,14 +106,14 @@ func (qu *QuestionUpdate) SetSection(c *CourseSection) *QuestionUpdate {
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by IDs.
-func (qu *QuestionUpdate) AddQuestionOptionIDs(ids ...string) *QuestionUpdate {
+func (qu *QuestionUpdate) AddQuestionOptionIDs(ids ...uuid.UUID) *QuestionUpdate {
 	qu.mutation.AddQuestionOptionIDs(ids...)
 	return qu
 }
 
 // AddQuestionOptions adds the "question_options" edges to the QuestionOption entity.
 func (qu *QuestionUpdate) AddQuestionOptions(q ...*QuestionOption) *QuestionUpdate {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -120,14 +121,14 @@ func (qu *QuestionUpdate) AddQuestionOptions(q ...*QuestionOption) *QuestionUpda
 }
 
 // AddVideoQuestionTimestampsQuestionIDs adds the "video_question_timestamps_question" edge to the VideoQuestionTimestamp entity by IDs.
-func (qu *QuestionUpdate) AddVideoQuestionTimestampsQuestionIDs(ids ...string) *QuestionUpdate {
+func (qu *QuestionUpdate) AddVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) *QuestionUpdate {
 	qu.mutation.AddVideoQuestionTimestampsQuestionIDs(ids...)
 	return qu
 }
 
 // AddVideoQuestionTimestampsQuestion adds the "video_question_timestamps_question" edges to the VideoQuestionTimestamp entity.
 func (qu *QuestionUpdate) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestionTimestamp) *QuestionUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -152,14 +153,14 @@ func (qu *QuestionUpdate) ClearQuestionOptions() *QuestionUpdate {
 }
 
 // RemoveQuestionOptionIDs removes the "question_options" edge to QuestionOption entities by IDs.
-func (qu *QuestionUpdate) RemoveQuestionOptionIDs(ids ...string) *QuestionUpdate {
+func (qu *QuestionUpdate) RemoveQuestionOptionIDs(ids ...uuid.UUID) *QuestionUpdate {
 	qu.mutation.RemoveQuestionOptionIDs(ids...)
 	return qu
 }
 
 // RemoveQuestionOptions removes "question_options" edges to QuestionOption entities.
 func (qu *QuestionUpdate) RemoveQuestionOptions(q ...*QuestionOption) *QuestionUpdate {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -173,14 +174,14 @@ func (qu *QuestionUpdate) ClearVideoQuestionTimestampsQuestion() *QuestionUpdate
 }
 
 // RemoveVideoQuestionTimestampsQuestionIDs removes the "video_question_timestamps_question" edge to VideoQuestionTimestamp entities by IDs.
-func (qu *QuestionUpdate) RemoveVideoQuestionTimestampsQuestionIDs(ids ...string) *QuestionUpdate {
+func (qu *QuestionUpdate) RemoveVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) *QuestionUpdate {
 	qu.mutation.RemoveVideoQuestionTimestampsQuestionIDs(ids...)
 	return qu
 }
 
 // RemoveVideoQuestionTimestampsQuestion removes "video_question_timestamps_question" edges to VideoQuestionTimestamp entities.
 func (qu *QuestionUpdate) RemoveVideoQuestionTimestampsQuestion(v ...*VideoQuestionTimestamp) *QuestionUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -189,9 +190,7 @@ func (qu *QuestionUpdate) RemoveVideoQuestionTimestampsQuestion(v ...*VideoQuest
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (qu *QuestionUpdate) Save(ctx context.Context) (int, error) {
-	if err := qu.defaults(); err != nil {
-		return 0, err
-	}
+	qu.defaults()
 	return withHooks(ctx, qu.sqlSave, qu.mutation, qu.hooks)
 }
 
@@ -218,24 +217,15 @@ func (qu *QuestionUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qu *QuestionUpdate) defaults() error {
+func (qu *QuestionUpdate) defaults() {
 	if _, ok := qu.mutation.UpdatedAt(); !ok {
-		if question.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized question.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := question.UpdateDefaultUpdatedAt()
 		qu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (qu *QuestionUpdate) check() error {
-	if v, ok := qu.mutation.SectionID(); ok {
-		if err := question.SectionIDValidator(v); err != nil {
-			return &ValidationError{Name: "section_id", err: fmt.Errorf(`ent: validator failed for field "Question.section_id": %w`, err)}
-		}
-	}
 	if v, ok := qu.mutation.QuestionText(); ok {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
@@ -251,7 +241,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := qu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(question.Table, question.Columns, sqlgraph.NewFieldSpec(question.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(question.Table, question.Columns, sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID))
 	if ps := qu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -282,7 +272,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.SectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -295,7 +285,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.SectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -311,7 +301,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -324,7 +314,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -340,7 +330,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -356,7 +346,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -369,7 +359,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -385,7 +375,7 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -454,15 +444,15 @@ func (quo *QuestionUpdateOne) ClearDeletedAt() *QuestionUpdateOne {
 }
 
 // SetSectionID sets the "section_id" field.
-func (quo *QuestionUpdateOne) SetSectionID(s string) *QuestionUpdateOne {
-	quo.mutation.SetSectionID(s)
+func (quo *QuestionUpdateOne) SetSectionID(u uuid.UUID) *QuestionUpdateOne {
+	quo.mutation.SetSectionID(u)
 	return quo
 }
 
 // SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (quo *QuestionUpdateOne) SetNillableSectionID(s *string) *QuestionUpdateOne {
-	if s != nil {
-		quo.SetSectionID(*s)
+func (quo *QuestionUpdateOne) SetNillableSectionID(u *uuid.UUID) *QuestionUpdateOne {
+	if u != nil {
+		quo.SetSectionID(*u)
 	}
 	return quo
 }
@@ -487,14 +477,14 @@ func (quo *QuestionUpdateOne) SetSection(c *CourseSection) *QuestionUpdateOne {
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by IDs.
-func (quo *QuestionUpdateOne) AddQuestionOptionIDs(ids ...string) *QuestionUpdateOne {
+func (quo *QuestionUpdateOne) AddQuestionOptionIDs(ids ...uuid.UUID) *QuestionUpdateOne {
 	quo.mutation.AddQuestionOptionIDs(ids...)
 	return quo
 }
 
 // AddQuestionOptions adds the "question_options" edges to the QuestionOption entity.
 func (quo *QuestionUpdateOne) AddQuestionOptions(q ...*QuestionOption) *QuestionUpdateOne {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -502,14 +492,14 @@ func (quo *QuestionUpdateOne) AddQuestionOptions(q ...*QuestionOption) *Question
 }
 
 // AddVideoQuestionTimestampsQuestionIDs adds the "video_question_timestamps_question" edge to the VideoQuestionTimestamp entity by IDs.
-func (quo *QuestionUpdateOne) AddVideoQuestionTimestampsQuestionIDs(ids ...string) *QuestionUpdateOne {
+func (quo *QuestionUpdateOne) AddVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) *QuestionUpdateOne {
 	quo.mutation.AddVideoQuestionTimestampsQuestionIDs(ids...)
 	return quo
 }
 
 // AddVideoQuestionTimestampsQuestion adds the "video_question_timestamps_question" edges to the VideoQuestionTimestamp entity.
 func (quo *QuestionUpdateOne) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestionTimestamp) *QuestionUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -534,14 +524,14 @@ func (quo *QuestionUpdateOne) ClearQuestionOptions() *QuestionUpdateOne {
 }
 
 // RemoveQuestionOptionIDs removes the "question_options" edge to QuestionOption entities by IDs.
-func (quo *QuestionUpdateOne) RemoveQuestionOptionIDs(ids ...string) *QuestionUpdateOne {
+func (quo *QuestionUpdateOne) RemoveQuestionOptionIDs(ids ...uuid.UUID) *QuestionUpdateOne {
 	quo.mutation.RemoveQuestionOptionIDs(ids...)
 	return quo
 }
 
 // RemoveQuestionOptions removes "question_options" edges to QuestionOption entities.
 func (quo *QuestionUpdateOne) RemoveQuestionOptions(q ...*QuestionOption) *QuestionUpdateOne {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -555,14 +545,14 @@ func (quo *QuestionUpdateOne) ClearVideoQuestionTimestampsQuestion() *QuestionUp
 }
 
 // RemoveVideoQuestionTimestampsQuestionIDs removes the "video_question_timestamps_question" edge to VideoQuestionTimestamp entities by IDs.
-func (quo *QuestionUpdateOne) RemoveVideoQuestionTimestampsQuestionIDs(ids ...string) *QuestionUpdateOne {
+func (quo *QuestionUpdateOne) RemoveVideoQuestionTimestampsQuestionIDs(ids ...uuid.UUID) *QuestionUpdateOne {
 	quo.mutation.RemoveVideoQuestionTimestampsQuestionIDs(ids...)
 	return quo
 }
 
 // RemoveVideoQuestionTimestampsQuestion removes "video_question_timestamps_question" edges to VideoQuestionTimestamp entities.
 func (quo *QuestionUpdateOne) RemoveVideoQuestionTimestampsQuestion(v ...*VideoQuestionTimestamp) *QuestionUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -584,9 +574,7 @@ func (quo *QuestionUpdateOne) Select(field string, fields ...string) *QuestionUp
 
 // Save executes the query and returns the updated Question entity.
 func (quo *QuestionUpdateOne) Save(ctx context.Context) (*Question, error) {
-	if err := quo.defaults(); err != nil {
-		return nil, err
-	}
+	quo.defaults()
 	return withHooks(ctx, quo.sqlSave, quo.mutation, quo.hooks)
 }
 
@@ -613,24 +601,15 @@ func (quo *QuestionUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (quo *QuestionUpdateOne) defaults() error {
+func (quo *QuestionUpdateOne) defaults() {
 	if _, ok := quo.mutation.UpdatedAt(); !ok {
-		if question.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized question.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := question.UpdateDefaultUpdatedAt()
 		quo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (quo *QuestionUpdateOne) check() error {
-	if v, ok := quo.mutation.SectionID(); ok {
-		if err := question.SectionIDValidator(v); err != nil {
-			return &ValidationError{Name: "section_id", err: fmt.Errorf(`ent: validator failed for field "Question.section_id": %w`, err)}
-		}
-	}
 	if v, ok := quo.mutation.QuestionText(); ok {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
@@ -646,7 +625,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 	if err := quo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(question.Table, question.Columns, sqlgraph.NewFieldSpec(question.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(question.Table, question.Columns, sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID))
 	id, ok := quo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Question.id" for update`)}
@@ -694,7 +673,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.SectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -707,7 +686,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.SectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -723,7 +702,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -736,7 +715,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -752,7 +731,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.QuestionOptionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -768,7 +747,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -781,7 +760,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -797,7 +776,7 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 			Columns: []string{question.VideoQuestionTimestampsQuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

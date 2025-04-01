@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoQuestionTimestampQuery is the builder for querying VideoQuestionTimestamp entities.
@@ -130,8 +131,8 @@ func (vqtq *VideoQuestionTimestampQuery) FirstX(ctx context.Context) *VideoQuest
 
 // FirstID returns the first VideoQuestionTimestamp ID from the query.
 // Returns a *NotFoundError when no VideoQuestionTimestamp ID was found.
-func (vqtq *VideoQuestionTimestampQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (vqtq *VideoQuestionTimestampQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = vqtq.Limit(1).IDs(setContextOp(ctx, vqtq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -143,7 +144,7 @@ func (vqtq *VideoQuestionTimestampQuery) FirstID(ctx context.Context) (id string
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (vqtq *VideoQuestionTimestampQuery) FirstIDX(ctx context.Context) string {
+func (vqtq *VideoQuestionTimestampQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := vqtq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -181,8 +182,8 @@ func (vqtq *VideoQuestionTimestampQuery) OnlyX(ctx context.Context) *VideoQuesti
 // OnlyID is like Only, but returns the only VideoQuestionTimestamp ID in the query.
 // Returns a *NotSingularError when more than one VideoQuestionTimestamp ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (vqtq *VideoQuestionTimestampQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (vqtq *VideoQuestionTimestampQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = vqtq.Limit(2).IDs(setContextOp(ctx, vqtq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -198,7 +199,7 @@ func (vqtq *VideoQuestionTimestampQuery) OnlyID(ctx context.Context) (id string,
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (vqtq *VideoQuestionTimestampQuery) OnlyIDX(ctx context.Context) string {
+func (vqtq *VideoQuestionTimestampQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := vqtq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -226,7 +227,7 @@ func (vqtq *VideoQuestionTimestampQuery) AllX(ctx context.Context) []*VideoQuest
 }
 
 // IDs executes the query and returns a list of VideoQuestionTimestamp IDs.
-func (vqtq *VideoQuestionTimestampQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (vqtq *VideoQuestionTimestampQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if vqtq.ctx.Unique == nil && vqtq.path != nil {
 		vqtq.Unique(true)
 	}
@@ -238,7 +239,7 @@ func (vqtq *VideoQuestionTimestampQuery) IDs(ctx context.Context) (ids []string,
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (vqtq *VideoQuestionTimestampQuery) IDsX(ctx context.Context) []string {
+func (vqtq *VideoQuestionTimestampQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := vqtq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -445,8 +446,8 @@ func (vqtq *VideoQuestionTimestampQuery) sqlAll(ctx context.Context, hooks ...qu
 }
 
 func (vqtq *VideoQuestionTimestampQuery) loadVideo(ctx context.Context, query *VideoQuery, nodes []*VideoQuestionTimestamp, init func(*VideoQuestionTimestamp), assign func(*VideoQuestionTimestamp, *Video)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*VideoQuestionTimestamp)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*VideoQuestionTimestamp)
 	for i := range nodes {
 		fk := nodes[i].VideoID
 		if _, ok := nodeids[fk]; !ok {
@@ -474,8 +475,8 @@ func (vqtq *VideoQuestionTimestampQuery) loadVideo(ctx context.Context, query *V
 	return nil
 }
 func (vqtq *VideoQuestionTimestampQuery) loadQuestion(ctx context.Context, query *QuestionQuery, nodes []*VideoQuestionTimestamp, init func(*VideoQuestionTimestamp), assign func(*VideoQuestionTimestamp, *Question)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*VideoQuestionTimestamp)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*VideoQuestionTimestamp)
 	for i := range nodes {
 		fk := nodes[i].QuestionID
 		if _, ok := nodeids[fk]; !ok {
@@ -513,7 +514,7 @@ func (vqtq *VideoQuestionTimestampQuery) sqlCount(ctx context.Context) (int, err
 }
 
 func (vqtq *VideoQuestionTimestampQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(videoquestiontimestamp.Table, videoquestiontimestamp.Columns, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(videoquestiontimestamp.Table, videoquestiontimestamp.Columns, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID))
 	_spec.From = vqtq.sql
 	if unique := vqtq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

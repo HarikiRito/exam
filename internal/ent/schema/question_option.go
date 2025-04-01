@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionOption holds the schema definition for the QuestionOption entity.
@@ -16,7 +17,7 @@ type QuestionOption struct {
 // Fields of the QuestionOption.
 func (QuestionOption) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("question_id").NotEmpty(),
+		field.UUID("question_id", uuid.UUID{}),
 		field.Text("option_text").NotEmpty(),
 		field.Bool("is_correct").Default(false),
 	}
@@ -37,4 +38,4 @@ func (QuestionOption) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

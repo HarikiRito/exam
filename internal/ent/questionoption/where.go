@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.QuestionOption {
+func ID(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.QuestionOption {
+func IDEQ(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.QuestionOption {
+func IDNEQ(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.QuestionOption {
+func IDIn(ids ...uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.QuestionOption {
+func IDNotIn(ids ...uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.QuestionOption {
+func IDGT(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.QuestionOption {
+func IDGTE(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.QuestionOption {
+func IDLT(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.QuestionOption {
+func IDLTE(id uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -81,7 +72,7 @@ func DeletedAt(v time.Time) predicate.QuestionOption {
 }
 
 // QuestionID applies equality check predicate on the "question_id" field. It's identical to QuestionIDEQ.
-func QuestionID(v string) predicate.QuestionOption {
+func QuestionID(v uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldEQ(FieldQuestionID, v))
 }
 
@@ -226,68 +217,23 @@ func DeletedAtNotNil() predicate.QuestionOption {
 }
 
 // QuestionIDEQ applies the EQ predicate on the "question_id" field.
-func QuestionIDEQ(v string) predicate.QuestionOption {
+func QuestionIDEQ(v uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldEQ(FieldQuestionID, v))
 }
 
 // QuestionIDNEQ applies the NEQ predicate on the "question_id" field.
-func QuestionIDNEQ(v string) predicate.QuestionOption {
+func QuestionIDNEQ(v uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldNEQ(FieldQuestionID, v))
 }
 
 // QuestionIDIn applies the In predicate on the "question_id" field.
-func QuestionIDIn(vs ...string) predicate.QuestionOption {
+func QuestionIDIn(vs ...uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldIn(FieldQuestionID, vs...))
 }
 
 // QuestionIDNotIn applies the NotIn predicate on the "question_id" field.
-func QuestionIDNotIn(vs ...string) predicate.QuestionOption {
+func QuestionIDNotIn(vs ...uuid.UUID) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.FieldNotIn(FieldQuestionID, vs...))
-}
-
-// QuestionIDGT applies the GT predicate on the "question_id" field.
-func QuestionIDGT(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldGT(FieldQuestionID, v))
-}
-
-// QuestionIDGTE applies the GTE predicate on the "question_id" field.
-func QuestionIDGTE(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldGTE(FieldQuestionID, v))
-}
-
-// QuestionIDLT applies the LT predicate on the "question_id" field.
-func QuestionIDLT(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldLT(FieldQuestionID, v))
-}
-
-// QuestionIDLTE applies the LTE predicate on the "question_id" field.
-func QuestionIDLTE(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldLTE(FieldQuestionID, v))
-}
-
-// QuestionIDContains applies the Contains predicate on the "question_id" field.
-func QuestionIDContains(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldContains(FieldQuestionID, v))
-}
-
-// QuestionIDHasPrefix applies the HasPrefix predicate on the "question_id" field.
-func QuestionIDHasPrefix(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldHasPrefix(FieldQuestionID, v))
-}
-
-// QuestionIDHasSuffix applies the HasSuffix predicate on the "question_id" field.
-func QuestionIDHasSuffix(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldHasSuffix(FieldQuestionID, v))
-}
-
-// QuestionIDEqualFold applies the EqualFold predicate on the "question_id" field.
-func QuestionIDEqualFold(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldEqualFold(FieldQuestionID, v))
-}
-
-// QuestionIDContainsFold applies the ContainsFold predicate on the "question_id" field.
-func QuestionIDContainsFold(v string) predicate.QuestionOption {
-	return predicate.QuestionOption(sql.FieldContainsFold(FieldQuestionID, v))
 }
 
 // OptionTextEQ applies the EQ predicate on the "option_text" field.

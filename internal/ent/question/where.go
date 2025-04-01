@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Question {
+func ID(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Question {
+func IDEQ(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Question {
+func IDNEQ(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Question {
+func IDIn(ids ...uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Question {
+func IDNotIn(ids ...uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Question {
+func IDGT(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Question {
+func IDGTE(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Question {
+func IDLT(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Question {
+func IDLTE(id uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Question {
-	return predicate.Question(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Question {
-	return predicate.Question(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -81,7 +72,7 @@ func DeletedAt(v time.Time) predicate.Question {
 }
 
 // SectionID applies equality check predicate on the "section_id" field. It's identical to SectionIDEQ.
-func SectionID(v string) predicate.Question {
+func SectionID(v uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldSectionID, v))
 }
 
@@ -221,68 +212,23 @@ func DeletedAtNotNil() predicate.Question {
 }
 
 // SectionIDEQ applies the EQ predicate on the "section_id" field.
-func SectionIDEQ(v string) predicate.Question {
+func SectionIDEQ(v uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldSectionID, v))
 }
 
 // SectionIDNEQ applies the NEQ predicate on the "section_id" field.
-func SectionIDNEQ(v string) predicate.Question {
+func SectionIDNEQ(v uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldNEQ(FieldSectionID, v))
 }
 
 // SectionIDIn applies the In predicate on the "section_id" field.
-func SectionIDIn(vs ...string) predicate.Question {
+func SectionIDIn(vs ...uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldIn(FieldSectionID, vs...))
 }
 
 // SectionIDNotIn applies the NotIn predicate on the "section_id" field.
-func SectionIDNotIn(vs ...string) predicate.Question {
+func SectionIDNotIn(vs ...uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldNotIn(FieldSectionID, vs...))
-}
-
-// SectionIDGT applies the GT predicate on the "section_id" field.
-func SectionIDGT(v string) predicate.Question {
-	return predicate.Question(sql.FieldGT(FieldSectionID, v))
-}
-
-// SectionIDGTE applies the GTE predicate on the "section_id" field.
-func SectionIDGTE(v string) predicate.Question {
-	return predicate.Question(sql.FieldGTE(FieldSectionID, v))
-}
-
-// SectionIDLT applies the LT predicate on the "section_id" field.
-func SectionIDLT(v string) predicate.Question {
-	return predicate.Question(sql.FieldLT(FieldSectionID, v))
-}
-
-// SectionIDLTE applies the LTE predicate on the "section_id" field.
-func SectionIDLTE(v string) predicate.Question {
-	return predicate.Question(sql.FieldLTE(FieldSectionID, v))
-}
-
-// SectionIDContains applies the Contains predicate on the "section_id" field.
-func SectionIDContains(v string) predicate.Question {
-	return predicate.Question(sql.FieldContains(FieldSectionID, v))
-}
-
-// SectionIDHasPrefix applies the HasPrefix predicate on the "section_id" field.
-func SectionIDHasPrefix(v string) predicate.Question {
-	return predicate.Question(sql.FieldHasPrefix(FieldSectionID, v))
-}
-
-// SectionIDHasSuffix applies the HasSuffix predicate on the "section_id" field.
-func SectionIDHasSuffix(v string) predicate.Question {
-	return predicate.Question(sql.FieldHasSuffix(FieldSectionID, v))
-}
-
-// SectionIDEqualFold applies the EqualFold predicate on the "section_id" field.
-func SectionIDEqualFold(v string) predicate.Question {
-	return predicate.Question(sql.FieldEqualFold(FieldSectionID, v))
-}
-
-// SectionIDContainsFold applies the ContainsFold predicate on the "section_id" field.
-func SectionIDContainsFold(v string) predicate.Question {
-	return predicate.Question(sql.FieldContainsFold(FieldSectionID, v))
 }
 
 // QuestionTextEQ applies the EQ predicate on the "question_text" field.

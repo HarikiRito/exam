@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // CourseSectionUpdate is the builder for updating CourseSection entities.
@@ -72,15 +73,15 @@ func (csu *CourseSectionUpdate) ClearDeletedAt() *CourseSectionUpdate {
 }
 
 // SetCourseID sets the "course_id" field.
-func (csu *CourseSectionUpdate) SetCourseID(s string) *CourseSectionUpdate {
-	csu.mutation.SetCourseID(s)
+func (csu *CourseSectionUpdate) SetCourseID(u uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.SetCourseID(u)
 	return csu
 }
 
 // SetNillableCourseID sets the "course_id" field if the given value is not nil.
-func (csu *CourseSectionUpdate) SetNillableCourseID(s *string) *CourseSectionUpdate {
-	if s != nil {
-		csu.SetCourseID(*s)
+func (csu *CourseSectionUpdate) SetNillableCourseID(u *uuid.UUID) *CourseSectionUpdate {
+	if u != nil {
+		csu.SetCourseID(*u)
 	}
 	return csu
 }
@@ -125,14 +126,14 @@ func (csu *CourseSectionUpdate) SetCourse(c *Course) *CourseSectionUpdate {
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
-func (csu *CourseSectionUpdate) AddCourseSectionVideoIDs(ids ...string) *CourseSectionUpdate {
+func (csu *CourseSectionUpdate) AddCourseSectionVideoIDs(ids ...uuid.UUID) *CourseSectionUpdate {
 	csu.mutation.AddCourseSectionVideoIDs(ids...)
 	return csu
 }
 
 // AddCourseSectionVideos adds the "course_section_videos" edges to the Video entity.
 func (csu *CourseSectionUpdate) AddCourseSectionVideos(v ...*Video) *CourseSectionUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -140,14 +141,14 @@ func (csu *CourseSectionUpdate) AddCourseSectionVideos(v ...*Video) *CourseSecti
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (csu *CourseSectionUpdate) AddQuestionIDs(ids ...string) *CourseSectionUpdate {
+func (csu *CourseSectionUpdate) AddQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdate {
 	csu.mutation.AddQuestionIDs(ids...)
 	return csu
 }
 
 // AddQuestions adds the "questions" edges to the Question entity.
 func (csu *CourseSectionUpdate) AddQuestions(q ...*Question) *CourseSectionUpdate {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -172,14 +173,14 @@ func (csu *CourseSectionUpdate) ClearCourseSectionVideos() *CourseSectionUpdate 
 }
 
 // RemoveCourseSectionVideoIDs removes the "course_section_videos" edge to Video entities by IDs.
-func (csu *CourseSectionUpdate) RemoveCourseSectionVideoIDs(ids ...string) *CourseSectionUpdate {
+func (csu *CourseSectionUpdate) RemoveCourseSectionVideoIDs(ids ...uuid.UUID) *CourseSectionUpdate {
 	csu.mutation.RemoveCourseSectionVideoIDs(ids...)
 	return csu
 }
 
 // RemoveCourseSectionVideos removes "course_section_videos" edges to Video entities.
 func (csu *CourseSectionUpdate) RemoveCourseSectionVideos(v ...*Video) *CourseSectionUpdate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -193,14 +194,14 @@ func (csu *CourseSectionUpdate) ClearQuestions() *CourseSectionUpdate {
 }
 
 // RemoveQuestionIDs removes the "questions" edge to Question entities by IDs.
-func (csu *CourseSectionUpdate) RemoveQuestionIDs(ids ...string) *CourseSectionUpdate {
+func (csu *CourseSectionUpdate) RemoveQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdate {
 	csu.mutation.RemoveQuestionIDs(ids...)
 	return csu
 }
 
 // RemoveQuestions removes "questions" edges to Question entities.
 func (csu *CourseSectionUpdate) RemoveQuestions(q ...*Question) *CourseSectionUpdate {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -209,9 +210,7 @@ func (csu *CourseSectionUpdate) RemoveQuestions(q ...*Question) *CourseSectionUp
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (csu *CourseSectionUpdate) Save(ctx context.Context) (int, error) {
-	if err := csu.defaults(); err != nil {
-		return 0, err
-	}
+	csu.defaults()
 	return withHooks(ctx, csu.sqlSave, csu.mutation, csu.hooks)
 }
 
@@ -238,24 +237,15 @@ func (csu *CourseSectionUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (csu *CourseSectionUpdate) defaults() error {
+func (csu *CourseSectionUpdate) defaults() {
 	if _, ok := csu.mutation.UpdatedAt(); !ok {
-		if coursesection.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized coursesection.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := coursesection.UpdateDefaultUpdatedAt()
 		csu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (csu *CourseSectionUpdate) check() error {
-	if v, ok := csu.mutation.CourseID(); ok {
-		if err := coursesection.CourseIDValidator(v); err != nil {
-			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "CourseSection.course_id": %w`, err)}
-		}
-	}
 	if v, ok := csu.mutation.Title(); ok {
 		if err := coursesection.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "CourseSection.title": %w`, err)}
@@ -271,7 +261,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	if err := csu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(coursesection.Table, coursesection.Columns, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(coursesection.Table, coursesection.Columns, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID))
 	if ps := csu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -308,7 +298,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -321,7 +311,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -337,7 +327,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -350,7 +340,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -366,7 +356,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -382,7 +372,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -395,7 +385,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -411,7 +401,7 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -480,15 +470,15 @@ func (csuo *CourseSectionUpdateOne) ClearDeletedAt() *CourseSectionUpdateOne {
 }
 
 // SetCourseID sets the "course_id" field.
-func (csuo *CourseSectionUpdateOne) SetCourseID(s string) *CourseSectionUpdateOne {
-	csuo.mutation.SetCourseID(s)
+func (csuo *CourseSectionUpdateOne) SetCourseID(u uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.SetCourseID(u)
 	return csuo
 }
 
 // SetNillableCourseID sets the "course_id" field if the given value is not nil.
-func (csuo *CourseSectionUpdateOne) SetNillableCourseID(s *string) *CourseSectionUpdateOne {
-	if s != nil {
-		csuo.SetCourseID(*s)
+func (csuo *CourseSectionUpdateOne) SetNillableCourseID(u *uuid.UUID) *CourseSectionUpdateOne {
+	if u != nil {
+		csuo.SetCourseID(*u)
 	}
 	return csuo
 }
@@ -533,14 +523,14 @@ func (csuo *CourseSectionUpdateOne) SetCourse(c *Course) *CourseSectionUpdateOne
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
-func (csuo *CourseSectionUpdateOne) AddCourseSectionVideoIDs(ids ...string) *CourseSectionUpdateOne {
+func (csuo *CourseSectionUpdateOne) AddCourseSectionVideoIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
 	csuo.mutation.AddCourseSectionVideoIDs(ids...)
 	return csuo
 }
 
 // AddCourseSectionVideos adds the "course_section_videos" edges to the Video entity.
 func (csuo *CourseSectionUpdateOne) AddCourseSectionVideos(v ...*Video) *CourseSectionUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -548,14 +538,14 @@ func (csuo *CourseSectionUpdateOne) AddCourseSectionVideos(v ...*Video) *CourseS
 }
 
 // AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (csuo *CourseSectionUpdateOne) AddQuestionIDs(ids ...string) *CourseSectionUpdateOne {
+func (csuo *CourseSectionUpdateOne) AddQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
 	csuo.mutation.AddQuestionIDs(ids...)
 	return csuo
 }
 
 // AddQuestions adds the "questions" edges to the Question entity.
 func (csuo *CourseSectionUpdateOne) AddQuestions(q ...*Question) *CourseSectionUpdateOne {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -580,14 +570,14 @@ func (csuo *CourseSectionUpdateOne) ClearCourseSectionVideos() *CourseSectionUpd
 }
 
 // RemoveCourseSectionVideoIDs removes the "course_section_videos" edge to Video entities by IDs.
-func (csuo *CourseSectionUpdateOne) RemoveCourseSectionVideoIDs(ids ...string) *CourseSectionUpdateOne {
+func (csuo *CourseSectionUpdateOne) RemoveCourseSectionVideoIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
 	csuo.mutation.RemoveCourseSectionVideoIDs(ids...)
 	return csuo
 }
 
 // RemoveCourseSectionVideos removes "course_section_videos" edges to Video entities.
 func (csuo *CourseSectionUpdateOne) RemoveCourseSectionVideos(v ...*Video) *CourseSectionUpdateOne {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -601,14 +591,14 @@ func (csuo *CourseSectionUpdateOne) ClearQuestions() *CourseSectionUpdateOne {
 }
 
 // RemoveQuestionIDs removes the "questions" edge to Question entities by IDs.
-func (csuo *CourseSectionUpdateOne) RemoveQuestionIDs(ids ...string) *CourseSectionUpdateOne {
+func (csuo *CourseSectionUpdateOne) RemoveQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
 	csuo.mutation.RemoveQuestionIDs(ids...)
 	return csuo
 }
 
 // RemoveQuestions removes "questions" edges to Question entities.
 func (csuo *CourseSectionUpdateOne) RemoveQuestions(q ...*Question) *CourseSectionUpdateOne {
-	ids := make([]string, len(q))
+	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
@@ -630,9 +620,7 @@ func (csuo *CourseSectionUpdateOne) Select(field string, fields ...string) *Cour
 
 // Save executes the query and returns the updated CourseSection entity.
 func (csuo *CourseSectionUpdateOne) Save(ctx context.Context) (*CourseSection, error) {
-	if err := csuo.defaults(); err != nil {
-		return nil, err
-	}
+	csuo.defaults()
 	return withHooks(ctx, csuo.sqlSave, csuo.mutation, csuo.hooks)
 }
 
@@ -659,24 +647,15 @@ func (csuo *CourseSectionUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (csuo *CourseSectionUpdateOne) defaults() error {
+func (csuo *CourseSectionUpdateOne) defaults() {
 	if _, ok := csuo.mutation.UpdatedAt(); !ok {
-		if coursesection.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized coursesection.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := coursesection.UpdateDefaultUpdatedAt()
 		csuo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (csuo *CourseSectionUpdateOne) check() error {
-	if v, ok := csuo.mutation.CourseID(); ok {
-		if err := coursesection.CourseIDValidator(v); err != nil {
-			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "CourseSection.course_id": %w`, err)}
-		}
-	}
 	if v, ok := csuo.mutation.Title(); ok {
 		if err := coursesection.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "CourseSection.title": %w`, err)}
@@ -692,7 +671,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 	if err := csuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(coursesection.Table, coursesection.Columns, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(coursesection.Table, coursesection.Columns, sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID))
 	id, ok := csuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "CourseSection.id" for update`)}
@@ -746,7 +725,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -759,7 +738,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -775,7 +754,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -788,7 +767,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -804,7 +783,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.CourseSectionVideosColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -820,7 +799,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -833,7 +812,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -849,7 +828,7 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Columns: []string{coursesection.QuestionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

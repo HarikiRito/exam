@@ -40,7 +40,7 @@ func (qod *QuestionOptionDelete) ExecX(ctx context.Context) int {
 }
 
 func (qod *QuestionOptionDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(questionoption.Table, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString))
+	_spec := sqlgraph.NewDeleteSpec(questionoption.Table, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID))
 	if ps := qod.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

@@ -11,13 +11,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // CourseSection is the model entity for the CourseSection schema.
 type CourseSection struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -25,7 +26,7 @@ type CourseSection struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// CourseID holds the value of the "course_id" field.
-	CourseID string `json:"course_id,omitempty"`
+	CourseID uuid.UUID `json:"course_id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
@@ -83,10 +84,12 @@ func (*CourseSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case coursesection.FieldID, coursesection.FieldCourseID, coursesection.FieldTitle, coursesection.FieldDescription:
+		case coursesection.FieldTitle, coursesection.FieldDescription:
 			values[i] = new(sql.NullString)
 		case coursesection.FieldCreatedAt, coursesection.FieldUpdatedAt, coursesection.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case coursesection.FieldID, coursesection.FieldCourseID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -103,10 +106,10 @@ func (cs *CourseSection) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case coursesection.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				cs.ID = value.String
+			} else if value != nil {
+				cs.ID = *value
 			}
 		case coursesection.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -128,10 +131,10 @@ func (cs *CourseSection) assignValues(columns []string, values []any) error {
 				*cs.DeletedAt = value.Time
 			}
 		case coursesection.FieldCourseID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field course_id", values[i])
-			} else if value.Valid {
-				cs.CourseID = value.String
+			} else if value != nil {
+				cs.CourseID = *value
 			}
 		case coursesection.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -208,7 +211,7 @@ func (cs *CourseSection) String() string {
 	}
 	builder.WriteString(", ")
 	builder.WriteString("course_id=")
-	builder.WriteString(cs.CourseID)
+	builder.WriteString(fmt.Sprintf("%v", cs.CourseID))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(cs.Title)

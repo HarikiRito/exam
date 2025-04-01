@@ -12,13 +12,14 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Course is the model entity for the Course schema.
 type Course struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -30,9 +31,9 @@ type Course struct {
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
 	// MediaID holds the value of the "media_id" field.
-	MediaID string `json:"media_id,omitempty"`
+	MediaID uuid.UUID `json:"media_id,omitempty"`
 	// CreatorID holds the value of the "creator_id" field.
-	CreatorID string `json:"creator_id,omitempty"`
+	CreatorID uuid.UUID `json:"creator_id,omitempty"`
 	// IsPublished holds the value of the "is_published" field.
 	IsPublished bool `json:"is_published,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -103,10 +104,12 @@ func (*Course) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case course.FieldIsPublished:
 			values[i] = new(sql.NullBool)
-		case course.FieldID, course.FieldTitle, course.FieldDescription, course.FieldMediaID, course.FieldCreatorID:
+		case course.FieldTitle, course.FieldDescription:
 			values[i] = new(sql.NullString)
 		case course.FieldCreatedAt, course.FieldUpdatedAt, course.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case course.FieldID, course.FieldMediaID, course.FieldCreatorID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -123,10 +126,10 @@ func (c *Course) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case course.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				c.ID = value.String
+			} else if value != nil {
+				c.ID = *value
 			}
 		case course.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -160,16 +163,16 @@ func (c *Course) assignValues(columns []string, values []any) error {
 				c.Description = value.String
 			}
 		case course.FieldMediaID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field media_id", values[i])
-			} else if value.Valid {
-				c.MediaID = value.String
+			} else if value != nil {
+				c.MediaID = *value
 			}
 		case course.FieldCreatorID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field creator_id", values[i])
-			} else if value.Valid {
-				c.CreatorID = value.String
+			} else if value != nil {
+				c.CreatorID = *value
 			}
 		case course.FieldIsPublished:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -251,10 +254,10 @@ func (c *Course) String() string {
 	builder.WriteString(c.Description)
 	builder.WriteString(", ")
 	builder.WriteString("media_id=")
-	builder.WriteString(c.MediaID)
+	builder.WriteString(fmt.Sprintf("%v", c.MediaID))
 	builder.WriteString(", ")
 	builder.WriteString("creator_id=")
-	builder.WriteString(c.CreatorID)
+	builder.WriteString(fmt.Sprintf("%v", c.CreatorID))
 	builder.WriteString(", ")
 	builder.WriteString("is_published=")
 	builder.WriteString(fmt.Sprintf("%v", c.IsPublished))

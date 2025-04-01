@@ -40,7 +40,7 @@ func (vd *VideoDelete) ExecX(ctx context.Context) int {
 }
 
 func (vd *VideoDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(video.Table, sqlgraph.NewFieldSpec(video.FieldID, field.TypeString))
+	_spec := sqlgraph.NewDeleteSpec(video.Table, sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID))
 	if ps := vd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

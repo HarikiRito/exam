@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionOptionQuery is the builder for querying QuestionOption entities.
@@ -106,8 +107,8 @@ func (qoq *QuestionOptionQuery) FirstX(ctx context.Context) *QuestionOption {
 
 // FirstID returns the first QuestionOption ID from the query.
 // Returns a *NotFoundError when no QuestionOption ID was found.
-func (qoq *QuestionOptionQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (qoq *QuestionOptionQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = qoq.Limit(1).IDs(setContextOp(ctx, qoq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -119,7 +120,7 @@ func (qoq *QuestionOptionQuery) FirstID(ctx context.Context) (id string, err err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (qoq *QuestionOptionQuery) FirstIDX(ctx context.Context) string {
+func (qoq *QuestionOptionQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := qoq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +158,8 @@ func (qoq *QuestionOptionQuery) OnlyX(ctx context.Context) *QuestionOption {
 // OnlyID is like Only, but returns the only QuestionOption ID in the query.
 // Returns a *NotSingularError when more than one QuestionOption ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (qoq *QuestionOptionQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (qoq *QuestionOptionQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = qoq.Limit(2).IDs(setContextOp(ctx, qoq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -174,7 +175,7 @@ func (qoq *QuestionOptionQuery) OnlyID(ctx context.Context) (id string, err erro
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (qoq *QuestionOptionQuery) OnlyIDX(ctx context.Context) string {
+func (qoq *QuestionOptionQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := qoq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +203,7 @@ func (qoq *QuestionOptionQuery) AllX(ctx context.Context) []*QuestionOption {
 }
 
 // IDs executes the query and returns a list of QuestionOption IDs.
-func (qoq *QuestionOptionQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (qoq *QuestionOptionQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if qoq.ctx.Unique == nil && qoq.path != nil {
 		qoq.Unique(true)
 	}
@@ -214,7 +215,7 @@ func (qoq *QuestionOptionQuery) IDs(ctx context.Context) (ids []string, err erro
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (qoq *QuestionOptionQuery) IDsX(ctx context.Context) []string {
+func (qoq *QuestionOptionQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := qoq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -402,8 +403,8 @@ func (qoq *QuestionOptionQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 }
 
 func (qoq *QuestionOptionQuery) loadQuestion(ctx context.Context, query *QuestionQuery, nodes []*QuestionOption, init func(*QuestionOption), assign func(*QuestionOption, *Question)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*QuestionOption)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*QuestionOption)
 	for i := range nodes {
 		fk := nodes[i].QuestionID
 		if _, ok := nodeids[fk]; !ok {
@@ -441,7 +442,7 @@ func (qoq *QuestionOptionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (qoq *QuestionOptionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(questionoption.Table, questionoption.Columns, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(questionoption.Table, questionoption.Columns, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID))
 	_spec.From = qoq.sql
 	if unique := qoq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

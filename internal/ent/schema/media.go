@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Media holds the schema definition for the Media entity.
@@ -19,7 +20,7 @@ func (Media) Fields() []ent.Field {
 		field.String("file_name").NotEmpty(),
 		field.String("file_url").NotEmpty(),
 		field.String("mime_type").NotEmpty(),
-		field.String("uploader_id").Optional(),
+		field.UUID("uploader_id", uuid.UUID{}).Optional(),
 		field.JSON("metadata", map[string]interface{}{}).Optional().Comment("Additional metadata for the file"),
 	}
 }

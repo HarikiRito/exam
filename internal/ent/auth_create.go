@@ -12,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // AuthCreate is the builder for creating a Auth entity.
@@ -64,8 +65,8 @@ func (ac *AuthCreate) SetNillableDeletedAt(t *time.Time) *AuthCreate {
 }
 
 // SetUserID sets the "user_id" field.
-func (ac *AuthCreate) SetUserID(s string) *AuthCreate {
-	ac.mutation.SetUserID(s)
+func (ac *AuthCreate) SetUserID(u uuid.UUID) *AuthCreate {
+	ac.mutation.SetUserID(u)
 	return ac
 }
 
@@ -108,8 +109,16 @@ func (ac *AuthCreate) SetNillableIsRevoked(b *bool) *AuthCreate {
 }
 
 // SetID sets the "id" field.
-func (ac *AuthCreate) SetID(s string) *AuthCreate {
-	ac.mutation.SetID(s)
+func (ac *AuthCreate) SetID(u uuid.UUID) *AuthCreate {
+	ac.mutation.SetID(u)
+	return ac
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (ac *AuthCreate) SetNillableID(u *uuid.UUID) *AuthCreate {
+	if u != nil {
+		ac.SetID(*u)
+	}
 	return ac
 }
 
@@ -125,9 +134,7 @@ func (ac *AuthCreate) Mutation() *AuthMutation {
 
 // Save creates the Auth in the database.
 func (ac *AuthCreate) Save(ctx context.Context) (*Auth, error) {
-	if err := ac.defaults(); err != nil {
-		return nil, err
-	}
+	ac.defaults()
 	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
 }
 
@@ -154,18 +161,12 @@ func (ac *AuthCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (ac *AuthCreate) defaults() error {
+func (ac *AuthCreate) defaults() {
 	if _, ok := ac.mutation.CreatedAt(); !ok {
-		if auth.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized auth.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := auth.DefaultCreatedAt()
 		ac.mutation.SetCreatedAt(v)
 	}
 	if _, ok := ac.mutation.UpdatedAt(); !ok {
-		if auth.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized auth.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := auth.DefaultUpdatedAt()
 		ac.mutation.SetUpdatedAt(v)
 	}
@@ -173,7 +174,10 @@ func (ac *AuthCreate) defaults() error {
 		v := auth.DefaultIsRevoked
 		ac.mutation.SetIsRevoked(v)
 	}
-	return nil
+	if _, ok := ac.mutation.ID(); !ok {
+		v := auth.DefaultID()
+		ac.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -186,11 +190,6 @@ func (ac *AuthCreate) check() error {
 	}
 	if _, ok := ac.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Auth.user_id"`)}
-	}
-	if v, ok := ac.mutation.UserID(); ok {
-		if err := auth.UserIDValidator(v); err != nil {
-			return &ValidationError{Name: "user_id", err: fmt.Errorf(`ent: validator failed for field "Auth.user_id": %w`, err)}
-		}
 	}
 	if _, ok := ac.mutation.AccessToken(); !ok {
 		return &ValidationError{Name: "access_token", err: errors.New(`ent: missing required field "Auth.access_token"`)}
@@ -235,10 +234,10 @@ func (ac *AuthCreate) sqlSave(ctx context.Context) (*Auth, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Auth.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	ac.mutation.id = &_node.ID
@@ -249,11 +248,11 @@ func (ac *AuthCreate) sqlSave(ctx context.Context) (*Auth, error) {
 func (ac *AuthCreate) createSpec() (*Auth, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Auth{config: ac.config}
-		_spec = sqlgraph.NewCreateSpec(auth.Table, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(auth.Table, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeUUID))
 	)
 	if id, ok := ac.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := ac.mutation.CreatedAt(); ok {
 		_spec.SetField(auth.FieldCreatedAt, field.TypeTime, value)
@@ -295,7 +294,7 @@ func (ac *AuthCreate) createSpec() (*Auth, *sqlgraph.CreateSpec) {
 			Columns: []string{auth.UserColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

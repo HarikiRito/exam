@@ -15,6 +15,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoCreate is the builder for creating a Video entity.
@@ -67,8 +68,8 @@ func (vc *VideoCreate) SetNillableDeletedAt(t *time.Time) *VideoCreate {
 }
 
 // SetSectionID sets the "section_id" field.
-func (vc *VideoCreate) SetSectionID(s string) *VideoCreate {
-	vc.mutation.SetSectionID(s)
+func (vc *VideoCreate) SetSectionID(u uuid.UUID) *VideoCreate {
+	vc.mutation.SetSectionID(u)
 	return vc
 }
 
@@ -93,14 +94,14 @@ func (vc *VideoCreate) SetNillableDescription(s *string) *VideoCreate {
 }
 
 // SetMediaID sets the "media_id" field.
-func (vc *VideoCreate) SetMediaID(s string) *VideoCreate {
-	vc.mutation.SetMediaID(s)
+func (vc *VideoCreate) SetMediaID(u uuid.UUID) *VideoCreate {
+	vc.mutation.SetMediaID(u)
 	return vc
 }
 
 // SetCourseID sets the "course_id" field.
-func (vc *VideoCreate) SetCourseID(s string) *VideoCreate {
-	vc.mutation.SetCourseID(s)
+func (vc *VideoCreate) SetCourseID(u uuid.UUID) *VideoCreate {
+	vc.mutation.SetCourseID(u)
 	return vc
 }
 
@@ -119,13 +120,21 @@ func (vc *VideoCreate) SetNillableDuration(i *int) *VideoCreate {
 }
 
 // SetID sets the "id" field.
-func (vc *VideoCreate) SetID(s string) *VideoCreate {
-	vc.mutation.SetID(s)
+func (vc *VideoCreate) SetID(u uuid.UUID) *VideoCreate {
+	vc.mutation.SetID(u)
+	return vc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (vc *VideoCreate) SetNillableID(u *uuid.UUID) *VideoCreate {
+	if u != nil {
+		vc.SetID(*u)
+	}
 	return vc
 }
 
 // SetCourseSectionID sets the "course_section" edge to the CourseSection entity by ID.
-func (vc *VideoCreate) SetCourseSectionID(id string) *VideoCreate {
+func (vc *VideoCreate) SetCourseSectionID(id uuid.UUID) *VideoCreate {
 	vc.mutation.SetCourseSectionID(id)
 	return vc
 }
@@ -146,14 +155,14 @@ func (vc *VideoCreate) SetCourse(c *Course) *VideoCreate {
 }
 
 // AddVideoQuestionTimestampsVideoIDs adds the "video_question_timestamps_video" edge to the VideoQuestionTimestamp entity by IDs.
-func (vc *VideoCreate) AddVideoQuestionTimestampsVideoIDs(ids ...string) *VideoCreate {
+func (vc *VideoCreate) AddVideoQuestionTimestampsVideoIDs(ids ...uuid.UUID) *VideoCreate {
 	vc.mutation.AddVideoQuestionTimestampsVideoIDs(ids...)
 	return vc
 }
 
 // AddVideoQuestionTimestampsVideo adds the "video_question_timestamps_video" edges to the VideoQuestionTimestamp entity.
 func (vc *VideoCreate) AddVideoQuestionTimestampsVideo(v ...*VideoQuestionTimestamp) *VideoCreate {
-	ids := make([]string, len(v))
+	ids := make([]uuid.UUID, len(v))
 	for i := range v {
 		ids[i] = v[i].ID
 	}
@@ -167,9 +176,7 @@ func (vc *VideoCreate) Mutation() *VideoMutation {
 
 // Save creates the Video in the database.
 func (vc *VideoCreate) Save(ctx context.Context) (*Video, error) {
-	if err := vc.defaults(); err != nil {
-		return nil, err
-	}
+	vc.defaults()
 	return withHooks(ctx, vc.sqlSave, vc.mutation, vc.hooks)
 }
 
@@ -196,22 +203,19 @@ func (vc *VideoCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vc *VideoCreate) defaults() error {
+func (vc *VideoCreate) defaults() {
 	if _, ok := vc.mutation.CreatedAt(); !ok {
-		if video.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized video.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := video.DefaultCreatedAt()
 		vc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := vc.mutation.UpdatedAt(); !ok {
-		if video.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized video.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := video.DefaultUpdatedAt()
 		vc.mutation.SetUpdatedAt(v)
 	}
-	return nil
+	if _, ok := vc.mutation.ID(); !ok {
+		v := video.DefaultID()
+		vc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -225,11 +229,6 @@ func (vc *VideoCreate) check() error {
 	if _, ok := vc.mutation.SectionID(); !ok {
 		return &ValidationError{Name: "section_id", err: errors.New(`ent: missing required field "Video.section_id"`)}
 	}
-	if v, ok := vc.mutation.SectionID(); ok {
-		if err := video.SectionIDValidator(v); err != nil {
-			return &ValidationError{Name: "section_id", err: fmt.Errorf(`ent: validator failed for field "Video.section_id": %w`, err)}
-		}
-	}
 	if _, ok := vc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Video.title"`)}
 	}
@@ -241,18 +240,8 @@ func (vc *VideoCreate) check() error {
 	if _, ok := vc.mutation.MediaID(); !ok {
 		return &ValidationError{Name: "media_id", err: errors.New(`ent: missing required field "Video.media_id"`)}
 	}
-	if v, ok := vc.mutation.MediaID(); ok {
-		if err := video.MediaIDValidator(v); err != nil {
-			return &ValidationError{Name: "media_id", err: fmt.Errorf(`ent: validator failed for field "Video.media_id": %w`, err)}
-		}
-	}
 	if _, ok := vc.mutation.CourseID(); !ok {
 		return &ValidationError{Name: "course_id", err: errors.New(`ent: missing required field "Video.course_id"`)}
-	}
-	if v, ok := vc.mutation.CourseID(); ok {
-		if err := video.CourseIDValidator(v); err != nil {
-			return &ValidationError{Name: "course_id", err: fmt.Errorf(`ent: validator failed for field "Video.course_id": %w`, err)}
-		}
 	}
 	if len(vc.mutation.CourseSectionIDs()) == 0 {
 		return &ValidationError{Name: "course_section", err: errors.New(`ent: missing required edge "Video.course_section"`)}
@@ -278,10 +267,10 @@ func (vc *VideoCreate) sqlSave(ctx context.Context) (*Video, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Video.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	vc.mutation.id = &_node.ID
@@ -292,11 +281,11 @@ func (vc *VideoCreate) sqlSave(ctx context.Context) (*Video, error) {
 func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Video{config: vc.config}
-		_spec = sqlgraph.NewCreateSpec(video.Table, sqlgraph.NewFieldSpec(video.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(video.Table, sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID))
 	)
 	if id, ok := vc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := vc.mutation.CreatedAt(); ok {
 		_spec.SetField(video.FieldCreatedAt, field.TypeTime, value)
@@ -330,7 +319,7 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 			Columns: []string{video.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -347,7 +336,7 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 			Columns: []string{video.MediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -364,7 +353,7 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 			Columns: []string{video.CourseColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -381,7 +370,7 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 			Columns: []string{video.VideoQuestionTimestampsVideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

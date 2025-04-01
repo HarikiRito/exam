@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoQuestionTimestampUpdate is the builder for updating VideoQuestionTimestamp entities.
@@ -71,29 +72,29 @@ func (vqtu *VideoQuestionTimestampUpdate) ClearDeletedAt() *VideoQuestionTimesta
 }
 
 // SetVideoID sets the "video_id" field.
-func (vqtu *VideoQuestionTimestampUpdate) SetVideoID(s string) *VideoQuestionTimestampUpdate {
-	vqtu.mutation.SetVideoID(s)
+func (vqtu *VideoQuestionTimestampUpdate) SetVideoID(u uuid.UUID) *VideoQuestionTimestampUpdate {
+	vqtu.mutation.SetVideoID(u)
 	return vqtu
 }
 
 // SetNillableVideoID sets the "video_id" field if the given value is not nil.
-func (vqtu *VideoQuestionTimestampUpdate) SetNillableVideoID(s *string) *VideoQuestionTimestampUpdate {
-	if s != nil {
-		vqtu.SetVideoID(*s)
+func (vqtu *VideoQuestionTimestampUpdate) SetNillableVideoID(u *uuid.UUID) *VideoQuestionTimestampUpdate {
+	if u != nil {
+		vqtu.SetVideoID(*u)
 	}
 	return vqtu
 }
 
 // SetQuestionID sets the "question_id" field.
-func (vqtu *VideoQuestionTimestampUpdate) SetQuestionID(s string) *VideoQuestionTimestampUpdate {
-	vqtu.mutation.SetQuestionID(s)
+func (vqtu *VideoQuestionTimestampUpdate) SetQuestionID(u uuid.UUID) *VideoQuestionTimestampUpdate {
+	vqtu.mutation.SetQuestionID(u)
 	return vqtu
 }
 
 // SetNillableQuestionID sets the "question_id" field if the given value is not nil.
-func (vqtu *VideoQuestionTimestampUpdate) SetNillableQuestionID(s *string) *VideoQuestionTimestampUpdate {
-	if s != nil {
-		vqtu.SetQuestionID(*s)
+func (vqtu *VideoQuestionTimestampUpdate) SetNillableQuestionID(u *uuid.UUID) *VideoQuestionTimestampUpdate {
+	if u != nil {
+		vqtu.SetQuestionID(*u)
 	}
 	return vqtu
 }
@@ -148,9 +149,7 @@ func (vqtu *VideoQuestionTimestampUpdate) ClearQuestion() *VideoQuestionTimestam
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (vqtu *VideoQuestionTimestampUpdate) Save(ctx context.Context) (int, error) {
-	if err := vqtu.defaults(); err != nil {
-		return 0, err
-	}
+	vqtu.defaults()
 	return withHooks(ctx, vqtu.sqlSave, vqtu.mutation, vqtu.hooks)
 }
 
@@ -177,29 +176,15 @@ func (vqtu *VideoQuestionTimestampUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vqtu *VideoQuestionTimestampUpdate) defaults() error {
+func (vqtu *VideoQuestionTimestampUpdate) defaults() {
 	if _, ok := vqtu.mutation.UpdatedAt(); !ok {
-		if videoquestiontimestamp.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := videoquestiontimestamp.UpdateDefaultUpdatedAt()
 		vqtu.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (vqtu *VideoQuestionTimestampUpdate) check() error {
-	if v, ok := vqtu.mutation.VideoID(); ok {
-		if err := videoquestiontimestamp.VideoIDValidator(v); err != nil {
-			return &ValidationError{Name: "video_id", err: fmt.Errorf(`ent: validator failed for field "VideoQuestionTimestamp.video_id": %w`, err)}
-		}
-	}
-	if v, ok := vqtu.mutation.QuestionID(); ok {
-		if err := videoquestiontimestamp.QuestionIDValidator(v); err != nil {
-			return &ValidationError{Name: "question_id", err: fmt.Errorf(`ent: validator failed for field "VideoQuestionTimestamp.question_id": %w`, err)}
-		}
-	}
 	if vqtu.mutation.VideoCleared() && len(vqtu.mutation.VideoIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "VideoQuestionTimestamp.video"`)
 	}
@@ -213,7 +198,7 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 	if err := vqtu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(videoquestiontimestamp.Table, videoquestiontimestamp.Columns, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(videoquestiontimestamp.Table, videoquestiontimestamp.Columns, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID))
 	if ps := vqtu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -247,7 +232,7 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 			Columns: []string{videoquestiontimestamp.VideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -260,7 +245,7 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 			Columns: []string{videoquestiontimestamp.VideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -276,7 +261,7 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 			Columns: []string{videoquestiontimestamp.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -289,7 +274,7 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 			Columns: []string{videoquestiontimestamp.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -358,29 +343,29 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) ClearDeletedAt() *VideoQuestionTim
 }
 
 // SetVideoID sets the "video_id" field.
-func (vqtuo *VideoQuestionTimestampUpdateOne) SetVideoID(s string) *VideoQuestionTimestampUpdateOne {
-	vqtuo.mutation.SetVideoID(s)
+func (vqtuo *VideoQuestionTimestampUpdateOne) SetVideoID(u uuid.UUID) *VideoQuestionTimestampUpdateOne {
+	vqtuo.mutation.SetVideoID(u)
 	return vqtuo
 }
 
 // SetNillableVideoID sets the "video_id" field if the given value is not nil.
-func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableVideoID(s *string) *VideoQuestionTimestampUpdateOne {
-	if s != nil {
-		vqtuo.SetVideoID(*s)
+func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableVideoID(u *uuid.UUID) *VideoQuestionTimestampUpdateOne {
+	if u != nil {
+		vqtuo.SetVideoID(*u)
 	}
 	return vqtuo
 }
 
 // SetQuestionID sets the "question_id" field.
-func (vqtuo *VideoQuestionTimestampUpdateOne) SetQuestionID(s string) *VideoQuestionTimestampUpdateOne {
-	vqtuo.mutation.SetQuestionID(s)
+func (vqtuo *VideoQuestionTimestampUpdateOne) SetQuestionID(u uuid.UUID) *VideoQuestionTimestampUpdateOne {
+	vqtuo.mutation.SetQuestionID(u)
 	return vqtuo
 }
 
 // SetNillableQuestionID sets the "question_id" field if the given value is not nil.
-func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableQuestionID(s *string) *VideoQuestionTimestampUpdateOne {
-	if s != nil {
-		vqtuo.SetQuestionID(*s)
+func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableQuestionID(u *uuid.UUID) *VideoQuestionTimestampUpdateOne {
+	if u != nil {
+		vqtuo.SetQuestionID(*u)
 	}
 	return vqtuo
 }
@@ -448,9 +433,7 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) Select(field string, fields ...str
 
 // Save executes the query and returns the updated VideoQuestionTimestamp entity.
 func (vqtuo *VideoQuestionTimestampUpdateOne) Save(ctx context.Context) (*VideoQuestionTimestamp, error) {
-	if err := vqtuo.defaults(); err != nil {
-		return nil, err
-	}
+	vqtuo.defaults()
 	return withHooks(ctx, vqtuo.sqlSave, vqtuo.mutation, vqtuo.hooks)
 }
 
@@ -477,29 +460,15 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vqtuo *VideoQuestionTimestampUpdateOne) defaults() error {
+func (vqtuo *VideoQuestionTimestampUpdateOne) defaults() {
 	if _, ok := vqtuo.mutation.UpdatedAt(); !ok {
-		if videoquestiontimestamp.UpdateDefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := videoquestiontimestamp.UpdateDefaultUpdatedAt()
 		vqtuo.mutation.SetUpdatedAt(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (vqtuo *VideoQuestionTimestampUpdateOne) check() error {
-	if v, ok := vqtuo.mutation.VideoID(); ok {
-		if err := videoquestiontimestamp.VideoIDValidator(v); err != nil {
-			return &ValidationError{Name: "video_id", err: fmt.Errorf(`ent: validator failed for field "VideoQuestionTimestamp.video_id": %w`, err)}
-		}
-	}
-	if v, ok := vqtuo.mutation.QuestionID(); ok {
-		if err := videoquestiontimestamp.QuestionIDValidator(v); err != nil {
-			return &ValidationError{Name: "question_id", err: fmt.Errorf(`ent: validator failed for field "VideoQuestionTimestamp.question_id": %w`, err)}
-		}
-	}
 	if vqtuo.mutation.VideoCleared() && len(vqtuo.mutation.VideoIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "VideoQuestionTimestamp.video"`)
 	}
@@ -513,7 +482,7 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 	if err := vqtuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(videoquestiontimestamp.Table, videoquestiontimestamp.Columns, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(videoquestiontimestamp.Table, videoquestiontimestamp.Columns, sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID))
 	id, ok := vqtuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "VideoQuestionTimestamp.id" for update`)}
@@ -564,7 +533,7 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 			Columns: []string{videoquestiontimestamp.VideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -577,7 +546,7 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 			Columns: []string{videoquestiontimestamp.VideoColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -593,7 +562,7 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 			Columns: []string{videoquestiontimestamp.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -606,7 +575,7 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 			Columns: []string{videoquestiontimestamp.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

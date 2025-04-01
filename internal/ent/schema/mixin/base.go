@@ -1,8 +1,6 @@
 package mixin
 
 import (
-	"context"
-	"template/internal/ent/hook"
 	"template/internal/shared/utilities/id"
 	"time"
 
@@ -10,8 +8,8 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
+	"github.com/google/uuid"
 )
-
 
 type BaseMixin struct {
 	mixin.Schema
@@ -19,7 +17,7 @@ type BaseMixin struct {
 
 func (BaseMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").Unique(),
+		field.UUID("id", uuid.UUID{}).Default(id.NextUUIDv7).Unique(),
 		field.Time("created_at").
 			Default(time.Now).
 			SchemaType(map[string]string{
@@ -42,7 +40,7 @@ func (BaseMixin) Fields() []ent.Field {
 
 func (BaseMixin) Hooks() []ent.Hook {
 	return []ent.Hook{
-		UlidGenerator(),
+		// UUIDv7Generator(),
 	}
 }
 
@@ -50,15 +48,14 @@ type Common interface {
 	SetID(id string)
 }
 
-func UlidGenerator() ent.Hook {
-	return hook.On(func(next ent.Mutator) ent.Mutator {
-		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-			if s, ok := m.(Common); ok {
-				ID := id.NextId()
-				s.SetID(ID)
-			}
-			return next.Mutate(ctx, m)
-		})
-	}, ent.OpCreate)
-}
-
+// func UUIDv7Generator() ent.Hook {
+// 	return hook.On(func(next ent.Mutator) ent.Mutator {
+// 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+// 			if s, ok := m.(Common); ok {
+// 				ID := id.NextId()
+// 				s.SetID(ID)
+// 			}
+// 			return next.Mutate(ctx, m)
+// 		})
+// 	}, ent.OpCreate)
+// }

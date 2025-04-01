@@ -12,6 +12,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // QuestionOptionCreate is the builder for creating a QuestionOption entity.
@@ -64,8 +65,8 @@ func (qoc *QuestionOptionCreate) SetNillableDeletedAt(t *time.Time) *QuestionOpt
 }
 
 // SetQuestionID sets the "question_id" field.
-func (qoc *QuestionOptionCreate) SetQuestionID(s string) *QuestionOptionCreate {
-	qoc.mutation.SetQuestionID(s)
+func (qoc *QuestionOptionCreate) SetQuestionID(u uuid.UUID) *QuestionOptionCreate {
+	qoc.mutation.SetQuestionID(u)
 	return qoc
 }
 
@@ -90,8 +91,16 @@ func (qoc *QuestionOptionCreate) SetNillableIsCorrect(b *bool) *QuestionOptionCr
 }
 
 // SetID sets the "id" field.
-func (qoc *QuestionOptionCreate) SetID(s string) *QuestionOptionCreate {
-	qoc.mutation.SetID(s)
+func (qoc *QuestionOptionCreate) SetID(u uuid.UUID) *QuestionOptionCreate {
+	qoc.mutation.SetID(u)
+	return qoc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (qoc *QuestionOptionCreate) SetNillableID(u *uuid.UUID) *QuestionOptionCreate {
+	if u != nil {
+		qoc.SetID(*u)
+	}
 	return qoc
 }
 
@@ -107,9 +116,7 @@ func (qoc *QuestionOptionCreate) Mutation() *QuestionOptionMutation {
 
 // Save creates the QuestionOption in the database.
 func (qoc *QuestionOptionCreate) Save(ctx context.Context) (*QuestionOption, error) {
-	if err := qoc.defaults(); err != nil {
-		return nil, err
-	}
+	qoc.defaults()
 	return withHooks(ctx, qoc.sqlSave, qoc.mutation, qoc.hooks)
 }
 
@@ -136,18 +143,12 @@ func (qoc *QuestionOptionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qoc *QuestionOptionCreate) defaults() error {
+func (qoc *QuestionOptionCreate) defaults() {
 	if _, ok := qoc.mutation.CreatedAt(); !ok {
-		if questionoption.DefaultCreatedAt == nil {
-			return fmt.Errorf("ent: uninitialized questionoption.DefaultCreatedAt (forgotten import ent/runtime?)")
-		}
 		v := questionoption.DefaultCreatedAt()
 		qoc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := qoc.mutation.UpdatedAt(); !ok {
-		if questionoption.DefaultUpdatedAt == nil {
-			return fmt.Errorf("ent: uninitialized questionoption.DefaultUpdatedAt (forgotten import ent/runtime?)")
-		}
 		v := questionoption.DefaultUpdatedAt()
 		qoc.mutation.SetUpdatedAt(v)
 	}
@@ -155,7 +156,10 @@ func (qoc *QuestionOptionCreate) defaults() error {
 		v := questionoption.DefaultIsCorrect
 		qoc.mutation.SetIsCorrect(v)
 	}
-	return nil
+	if _, ok := qoc.mutation.ID(); !ok {
+		v := questionoption.DefaultID()
+		qoc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -168,11 +172,6 @@ func (qoc *QuestionOptionCreate) check() error {
 	}
 	if _, ok := qoc.mutation.QuestionID(); !ok {
 		return &ValidationError{Name: "question_id", err: errors.New(`ent: missing required field "QuestionOption.question_id"`)}
-	}
-	if v, ok := qoc.mutation.QuestionID(); ok {
-		if err := questionoption.QuestionIDValidator(v); err != nil {
-			return &ValidationError{Name: "question_id", err: fmt.Errorf(`ent: validator failed for field "QuestionOption.question_id": %w`, err)}
-		}
 	}
 	if _, ok := qoc.mutation.OptionText(); !ok {
 		return &ValidationError{Name: "option_text", err: errors.New(`ent: missing required field "QuestionOption.option_text"`)}
@@ -203,10 +202,10 @@ func (qoc *QuestionOptionCreate) sqlSave(ctx context.Context) (*QuestionOption, 
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected QuestionOption.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	qoc.mutation.id = &_node.ID
@@ -217,11 +216,11 @@ func (qoc *QuestionOptionCreate) sqlSave(ctx context.Context) (*QuestionOption, 
 func (qoc *QuestionOptionCreate) createSpec() (*QuestionOption, *sqlgraph.CreateSpec) {
 	var (
 		_node = &QuestionOption{config: qoc.config}
-		_spec = sqlgraph.NewCreateSpec(questionoption.Table, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(questionoption.Table, sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID))
 	)
 	if id, ok := qoc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := qoc.mutation.CreatedAt(); ok {
 		_spec.SetField(questionoption.FieldCreatedAt, field.TypeTime, value)
@@ -251,7 +250,7 @@ func (qoc *QuestionOptionCreate) createSpec() (*QuestionOption, *sqlgraph.Create
 			Columns: []string{questionoption.QuestionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

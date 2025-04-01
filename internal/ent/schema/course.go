@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // Course holds the schema definition for the Course entity.
@@ -19,8 +20,8 @@ func (Course) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title").NotEmpty(),
 		field.Text("description").Optional(),
-		field.String("media_id").Optional(),
-		field.String("creator_id").NotEmpty(),
+		field.UUID("media_id", uuid.UUID{}).Optional(),
+		field.UUID("creator_id", uuid.UUID{}),
 		field.Bool("is_published").Default(false),
 	}
 }
@@ -48,4 +49,4 @@ func (Course) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}

@@ -8,61 +8,52 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.VideoQuestionTimestamp {
+func ID(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.VideoQuestionTimestamp {
+func IDEQ(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.VideoQuestionTimestamp {
+func IDNEQ(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.VideoQuestionTimestamp {
+func IDIn(ids ...uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.VideoQuestionTimestamp {
+func IDNotIn(ids ...uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.VideoQuestionTimestamp {
+func IDGT(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.VideoQuestionTimestamp {
+func IDGTE(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.VideoQuestionTimestamp {
+func IDLT(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.VideoQuestionTimestamp {
+func IDLTE(id uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldLTE(FieldID, id))
-}
-
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
@@ -81,12 +72,12 @@ func DeletedAt(v time.Time) predicate.VideoQuestionTimestamp {
 }
 
 // VideoID applies equality check predicate on the "video_id" field. It's identical to VideoIDEQ.
-func VideoID(v string) predicate.VideoQuestionTimestamp {
+func VideoID(v uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldEQ(FieldVideoID, v))
 }
 
 // QuestionID applies equality check predicate on the "question_id" field. It's identical to QuestionIDEQ.
-func QuestionID(v string) predicate.VideoQuestionTimestamp {
+func QuestionID(v uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldEQ(FieldQuestionID, v))
 }
 
@@ -226,133 +217,43 @@ func DeletedAtNotNil() predicate.VideoQuestionTimestamp {
 }
 
 // VideoIDEQ applies the EQ predicate on the "video_id" field.
-func VideoIDEQ(v string) predicate.VideoQuestionTimestamp {
+func VideoIDEQ(v uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldEQ(FieldVideoID, v))
 }
 
 // VideoIDNEQ applies the NEQ predicate on the "video_id" field.
-func VideoIDNEQ(v string) predicate.VideoQuestionTimestamp {
+func VideoIDNEQ(v uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldNEQ(FieldVideoID, v))
 }
 
 // VideoIDIn applies the In predicate on the "video_id" field.
-func VideoIDIn(vs ...string) predicate.VideoQuestionTimestamp {
+func VideoIDIn(vs ...uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldIn(FieldVideoID, vs...))
 }
 
 // VideoIDNotIn applies the NotIn predicate on the "video_id" field.
-func VideoIDNotIn(vs ...string) predicate.VideoQuestionTimestamp {
+func VideoIDNotIn(vs ...uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldNotIn(FieldVideoID, vs...))
 }
 
-// VideoIDGT applies the GT predicate on the "video_id" field.
-func VideoIDGT(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldGT(FieldVideoID, v))
-}
-
-// VideoIDGTE applies the GTE predicate on the "video_id" field.
-func VideoIDGTE(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldGTE(FieldVideoID, v))
-}
-
-// VideoIDLT applies the LT predicate on the "video_id" field.
-func VideoIDLT(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldLT(FieldVideoID, v))
-}
-
-// VideoIDLTE applies the LTE predicate on the "video_id" field.
-func VideoIDLTE(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldLTE(FieldVideoID, v))
-}
-
-// VideoIDContains applies the Contains predicate on the "video_id" field.
-func VideoIDContains(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldContains(FieldVideoID, v))
-}
-
-// VideoIDHasPrefix applies the HasPrefix predicate on the "video_id" field.
-func VideoIDHasPrefix(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldHasPrefix(FieldVideoID, v))
-}
-
-// VideoIDHasSuffix applies the HasSuffix predicate on the "video_id" field.
-func VideoIDHasSuffix(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldHasSuffix(FieldVideoID, v))
-}
-
-// VideoIDEqualFold applies the EqualFold predicate on the "video_id" field.
-func VideoIDEqualFold(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldEqualFold(FieldVideoID, v))
-}
-
-// VideoIDContainsFold applies the ContainsFold predicate on the "video_id" field.
-func VideoIDContainsFold(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldContainsFold(FieldVideoID, v))
-}
-
 // QuestionIDEQ applies the EQ predicate on the "question_id" field.
-func QuestionIDEQ(v string) predicate.VideoQuestionTimestamp {
+func QuestionIDEQ(v uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldEQ(FieldQuestionID, v))
 }
 
 // QuestionIDNEQ applies the NEQ predicate on the "question_id" field.
-func QuestionIDNEQ(v string) predicate.VideoQuestionTimestamp {
+func QuestionIDNEQ(v uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldNEQ(FieldQuestionID, v))
 }
 
 // QuestionIDIn applies the In predicate on the "question_id" field.
-func QuestionIDIn(vs ...string) predicate.VideoQuestionTimestamp {
+func QuestionIDIn(vs ...uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldIn(FieldQuestionID, vs...))
 }
 
 // QuestionIDNotIn applies the NotIn predicate on the "question_id" field.
-func QuestionIDNotIn(vs ...string) predicate.VideoQuestionTimestamp {
+func QuestionIDNotIn(vs ...uuid.UUID) predicate.VideoQuestionTimestamp {
 	return predicate.VideoQuestionTimestamp(sql.FieldNotIn(FieldQuestionID, vs...))
-}
-
-// QuestionIDGT applies the GT predicate on the "question_id" field.
-func QuestionIDGT(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldGT(FieldQuestionID, v))
-}
-
-// QuestionIDGTE applies the GTE predicate on the "question_id" field.
-func QuestionIDGTE(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldGTE(FieldQuestionID, v))
-}
-
-// QuestionIDLT applies the LT predicate on the "question_id" field.
-func QuestionIDLT(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldLT(FieldQuestionID, v))
-}
-
-// QuestionIDLTE applies the LTE predicate on the "question_id" field.
-func QuestionIDLTE(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldLTE(FieldQuestionID, v))
-}
-
-// QuestionIDContains applies the Contains predicate on the "question_id" field.
-func QuestionIDContains(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldContains(FieldQuestionID, v))
-}
-
-// QuestionIDHasPrefix applies the HasPrefix predicate on the "question_id" field.
-func QuestionIDHasPrefix(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldHasPrefix(FieldQuestionID, v))
-}
-
-// QuestionIDHasSuffix applies the HasSuffix predicate on the "question_id" field.
-func QuestionIDHasSuffix(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldHasSuffix(FieldQuestionID, v))
-}
-
-// QuestionIDEqualFold applies the EqualFold predicate on the "question_id" field.
-func QuestionIDEqualFold(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldEqualFold(FieldQuestionID, v))
-}
-
-// QuestionIDContainsFold applies the ContainsFold predicate on the "question_id" field.
-func QuestionIDContainsFold(v string) predicate.VideoQuestionTimestamp {
-	return predicate.VideoQuestionTimestamp(sql.FieldContainsFold(FieldQuestionID, v))
 }
 
 // TimestampEQ applies the EQ predicate on the "timestamp" field.
