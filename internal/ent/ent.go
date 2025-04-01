@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+	"template/internal/ent/auth"
 	"template/internal/ent/media"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -75,6 +76,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			auth.Table:  auth.ValidColumn,
 			media.Table: media.ValidColumn,
 			todo.Table:  todo.ValidColumn,
 			user.Table:  user.ValidColumn,

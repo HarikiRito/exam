@@ -430,21 +430,21 @@ func MetadataNotNil() predicate.Media {
 	return predicate.Media(sql.FieldNotNull(FieldMetadata))
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.Media {
+// HasUserMedia applies the HasEdge predicate on the "user_media" edge.
+func HasUserMedia() predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserTable, UserColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserMediaTable, UserMediaColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.Media {
+// HasUserMediaWith applies the HasEdge predicate on the "user_media" edge with a given conditions (other predicates).
+func HasUserMediaWith(preds ...predicate.User) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
-		step := newUserStep()
+		step := newUserMediaStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

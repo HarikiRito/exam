@@ -8,6 +8,33 @@ import (
 )
 
 var (
+	// AuthsColumns holds the columns for the "auths" table.
+	AuthsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "access_token", Type: field.TypeString},
+		{Name: "refresh_token", Type: field.TypeString},
+		{Name: "access_token_expires_at", Type: field.TypeTime},
+		{Name: "refresh_token_expires_at", Type: field.TypeTime},
+		{Name: "is_revoked", Type: field.TypeBool, Default: false},
+		{Name: "user_id", Type: field.TypeString},
+	}
+	// AuthsTable holds the schema information for the "auths" table.
+	AuthsTable = &schema.Table{
+		Name:       "auths",
+		Columns:    AuthsColumns,
+		PrimaryKey: []*schema.Column{AuthsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "auths_users_auth_user",
+				Columns:    []*schema.Column{AuthsColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// MediaColumns holds the columns for the "media" table.
 	MediaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -61,7 +88,7 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_media_user",
+				Symbol:     "users_media_user_media",
 				Columns:    []*schema.Column{UsersColumns[10]},
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -70,6 +97,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AuthsTable,
 		MediaTable,
 		TodosTable,
 		UsersTable,
@@ -77,5 +105,6 @@ var (
 )
 
 func init() {
+	AuthsTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = MediaTable
 }

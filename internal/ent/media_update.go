@@ -123,19 +123,19 @@ func (mu *MediaUpdate) ClearMetadata() *MediaUpdate {
 	return mu
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
-func (mu *MediaUpdate) AddUserIDs(ids ...string) *MediaUpdate {
-	mu.mutation.AddUserIDs(ids...)
+// AddUserMediumIDs adds the "user_media" edge to the User entity by IDs.
+func (mu *MediaUpdate) AddUserMediumIDs(ids ...string) *MediaUpdate {
+	mu.mutation.AddUserMediumIDs(ids...)
 	return mu
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (mu *MediaUpdate) AddUser(u ...*User) *MediaUpdate {
+// AddUserMedia adds the "user_media" edges to the User entity.
+func (mu *MediaUpdate) AddUserMedia(u ...*User) *MediaUpdate {
 	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return mu.AddUserIDs(ids...)
+	return mu.AddUserMediumIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -143,25 +143,25 @@ func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
 }
 
-// ClearUser clears all "user" edges to the User entity.
-func (mu *MediaUpdate) ClearUser() *MediaUpdate {
-	mu.mutation.ClearUser()
+// ClearUserMedia clears all "user_media" edges to the User entity.
+func (mu *MediaUpdate) ClearUserMedia() *MediaUpdate {
+	mu.mutation.ClearUserMedia()
 	return mu
 }
 
-// RemoveUserIDs removes the "user" edge to User entities by IDs.
-func (mu *MediaUpdate) RemoveUserIDs(ids ...string) *MediaUpdate {
-	mu.mutation.RemoveUserIDs(ids...)
+// RemoveUserMediumIDs removes the "user_media" edge to User entities by IDs.
+func (mu *MediaUpdate) RemoveUserMediumIDs(ids ...string) *MediaUpdate {
+	mu.mutation.RemoveUserMediumIDs(ids...)
 	return mu
 }
 
-// RemoveUser removes "user" edges to User entities.
-func (mu *MediaUpdate) RemoveUser(u ...*User) *MediaUpdate {
+// RemoveUserMedia removes "user_media" edges to User entities.
+func (mu *MediaUpdate) RemoveUserMedia(u ...*User) *MediaUpdate {
 	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return mu.RemoveUserIDs(ids...)
+	return mu.RemoveUserMediumIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -265,12 +265,12 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if mu.mutation.MetadataCleared() {
 		_spec.ClearField(media.FieldMetadata, field.TypeJSON)
 	}
-	if mu.mutation.UserCleared() {
+	if mu.mutation.UserMediaCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
@@ -278,12 +278,12 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mu.mutation.RemovedUserIDs(); len(nodes) > 0 && !mu.mutation.UserCleared() {
+	if nodes := mu.mutation.RemovedUserMediaIDs(); len(nodes) > 0 && !mu.mutation.UserMediaCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
@@ -294,12 +294,12 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mu.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := mu.mutation.UserMediaIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
@@ -424,19 +424,19 @@ func (muo *MediaUpdateOne) ClearMetadata() *MediaUpdateOne {
 	return muo
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
-func (muo *MediaUpdateOne) AddUserIDs(ids ...string) *MediaUpdateOne {
-	muo.mutation.AddUserIDs(ids...)
+// AddUserMediumIDs adds the "user_media" edge to the User entity by IDs.
+func (muo *MediaUpdateOne) AddUserMediumIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.AddUserMediumIDs(ids...)
 	return muo
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (muo *MediaUpdateOne) AddUser(u ...*User) *MediaUpdateOne {
+// AddUserMedia adds the "user_media" edges to the User entity.
+func (muo *MediaUpdateOne) AddUserMedia(u ...*User) *MediaUpdateOne {
 	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return muo.AddUserIDs(ids...)
+	return muo.AddUserMediumIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -444,25 +444,25 @@ func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
 }
 
-// ClearUser clears all "user" edges to the User entity.
-func (muo *MediaUpdateOne) ClearUser() *MediaUpdateOne {
-	muo.mutation.ClearUser()
+// ClearUserMedia clears all "user_media" edges to the User entity.
+func (muo *MediaUpdateOne) ClearUserMedia() *MediaUpdateOne {
+	muo.mutation.ClearUserMedia()
 	return muo
 }
 
-// RemoveUserIDs removes the "user" edge to User entities by IDs.
-func (muo *MediaUpdateOne) RemoveUserIDs(ids ...string) *MediaUpdateOne {
-	muo.mutation.RemoveUserIDs(ids...)
+// RemoveUserMediumIDs removes the "user_media" edge to User entities by IDs.
+func (muo *MediaUpdateOne) RemoveUserMediumIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.RemoveUserMediumIDs(ids...)
 	return muo
 }
 
-// RemoveUser removes "user" edges to User entities.
-func (muo *MediaUpdateOne) RemoveUser(u ...*User) *MediaUpdateOne {
+// RemoveUserMedia removes "user_media" edges to User entities.
+func (muo *MediaUpdateOne) RemoveUserMedia(u ...*User) *MediaUpdateOne {
 	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return muo.RemoveUserIDs(ids...)
+	return muo.RemoveUserMediumIDs(ids...)
 }
 
 // Where appends a list predicates to the MediaUpdate builder.
@@ -596,12 +596,12 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 	if muo.mutation.MetadataCleared() {
 		_spec.ClearField(media.FieldMetadata, field.TypeJSON)
 	}
-	if muo.mutation.UserCleared() {
+	if muo.mutation.UserMediaCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
@@ -609,12 +609,12 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := muo.mutation.RemovedUserIDs(); len(nodes) > 0 && !muo.mutation.UserCleared() {
+	if nodes := muo.mutation.RemovedUserMediaIDs(); len(nodes) > 0 && !muo.mutation.UserMediaCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
@@ -625,12 +625,12 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := muo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := muo.mutation.UserMediaIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),

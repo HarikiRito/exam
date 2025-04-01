@@ -93,19 +93,19 @@ func (mc *MediaCreate) SetID(s string) *MediaCreate {
 	return mc
 }
 
-// AddUserIDs adds the "user" edge to the User entity by IDs.
-func (mc *MediaCreate) AddUserIDs(ids ...string) *MediaCreate {
-	mc.mutation.AddUserIDs(ids...)
+// AddUserMediumIDs adds the "user_media" edge to the User entity by IDs.
+func (mc *MediaCreate) AddUserMediumIDs(ids ...string) *MediaCreate {
+	mc.mutation.AddUserMediumIDs(ids...)
 	return mc
 }
 
-// AddUser adds the "user" edges to the User entity.
-func (mc *MediaCreate) AddUser(u ...*User) *MediaCreate {
+// AddUserMedia adds the "user_media" edges to the User entity.
+func (mc *MediaCreate) AddUserMedia(u ...*User) *MediaCreate {
 	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return mc.AddUserIDs(ids...)
+	return mc.AddUserMediumIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -257,12 +257,12 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 		_spec.SetField(media.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
 	}
-	if nodes := mc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := mc.mutation.UserMediaIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.UserTable,
-			Columns: []string{media.UserColumn},
+			Table:   media.UserMediaTable,
+			Columns: []string{media.UserMediaColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),

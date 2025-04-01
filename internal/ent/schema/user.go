@@ -30,7 +30,8 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("media", Media.Type).
-			Ref("user").Field("avatar_id").Unique(),
+			Ref("user_media").Field("avatar_id").Unique(),
+		edge.To("auth_user", Auth.Type),
 	}
 }
 

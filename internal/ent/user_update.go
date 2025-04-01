@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/auth"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/user"
@@ -204,6 +205,21 @@ func (uu *UserUpdate) SetMedia(m *Media) *UserUpdate {
 	return uu.SetMediaID(m.ID)
 }
 
+// AddAuthUserIDs adds the "auth_user" edge to the Auth entity by IDs.
+func (uu *UserUpdate) AddAuthUserIDs(ids ...string) *UserUpdate {
+	uu.mutation.AddAuthUserIDs(ids...)
+	return uu
+}
+
+// AddAuthUser adds the "auth_user" edges to the Auth entity.
+func (uu *UserUpdate) AddAuthUser(a ...*Auth) *UserUpdate {
+	ids := make([]string, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.AddAuthUserIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -213,6 +229,27 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 func (uu *UserUpdate) ClearMedia() *UserUpdate {
 	uu.mutation.ClearMedia()
 	return uu
+}
+
+// ClearAuthUser clears all "auth_user" edges to the Auth entity.
+func (uu *UserUpdate) ClearAuthUser() *UserUpdate {
+	uu.mutation.ClearAuthUser()
+	return uu
+}
+
+// RemoveAuthUserIDs removes the "auth_user" edge to Auth entities by IDs.
+func (uu *UserUpdate) RemoveAuthUserIDs(ids ...string) *UserUpdate {
+	uu.mutation.RemoveAuthUserIDs(ids...)
+	return uu
+}
+
+// RemoveAuthUser removes "auth_user" edges to Auth entities.
+func (uu *UserUpdate) RemoveAuthUser(a ...*Auth) *UserUpdate {
+	ids := make([]string, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uu.RemoveAuthUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -347,6 +384,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.AuthUserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthUserTable,
+			Columns: []string{user.AuthUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedAuthUserIDs(); len(nodes) > 0 && !uu.mutation.AuthUserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthUserTable,
+			Columns: []string{user.AuthUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.AuthUserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthUserTable,
+			Columns: []string{user.AuthUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -549,6 +631,21 @@ func (uuo *UserUpdateOne) SetMedia(m *Media) *UserUpdateOne {
 	return uuo.SetMediaID(m.ID)
 }
 
+// AddAuthUserIDs adds the "auth_user" edge to the Auth entity by IDs.
+func (uuo *UserUpdateOne) AddAuthUserIDs(ids ...string) *UserUpdateOne {
+	uuo.mutation.AddAuthUserIDs(ids...)
+	return uuo
+}
+
+// AddAuthUser adds the "auth_user" edges to the Auth entity.
+func (uuo *UserUpdateOne) AddAuthUser(a ...*Auth) *UserUpdateOne {
+	ids := make([]string, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.AddAuthUserIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -558,6 +655,27 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 func (uuo *UserUpdateOne) ClearMedia() *UserUpdateOne {
 	uuo.mutation.ClearMedia()
 	return uuo
+}
+
+// ClearAuthUser clears all "auth_user" edges to the Auth entity.
+func (uuo *UserUpdateOne) ClearAuthUser() *UserUpdateOne {
+	uuo.mutation.ClearAuthUser()
+	return uuo
+}
+
+// RemoveAuthUserIDs removes the "auth_user" edge to Auth entities by IDs.
+func (uuo *UserUpdateOne) RemoveAuthUserIDs(ids ...string) *UserUpdateOne {
+	uuo.mutation.RemoveAuthUserIDs(ids...)
+	return uuo
+}
+
+// RemoveAuthUser removes "auth_user" edges to Auth entities.
+func (uuo *UserUpdateOne) RemoveAuthUser(a ...*Auth) *UserUpdateOne {
+	ids := make([]string, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
+	}
+	return uuo.RemoveAuthUserIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -722,6 +840,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.AuthUserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthUserTable,
+			Columns: []string{user.AuthUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedAuthUserIDs(); len(nodes) > 0 && !uuo.mutation.AuthUserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthUserTable,
+			Columns: []string{user.AuthUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.AuthUserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.AuthUserTable,
+			Columns: []string{user.AuthUserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

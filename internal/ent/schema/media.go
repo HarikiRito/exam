@@ -27,7 +27,7 @@ func (Media) Fields() []ent.Field {
 // Edges of the Media.
 func (Media) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("user", User.Type),
+		edge.To("user_media", User.Type),
 	}
 }
 

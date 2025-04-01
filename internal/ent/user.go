@@ -48,9 +48,11 @@ type User struct {
 type UserEdges struct {
 	// Media holds the value of the media edge.
 	Media *Media `json:"media,omitempty"`
+	// AuthUser holds the value of the auth_user edge.
+	AuthUser []*Auth `json:"auth_user,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -62,6 +64,15 @@ func (e UserEdges) MediaOrErr() (*Media, error) {
 		return nil, &NotFoundError{label: media.Label}
 	}
 	return nil, &NotLoadedError{edge: "media"}
+}
+
+// AuthUserOrErr returns the AuthUser value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuthUserOrErr() ([]*Auth, error) {
+	if e.loadedTypes[1] {
+		return e.AuthUser, nil
+	}
+	return nil, &NotLoadedError{edge: "auth_user"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -173,6 +184,11 @@ func (u *User) Value(name string) (ent.Value, error) {
 // QueryMedia queries the "media" edge of the User entity.
 func (u *User) QueryMedia() *MediaQuery {
 	return NewUserClient(u.config).QueryMedia(u)
+}
+
+// QueryAuthUser queries the "auth_user" edge of the User entity.
+func (u *User) QueryAuthUser() *AuthQuery {
+	return NewUserClient(u.config).QueryAuthUser(u)
 }
 
 // Update returns a builder for updating this User.

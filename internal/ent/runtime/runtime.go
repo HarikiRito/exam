@@ -3,6 +3,7 @@
 package runtime
 
 import (
+	"template/internal/ent/auth"
 	"template/internal/ent/media"
 	"template/internal/ent/schema"
 	"template/internal/ent/todo"
@@ -14,6 +15,39 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	authMixin := schema.Auth{}.Mixin()
+	authMixinHooks0 := authMixin[0].Hooks()
+	auth.Hooks[0] = authMixinHooks0[0]
+	authMixinFields0 := authMixin[0].Fields()
+	_ = authMixinFields0
+	authFields := schema.Auth{}.Fields()
+	_ = authFields
+	// authDescCreatedAt is the schema descriptor for created_at field.
+	authDescCreatedAt := authMixinFields0[1].Descriptor()
+	// auth.DefaultCreatedAt holds the default value on creation for the created_at field.
+	auth.DefaultCreatedAt = authDescCreatedAt.Default.(func() time.Time)
+	// authDescUpdatedAt is the schema descriptor for updated_at field.
+	authDescUpdatedAt := authMixinFields0[2].Descriptor()
+	// auth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	auth.DefaultUpdatedAt = authDescUpdatedAt.Default.(func() time.Time)
+	// auth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	auth.UpdateDefaultUpdatedAt = authDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// authDescUserID is the schema descriptor for user_id field.
+	authDescUserID := authFields[0].Descriptor()
+	// auth.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
+	auth.UserIDValidator = authDescUserID.Validators[0].(func(string) error)
+	// authDescAccessToken is the schema descriptor for access_token field.
+	authDescAccessToken := authFields[1].Descriptor()
+	// auth.AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
+	auth.AccessTokenValidator = authDescAccessToken.Validators[0].(func(string) error)
+	// authDescRefreshToken is the schema descriptor for refresh_token field.
+	authDescRefreshToken := authFields[2].Descriptor()
+	// auth.RefreshTokenValidator is a validator for the "refresh_token" field. It is called by the builders before save.
+	auth.RefreshTokenValidator = authDescRefreshToken.Validators[0].(func(string) error)
+	// authDescIsRevoked is the schema descriptor for is_revoked field.
+	authDescIsRevoked := authFields[5].Descriptor()
+	// auth.DefaultIsRevoked holds the default value on creation for the is_revoked field.
+	auth.DefaultIsRevoked = authDescIsRevoked.Default.(bool)
 	mediaMixin := schema.Media{}.Mixin()
 	mediaMixinHooks0 := mediaMixin[0].Hooks()
 	media.Hooks[0] = mediaMixinHooks0[0]

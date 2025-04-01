@@ -37,6 +37,8 @@ const (
 	FieldIsActive = "is_active"
 	// EdgeMedia holds the string denoting the media edge name in mutations.
 	EdgeMedia = "media"
+	// EdgeAuthUser holds the string denoting the auth_user edge name in mutations.
+	EdgeAuthUser = "auth_user"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// MediaTable is the table that holds the media relation/edge.
@@ -46,6 +48,13 @@ const (
 	MediaInverseTable = "media"
 	// MediaColumn is the table column denoting the media relation/edge.
 	MediaColumn = "avatar_id"
+	// AuthUserTable is the table that holds the auth_user relation/edge.
+	AuthUserTable = "auths"
+	// AuthUserInverseTable is the table name for the Auth entity.
+	// It exists in this package in order to avoid circular dependency with the "auth" package.
+	AuthUserInverseTable = "auths"
+	// AuthUserColumn is the table column denoting the auth_user relation/edge.
+	AuthUserColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -160,10 +169,31 @@ func ByMediaField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMediaStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByAuthUserCount orders the results by auth_user count.
+func ByAuthUserCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuthUserStep(), opts...)
+	}
+}
+
+// ByAuthUser orders the results by auth_user terms.
+func ByAuthUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuthUserStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MediaInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MediaTable, MediaColumn),
+	)
+}
+func newAuthUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuthUserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuthUserTable, AuthUserColumn),
 	)
 }

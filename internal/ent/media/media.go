@@ -29,17 +29,17 @@ const (
 	FieldMimeType = "mime_type"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
+	// EdgeUserMedia holds the string denoting the user_media edge name in mutations.
+	EdgeUserMedia = "user_media"
 	// Table holds the table name of the media in the database.
 	Table = "media"
-	// UserTable is the table that holds the user relation/edge.
-	UserTable = "users"
-	// UserInverseTable is the table name for the User entity.
+	// UserMediaTable is the table that holds the user_media relation/edge.
+	UserMediaTable = "users"
+	// UserMediaInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "users"
-	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "avatar_id"
+	UserMediaInverseTable = "users"
+	// UserMediaColumn is the table column denoting the user_media relation/edge.
+	UserMediaColumn = "avatar_id"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -123,23 +123,23 @@ func ByMimeType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMimeType, opts...).ToFunc()
 }
 
-// ByUserCount orders the results by user count.
-func ByUserCount(opts ...sql.OrderTermOption) OrderOption {
+// ByUserMediaCount orders the results by user_media count.
+func ByUserMediaCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newUserMediaStep(), opts...)
 	}
 }
 
-// ByUser orders the results by user terms.
-func ByUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByUserMedia orders the results by user_media terms.
+func ByUserMedia(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newUserMediaStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newUserStep() *sqlgraph.Step {
+func newUserMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UserTable, UserColumn),
+		sqlgraph.To(UserMediaInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserMediaTable, UserMediaColumn),
 	)
 }

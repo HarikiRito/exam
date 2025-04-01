@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Auth is the predicate function for auth builders.
+type Auth func(*sql.Selector)
+
 // Media is the predicate function for media builders.
 type Media func(*sql.Selector)
 

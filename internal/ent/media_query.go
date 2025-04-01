@@ -20,11 +20,11 @@ import (
 // MediaQuery is the builder for querying Media entities.
 type MediaQuery struct {
 	config
-	ctx        *QueryContext
-	order      []media.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Media
-	withUser   *UserQuery
+	ctx           *QueryContext
+	order         []media.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Media
+	withUserMedia *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,8 +61,8 @@ func (mq *MediaQuery) Order(o ...media.OrderOption) *MediaQuery {
 	return mq
 }
 
-// QueryUser chains the current query on the "user" edge.
-func (mq *MediaQuery) QueryUser() *UserQuery {
+// QueryUserMedia chains the current query on the "user_media" edge.
+func (mq *MediaQuery) QueryUserMedia() *UserQuery {
 	query := (&UserClient{config: mq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
@@ -75,7 +75,7 @@ func (mq *MediaQuery) QueryUser() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(media.Table, media.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, media.UserTable, media.UserColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.UserMediaTable, media.UserMediaColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -270,26 +270,26 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		return nil
 	}
 	return &MediaQuery{
-		config:     mq.config,
-		ctx:        mq.ctx.Clone(),
-		order:      append([]media.OrderOption{}, mq.order...),
-		inters:     append([]Interceptor{}, mq.inters...),
-		predicates: append([]predicate.Media{}, mq.predicates...),
-		withUser:   mq.withUser.Clone(),
+		config:        mq.config,
+		ctx:           mq.ctx.Clone(),
+		order:         append([]media.OrderOption{}, mq.order...),
+		inters:        append([]Interceptor{}, mq.inters...),
+		predicates:    append([]predicate.Media{}, mq.predicates...),
+		withUserMedia: mq.withUserMedia.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
 	}
 }
 
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (mq *MediaQuery) WithUser(opts ...func(*UserQuery)) *MediaQuery {
+// WithUserMedia tells the query-builder to eager-load the nodes that are connected to
+// the "user_media" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MediaQuery) WithUserMedia(opts ...func(*UserQuery)) *MediaQuery {
 	query := (&UserClient{config: mq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	mq.withUser = query
+	mq.withUserMedia = query
 	return mq
 }
 
@@ -372,7 +372,7 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 		nodes       = []*Media{}
 		_spec       = mq.querySpec()
 		loadedTypes = [1]bool{
-			mq.withUser != nil,
+			mq.withUserMedia != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := mq.withUser; query != nil {
-		if err := mq.loadUser(ctx, query, nodes,
-			func(n *Media) { n.Edges.User = []*User{} },
-			func(n *Media, e *User) { n.Edges.User = append(n.Edges.User, e) }); err != nil {
+	if query := mq.withUserMedia; query != nil {
+		if err := mq.loadUserMedia(ctx, query, nodes,
+			func(n *Media) { n.Edges.UserMedia = []*User{} },
+			func(n *Media, e *User) { n.Edges.UserMedia = append(n.Edges.UserMedia, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*Media, init func(*Media), assign func(*Media, *User)) error {
+func (mq *MediaQuery) loadUserMedia(ctx context.Context, query *UserQuery, nodes []*Media, init func(*Media), assign func(*Media, *User)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*Media)
 	for i := range nodes {
@@ -417,7 +417,7 @@ func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*M
 		query.ctx.AppendFieldOnce(user.FieldAvatarID)
 	}
 	query.Where(predicate.User(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(media.UserColumn), fks...))
+		s.Where(sql.InValues(s.C(media.UserMediaColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
