@@ -3,6 +3,7 @@
 package runtime
 
 import (
+	"template/internal/ent/media"
 	"template/internal/ent/schema"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -13,6 +14,35 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	mediaMixin := schema.Media{}.Mixin()
+	mediaMixinHooks0 := mediaMixin[0].Hooks()
+	media.Hooks[0] = mediaMixinHooks0[0]
+	mediaMixinFields0 := mediaMixin[0].Fields()
+	_ = mediaMixinFields0
+	mediaFields := schema.Media{}.Fields()
+	_ = mediaFields
+	// mediaDescCreatedAt is the schema descriptor for created_at field.
+	mediaDescCreatedAt := mediaMixinFields0[1].Descriptor()
+	// media.DefaultCreatedAt holds the default value on creation for the created_at field.
+	media.DefaultCreatedAt = mediaDescCreatedAt.Default.(func() time.Time)
+	// mediaDescUpdatedAt is the schema descriptor for updated_at field.
+	mediaDescUpdatedAt := mediaMixinFields0[2].Descriptor()
+	// media.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
+	// media.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	media.UpdateDefaultUpdatedAt = mediaDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// mediaDescFileName is the schema descriptor for fileName field.
+	mediaDescFileName := mediaFields[0].Descriptor()
+	// media.FileNameValidator is a validator for the "fileName" field. It is called by the builders before save.
+	media.FileNameValidator = mediaDescFileName.Validators[0].(func(string) error)
+	// mediaDescFileUrl is the schema descriptor for fileUrl field.
+	mediaDescFileUrl := mediaFields[1].Descriptor()
+	// media.FileUrlValidator is a validator for the "fileUrl" field. It is called by the builders before save.
+	media.FileUrlValidator = mediaDescFileUrl.Validators[0].(func(string) error)
+	// mediaDescMimeType is the schema descriptor for mimeType field.
+	mediaDescMimeType := mediaFields[2].Descriptor()
+	// media.MimeTypeValidator is a validator for the "mimeType" field. It is called by the builders before save.
+	media.MimeTypeValidator = mediaDescMimeType.Validators[0].(func(string) error)
 	todoMixin := schema.Todo{}.Mixin()
 	todoMixinHooks0 := todoMixin[0].Hooks()
 	todo.Hooks[0] = todoMixinHooks0[0]
@@ -47,6 +77,22 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userDescUsername is the schema descriptor for username field.
+	userDescUsername := userFields[0].Descriptor()
+	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[1].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescPasswordHash is the schema descriptor for passwordHash field.
+	userDescPasswordHash := userFields[2].Descriptor()
+	// user.PasswordHashValidator is a validator for the "passwordHash" field. It is called by the builders before save.
+	user.PasswordHashValidator = userDescPasswordHash.Validators[0].(func(string) error)
+	// userDescIsActive is the schema descriptor for isActive field.
+	userDescIsActive := userFields[5].Descriptor()
+	// user.DefaultIsActive holds the default value on creation for the isActive field.
+	user.DefaultIsActive = userDescIsActive.Default.(bool)
 }
 
 const (

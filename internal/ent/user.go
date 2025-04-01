@@ -23,10 +23,18 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
-	// Name holds the value of the "name" field.
-	Name *string `json:"name,omitempty"`
 	// Username holds the value of the "username" field.
-	Username     string `json:"username,omitempty"`
+	Username string `json:"username,omitempty"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty"`
+	// PasswordHash holds the value of the "passwordHash" field.
+	PasswordHash string `json:"passwordHash,omitempty"`
+	// FirstName holds the value of the "firstName" field.
+	FirstName string `json:"firstName,omitempty"`
+	// LastName holds the value of the "lastName" field.
+	LastName string `json:"lastName,omitempty"`
+	// IsActive holds the value of the "isActive" field.
+	IsActive     bool `json:"isActive,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -35,7 +43,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID, user.FieldName, user.FieldUsername:
+		case user.FieldIsActive:
+			values[i] = new(sql.NullBool)
+		case user.FieldID, user.FieldUsername, user.FieldEmail, user.FieldPasswordHash, user.FieldFirstName, user.FieldLastName:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -79,18 +89,41 @@ func (u *User) assignValues(columns []string, values []any) error {
 				u.DeletedAt = new(time.Time)
 				*u.DeletedAt = value.Time
 			}
-		case user.FieldName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
-			} else if value.Valid {
-				u.Name = new(string)
-				*u.Name = value.String
-			}
 		case user.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field username", values[i])
 			} else if value.Valid {
 				u.Username = value.String
+			}
+		case user.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				u.Email = value.String
+			}
+		case user.FieldPasswordHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field passwordHash", values[i])
+			} else if value.Valid {
+				u.PasswordHash = value.String
+			}
+		case user.FieldFirstName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field firstName", values[i])
+			} else if value.Valid {
+				u.FirstName = value.String
+			}
+		case user.FieldLastName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field lastName", values[i])
+			} else if value.Valid {
+				u.LastName = value.String
+			}
+		case user.FieldIsActive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field isActive", values[i])
+			} else if value.Valid {
+				u.IsActive = value.Bool
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -139,13 +172,23 @@ func (u *User) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := u.Name; v != nil {
-		builder.WriteString("name=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
 	builder.WriteString("username=")
 	builder.WriteString(u.Username)
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(u.Email)
+	builder.WriteString(", ")
+	builder.WriteString("passwordHash=")
+	builder.WriteString(u.PasswordHash)
+	builder.WriteString(", ")
+	builder.WriteString("firstName=")
+	builder.WriteString(u.FirstName)
+	builder.WriteString(", ")
+	builder.WriteString("lastName=")
+	builder.WriteString(u.LastName)
+	builder.WriteString(", ")
+	builder.WriteString("isActive=")
+	builder.WriteString(fmt.Sprintf("%v", u.IsActive))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -15,14 +15,20 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").Nillable(),
-		field.String("username"),
+		field.String("username").NotEmpty().Unique(),
+		field.String("email").NotEmpty().Unique(),
+		field.String("passwordHash").NotEmpty(),
+		field.String("firstName").Optional(),
+		field.String("lastName").Optional(),
+		// field.String("avatarId").Optional(),
+		field.Bool("isActive").Default(true),
 	}
 }
 
-// Edges of the User.-
+// Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+	}
 }
 
 func (User) Mixin() []ent.Mixin {
