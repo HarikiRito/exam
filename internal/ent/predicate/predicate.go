@@ -9,11 +9,23 @@ import (
 // Auth is the predicate function for auth builders.
 type Auth func(*sql.Selector)
 
+// Course is the predicate function for course builders.
+type Course func(*sql.Selector)
+
+// CourseSection is the predicate function for coursesection builders.
+type CourseSection func(*sql.Selector)
+
 // Media is the predicate function for media builders.
 type Media func(*sql.Selector)
 
 // Permission is the predicate function for permission builders.
 type Permission func(*sql.Selector)
+
+// Question is the predicate function for question builders.
+type Question func(*sql.Selector)
+
+// QuestionOption is the predicate function for questionoption builders.
+type QuestionOption func(*sql.Selector)
 
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
@@ -26,3 +38,9 @@ type User func(*sql.Selector)
 
 // UserRole is the predicate function for userrole builders.
 type UserRole func(*sql.Selector)
+
+// Video is the predicate function for video builders.
+type Video func(*sql.Selector)
+
+// VideoQuestionTimestamp is the predicate function for videoquestiontimestamp builders.
+type VideoQuestionTimestamp func(*sql.Selector)

@@ -6,9 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/user"
+	"template/internal/ent/video"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -177,6 +179,36 @@ func (mu *MediaUpdate) SetUser(u *User) *MediaUpdate {
 	return mu.SetUserID(u.ID)
 }
 
+// AddCourseMediumIDs adds the "course_media" edge to the Course entity by IDs.
+func (mu *MediaUpdate) AddCourseMediumIDs(ids ...string) *MediaUpdate {
+	mu.mutation.AddCourseMediumIDs(ids...)
+	return mu
+}
+
+// AddCourseMedia adds the "course_media" edges to the Course entity.
+func (mu *MediaUpdate) AddCourseMedia(c ...*Course) *MediaUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mu.AddCourseMediumIDs(ids...)
+}
+
+// AddVideoMediumIDs adds the "video_media" edge to the Video entity by IDs.
+func (mu *MediaUpdate) AddVideoMediumIDs(ids ...string) *MediaUpdate {
+	mu.mutation.AddVideoMediumIDs(ids...)
+	return mu
+}
+
+// AddVideoMedia adds the "video_media" edges to the Video entity.
+func (mu *MediaUpdate) AddVideoMedia(v ...*Video) *MediaUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return mu.AddVideoMediumIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
@@ -207,6 +239,48 @@ func (mu *MediaUpdate) RemoveUserMedia(u ...*User) *MediaUpdate {
 func (mu *MediaUpdate) ClearUser() *MediaUpdate {
 	mu.mutation.ClearUser()
 	return mu
+}
+
+// ClearCourseMedia clears all "course_media" edges to the Course entity.
+func (mu *MediaUpdate) ClearCourseMedia() *MediaUpdate {
+	mu.mutation.ClearCourseMedia()
+	return mu
+}
+
+// RemoveCourseMediumIDs removes the "course_media" edge to Course entities by IDs.
+func (mu *MediaUpdate) RemoveCourseMediumIDs(ids ...string) *MediaUpdate {
+	mu.mutation.RemoveCourseMediumIDs(ids...)
+	return mu
+}
+
+// RemoveCourseMedia removes "course_media" edges to Course entities.
+func (mu *MediaUpdate) RemoveCourseMedia(c ...*Course) *MediaUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mu.RemoveCourseMediumIDs(ids...)
+}
+
+// ClearVideoMedia clears all "video_media" edges to the Video entity.
+func (mu *MediaUpdate) ClearVideoMedia() *MediaUpdate {
+	mu.mutation.ClearVideoMedia()
+	return mu
+}
+
+// RemoveVideoMediumIDs removes the "video_media" edge to Video entities by IDs.
+func (mu *MediaUpdate) RemoveVideoMediumIDs(ids ...string) *MediaUpdate {
+	mu.mutation.RemoveVideoMediumIDs(ids...)
+	return mu
+}
+
+// RemoveVideoMedia removes "video_media" edges to Video entities.
+func (mu *MediaUpdate) RemoveVideoMedia(v ...*Video) *MediaUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return mu.RemoveVideoMediumIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -384,6 +458,96 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.CourseMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedCourseMediaIDs(); len(nodes) > 0 && !mu.mutation.CourseMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.CourseMediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.VideoMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedVideoMediaIDs(); len(nodes) > 0 && !mu.mutation.VideoMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.VideoMediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -552,6 +716,36 @@ func (muo *MediaUpdateOne) SetUser(u *User) *MediaUpdateOne {
 	return muo.SetUserID(u.ID)
 }
 
+// AddCourseMediumIDs adds the "course_media" edge to the Course entity by IDs.
+func (muo *MediaUpdateOne) AddCourseMediumIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.AddCourseMediumIDs(ids...)
+	return muo
+}
+
+// AddCourseMedia adds the "course_media" edges to the Course entity.
+func (muo *MediaUpdateOne) AddCourseMedia(c ...*Course) *MediaUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return muo.AddCourseMediumIDs(ids...)
+}
+
+// AddVideoMediumIDs adds the "video_media" edge to the Video entity by IDs.
+func (muo *MediaUpdateOne) AddVideoMediumIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.AddVideoMediumIDs(ids...)
+	return muo
+}
+
+// AddVideoMedia adds the "video_media" edges to the Video entity.
+func (muo *MediaUpdateOne) AddVideoMedia(v ...*Video) *MediaUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return muo.AddVideoMediumIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
@@ -582,6 +776,48 @@ func (muo *MediaUpdateOne) RemoveUserMedia(u ...*User) *MediaUpdateOne {
 func (muo *MediaUpdateOne) ClearUser() *MediaUpdateOne {
 	muo.mutation.ClearUser()
 	return muo
+}
+
+// ClearCourseMedia clears all "course_media" edges to the Course entity.
+func (muo *MediaUpdateOne) ClearCourseMedia() *MediaUpdateOne {
+	muo.mutation.ClearCourseMedia()
+	return muo
+}
+
+// RemoveCourseMediumIDs removes the "course_media" edge to Course entities by IDs.
+func (muo *MediaUpdateOne) RemoveCourseMediumIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.RemoveCourseMediumIDs(ids...)
+	return muo
+}
+
+// RemoveCourseMedia removes "course_media" edges to Course entities.
+func (muo *MediaUpdateOne) RemoveCourseMedia(c ...*Course) *MediaUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return muo.RemoveCourseMediumIDs(ids...)
+}
+
+// ClearVideoMedia clears all "video_media" edges to the Video entity.
+func (muo *MediaUpdateOne) ClearVideoMedia() *MediaUpdateOne {
+	muo.mutation.ClearVideoMedia()
+	return muo
+}
+
+// RemoveVideoMediumIDs removes the "video_media" edge to Video entities by IDs.
+func (muo *MediaUpdateOne) RemoveVideoMediumIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.RemoveVideoMediumIDs(ids...)
+	return muo
+}
+
+// RemoveVideoMedia removes "video_media" edges to Video entities.
+func (muo *MediaUpdateOne) RemoveVideoMedia(v ...*Video) *MediaUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return muo.RemoveVideoMediumIDs(ids...)
 }
 
 // Where appends a list predicates to the MediaUpdate builder.
@@ -782,6 +1018,96 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.CourseMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedCourseMediaIDs(); len(nodes) > 0 && !muo.mutation.CourseMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.CourseMediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.VideoMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedVideoMediaIDs(); len(nodes) > 0 && !muo.mutation.VideoMediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.VideoMediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

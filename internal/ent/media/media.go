@@ -35,6 +35,10 @@ const (
 	EdgeUserMedia = "user_media"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
+	// EdgeCourseMedia holds the string denoting the course_media edge name in mutations.
+	EdgeCourseMedia = "course_media"
+	// EdgeVideoMedia holds the string denoting the video_media edge name in mutations.
+	EdgeVideoMedia = "video_media"
 	// Table holds the table name of the media in the database.
 	Table = "media"
 	// UserMediaTable is the table that holds the user_media relation/edge.
@@ -51,6 +55,20 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "uploader_id"
+	// CourseMediaTable is the table that holds the course_media relation/edge.
+	CourseMediaTable = "courses"
+	// CourseMediaInverseTable is the table name for the Course entity.
+	// It exists in this package in order to avoid circular dependency with the "course" package.
+	CourseMediaInverseTable = "courses"
+	// CourseMediaColumn is the table column denoting the course_media relation/edge.
+	CourseMediaColumn = "media_id"
+	// VideoMediaTable is the table that holds the video_media relation/edge.
+	VideoMediaTable = "videos"
+	// VideoMediaInverseTable is the table name for the Video entity.
+	// It exists in this package in order to avoid circular dependency with the "video" package.
+	VideoMediaInverseTable = "videos"
+	// VideoMediaColumn is the table column denoting the video_media relation/edge.
+	VideoMediaColumn = "media_id"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -160,6 +178,34 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByCourseMediaCount orders the results by course_media count.
+func ByCourseMediaCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCourseMediaStep(), opts...)
+	}
+}
+
+// ByCourseMedia orders the results by course_media terms.
+func ByCourseMedia(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCourseMediaStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByVideoMediaCount orders the results by video_media count.
+func ByVideoMediaCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newVideoMediaStep(), opts...)
+	}
+}
+
+// ByVideoMedia orders the results by video_media terms.
+func ByVideoMedia(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newVideoMediaStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUserMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -172,5 +218,19 @@ func newUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+	)
+}
+func newCourseMediaStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CourseMediaInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CourseMediaTable, CourseMediaColumn),
+	)
+}
+func newVideoMediaStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(VideoMediaInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, VideoMediaTable, VideoMediaColumn),
 	)
 }

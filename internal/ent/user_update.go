@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/auth"
+	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/role"
@@ -252,6 +253,21 @@ func (uu *UserUpdate) AddRoles(r ...*Role) *UserUpdate {
 	return uu.AddRoleIDs(ids...)
 }
 
+// AddCourseCreatorIDs adds the "course_creator" edge to the Course entity by IDs.
+func (uu *UserUpdate) AddCourseCreatorIDs(ids ...string) *UserUpdate {
+	uu.mutation.AddCourseCreatorIDs(ids...)
+	return uu
+}
+
+// AddCourseCreator adds the "course_creator" edges to the Course entity.
+func (uu *UserUpdate) AddCourseCreator(c ...*Course) *UserUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.AddCourseCreatorIDs(ids...)
+}
+
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
 func (uu *UserUpdate) AddUserRoleIDs(ids ...string) *UserUpdate {
 	uu.mutation.AddUserRoleIDs(ids...)
@@ -339,6 +355,27 @@ func (uu *UserUpdate) RemoveRoles(r ...*Role) *UserUpdate {
 		ids[i] = r[i].ID
 	}
 	return uu.RemoveRoleIDs(ids...)
+}
+
+// ClearCourseCreator clears all "course_creator" edges to the Course entity.
+func (uu *UserUpdate) ClearCourseCreator() *UserUpdate {
+	uu.mutation.ClearCourseCreator()
+	return uu
+}
+
+// RemoveCourseCreatorIDs removes the "course_creator" edge to Course entities by IDs.
+func (uu *UserUpdate) RemoveCourseCreatorIDs(ids ...string) *UserUpdate {
+	uu.mutation.RemoveCourseCreatorIDs(ids...)
+	return uu
+}
+
+// RemoveCourseCreator removes "course_creator" edges to Course entities.
+func (uu *UserUpdate) RemoveCourseCreator(c ...*Course) *UserUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.RemoveCourseCreatorIDs(ids...)
 }
 
 // ClearUserRoles clears all "user_roles" edges to the UserRole entity.
@@ -648,6 +685,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.CourseCreatorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedCourseCreatorIDs(); len(nodes) > 0 && !uu.mutation.CourseCreatorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.CourseCreatorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if uu.mutation.UserRolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -933,6 +1015,21 @@ func (uuo *UserUpdateOne) AddRoles(r ...*Role) *UserUpdateOne {
 	return uuo.AddRoleIDs(ids...)
 }
 
+// AddCourseCreatorIDs adds the "course_creator" edge to the Course entity by IDs.
+func (uuo *UserUpdateOne) AddCourseCreatorIDs(ids ...string) *UserUpdateOne {
+	uuo.mutation.AddCourseCreatorIDs(ids...)
+	return uuo
+}
+
+// AddCourseCreator adds the "course_creator" edges to the Course entity.
+func (uuo *UserUpdateOne) AddCourseCreator(c ...*Course) *UserUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.AddCourseCreatorIDs(ids...)
+}
+
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
 func (uuo *UserUpdateOne) AddUserRoleIDs(ids ...string) *UserUpdateOne {
 	uuo.mutation.AddUserRoleIDs(ids...)
@@ -1020,6 +1117,27 @@ func (uuo *UserUpdateOne) RemoveRoles(r ...*Role) *UserUpdateOne {
 		ids[i] = r[i].ID
 	}
 	return uuo.RemoveRoleIDs(ids...)
+}
+
+// ClearCourseCreator clears all "course_creator" edges to the Course entity.
+func (uuo *UserUpdateOne) ClearCourseCreator() *UserUpdateOne {
+	uuo.mutation.ClearCourseCreator()
+	return uuo
+}
+
+// RemoveCourseCreatorIDs removes the "course_creator" edge to Course entities by IDs.
+func (uuo *UserUpdateOne) RemoveCourseCreatorIDs(ids ...string) *UserUpdateOne {
+	uuo.mutation.RemoveCourseCreatorIDs(ids...)
+	return uuo
+}
+
+// RemoveCourseCreator removes "course_creator" edges to Course entities.
+func (uuo *UserUpdateOne) RemoveCourseCreator(c ...*Course) *UserUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.RemoveCourseCreatorIDs(ids...)
 }
 
 // ClearUserRoles clears all "user_roles" edges to the UserRole entity.
@@ -1357,6 +1475,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		_ = createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.CourseCreatorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedCourseCreatorIDs(); len(nodes) > 0 && !uuo.mutation.CourseCreatorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.CourseCreatorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if uuo.mutation.UserRolesCleared() {

@@ -7,9 +7,11 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
+	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/user"
+	"template/internal/ent/video"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -20,12 +22,14 @@ import (
 // MediaQuery is the builder for querying Media entities.
 type MediaQuery struct {
 	config
-	ctx           *QueryContext
-	order         []media.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.Media
-	withUserMedia *UserQuery
-	withUser      *UserQuery
+	ctx             *QueryContext
+	order           []media.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.Media
+	withUserMedia   *UserQuery
+	withUser        *UserQuery
+	withCourseMedia *CourseQuery
+	withVideoMedia  *VideoQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -99,6 +103,50 @@ func (mq *MediaQuery) QueryUser() *UserQuery {
 			sqlgraph.From(media.Table, media.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, media.UserTable, media.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCourseMedia chains the current query on the "course_media" edge.
+func (mq *MediaQuery) QueryCourseMedia() *CourseQuery {
+	query := (&CourseClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, selector),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.CourseMediaTable, media.CourseMediaColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryVideoMedia chains the current query on the "video_media" edge.
+func (mq *MediaQuery) QueryVideoMedia() *VideoQuery {
+	query := (&VideoClient{config: mq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, selector),
+			sqlgraph.To(video.Table, video.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.VideoMediaTable, media.VideoMediaColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,13 +341,15 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		return nil
 	}
 	return &MediaQuery{
-		config:        mq.config,
-		ctx:           mq.ctx.Clone(),
-		order:         append([]media.OrderOption{}, mq.order...),
-		inters:        append([]Interceptor{}, mq.inters...),
-		predicates:    append([]predicate.Media{}, mq.predicates...),
-		withUserMedia: mq.withUserMedia.Clone(),
-		withUser:      mq.withUser.Clone(),
+		config:          mq.config,
+		ctx:             mq.ctx.Clone(),
+		order:           append([]media.OrderOption{}, mq.order...),
+		inters:          append([]Interceptor{}, mq.inters...),
+		predicates:      append([]predicate.Media{}, mq.predicates...),
+		withUserMedia:   mq.withUserMedia.Clone(),
+		withUser:        mq.withUser.Clone(),
+		withCourseMedia: mq.withCourseMedia.Clone(),
+		withVideoMedia:  mq.withVideoMedia.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
@@ -325,6 +375,28 @@ func (mq *MediaQuery) WithUser(opts ...func(*UserQuery)) *MediaQuery {
 		opt(query)
 	}
 	mq.withUser = query
+	return mq
+}
+
+// WithCourseMedia tells the query-builder to eager-load the nodes that are connected to
+// the "course_media" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MediaQuery) WithCourseMedia(opts ...func(*CourseQuery)) *MediaQuery {
+	query := (&CourseClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withCourseMedia = query
+	return mq
+}
+
+// WithVideoMedia tells the query-builder to eager-load the nodes that are connected to
+// the "video_media" edge. The optional arguments are used to configure the query builder of the edge.
+func (mq *MediaQuery) WithVideoMedia(opts ...func(*VideoQuery)) *MediaQuery {
+	query := (&VideoClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withVideoMedia = query
 	return mq
 }
 
@@ -406,9 +478,11 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 	var (
 		nodes       = []*Media{}
 		_spec       = mq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			mq.withUserMedia != nil,
 			mq.withUser != nil,
+			mq.withCourseMedia != nil,
+			mq.withVideoMedia != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -439,6 +513,20 @@ func (mq *MediaQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Media,
 	if query := mq.withUser; query != nil {
 		if err := mq.loadUser(ctx, query, nodes, nil,
 			func(n *Media, e *User) { n.Edges.User = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withCourseMedia; query != nil {
+		if err := mq.loadCourseMedia(ctx, query, nodes,
+			func(n *Media) { n.Edges.CourseMedia = []*Course{} },
+			func(n *Media, e *Course) { n.Edges.CourseMedia = append(n.Edges.CourseMedia, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := mq.withVideoMedia; query != nil {
+		if err := mq.loadVideoMedia(ctx, query, nodes,
+			func(n *Media) { n.Edges.VideoMedia = []*Video{} },
+			func(n *Media, e *Video) { n.Edges.VideoMedia = append(n.Edges.VideoMedia, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -501,6 +589,67 @@ func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*M
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (mq *MediaQuery) loadCourseMedia(ctx context.Context, query *CourseQuery, nodes []*Media, init func(*Media), assign func(*Media, *Course)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Media)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(course.FieldMediaID)
+	}
+	query.Where(predicate.Course(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(media.CourseMediaColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MediaID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "media_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (mq *MediaQuery) loadVideoMedia(ctx context.Context, query *VideoQuery, nodes []*Media, init func(*Media), assign func(*Media, *Video)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Media)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(video.FieldMediaID)
+	}
+	query.Where(predicate.Video(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(media.VideoMediaColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.MediaID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "media_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

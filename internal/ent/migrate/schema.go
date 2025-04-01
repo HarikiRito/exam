@@ -35,6 +35,62 @@ var (
 			},
 		},
 	}
+	// CoursesColumns holds the columns for the "courses" table.
+	CoursesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "is_published", Type: field.TypeBool, Default: false},
+		{Name: "media_id", Type: field.TypeString, Nullable: true},
+		{Name: "creator_id", Type: field.TypeString},
+	}
+	// CoursesTable holds the schema information for the "courses" table.
+	CoursesTable = &schema.Table{
+		Name:       "courses",
+		Columns:    CoursesColumns,
+		PrimaryKey: []*schema.Column{CoursesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "courses_media_course_media",
+				Columns:    []*schema.Column{CoursesColumns[7]},
+				RefColumns: []*schema.Column{MediaColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "courses_users_course_creator",
+				Columns:    []*schema.Column{CoursesColumns[8]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// CourseSectionsColumns holds the columns for the "course_sections" table.
+	CourseSectionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "course_id", Type: field.TypeString},
+	}
+	// CourseSectionsTable holds the schema information for the "course_sections" table.
+	CourseSectionsTable = &schema.Table{
+		Name:       "course_sections",
+		Columns:    CourseSectionsColumns,
+		PrimaryKey: []*schema.Column{CourseSectionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "course_sections_courses_course_sections",
+				Columns:    []*schema.Column{CourseSectionsColumns[6]},
+				RefColumns: []*schema.Column{CoursesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// MediaColumns holds the columns for the "media" table.
 	MediaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -75,6 +131,53 @@ var (
 		Name:       "permissions",
 		Columns:    PermissionsColumns,
 		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
+	}
+	// QuestionsColumns holds the columns for the "questions" table.
+	QuestionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "question_text", Type: field.TypeString, Size: 2147483647},
+		{Name: "section_id", Type: field.TypeString},
+	}
+	// QuestionsTable holds the schema information for the "questions" table.
+	QuestionsTable = &schema.Table{
+		Name:       "questions",
+		Columns:    QuestionsColumns,
+		PrimaryKey: []*schema.Column{QuestionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "questions_course_sections_questions",
+				Columns:    []*schema.Column{QuestionsColumns[5]},
+				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// QuestionOptionsColumns holds the columns for the "question_options" table.
+	QuestionOptionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "option_text", Type: field.TypeString, Size: 2147483647},
+		{Name: "is_correct", Type: field.TypeBool, Default: false},
+		{Name: "question_id", Type: field.TypeString},
+	}
+	// QuestionOptionsTable holds the schema information for the "question_options" table.
+	QuestionOptionsTable = &schema.Table{
+		Name:       "question_options",
+		Columns:    QuestionOptionsColumns,
+		PrimaryKey: []*schema.Column{QuestionOptionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "question_options_questions_question_options",
+				Columns:    []*schema.Column{QuestionOptionsColumns[6]},
+				RefColumns: []*schema.Column{QuestionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
 	}
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
@@ -170,6 +273,75 @@ var (
 			},
 		},
 	}
+	// VideosColumns holds the columns for the "videos" table.
+	VideosColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "duration", Type: field.TypeInt, Nullable: true},
+		{Name: "course_course_videos", Type: field.TypeString, Nullable: true},
+		{Name: "section_id", Type: field.TypeString},
+		{Name: "media_id", Type: field.TypeString},
+	}
+	// VideosTable holds the schema information for the "videos" table.
+	VideosTable = &schema.Table{
+		Name:       "videos",
+		Columns:    VideosColumns,
+		PrimaryKey: []*schema.Column{VideosColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "videos_courses_course_videos",
+				Columns:    []*schema.Column{VideosColumns[7]},
+				RefColumns: []*schema.Column{CoursesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "videos_course_sections_course_videos",
+				Columns:    []*schema.Column{VideosColumns[8]},
+				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "videos_media_video_media",
+				Columns:    []*schema.Column{VideosColumns[9]},
+				RefColumns: []*schema.Column{MediaColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// VideoQuestionTimestampsColumns holds the columns for the "video_question_timestamps" table.
+	VideoQuestionTimestampsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "timestamp", Type: field.TypeInt},
+		{Name: "question_id", Type: field.TypeString},
+		{Name: "video_id", Type: field.TypeString},
+	}
+	// VideoQuestionTimestampsTable holds the schema information for the "video_question_timestamps" table.
+	VideoQuestionTimestampsTable = &schema.Table{
+		Name:       "video_question_timestamps",
+		Columns:    VideoQuestionTimestampsColumns,
+		PrimaryKey: []*schema.Column{VideoQuestionTimestampsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "video_question_timestamps_questions_video_question_timestamps_question",
+				Columns:    []*schema.Column{VideoQuestionTimestampsColumns[5]},
+				RefColumns: []*schema.Column{QuestionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "video_question_timestamps_videos_video_question_timestamps_video",
+				Columns:    []*schema.Column{VideoQuestionTimestampsColumns[6]},
+				RefColumns: []*schema.Column{VideosColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// RolePermissionsColumns holds the columns for the "role_permissions" table.
 	RolePermissionsColumns = []*schema.Column{
 		{Name: "role_id", Type: field.TypeString},
@@ -198,22 +370,38 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AuthsTable,
+		CoursesTable,
+		CourseSectionsTable,
 		MediaTable,
 		PermissionsTable,
+		QuestionsTable,
+		QuestionOptionsTable,
 		RolesTable,
 		TodosTable,
 		UsersTable,
 		UserRolesTable,
+		VideosTable,
+		VideoQuestionTimestampsTable,
 		RolePermissionsTable,
 	}
 )
 
 func init() {
 	AuthsTable.ForeignKeys[0].RefTable = UsersTable
+	CoursesTable.ForeignKeys[0].RefTable = MediaTable
+	CoursesTable.ForeignKeys[1].RefTable = UsersTable
+	CourseSectionsTable.ForeignKeys[0].RefTable = CoursesTable
 	MediaTable.ForeignKeys[0].RefTable = UsersTable
+	QuestionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
+	QuestionOptionsTable.ForeignKeys[0].RefTable = QuestionsTable
 	UsersTable.ForeignKeys[0].RefTable = MediaTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
+	VideosTable.ForeignKeys[0].RefTable = CoursesTable
+	VideosTable.ForeignKeys[1].RefTable = CourseSectionsTable
+	VideosTable.ForeignKeys[2].RefTable = MediaTable
+	VideoQuestionTimestampsTable.ForeignKeys[0].RefTable = QuestionsTable
+	VideoQuestionTimestampsTable.ForeignKeys[1].RefTable = VideosTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 }

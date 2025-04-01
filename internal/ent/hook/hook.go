@@ -20,6 +20,30 @@ func (f AuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthMutation", m)
 }
 
+// The CourseFunc type is an adapter to allow the use of ordinary
+// function as Course mutator.
+type CourseFunc func(context.Context, *ent.CourseMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CourseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CourseMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CourseMutation", m)
+}
+
+// The CourseSectionFunc type is an adapter to allow the use of ordinary
+// function as CourseSection mutator.
+type CourseSectionFunc func(context.Context, *ent.CourseSectionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CourseSectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CourseSectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CourseSectionMutation", m)
+}
+
 // The MediaFunc type is an adapter to allow the use of ordinary
 // function as Media mutator.
 type MediaFunc func(context.Context, *ent.MediaMutation) (ent.Value, error)
@@ -42,6 +66,30 @@ func (f PermissionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PermissionMutation", m)
+}
+
+// The QuestionFunc type is an adapter to allow the use of ordinary
+// function as Question mutator.
+type QuestionFunc func(context.Context, *ent.QuestionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuestionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuestionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuestionMutation", m)
+}
+
+// The QuestionOptionFunc type is an adapter to allow the use of ordinary
+// function as QuestionOption mutator.
+type QuestionOptionFunc func(context.Context, *ent.QuestionOptionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuestionOptionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuestionOptionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuestionOptionMutation", m)
 }
 
 // The RoleFunc type is an adapter to allow the use of ordinary
@@ -90,6 +138,30 @@ func (f UserRoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserRoleMutation", m)
+}
+
+// The VideoFunc type is an adapter to allow the use of ordinary
+// function as Video mutator.
+type VideoFunc func(context.Context, *ent.VideoMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VideoFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.VideoMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.VideoMutation", m)
+}
+
+// The VideoQuestionTimestampFunc type is an adapter to allow the use of ordinary
+// function as VideoQuestionTimestamp mutator.
+type VideoQuestionTimestampFunc func(context.Context, *ent.VideoQuestionTimestampMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VideoQuestionTimestampFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.VideoQuestionTimestampMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.VideoQuestionTimestampMutation", m)
 }
 
 // Condition is a hook condition function.

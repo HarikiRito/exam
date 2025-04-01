@@ -4,13 +4,19 @@ package runtime
 
 import (
 	"template/internal/ent/auth"
+	"template/internal/ent/course"
+	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
+	"template/internal/ent/question"
+	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/schema"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userrole"
+	"template/internal/ent/video"
+	"template/internal/ent/videoquestiontimestamp"
 	"time"
 )
 
@@ -51,6 +57,60 @@ func init() {
 	authDescIsRevoked := authFields[5].Descriptor()
 	// auth.DefaultIsRevoked holds the default value on creation for the is_revoked field.
 	auth.DefaultIsRevoked = authDescIsRevoked.Default.(bool)
+	courseMixin := schema.Course{}.Mixin()
+	courseMixinHooks0 := courseMixin[0].Hooks()
+	course.Hooks[0] = courseMixinHooks0[0]
+	courseMixinFields0 := courseMixin[0].Fields()
+	_ = courseMixinFields0
+	courseFields := schema.Course{}.Fields()
+	_ = courseFields
+	// courseDescCreatedAt is the schema descriptor for created_at field.
+	courseDescCreatedAt := courseMixinFields0[1].Descriptor()
+	// course.DefaultCreatedAt holds the default value on creation for the created_at field.
+	course.DefaultCreatedAt = courseDescCreatedAt.Default.(func() time.Time)
+	// courseDescUpdatedAt is the schema descriptor for updated_at field.
+	courseDescUpdatedAt := courseMixinFields0[2].Descriptor()
+	// course.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	course.DefaultUpdatedAt = courseDescUpdatedAt.Default.(func() time.Time)
+	// course.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	course.UpdateDefaultUpdatedAt = courseDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// courseDescTitle is the schema descriptor for title field.
+	courseDescTitle := courseFields[0].Descriptor()
+	// course.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	course.TitleValidator = courseDescTitle.Validators[0].(func(string) error)
+	// courseDescCreatorID is the schema descriptor for creator_id field.
+	courseDescCreatorID := courseFields[3].Descriptor()
+	// course.CreatorIDValidator is a validator for the "creator_id" field. It is called by the builders before save.
+	course.CreatorIDValidator = courseDescCreatorID.Validators[0].(func(string) error)
+	// courseDescIsPublished is the schema descriptor for is_published field.
+	courseDescIsPublished := courseFields[4].Descriptor()
+	// course.DefaultIsPublished holds the default value on creation for the is_published field.
+	course.DefaultIsPublished = courseDescIsPublished.Default.(bool)
+	coursesectionMixin := schema.CourseSection{}.Mixin()
+	coursesectionMixinHooks0 := coursesectionMixin[0].Hooks()
+	coursesection.Hooks[0] = coursesectionMixinHooks0[0]
+	coursesectionMixinFields0 := coursesectionMixin[0].Fields()
+	_ = coursesectionMixinFields0
+	coursesectionFields := schema.CourseSection{}.Fields()
+	_ = coursesectionFields
+	// coursesectionDescCreatedAt is the schema descriptor for created_at field.
+	coursesectionDescCreatedAt := coursesectionMixinFields0[1].Descriptor()
+	// coursesection.DefaultCreatedAt holds the default value on creation for the created_at field.
+	coursesection.DefaultCreatedAt = coursesectionDescCreatedAt.Default.(func() time.Time)
+	// coursesectionDescUpdatedAt is the schema descriptor for updated_at field.
+	coursesectionDescUpdatedAt := coursesectionMixinFields0[2].Descriptor()
+	// coursesection.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	coursesection.DefaultUpdatedAt = coursesectionDescUpdatedAt.Default.(func() time.Time)
+	// coursesection.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	coursesection.UpdateDefaultUpdatedAt = coursesectionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// coursesectionDescCourseID is the schema descriptor for course_id field.
+	coursesectionDescCourseID := coursesectionFields[0].Descriptor()
+	// coursesection.CourseIDValidator is a validator for the "course_id" field. It is called by the builders before save.
+	coursesection.CourseIDValidator = coursesectionDescCourseID.Validators[0].(func(string) error)
+	// coursesectionDescTitle is the schema descriptor for title field.
+	coursesectionDescTitle := coursesectionFields[1].Descriptor()
+	// coursesection.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	coursesection.TitleValidator = coursesectionDescTitle.Validators[0].(func(string) error)
 	mediaMixin := schema.Media{}.Mixin()
 	mediaMixinHooks0 := mediaMixin[0].Hooks()
 	media.Hooks[0] = mediaMixinHooks0[0]
@@ -101,6 +161,60 @@ func init() {
 	permissionDescName := permissionFields[0].Descriptor()
 	// permission.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	permission.NameValidator = permissionDescName.Validators[0].(func(string) error)
+	questionMixin := schema.Question{}.Mixin()
+	questionMixinHooks0 := questionMixin[0].Hooks()
+	question.Hooks[0] = questionMixinHooks0[0]
+	questionMixinFields0 := questionMixin[0].Fields()
+	_ = questionMixinFields0
+	questionFields := schema.Question{}.Fields()
+	_ = questionFields
+	// questionDescCreatedAt is the schema descriptor for created_at field.
+	questionDescCreatedAt := questionMixinFields0[1].Descriptor()
+	// question.DefaultCreatedAt holds the default value on creation for the created_at field.
+	question.DefaultCreatedAt = questionDescCreatedAt.Default.(func() time.Time)
+	// questionDescUpdatedAt is the schema descriptor for updated_at field.
+	questionDescUpdatedAt := questionMixinFields0[2].Descriptor()
+	// question.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	question.DefaultUpdatedAt = questionDescUpdatedAt.Default.(func() time.Time)
+	// question.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	question.UpdateDefaultUpdatedAt = questionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// questionDescSectionID is the schema descriptor for section_id field.
+	questionDescSectionID := questionFields[0].Descriptor()
+	// question.SectionIDValidator is a validator for the "section_id" field. It is called by the builders before save.
+	question.SectionIDValidator = questionDescSectionID.Validators[0].(func(string) error)
+	// questionDescQuestionText is the schema descriptor for question_text field.
+	questionDescQuestionText := questionFields[1].Descriptor()
+	// question.QuestionTextValidator is a validator for the "question_text" field. It is called by the builders before save.
+	question.QuestionTextValidator = questionDescQuestionText.Validators[0].(func(string) error)
+	questionoptionMixin := schema.QuestionOption{}.Mixin()
+	questionoptionMixinHooks0 := questionoptionMixin[0].Hooks()
+	questionoption.Hooks[0] = questionoptionMixinHooks0[0]
+	questionoptionMixinFields0 := questionoptionMixin[0].Fields()
+	_ = questionoptionMixinFields0
+	questionoptionFields := schema.QuestionOption{}.Fields()
+	_ = questionoptionFields
+	// questionoptionDescCreatedAt is the schema descriptor for created_at field.
+	questionoptionDescCreatedAt := questionoptionMixinFields0[1].Descriptor()
+	// questionoption.DefaultCreatedAt holds the default value on creation for the created_at field.
+	questionoption.DefaultCreatedAt = questionoptionDescCreatedAt.Default.(func() time.Time)
+	// questionoptionDescUpdatedAt is the schema descriptor for updated_at field.
+	questionoptionDescUpdatedAt := questionoptionMixinFields0[2].Descriptor()
+	// questionoption.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	questionoption.DefaultUpdatedAt = questionoptionDescUpdatedAt.Default.(func() time.Time)
+	// questionoption.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	questionoption.UpdateDefaultUpdatedAt = questionoptionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// questionoptionDescQuestionID is the schema descriptor for question_id field.
+	questionoptionDescQuestionID := questionoptionFields[0].Descriptor()
+	// questionoption.QuestionIDValidator is a validator for the "question_id" field. It is called by the builders before save.
+	questionoption.QuestionIDValidator = questionoptionDescQuestionID.Validators[0].(func(string) error)
+	// questionoptionDescOptionText is the schema descriptor for option_text field.
+	questionoptionDescOptionText := questionoptionFields[1].Descriptor()
+	// questionoption.OptionTextValidator is a validator for the "option_text" field. It is called by the builders before save.
+	questionoption.OptionTextValidator = questionoptionDescOptionText.Validators[0].(func(string) error)
+	// questionoptionDescIsCorrect is the schema descriptor for is_correct field.
+	questionoptionDescIsCorrect := questionoptionFields[2].Descriptor()
+	// questionoption.DefaultIsCorrect holds the default value on creation for the is_correct field.
+	questionoption.DefaultIsCorrect = questionoptionDescIsCorrect.Default.(bool)
 	roleMixin := schema.Role{}.Mixin()
 	roleMixinHooks0 := roleMixin[0].Hooks()
 	role.Hooks[0] = roleMixinHooks0[0]
@@ -197,6 +311,60 @@ func init() {
 	userroleDescRoleID := userroleFields[1].Descriptor()
 	// userrole.RoleIDValidator is a validator for the "role_id" field. It is called by the builders before save.
 	userrole.RoleIDValidator = userroleDescRoleID.Validators[0].(func(string) error)
+	videoMixin := schema.Video{}.Mixin()
+	videoMixinHooks0 := videoMixin[0].Hooks()
+	video.Hooks[0] = videoMixinHooks0[0]
+	videoMixinFields0 := videoMixin[0].Fields()
+	_ = videoMixinFields0
+	videoFields := schema.Video{}.Fields()
+	_ = videoFields
+	// videoDescCreatedAt is the schema descriptor for created_at field.
+	videoDescCreatedAt := videoMixinFields0[1].Descriptor()
+	// video.DefaultCreatedAt holds the default value on creation for the created_at field.
+	video.DefaultCreatedAt = videoDescCreatedAt.Default.(func() time.Time)
+	// videoDescUpdatedAt is the schema descriptor for updated_at field.
+	videoDescUpdatedAt := videoMixinFields0[2].Descriptor()
+	// video.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	video.DefaultUpdatedAt = videoDescUpdatedAt.Default.(func() time.Time)
+	// video.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	video.UpdateDefaultUpdatedAt = videoDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// videoDescSectionID is the schema descriptor for section_id field.
+	videoDescSectionID := videoFields[0].Descriptor()
+	// video.SectionIDValidator is a validator for the "section_id" field. It is called by the builders before save.
+	video.SectionIDValidator = videoDescSectionID.Validators[0].(func(string) error)
+	// videoDescTitle is the schema descriptor for title field.
+	videoDescTitle := videoFields[1].Descriptor()
+	// video.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	video.TitleValidator = videoDescTitle.Validators[0].(func(string) error)
+	// videoDescMediaID is the schema descriptor for media_id field.
+	videoDescMediaID := videoFields[3].Descriptor()
+	// video.MediaIDValidator is a validator for the "media_id" field. It is called by the builders before save.
+	video.MediaIDValidator = videoDescMediaID.Validators[0].(func(string) error)
+	videoquestiontimestampMixin := schema.VideoQuestionTimestamp{}.Mixin()
+	videoquestiontimestampMixinHooks0 := videoquestiontimestampMixin[0].Hooks()
+	videoquestiontimestamp.Hooks[0] = videoquestiontimestampMixinHooks0[0]
+	videoquestiontimestampMixinFields0 := videoquestiontimestampMixin[0].Fields()
+	_ = videoquestiontimestampMixinFields0
+	videoquestiontimestampFields := schema.VideoQuestionTimestamp{}.Fields()
+	_ = videoquestiontimestampFields
+	// videoquestiontimestampDescCreatedAt is the schema descriptor for created_at field.
+	videoquestiontimestampDescCreatedAt := videoquestiontimestampMixinFields0[1].Descriptor()
+	// videoquestiontimestamp.DefaultCreatedAt holds the default value on creation for the created_at field.
+	videoquestiontimestamp.DefaultCreatedAt = videoquestiontimestampDescCreatedAt.Default.(func() time.Time)
+	// videoquestiontimestampDescUpdatedAt is the schema descriptor for updated_at field.
+	videoquestiontimestampDescUpdatedAt := videoquestiontimestampMixinFields0[2].Descriptor()
+	// videoquestiontimestamp.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	videoquestiontimestamp.DefaultUpdatedAt = videoquestiontimestampDescUpdatedAt.Default.(func() time.Time)
+	// videoquestiontimestamp.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	videoquestiontimestamp.UpdateDefaultUpdatedAt = videoquestiontimestampDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// videoquestiontimestampDescVideoID is the schema descriptor for video_id field.
+	videoquestiontimestampDescVideoID := videoquestiontimestampFields[0].Descriptor()
+	// videoquestiontimestamp.VideoIDValidator is a validator for the "video_id" field. It is called by the builders before save.
+	videoquestiontimestamp.VideoIDValidator = videoquestiontimestampDescVideoID.Validators[0].(func(string) error)
+	// videoquestiontimestampDescQuestionID is the schema descriptor for question_id field.
+	videoquestiontimestampDescQuestionID := videoquestiontimestampFields[1].Descriptor()
+	// videoquestiontimestamp.QuestionIDValidator is a validator for the "question_id" field. It is called by the builders before save.
+	videoquestiontimestamp.QuestionIDValidator = videoquestiontimestampDescQuestionID.Validators[0].(func(string) error)
 }
 
 const (

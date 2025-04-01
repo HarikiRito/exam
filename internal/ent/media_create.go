@@ -6,8 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/user"
+	"template/internal/ent/video"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -139,6 +141,36 @@ func (mc *MediaCreate) SetNillableUserID(id *string) *MediaCreate {
 // SetUser sets the "user" edge to the User entity.
 func (mc *MediaCreate) SetUser(u *User) *MediaCreate {
 	return mc.SetUserID(u.ID)
+}
+
+// AddCourseMediumIDs adds the "course_media" edge to the Course entity by IDs.
+func (mc *MediaCreate) AddCourseMediumIDs(ids ...string) *MediaCreate {
+	mc.mutation.AddCourseMediumIDs(ids...)
+	return mc
+}
+
+// AddCourseMedia adds the "course_media" edges to the Course entity.
+func (mc *MediaCreate) AddCourseMedia(c ...*Course) *MediaCreate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return mc.AddCourseMediumIDs(ids...)
+}
+
+// AddVideoMediumIDs adds the "video_media" edge to the Video entity by IDs.
+func (mc *MediaCreate) AddVideoMediumIDs(ids ...string) *MediaCreate {
+	mc.mutation.AddVideoMediumIDs(ids...)
+	return mc
+}
+
+// AddVideoMedia adds the "video_media" edges to the Video entity.
+func (mc *MediaCreate) AddVideoMedia(v ...*Video) *MediaCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return mc.AddVideoMediumIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -321,6 +353,38 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UploaderID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.CourseMediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.CourseMediaTable,
+			Columns: []string{media.CourseMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.VideoMediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.VideoMediaTable,
+			Columns: []string{media.VideoMediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

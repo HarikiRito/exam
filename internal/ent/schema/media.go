@@ -32,6 +32,8 @@ func (Media) Edges() []ent.Edge {
 			Ref("media_uploader").
 			Field("uploader_id").
 			Unique(),
+		edge.To("course_media", Course.Type),
+		edge.To("video_media", Video.Type),
 	}
 }
 

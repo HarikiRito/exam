@@ -767,6 +767,29 @@ func HasRolesWith(preds ...predicate.Role) predicate.User {
 	})
 }
 
+// HasCourseCreator applies the HasEdge predicate on the "course_creator" edge.
+func HasCourseCreator() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CourseCreatorTable, CourseCreatorColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCourseCreatorWith applies the HasEdge predicate on the "course_creator" edge with a given conditions (other predicates).
+func HasCourseCreatorWith(preds ...predicate.Course) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newCourseCreatorStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUserRoles applies the HasEdge predicate on the "user_roles" edge.
 func HasUserRoles() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

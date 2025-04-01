@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"template/internal/ent/auth"
+	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/role"
@@ -31,6 +32,7 @@ type UserQuery struct {
 	withAuthUser      *AuthQuery
 	withMediaUploader *MediaQuery
 	withRoles         *RoleQuery
+	withCourseCreator *CourseQuery
 	withUserRoles     *UserRoleQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -149,6 +151,28 @@ func (uq *UserQuery) QueryRoles() *RoleQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(role.Table, role.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, user.RolesTable, user.RolesPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCourseCreator chains the current query on the "course_creator" edge.
+func (uq *UserQuery) QueryCourseCreator() *CourseQuery {
+	query := (&CourseClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CourseCreatorTable, user.CourseCreatorColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -374,6 +398,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withAuthUser:      uq.withAuthUser.Clone(),
 		withMediaUploader: uq.withMediaUploader.Clone(),
 		withRoles:         uq.withRoles.Clone(),
+		withCourseCreator: uq.withCourseCreator.Clone(),
 		withUserRoles:     uq.withUserRoles.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
@@ -422,6 +447,17 @@ func (uq *UserQuery) WithRoles(opts ...func(*RoleQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withRoles = query
+	return uq
+}
+
+// WithCourseCreator tells the query-builder to eager-load the nodes that are connected to
+// the "course_creator" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithCourseCreator(opts ...func(*CourseQuery)) *UserQuery {
+	query := (&CourseClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withCourseCreator = query
 	return uq
 }
 
@@ -514,11 +550,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			uq.withMedia != nil,
 			uq.withAuthUser != nil,
 			uq.withMediaUploader != nil,
 			uq.withRoles != nil,
+			uq.withCourseCreator != nil,
 			uq.withUserRoles != nil,
 		}
 	)
@@ -564,6 +601,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadRoles(ctx, query, nodes,
 			func(n *User) { n.Edges.Roles = []*Role{} },
 			func(n *User, e *Role) { n.Edges.Roles = append(n.Edges.Roles, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withCourseCreator; query != nil {
+		if err := uq.loadCourseCreator(ctx, query, nodes,
+			func(n *User) { n.Edges.CourseCreator = []*Course{} },
+			func(n *User, e *Course) { n.Edges.CourseCreator = append(n.Edges.CourseCreator, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -724,6 +768,36 @@ func (uq *UserQuery) loadRoles(ctx context.Context, query *RoleQuery, nodes []*U
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (uq *UserQuery) loadCourseCreator(ctx context.Context, query *CourseQuery, nodes []*User, init func(*User), assign func(*User, *Course)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(course.FieldCreatorID)
+	}
+	query.Where(predicate.Course(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.CourseCreatorColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CreatorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "creator_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

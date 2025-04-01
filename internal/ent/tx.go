@@ -14,10 +14,18 @@ type Tx struct {
 	config
 	// Auth is the client for interacting with the Auth builders.
 	Auth *AuthClient
+	// Course is the client for interacting with the Course builders.
+	Course *CourseClient
+	// CourseSection is the client for interacting with the CourseSection builders.
+	CourseSection *CourseSectionClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
+	// Question is the client for interacting with the Question builders.
+	Question *QuestionClient
+	// QuestionOption is the client for interacting with the QuestionOption builders.
+	QuestionOption *QuestionOptionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Todo is the client for interacting with the Todo builders.
@@ -26,6 +34,10 @@ type Tx struct {
 	User *UserClient
 	// UserRole is the client for interacting with the UserRole builders.
 	UserRole *UserRoleClient
+	// Video is the client for interacting with the Video builders.
+	Video *VideoClient
+	// VideoQuestionTimestamp is the client for interacting with the VideoQuestionTimestamp builders.
+	VideoQuestionTimestamp *VideoQuestionTimestampClient
 
 	// lazily loaded.
 	client     *Client
@@ -158,12 +170,18 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Auth = NewAuthClient(tx.config)
+	tx.Course = NewCourseClient(tx.config)
+	tx.CourseSection = NewCourseSectionClient(tx.config)
 	tx.Media = NewMediaClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
+	tx.Question = NewQuestionClient(tx.config)
+	tx.QuestionOption = NewQuestionOptionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Todo = NewTodoClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 	tx.UserRole = NewUserRoleClient(tx.config)
+	tx.Video = NewVideoClient(tx.config)
+	tx.VideoQuestionTimestamp = NewVideoQuestionTimestampClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

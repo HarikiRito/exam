@@ -556,6 +556,52 @@ func HasUserWith(preds ...predicate.User) predicate.Media {
 	})
 }
 
+// HasCourseMedia applies the HasEdge predicate on the "course_media" edge.
+func HasCourseMedia() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CourseMediaTable, CourseMediaColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCourseMediaWith applies the HasEdge predicate on the "course_media" edge with a given conditions (other predicates).
+func HasCourseMediaWith(preds ...predicate.Course) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := newCourseMediaStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasVideoMedia applies the HasEdge predicate on the "video_media" edge.
+func HasVideoMedia() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, VideoMediaTable, VideoMediaColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasVideoMediaWith applies the HasEdge predicate on the "video_media" edge with a given conditions (other predicates).
+func HasVideoMediaWith(preds ...predicate.Video) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := newVideoMediaStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Media) predicate.Media {
 	return predicate.Media(sql.AndPredicates(predicates...))

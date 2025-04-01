@@ -54,11 +54,13 @@ type UserEdges struct {
 	MediaUploader []*Media `json:"media_uploader,omitempty"`
 	// Roles holds the value of the roles edge.
 	Roles []*Role `json:"roles,omitempty"`
+	// CourseCreator holds the value of the course_creator edge.
+	CourseCreator []*Course `json:"course_creator,omitempty"`
 	// UserRoles holds the value of the user_roles edge.
 	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -99,10 +101,19 @@ func (e UserEdges) RolesOrErr() ([]*Role, error) {
 	return nil, &NotLoadedError{edge: "roles"}
 }
 
+// CourseCreatorOrErr returns the CourseCreator value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CourseCreatorOrErr() ([]*Course, error) {
+	if e.loadedTypes[4] {
+		return e.CourseCreator, nil
+	}
+	return nil, &NotLoadedError{edge: "course_creator"}
+}
+
 // UserRolesOrErr returns the UserRoles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		return e.UserRoles, nil
 	}
 	return nil, &NotLoadedError{edge: "user_roles"}
@@ -232,6 +243,11 @@ func (u *User) QueryMediaUploader() *MediaQuery {
 // QueryRoles queries the "roles" edge of the User entity.
 func (u *User) QueryRoles() *RoleQuery {
 	return NewUserClient(u.config).QueryRoles(u)
+}
+
+// QueryCourseCreator queries the "course_creator" edge of the User entity.
+func (u *User) QueryCourseCreator() *CourseQuery {
+	return NewUserClient(u.config).QueryCourseCreator(u)
 }
 
 // QueryUserRoles queries the "user_roles" edge of the User entity.

@@ -47,9 +47,13 @@ type MediaEdges struct {
 	UserMedia []*User `json:"user_media,omitempty"`
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
+	// CourseMedia holds the value of the course_media edge.
+	CourseMedia []*Course `json:"course_media,omitempty"`
+	// VideoMedia holds the value of the video_media edge.
+	VideoMedia []*Video `json:"video_media,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // UserMediaOrErr returns the UserMedia value or an error if the edge
@@ -70,6 +74,24 @@ func (e MediaEdges) UserOrErr() (*User, error) {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "user"}
+}
+
+// CourseMediaOrErr returns the CourseMedia value or an error if the edge
+// was not loaded in eager-loading.
+func (e MediaEdges) CourseMediaOrErr() ([]*Course, error) {
+	if e.loadedTypes[2] {
+		return e.CourseMedia, nil
+	}
+	return nil, &NotLoadedError{edge: "course_media"}
+}
+
+// VideoMediaOrErr returns the VideoMedia value or an error if the edge
+// was not loaded in eager-loading.
+func (e MediaEdges) VideoMediaOrErr() ([]*Video, error) {
+	if e.loadedTypes[3] {
+		return e.VideoMedia, nil
+	}
+	return nil, &NotLoadedError{edge: "video_media"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -176,6 +198,16 @@ func (m *Media) QueryUserMedia() *UserQuery {
 // QueryUser queries the "user" edge of the Media entity.
 func (m *Media) QueryUser() *UserQuery {
 	return NewMediaClient(m.config).QueryUser(m)
+}
+
+// QueryCourseMedia queries the "course_media" edge of the Media entity.
+func (m *Media) QueryCourseMedia() *CourseQuery {
+	return NewMediaClient(m.config).QueryCourseMedia(m)
+}
+
+// QueryVideoMedia queries the "video_media" edge of the Media entity.
+func (m *Media) QueryVideoMedia() *VideoQuery {
+	return NewMediaClient(m.config).QueryVideoMedia(m)
 }
 
 // Update returns a builder for updating this Media.

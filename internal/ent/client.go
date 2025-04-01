@@ -12,12 +12,18 @@ import (
 	"template/internal/ent/migrate"
 
 	"template/internal/ent/auth"
+	"template/internal/ent/course"
+	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
+	"template/internal/ent/question"
+	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userrole"
+	"template/internal/ent/video"
+	"template/internal/ent/videoquestiontimestamp"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
@@ -32,10 +38,18 @@ type Client struct {
 	Schema *migrate.Schema
 	// Auth is the client for interacting with the Auth builders.
 	Auth *AuthClient
+	// Course is the client for interacting with the Course builders.
+	Course *CourseClient
+	// CourseSection is the client for interacting with the CourseSection builders.
+	CourseSection *CourseSectionClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
 	// Permission is the client for interacting with the Permission builders.
 	Permission *PermissionClient
+	// Question is the client for interacting with the Question builders.
+	Question *QuestionClient
+	// QuestionOption is the client for interacting with the QuestionOption builders.
+	QuestionOption *QuestionOptionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
 	// Todo is the client for interacting with the Todo builders.
@@ -44,6 +58,10 @@ type Client struct {
 	User *UserClient
 	// UserRole is the client for interacting with the UserRole builders.
 	UserRole *UserRoleClient
+	// Video is the client for interacting with the Video builders.
+	Video *VideoClient
+	// VideoQuestionTimestamp is the client for interacting with the VideoQuestionTimestamp builders.
+	VideoQuestionTimestamp *VideoQuestionTimestampClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -56,12 +74,18 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Auth = NewAuthClient(c.config)
+	c.Course = NewCourseClient(c.config)
+	c.CourseSection = NewCourseSectionClient(c.config)
 	c.Media = NewMediaClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
+	c.Question = NewQuestionClient(c.config)
+	c.QuestionOption = NewQuestionOptionClient(c.config)
 	c.Role = NewRoleClient(c.config)
 	c.Todo = NewTodoClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserRole = NewUserRoleClient(c.config)
+	c.Video = NewVideoClient(c.config)
+	c.VideoQuestionTimestamp = NewVideoQuestionTimestampClient(c.config)
 }
 
 type (
@@ -152,15 +176,21 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Auth:       NewAuthClient(cfg),
-		Media:      NewMediaClient(cfg),
-		Permission: NewPermissionClient(cfg),
-		Role:       NewRoleClient(cfg),
-		Todo:       NewTodoClient(cfg),
-		User:       NewUserClient(cfg),
-		UserRole:   NewUserRoleClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		Auth:                   NewAuthClient(cfg),
+		Course:                 NewCourseClient(cfg),
+		CourseSection:          NewCourseSectionClient(cfg),
+		Media:                  NewMediaClient(cfg),
+		Permission:             NewPermissionClient(cfg),
+		Question:               NewQuestionClient(cfg),
+		QuestionOption:         NewQuestionOptionClient(cfg),
+		Role:                   NewRoleClient(cfg),
+		Todo:                   NewTodoClient(cfg),
+		User:                   NewUserClient(cfg),
+		UserRole:               NewUserRoleClient(cfg),
+		Video:                  NewVideoClient(cfg),
+		VideoQuestionTimestamp: NewVideoQuestionTimestampClient(cfg),
 	}, nil
 }
 
@@ -178,15 +208,21 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Auth:       NewAuthClient(cfg),
-		Media:      NewMediaClient(cfg),
-		Permission: NewPermissionClient(cfg),
-		Role:       NewRoleClient(cfg),
-		Todo:       NewTodoClient(cfg),
-		User:       NewUserClient(cfg),
-		UserRole:   NewUserRoleClient(cfg),
+		ctx:                    ctx,
+		config:                 cfg,
+		Auth:                   NewAuthClient(cfg),
+		Course:                 NewCourseClient(cfg),
+		CourseSection:          NewCourseSectionClient(cfg),
+		Media:                  NewMediaClient(cfg),
+		Permission:             NewPermissionClient(cfg),
+		Question:               NewQuestionClient(cfg),
+		QuestionOption:         NewQuestionOptionClient(cfg),
+		Role:                   NewRoleClient(cfg),
+		Todo:                   NewTodoClient(cfg),
+		User:                   NewUserClient(cfg),
+		UserRole:               NewUserRoleClient(cfg),
+		Video:                  NewVideoClient(cfg),
+		VideoQuestionTimestamp: NewVideoQuestionTimestampClient(cfg),
 	}, nil
 }
 
@@ -216,7 +252,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Auth, c.Media, c.Permission, c.Role, c.Todo, c.User, c.UserRole,
+		c.Auth, c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
+		c.QuestionOption, c.Role, c.Todo, c.User, c.UserRole, c.Video,
+		c.VideoQuestionTimestamp,
 	} {
 		n.Use(hooks...)
 	}
@@ -226,7 +264,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Auth, c.Media, c.Permission, c.Role, c.Todo, c.User, c.UserRole,
+		c.Auth, c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
+		c.QuestionOption, c.Role, c.Todo, c.User, c.UserRole, c.Video,
+		c.VideoQuestionTimestamp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -237,10 +277,18 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AuthMutation:
 		return c.Auth.mutate(ctx, m)
+	case *CourseMutation:
+		return c.Course.mutate(ctx, m)
+	case *CourseSectionMutation:
+		return c.CourseSection.mutate(ctx, m)
 	case *MediaMutation:
 		return c.Media.mutate(ctx, m)
 	case *PermissionMutation:
 		return c.Permission.mutate(ctx, m)
+	case *QuestionMutation:
+		return c.Question.mutate(ctx, m)
+	case *QuestionOptionMutation:
+		return c.QuestionOption.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
 	case *TodoMutation:
@@ -249,6 +297,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	case *UserRoleMutation:
 		return c.UserRole.mutate(ctx, m)
+	case *VideoMutation:
+		return c.Video.mutate(ctx, m)
+	case *VideoQuestionTimestampMutation:
+		return c.VideoQuestionTimestamp.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -404,6 +456,386 @@ func (c *AuthClient) mutate(ctx context.Context, m *AuthMutation) (Value, error)
 	}
 }
 
+// CourseClient is a client for the Course schema.
+type CourseClient struct {
+	config
+}
+
+// NewCourseClient returns a client for the Course from the given config.
+func NewCourseClient(c config) *CourseClient {
+	return &CourseClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `course.Hooks(f(g(h())))`.
+func (c *CourseClient) Use(hooks ...Hook) {
+	c.hooks.Course = append(c.hooks.Course, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `course.Intercept(f(g(h())))`.
+func (c *CourseClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Course = append(c.inters.Course, interceptors...)
+}
+
+// Create returns a builder for creating a Course entity.
+func (c *CourseClient) Create() *CourseCreate {
+	mutation := newCourseMutation(c.config, OpCreate)
+	return &CourseCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Course entities.
+func (c *CourseClient) CreateBulk(builders ...*CourseCreate) *CourseCreateBulk {
+	return &CourseCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CourseClient) MapCreateBulk(slice any, setFunc func(*CourseCreate, int)) *CourseCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CourseCreateBulk{err: fmt.Errorf("calling to CourseClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CourseCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CourseCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Course.
+func (c *CourseClient) Update() *CourseUpdate {
+	mutation := newCourseMutation(c.config, OpUpdate)
+	return &CourseUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CourseClient) UpdateOne(co *Course) *CourseUpdateOne {
+	mutation := newCourseMutation(c.config, OpUpdateOne, withCourse(co))
+	return &CourseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CourseClient) UpdateOneID(id string) *CourseUpdateOne {
+	mutation := newCourseMutation(c.config, OpUpdateOne, withCourseID(id))
+	return &CourseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Course.
+func (c *CourseClient) Delete() *CourseDelete {
+	mutation := newCourseMutation(c.config, OpDelete)
+	return &CourseDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CourseClient) DeleteOne(co *Course) *CourseDeleteOne {
+	return c.DeleteOneID(co.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CourseClient) DeleteOneID(id string) *CourseDeleteOne {
+	builder := c.Delete().Where(course.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CourseDeleteOne{builder}
+}
+
+// Query returns a query builder for Course.
+func (c *CourseClient) Query() *CourseQuery {
+	return &CourseQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCourse},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Course entity by its id.
+func (c *CourseClient) Get(ctx context.Context, id string) (*Course, error) {
+	return c.Query().Where(course.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CourseClient) GetX(ctx context.Context, id string) *Course {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMedia queries the media edge of a Course.
+func (c *CourseClient) QueryMedia(co *Course) *MediaQuery {
+	query := (&MediaClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(course.Table, course.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, course.MediaTable, course.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCreator queries the creator edge of a Course.
+func (c *CourseClient) QueryCreator(co *Course) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(course.Table, course.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, course.CreatorTable, course.CreatorColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourseSections queries the course_sections edge of a Course.
+func (c *CourseClient) QueryCourseSections(co *Course) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(course.Table, course.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, course.CourseSectionsTable, course.CourseSectionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourseVideos queries the course_videos edge of a Course.
+func (c *CourseClient) QueryCourseVideos(co *Course) *VideoQuery {
+	query := (&VideoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(course.Table, course.FieldID, id),
+			sqlgraph.To(video.Table, video.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, course.CourseVideosTable, course.CourseVideosColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CourseClient) Hooks() []Hook {
+	hooks := c.hooks.Course
+	return append(hooks[:len(hooks):len(hooks)], course.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *CourseClient) Interceptors() []Interceptor {
+	return c.inters.Course
+}
+
+func (c *CourseClient) mutate(ctx context.Context, m *CourseMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CourseCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CourseUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CourseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CourseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Course mutation op: %q", m.Op())
+	}
+}
+
+// CourseSectionClient is a client for the CourseSection schema.
+type CourseSectionClient struct {
+	config
+}
+
+// NewCourseSectionClient returns a client for the CourseSection from the given config.
+func NewCourseSectionClient(c config) *CourseSectionClient {
+	return &CourseSectionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `coursesection.Hooks(f(g(h())))`.
+func (c *CourseSectionClient) Use(hooks ...Hook) {
+	c.hooks.CourseSection = append(c.hooks.CourseSection, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `coursesection.Intercept(f(g(h())))`.
+func (c *CourseSectionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CourseSection = append(c.inters.CourseSection, interceptors...)
+}
+
+// Create returns a builder for creating a CourseSection entity.
+func (c *CourseSectionClient) Create() *CourseSectionCreate {
+	mutation := newCourseSectionMutation(c.config, OpCreate)
+	return &CourseSectionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CourseSection entities.
+func (c *CourseSectionClient) CreateBulk(builders ...*CourseSectionCreate) *CourseSectionCreateBulk {
+	return &CourseSectionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CourseSectionClient) MapCreateBulk(slice any, setFunc func(*CourseSectionCreate, int)) *CourseSectionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CourseSectionCreateBulk{err: fmt.Errorf("calling to CourseSectionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CourseSectionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CourseSectionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CourseSection.
+func (c *CourseSectionClient) Update() *CourseSectionUpdate {
+	mutation := newCourseSectionMutation(c.config, OpUpdate)
+	return &CourseSectionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CourseSectionClient) UpdateOne(cs *CourseSection) *CourseSectionUpdateOne {
+	mutation := newCourseSectionMutation(c.config, OpUpdateOne, withCourseSection(cs))
+	return &CourseSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CourseSectionClient) UpdateOneID(id string) *CourseSectionUpdateOne {
+	mutation := newCourseSectionMutation(c.config, OpUpdateOne, withCourseSectionID(id))
+	return &CourseSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CourseSection.
+func (c *CourseSectionClient) Delete() *CourseSectionDelete {
+	mutation := newCourseSectionMutation(c.config, OpDelete)
+	return &CourseSectionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CourseSectionClient) DeleteOne(cs *CourseSection) *CourseSectionDeleteOne {
+	return c.DeleteOneID(cs.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CourseSectionClient) DeleteOneID(id string) *CourseSectionDeleteOne {
+	builder := c.Delete().Where(coursesection.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CourseSectionDeleteOne{builder}
+}
+
+// Query returns a query builder for CourseSection.
+func (c *CourseSectionClient) Query() *CourseSectionQuery {
+	return &CourseSectionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCourseSection},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CourseSection entity by its id.
+func (c *CourseSectionClient) Get(ctx context.Context, id string) (*CourseSection, error) {
+	return c.Query().Where(coursesection.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CourseSectionClient) GetX(ctx context.Context, id string) *CourseSection {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCourse queries the course edge of a CourseSection.
+func (c *CourseSectionClient) QueryCourse(cs *CourseSection) *CourseQuery {
+	query := (&CourseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, coursesection.CourseTable, coursesection.CourseColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourseVideos queries the course_videos edge of a CourseSection.
+func (c *CourseSectionClient) QueryCourseVideos(cs *CourseSection) *VideoQuery {
+	query := (&VideoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(video.Table, video.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseVideosTable, coursesection.CourseVideosColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryQuestions queries the questions edge of a CourseSection.
+func (c *CourseSectionClient) QueryQuestions(cs *CourseSection) *QuestionQuery {
+	query := (&QuestionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(question.Table, question.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.QuestionsTable, coursesection.QuestionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CourseSectionClient) Hooks() []Hook {
+	hooks := c.hooks.CourseSection
+	return append(hooks[:len(hooks):len(hooks)], coursesection.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *CourseSectionClient) Interceptors() []Interceptor {
+	return c.inters.CourseSection
+}
+
+func (c *CourseSectionClient) mutate(ctx context.Context, m *CourseSectionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CourseSectionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CourseSectionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CourseSectionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CourseSectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CourseSection mutation op: %q", m.Op())
+	}
+}
+
 // MediaClient is a client for the Media schema.
 type MediaClient struct {
 	config
@@ -537,6 +969,38 @@ func (c *MediaClient) QueryUser(m *Media) *UserQuery {
 			sqlgraph.From(media.Table, media.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, media.UserTable, media.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourseMedia queries the course_media edge of a Media.
+func (c *MediaClient) QueryCourseMedia(m *Media) *CourseQuery {
+	query := (&CourseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.CourseMediaTable, media.CourseMediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryVideoMedia queries the video_media edge of a Media.
+func (c *MediaClient) QueryVideoMedia(m *Media) *VideoQuery {
+	query := (&VideoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(video.Table, video.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.VideoMediaTable, media.VideoMediaColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -717,6 +1181,338 @@ func (c *PermissionClient) mutate(ctx context.Context, m *PermissionMutation) (V
 		return (&PermissionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Permission mutation op: %q", m.Op())
+	}
+}
+
+// QuestionClient is a client for the Question schema.
+type QuestionClient struct {
+	config
+}
+
+// NewQuestionClient returns a client for the Question from the given config.
+func NewQuestionClient(c config) *QuestionClient {
+	return &QuestionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `question.Hooks(f(g(h())))`.
+func (c *QuestionClient) Use(hooks ...Hook) {
+	c.hooks.Question = append(c.hooks.Question, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `question.Intercept(f(g(h())))`.
+func (c *QuestionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Question = append(c.inters.Question, interceptors...)
+}
+
+// Create returns a builder for creating a Question entity.
+func (c *QuestionClient) Create() *QuestionCreate {
+	mutation := newQuestionMutation(c.config, OpCreate)
+	return &QuestionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Question entities.
+func (c *QuestionClient) CreateBulk(builders ...*QuestionCreate) *QuestionCreateBulk {
+	return &QuestionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *QuestionClient) MapCreateBulk(slice any, setFunc func(*QuestionCreate, int)) *QuestionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &QuestionCreateBulk{err: fmt.Errorf("calling to QuestionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*QuestionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &QuestionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Question.
+func (c *QuestionClient) Update() *QuestionUpdate {
+	mutation := newQuestionMutation(c.config, OpUpdate)
+	return &QuestionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *QuestionClient) UpdateOne(q *Question) *QuestionUpdateOne {
+	mutation := newQuestionMutation(c.config, OpUpdateOne, withQuestion(q))
+	return &QuestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *QuestionClient) UpdateOneID(id string) *QuestionUpdateOne {
+	mutation := newQuestionMutation(c.config, OpUpdateOne, withQuestionID(id))
+	return &QuestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Question.
+func (c *QuestionClient) Delete() *QuestionDelete {
+	mutation := newQuestionMutation(c.config, OpDelete)
+	return &QuestionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *QuestionClient) DeleteOne(q *Question) *QuestionDeleteOne {
+	return c.DeleteOneID(q.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *QuestionClient) DeleteOneID(id string) *QuestionDeleteOne {
+	builder := c.Delete().Where(question.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &QuestionDeleteOne{builder}
+}
+
+// Query returns a query builder for Question.
+func (c *QuestionClient) Query() *QuestionQuery {
+	return &QuestionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeQuestion},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Question entity by its id.
+func (c *QuestionClient) Get(ctx context.Context, id string) (*Question, error) {
+	return c.Query().Where(question.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *QuestionClient) GetX(ctx context.Context, id string) *Question {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySection queries the section edge of a Question.
+func (c *QuestionClient) QuerySection(q *Question) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := q.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, question.SectionTable, question.SectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryQuestionOptions queries the question_options edge of a Question.
+func (c *QuestionClient) QueryQuestionOptions(q *Question) *QuestionOptionQuery {
+	query := (&QuestionOptionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := q.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, id),
+			sqlgraph.To(questionoption.Table, questionoption.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, question.QuestionOptionsTable, question.QuestionOptionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryVideoQuestionTimestampsQuestion queries the video_question_timestamps_question edge of a Question.
+func (c *QuestionClient) QueryVideoQuestionTimestampsQuestion(q *Question) *VideoQuestionTimestampQuery {
+	query := (&VideoQuestionTimestampClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := q.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, id),
+			sqlgraph.To(videoquestiontimestamp.Table, videoquestiontimestamp.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, question.VideoQuestionTimestampsQuestionTable, question.VideoQuestionTimestampsQuestionColumn),
+		)
+		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *QuestionClient) Hooks() []Hook {
+	hooks := c.hooks.Question
+	return append(hooks[:len(hooks):len(hooks)], question.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *QuestionClient) Interceptors() []Interceptor {
+	return c.inters.Question
+}
+
+func (c *QuestionClient) mutate(ctx context.Context, m *QuestionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&QuestionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&QuestionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&QuestionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&QuestionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Question mutation op: %q", m.Op())
+	}
+}
+
+// QuestionOptionClient is a client for the QuestionOption schema.
+type QuestionOptionClient struct {
+	config
+}
+
+// NewQuestionOptionClient returns a client for the QuestionOption from the given config.
+func NewQuestionOptionClient(c config) *QuestionOptionClient {
+	return &QuestionOptionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `questionoption.Hooks(f(g(h())))`.
+func (c *QuestionOptionClient) Use(hooks ...Hook) {
+	c.hooks.QuestionOption = append(c.hooks.QuestionOption, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `questionoption.Intercept(f(g(h())))`.
+func (c *QuestionOptionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.QuestionOption = append(c.inters.QuestionOption, interceptors...)
+}
+
+// Create returns a builder for creating a QuestionOption entity.
+func (c *QuestionOptionClient) Create() *QuestionOptionCreate {
+	mutation := newQuestionOptionMutation(c.config, OpCreate)
+	return &QuestionOptionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of QuestionOption entities.
+func (c *QuestionOptionClient) CreateBulk(builders ...*QuestionOptionCreate) *QuestionOptionCreateBulk {
+	return &QuestionOptionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *QuestionOptionClient) MapCreateBulk(slice any, setFunc func(*QuestionOptionCreate, int)) *QuestionOptionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &QuestionOptionCreateBulk{err: fmt.Errorf("calling to QuestionOptionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*QuestionOptionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &QuestionOptionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for QuestionOption.
+func (c *QuestionOptionClient) Update() *QuestionOptionUpdate {
+	mutation := newQuestionOptionMutation(c.config, OpUpdate)
+	return &QuestionOptionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *QuestionOptionClient) UpdateOne(qo *QuestionOption) *QuestionOptionUpdateOne {
+	mutation := newQuestionOptionMutation(c.config, OpUpdateOne, withQuestionOption(qo))
+	return &QuestionOptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *QuestionOptionClient) UpdateOneID(id string) *QuestionOptionUpdateOne {
+	mutation := newQuestionOptionMutation(c.config, OpUpdateOne, withQuestionOptionID(id))
+	return &QuestionOptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for QuestionOption.
+func (c *QuestionOptionClient) Delete() *QuestionOptionDelete {
+	mutation := newQuestionOptionMutation(c.config, OpDelete)
+	return &QuestionOptionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *QuestionOptionClient) DeleteOne(qo *QuestionOption) *QuestionOptionDeleteOne {
+	return c.DeleteOneID(qo.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *QuestionOptionClient) DeleteOneID(id string) *QuestionOptionDeleteOne {
+	builder := c.Delete().Where(questionoption.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &QuestionOptionDeleteOne{builder}
+}
+
+// Query returns a query builder for QuestionOption.
+func (c *QuestionOptionClient) Query() *QuestionOptionQuery {
+	return &QuestionOptionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeQuestionOption},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a QuestionOption entity by its id.
+func (c *QuestionOptionClient) Get(ctx context.Context, id string) (*QuestionOption, error) {
+	return c.Query().Where(questionoption.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *QuestionOptionClient) GetX(ctx context.Context, id string) *QuestionOption {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryQuestion queries the question edge of a QuestionOption.
+func (c *QuestionOptionClient) QueryQuestion(qo *QuestionOption) *QuestionQuery {
+	query := (&QuestionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := qo.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(questionoption.Table, questionoption.FieldID, id),
+			sqlgraph.To(question.Table, question.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, questionoption.QuestionTable, questionoption.QuestionColumn),
+		)
+		fromV = sqlgraph.Neighbors(qo.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *QuestionOptionClient) Hooks() []Hook {
+	hooks := c.hooks.QuestionOption
+	return append(hooks[:len(hooks):len(hooks)], questionoption.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *QuestionOptionClient) Interceptors() []Interceptor {
+	return c.inters.QuestionOption
+}
+
+func (c *QuestionOptionClient) mutate(ctx context.Context, m *QuestionOptionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&QuestionOptionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&QuestionOptionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&QuestionOptionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&QuestionOptionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown QuestionOption mutation op: %q", m.Op())
 	}
 }
 
@@ -1208,6 +2004,22 @@ func (c *UserClient) QueryRoles(u *User) *RoleQuery {
 	return query
 }
 
+// QueryCourseCreator queries the course_creator edge of a User.
+func (c *UserClient) QueryCourseCreator(u *User) *CourseQuery {
+	query := (&CourseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CourseCreatorTable, user.CourseCreatorColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryUserRoles queries the user_roles edge of a User.
 func (c *UserClient) QueryUserRoles(u *User) *UserRoleQuery {
 	query := (&UserRoleClient{config: c.config}).Query()
@@ -1416,12 +2228,362 @@ func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value
 	}
 }
 
+// VideoClient is a client for the Video schema.
+type VideoClient struct {
+	config
+}
+
+// NewVideoClient returns a client for the Video from the given config.
+func NewVideoClient(c config) *VideoClient {
+	return &VideoClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `video.Hooks(f(g(h())))`.
+func (c *VideoClient) Use(hooks ...Hook) {
+	c.hooks.Video = append(c.hooks.Video, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `video.Intercept(f(g(h())))`.
+func (c *VideoClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Video = append(c.inters.Video, interceptors...)
+}
+
+// Create returns a builder for creating a Video entity.
+func (c *VideoClient) Create() *VideoCreate {
+	mutation := newVideoMutation(c.config, OpCreate)
+	return &VideoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Video entities.
+func (c *VideoClient) CreateBulk(builders ...*VideoCreate) *VideoCreateBulk {
+	return &VideoCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *VideoClient) MapCreateBulk(slice any, setFunc func(*VideoCreate, int)) *VideoCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &VideoCreateBulk{err: fmt.Errorf("calling to VideoClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*VideoCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &VideoCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Video.
+func (c *VideoClient) Update() *VideoUpdate {
+	mutation := newVideoMutation(c.config, OpUpdate)
+	return &VideoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *VideoClient) UpdateOne(v *Video) *VideoUpdateOne {
+	mutation := newVideoMutation(c.config, OpUpdateOne, withVideo(v))
+	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *VideoClient) UpdateOneID(id string) *VideoUpdateOne {
+	mutation := newVideoMutation(c.config, OpUpdateOne, withVideoID(id))
+	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Video.
+func (c *VideoClient) Delete() *VideoDelete {
+	mutation := newVideoMutation(c.config, OpDelete)
+	return &VideoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *VideoClient) DeleteOne(v *Video) *VideoDeleteOne {
+	return c.DeleteOneID(v.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *VideoClient) DeleteOneID(id string) *VideoDeleteOne {
+	builder := c.Delete().Where(video.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &VideoDeleteOne{builder}
+}
+
+// Query returns a query builder for Video.
+func (c *VideoClient) Query() *VideoQuery {
+	return &VideoQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeVideo},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Video entity by its id.
+func (c *VideoClient) Get(ctx context.Context, id string) (*Video, error) {
+	return c.Query().Where(video.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *VideoClient) GetX(ctx context.Context, id string) *Video {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCourseSection queries the course_section edge of a Video.
+func (c *VideoClient) QueryCourseSection(v *Video) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(video.Table, video.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, video.CourseSectionTable, video.CourseSectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMedia queries the media edge of a Video.
+func (c *VideoClient) QueryMedia(v *Video) *MediaQuery {
+	query := (&MediaClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(video.Table, video.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, video.MediaTable, video.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryVideoQuestionTimestampsVideo queries the video_question_timestamps_video edge of a Video.
+func (c *VideoClient) QueryVideoQuestionTimestampsVideo(v *Video) *VideoQuestionTimestampQuery {
+	query := (&VideoQuestionTimestampClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := v.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(video.Table, video.FieldID, id),
+			sqlgraph.To(videoquestiontimestamp.Table, videoquestiontimestamp.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, video.VideoQuestionTimestampsVideoTable, video.VideoQuestionTimestampsVideoColumn),
+		)
+		fromV = sqlgraph.Neighbors(v.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *VideoClient) Hooks() []Hook {
+	hooks := c.hooks.Video
+	return append(hooks[:len(hooks):len(hooks)], video.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *VideoClient) Interceptors() []Interceptor {
+	return c.inters.Video
+}
+
+func (c *VideoClient) mutate(ctx context.Context, m *VideoMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&VideoCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&VideoUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&VideoDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Video mutation op: %q", m.Op())
+	}
+}
+
+// VideoQuestionTimestampClient is a client for the VideoQuestionTimestamp schema.
+type VideoQuestionTimestampClient struct {
+	config
+}
+
+// NewVideoQuestionTimestampClient returns a client for the VideoQuestionTimestamp from the given config.
+func NewVideoQuestionTimestampClient(c config) *VideoQuestionTimestampClient {
+	return &VideoQuestionTimestampClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `videoquestiontimestamp.Hooks(f(g(h())))`.
+func (c *VideoQuestionTimestampClient) Use(hooks ...Hook) {
+	c.hooks.VideoQuestionTimestamp = append(c.hooks.VideoQuestionTimestamp, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `videoquestiontimestamp.Intercept(f(g(h())))`.
+func (c *VideoQuestionTimestampClient) Intercept(interceptors ...Interceptor) {
+	c.inters.VideoQuestionTimestamp = append(c.inters.VideoQuestionTimestamp, interceptors...)
+}
+
+// Create returns a builder for creating a VideoQuestionTimestamp entity.
+func (c *VideoQuestionTimestampClient) Create() *VideoQuestionTimestampCreate {
+	mutation := newVideoQuestionTimestampMutation(c.config, OpCreate)
+	return &VideoQuestionTimestampCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of VideoQuestionTimestamp entities.
+func (c *VideoQuestionTimestampClient) CreateBulk(builders ...*VideoQuestionTimestampCreate) *VideoQuestionTimestampCreateBulk {
+	return &VideoQuestionTimestampCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *VideoQuestionTimestampClient) MapCreateBulk(slice any, setFunc func(*VideoQuestionTimestampCreate, int)) *VideoQuestionTimestampCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &VideoQuestionTimestampCreateBulk{err: fmt.Errorf("calling to VideoQuestionTimestampClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*VideoQuestionTimestampCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &VideoQuestionTimestampCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for VideoQuestionTimestamp.
+func (c *VideoQuestionTimestampClient) Update() *VideoQuestionTimestampUpdate {
+	mutation := newVideoQuestionTimestampMutation(c.config, OpUpdate)
+	return &VideoQuestionTimestampUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *VideoQuestionTimestampClient) UpdateOne(vqt *VideoQuestionTimestamp) *VideoQuestionTimestampUpdateOne {
+	mutation := newVideoQuestionTimestampMutation(c.config, OpUpdateOne, withVideoQuestionTimestamp(vqt))
+	return &VideoQuestionTimestampUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *VideoQuestionTimestampClient) UpdateOneID(id string) *VideoQuestionTimestampUpdateOne {
+	mutation := newVideoQuestionTimestampMutation(c.config, OpUpdateOne, withVideoQuestionTimestampID(id))
+	return &VideoQuestionTimestampUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for VideoQuestionTimestamp.
+func (c *VideoQuestionTimestampClient) Delete() *VideoQuestionTimestampDelete {
+	mutation := newVideoQuestionTimestampMutation(c.config, OpDelete)
+	return &VideoQuestionTimestampDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *VideoQuestionTimestampClient) DeleteOne(vqt *VideoQuestionTimestamp) *VideoQuestionTimestampDeleteOne {
+	return c.DeleteOneID(vqt.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *VideoQuestionTimestampClient) DeleteOneID(id string) *VideoQuestionTimestampDeleteOne {
+	builder := c.Delete().Where(videoquestiontimestamp.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &VideoQuestionTimestampDeleteOne{builder}
+}
+
+// Query returns a query builder for VideoQuestionTimestamp.
+func (c *VideoQuestionTimestampClient) Query() *VideoQuestionTimestampQuery {
+	return &VideoQuestionTimestampQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeVideoQuestionTimestamp},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a VideoQuestionTimestamp entity by its id.
+func (c *VideoQuestionTimestampClient) Get(ctx context.Context, id string) (*VideoQuestionTimestamp, error) {
+	return c.Query().Where(videoquestiontimestamp.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *VideoQuestionTimestampClient) GetX(ctx context.Context, id string) *VideoQuestionTimestamp {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryVideo queries the video edge of a VideoQuestionTimestamp.
+func (c *VideoQuestionTimestampClient) QueryVideo(vqt *VideoQuestionTimestamp) *VideoQuery {
+	query := (&VideoClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := vqt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(videoquestiontimestamp.Table, videoquestiontimestamp.FieldID, id),
+			sqlgraph.To(video.Table, video.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, videoquestiontimestamp.VideoTable, videoquestiontimestamp.VideoColumn),
+		)
+		fromV = sqlgraph.Neighbors(vqt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryQuestion queries the question edge of a VideoQuestionTimestamp.
+func (c *VideoQuestionTimestampClient) QueryQuestion(vqt *VideoQuestionTimestamp) *QuestionQuery {
+	query := (&QuestionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := vqt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(videoquestiontimestamp.Table, videoquestiontimestamp.FieldID, id),
+			sqlgraph.To(question.Table, question.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, videoquestiontimestamp.QuestionTable, videoquestiontimestamp.QuestionColumn),
+		)
+		fromV = sqlgraph.Neighbors(vqt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *VideoQuestionTimestampClient) Hooks() []Hook {
+	hooks := c.hooks.VideoQuestionTimestamp
+	return append(hooks[:len(hooks):len(hooks)], videoquestiontimestamp.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *VideoQuestionTimestampClient) Interceptors() []Interceptor {
+	return c.inters.VideoQuestionTimestamp
+}
+
+func (c *VideoQuestionTimestampClient) mutate(ctx context.Context, m *VideoQuestionTimestampMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&VideoQuestionTimestampCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&VideoQuestionTimestampUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&VideoQuestionTimestampUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&VideoQuestionTimestampDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown VideoQuestionTimestamp mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Auth, Media, Permission, Role, Todo, User, UserRole []ent.Hook
+		Auth, Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
+		Todo, User, UserRole, Video, VideoQuestionTimestamp []ent.Hook
 	}
 	inters struct {
-		Auth, Media, Permission, Role, Todo, User, UserRole []ent.Interceptor
+		Auth, Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
+		Todo, User, UserRole, Video, VideoQuestionTimestamp []ent.Interceptor
 	}
 )

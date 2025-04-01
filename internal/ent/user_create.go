@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/auth"
+	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/role"
 	"template/internal/ent/user"
@@ -208,6 +209,21 @@ func (uc *UserCreate) AddRoles(r ...*Role) *UserCreate {
 		ids[i] = r[i].ID
 	}
 	return uc.AddRoleIDs(ids...)
+}
+
+// AddCourseCreatorIDs adds the "course_creator" edge to the Course entity by IDs.
+func (uc *UserCreate) AddCourseCreatorIDs(ids ...string) *UserCreate {
+	uc.mutation.AddCourseCreatorIDs(ids...)
+	return uc
+}
+
+// AddCourseCreator adds the "course_creator" edges to the Course entity.
+func (uc *UserCreate) AddCourseCreator(c ...*Course) *UserCreate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddCourseCreatorIDs(ids...)
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
@@ -456,6 +472,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_ = createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CourseCreatorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseCreatorTable,
+			Columns: []string{user.CourseCreatorColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uc.mutation.UserRolesIDs(); len(nodes) > 0 {

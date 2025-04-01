@@ -43,6 +43,8 @@ const (
 	EdgeMediaUploader = "media_uploader"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
 	EdgeRoles = "roles"
+	// EdgeCourseCreator holds the string denoting the course_creator edge name in mutations.
+	EdgeCourseCreator = "course_creator"
 	// EdgeUserRoles holds the string denoting the user_roles edge name in mutations.
 	EdgeUserRoles = "user_roles"
 	// Table holds the table name of the user in the database.
@@ -73,6 +75,13 @@ const (
 	// RolesInverseTable is the table name for the Role entity.
 	// It exists in this package in order to avoid circular dependency with the "role" package.
 	RolesInverseTable = "roles"
+	// CourseCreatorTable is the table that holds the course_creator relation/edge.
+	CourseCreatorTable = "courses"
+	// CourseCreatorInverseTable is the table name for the Course entity.
+	// It exists in this package in order to avoid circular dependency with the "course" package.
+	CourseCreatorInverseTable = "courses"
+	// CourseCreatorColumn is the table column denoting the course_creator relation/edge.
+	CourseCreatorColumn = "creator_id"
 	// UserRolesTable is the table that holds the user_roles relation/edge.
 	UserRolesTable = "user_roles"
 	// UserRolesInverseTable is the table name for the UserRole entity.
@@ -243,6 +252,20 @@ func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByCourseCreatorCount orders the results by course_creator count.
+func ByCourseCreatorCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCourseCreatorStep(), opts...)
+	}
+}
+
+// ByCourseCreator orders the results by course_creator terms.
+func ByCourseCreator(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCourseCreatorStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByUserRolesCount orders the results by user_roles count.
 func ByUserRolesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -282,6 +305,13 @@ func newRolesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RolesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, RolesTable, RolesPrimaryKey...),
+	)
+}
+func newCourseCreatorStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CourseCreatorInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CourseCreatorTable, CourseCreatorColumn),
 	)
 }
 func newUserRolesStep() *sqlgraph.Step {

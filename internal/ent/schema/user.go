@@ -37,6 +37,7 @@ func (User) Edges() []ent.Edge {
 		edge.From("roles", Role.Type).
 			Ref("users").
 			Through("user_roles", UserRole.Type),
+		edge.To("course_creator", Course.Type),
 	}
 }
 
