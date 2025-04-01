@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -20,16 +21,25 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldFileName holds the string denoting the filename field in the database.
+	// FieldFileName holds the string denoting the file_name field in the database.
 	FieldFileName = "file_name"
-	// FieldFileUrl holds the string denoting the fileurl field in the database.
-	FieldFileUrl = "file_url"
-	// FieldMimeType holds the string denoting the mimetype field in the database.
+	// FieldFileURL holds the string denoting the file_url field in the database.
+	FieldFileURL = "file_url"
+	// FieldMimeType holds the string denoting the mime_type field in the database.
 	FieldMimeType = "mime_type"
 	// FieldMetadata holds the string denoting the metadata field in the database.
 	FieldMetadata = "metadata"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
 	// Table holds the table name of the media in the database.
 	Table = "media"
+	// UserTable is the table that holds the user relation/edge.
+	UserTable = "users"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "users"
+	// UserColumn is the table column denoting the user relation/edge.
+	UserColumn = "avatar_id"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -39,7 +49,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldFileName,
-	FieldFileUrl,
+	FieldFileURL,
 	FieldMimeType,
 	FieldMetadata,
 }
@@ -67,11 +77,11 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// FileNameValidator is a validator for the "fileName" field. It is called by the builders before save.
+	// FileNameValidator is a validator for the "file_name" field. It is called by the builders before save.
 	FileNameValidator func(string) error
-	// FileUrlValidator is a validator for the "fileUrl" field. It is called by the builders before save.
-	FileUrlValidator func(string) error
-	// MimeTypeValidator is a validator for the "mimeType" field. It is called by the builders before save.
+	// FileURLValidator is a validator for the "file_url" field. It is called by the builders before save.
+	FileURLValidator func(string) error
+	// MimeTypeValidator is a validator for the "mime_type" field. It is called by the builders before save.
 	MimeTypeValidator func(string) error
 )
 
@@ -98,17 +108,38 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByFileName orders the results by the fileName field.
+// ByFileName orders the results by the file_name field.
 func ByFileName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFileName, opts...).ToFunc()
 }
 
-// ByFileUrl orders the results by the fileUrl field.
-func ByFileUrl(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFileUrl, opts...).ToFunc()
+// ByFileURL orders the results by the file_url field.
+func ByFileURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFileURL, opts...).ToFunc()
 }
 
-// ByMimeType orders the results by the mimeType field.
+// ByMimeType orders the results by the mime_type field.
 func ByMimeType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMimeType, opts...).ToFunc()
+}
+
+// ByUserCount orders the results by user count.
+func ByUserCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserStep(), opts...)
+	}
+}
+
+// ByUser orders the results by user terms.
+func ByUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserTable, UserColumn),
+	)
 }

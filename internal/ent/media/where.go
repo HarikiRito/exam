@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -79,17 +80,17 @@ func DeletedAt(v time.Time) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// FileName applies equality check predicate on the "fileName" field. It's identical to FileNameEQ.
+// FileName applies equality check predicate on the "file_name" field. It's identical to FileNameEQ.
 func FileName(v string) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldFileName, v))
 }
 
-// FileUrl applies equality check predicate on the "fileUrl" field. It's identical to FileUrlEQ.
-func FileUrl(v string) predicate.Media {
-	return predicate.Media(sql.FieldEQ(FieldFileUrl, v))
+// FileURL applies equality check predicate on the "file_url" field. It's identical to FileURLEQ.
+func FileURL(v string) predicate.Media {
+	return predicate.Media(sql.FieldEQ(FieldFileURL, v))
 }
 
-// MimeType applies equality check predicate on the "mimeType" field. It's identical to MimeTypeEQ.
+// MimeType applies equality check predicate on the "mime_type" field. It's identical to MimeTypeEQ.
 func MimeType(v string) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldMimeType, v))
 }
@@ -224,197 +225,197 @@ func DeletedAtNotNil() predicate.Media {
 	return predicate.Media(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// FileNameEQ applies the EQ predicate on the "fileName" field.
+// FileNameEQ applies the EQ predicate on the "file_name" field.
 func FileNameEQ(v string) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldFileName, v))
 }
 
-// FileNameNEQ applies the NEQ predicate on the "fileName" field.
+// FileNameNEQ applies the NEQ predicate on the "file_name" field.
 func FileNameNEQ(v string) predicate.Media {
 	return predicate.Media(sql.FieldNEQ(FieldFileName, v))
 }
 
-// FileNameIn applies the In predicate on the "fileName" field.
+// FileNameIn applies the In predicate on the "file_name" field.
 func FileNameIn(vs ...string) predicate.Media {
 	return predicate.Media(sql.FieldIn(FieldFileName, vs...))
 }
 
-// FileNameNotIn applies the NotIn predicate on the "fileName" field.
+// FileNameNotIn applies the NotIn predicate on the "file_name" field.
 func FileNameNotIn(vs ...string) predicate.Media {
 	return predicate.Media(sql.FieldNotIn(FieldFileName, vs...))
 }
 
-// FileNameGT applies the GT predicate on the "fileName" field.
+// FileNameGT applies the GT predicate on the "file_name" field.
 func FileNameGT(v string) predicate.Media {
 	return predicate.Media(sql.FieldGT(FieldFileName, v))
 }
 
-// FileNameGTE applies the GTE predicate on the "fileName" field.
+// FileNameGTE applies the GTE predicate on the "file_name" field.
 func FileNameGTE(v string) predicate.Media {
 	return predicate.Media(sql.FieldGTE(FieldFileName, v))
 }
 
-// FileNameLT applies the LT predicate on the "fileName" field.
+// FileNameLT applies the LT predicate on the "file_name" field.
 func FileNameLT(v string) predicate.Media {
 	return predicate.Media(sql.FieldLT(FieldFileName, v))
 }
 
-// FileNameLTE applies the LTE predicate on the "fileName" field.
+// FileNameLTE applies the LTE predicate on the "file_name" field.
 func FileNameLTE(v string) predicate.Media {
 	return predicate.Media(sql.FieldLTE(FieldFileName, v))
 }
 
-// FileNameContains applies the Contains predicate on the "fileName" field.
+// FileNameContains applies the Contains predicate on the "file_name" field.
 func FileNameContains(v string) predicate.Media {
 	return predicate.Media(sql.FieldContains(FieldFileName, v))
 }
 
-// FileNameHasPrefix applies the HasPrefix predicate on the "fileName" field.
+// FileNameHasPrefix applies the HasPrefix predicate on the "file_name" field.
 func FileNameHasPrefix(v string) predicate.Media {
 	return predicate.Media(sql.FieldHasPrefix(FieldFileName, v))
 }
 
-// FileNameHasSuffix applies the HasSuffix predicate on the "fileName" field.
+// FileNameHasSuffix applies the HasSuffix predicate on the "file_name" field.
 func FileNameHasSuffix(v string) predicate.Media {
 	return predicate.Media(sql.FieldHasSuffix(FieldFileName, v))
 }
 
-// FileNameEqualFold applies the EqualFold predicate on the "fileName" field.
+// FileNameEqualFold applies the EqualFold predicate on the "file_name" field.
 func FileNameEqualFold(v string) predicate.Media {
 	return predicate.Media(sql.FieldEqualFold(FieldFileName, v))
 }
 
-// FileNameContainsFold applies the ContainsFold predicate on the "fileName" field.
+// FileNameContainsFold applies the ContainsFold predicate on the "file_name" field.
 func FileNameContainsFold(v string) predicate.Media {
 	return predicate.Media(sql.FieldContainsFold(FieldFileName, v))
 }
 
-// FileUrlEQ applies the EQ predicate on the "fileUrl" field.
-func FileUrlEQ(v string) predicate.Media {
-	return predicate.Media(sql.FieldEQ(FieldFileUrl, v))
+// FileURLEQ applies the EQ predicate on the "file_url" field.
+func FileURLEQ(v string) predicate.Media {
+	return predicate.Media(sql.FieldEQ(FieldFileURL, v))
 }
 
-// FileUrlNEQ applies the NEQ predicate on the "fileUrl" field.
-func FileUrlNEQ(v string) predicate.Media {
-	return predicate.Media(sql.FieldNEQ(FieldFileUrl, v))
+// FileURLNEQ applies the NEQ predicate on the "file_url" field.
+func FileURLNEQ(v string) predicate.Media {
+	return predicate.Media(sql.FieldNEQ(FieldFileURL, v))
 }
 
-// FileUrlIn applies the In predicate on the "fileUrl" field.
-func FileUrlIn(vs ...string) predicate.Media {
-	return predicate.Media(sql.FieldIn(FieldFileUrl, vs...))
+// FileURLIn applies the In predicate on the "file_url" field.
+func FileURLIn(vs ...string) predicate.Media {
+	return predicate.Media(sql.FieldIn(FieldFileURL, vs...))
 }
 
-// FileUrlNotIn applies the NotIn predicate on the "fileUrl" field.
-func FileUrlNotIn(vs ...string) predicate.Media {
-	return predicate.Media(sql.FieldNotIn(FieldFileUrl, vs...))
+// FileURLNotIn applies the NotIn predicate on the "file_url" field.
+func FileURLNotIn(vs ...string) predicate.Media {
+	return predicate.Media(sql.FieldNotIn(FieldFileURL, vs...))
 }
 
-// FileUrlGT applies the GT predicate on the "fileUrl" field.
-func FileUrlGT(v string) predicate.Media {
-	return predicate.Media(sql.FieldGT(FieldFileUrl, v))
+// FileURLGT applies the GT predicate on the "file_url" field.
+func FileURLGT(v string) predicate.Media {
+	return predicate.Media(sql.FieldGT(FieldFileURL, v))
 }
 
-// FileUrlGTE applies the GTE predicate on the "fileUrl" field.
-func FileUrlGTE(v string) predicate.Media {
-	return predicate.Media(sql.FieldGTE(FieldFileUrl, v))
+// FileURLGTE applies the GTE predicate on the "file_url" field.
+func FileURLGTE(v string) predicate.Media {
+	return predicate.Media(sql.FieldGTE(FieldFileURL, v))
 }
 
-// FileUrlLT applies the LT predicate on the "fileUrl" field.
-func FileUrlLT(v string) predicate.Media {
-	return predicate.Media(sql.FieldLT(FieldFileUrl, v))
+// FileURLLT applies the LT predicate on the "file_url" field.
+func FileURLLT(v string) predicate.Media {
+	return predicate.Media(sql.FieldLT(FieldFileURL, v))
 }
 
-// FileUrlLTE applies the LTE predicate on the "fileUrl" field.
-func FileUrlLTE(v string) predicate.Media {
-	return predicate.Media(sql.FieldLTE(FieldFileUrl, v))
+// FileURLLTE applies the LTE predicate on the "file_url" field.
+func FileURLLTE(v string) predicate.Media {
+	return predicate.Media(sql.FieldLTE(FieldFileURL, v))
 }
 
-// FileUrlContains applies the Contains predicate on the "fileUrl" field.
-func FileUrlContains(v string) predicate.Media {
-	return predicate.Media(sql.FieldContains(FieldFileUrl, v))
+// FileURLContains applies the Contains predicate on the "file_url" field.
+func FileURLContains(v string) predicate.Media {
+	return predicate.Media(sql.FieldContains(FieldFileURL, v))
 }
 
-// FileUrlHasPrefix applies the HasPrefix predicate on the "fileUrl" field.
-func FileUrlHasPrefix(v string) predicate.Media {
-	return predicate.Media(sql.FieldHasPrefix(FieldFileUrl, v))
+// FileURLHasPrefix applies the HasPrefix predicate on the "file_url" field.
+func FileURLHasPrefix(v string) predicate.Media {
+	return predicate.Media(sql.FieldHasPrefix(FieldFileURL, v))
 }
 
-// FileUrlHasSuffix applies the HasSuffix predicate on the "fileUrl" field.
-func FileUrlHasSuffix(v string) predicate.Media {
-	return predicate.Media(sql.FieldHasSuffix(FieldFileUrl, v))
+// FileURLHasSuffix applies the HasSuffix predicate on the "file_url" field.
+func FileURLHasSuffix(v string) predicate.Media {
+	return predicate.Media(sql.FieldHasSuffix(FieldFileURL, v))
 }
 
-// FileUrlEqualFold applies the EqualFold predicate on the "fileUrl" field.
-func FileUrlEqualFold(v string) predicate.Media {
-	return predicate.Media(sql.FieldEqualFold(FieldFileUrl, v))
+// FileURLEqualFold applies the EqualFold predicate on the "file_url" field.
+func FileURLEqualFold(v string) predicate.Media {
+	return predicate.Media(sql.FieldEqualFold(FieldFileURL, v))
 }
 
-// FileUrlContainsFold applies the ContainsFold predicate on the "fileUrl" field.
-func FileUrlContainsFold(v string) predicate.Media {
-	return predicate.Media(sql.FieldContainsFold(FieldFileUrl, v))
+// FileURLContainsFold applies the ContainsFold predicate on the "file_url" field.
+func FileURLContainsFold(v string) predicate.Media {
+	return predicate.Media(sql.FieldContainsFold(FieldFileURL, v))
 }
 
-// MimeTypeEQ applies the EQ predicate on the "mimeType" field.
+// MimeTypeEQ applies the EQ predicate on the "mime_type" field.
 func MimeTypeEQ(v string) predicate.Media {
 	return predicate.Media(sql.FieldEQ(FieldMimeType, v))
 }
 
-// MimeTypeNEQ applies the NEQ predicate on the "mimeType" field.
+// MimeTypeNEQ applies the NEQ predicate on the "mime_type" field.
 func MimeTypeNEQ(v string) predicate.Media {
 	return predicate.Media(sql.FieldNEQ(FieldMimeType, v))
 }
 
-// MimeTypeIn applies the In predicate on the "mimeType" field.
+// MimeTypeIn applies the In predicate on the "mime_type" field.
 func MimeTypeIn(vs ...string) predicate.Media {
 	return predicate.Media(sql.FieldIn(FieldMimeType, vs...))
 }
 
-// MimeTypeNotIn applies the NotIn predicate on the "mimeType" field.
+// MimeTypeNotIn applies the NotIn predicate on the "mime_type" field.
 func MimeTypeNotIn(vs ...string) predicate.Media {
 	return predicate.Media(sql.FieldNotIn(FieldMimeType, vs...))
 }
 
-// MimeTypeGT applies the GT predicate on the "mimeType" field.
+// MimeTypeGT applies the GT predicate on the "mime_type" field.
 func MimeTypeGT(v string) predicate.Media {
 	return predicate.Media(sql.FieldGT(FieldMimeType, v))
 }
 
-// MimeTypeGTE applies the GTE predicate on the "mimeType" field.
+// MimeTypeGTE applies the GTE predicate on the "mime_type" field.
 func MimeTypeGTE(v string) predicate.Media {
 	return predicate.Media(sql.FieldGTE(FieldMimeType, v))
 }
 
-// MimeTypeLT applies the LT predicate on the "mimeType" field.
+// MimeTypeLT applies the LT predicate on the "mime_type" field.
 func MimeTypeLT(v string) predicate.Media {
 	return predicate.Media(sql.FieldLT(FieldMimeType, v))
 }
 
-// MimeTypeLTE applies the LTE predicate on the "mimeType" field.
+// MimeTypeLTE applies the LTE predicate on the "mime_type" field.
 func MimeTypeLTE(v string) predicate.Media {
 	return predicate.Media(sql.FieldLTE(FieldMimeType, v))
 }
 
-// MimeTypeContains applies the Contains predicate on the "mimeType" field.
+// MimeTypeContains applies the Contains predicate on the "mime_type" field.
 func MimeTypeContains(v string) predicate.Media {
 	return predicate.Media(sql.FieldContains(FieldMimeType, v))
 }
 
-// MimeTypeHasPrefix applies the HasPrefix predicate on the "mimeType" field.
+// MimeTypeHasPrefix applies the HasPrefix predicate on the "mime_type" field.
 func MimeTypeHasPrefix(v string) predicate.Media {
 	return predicate.Media(sql.FieldHasPrefix(FieldMimeType, v))
 }
 
-// MimeTypeHasSuffix applies the HasSuffix predicate on the "mimeType" field.
+// MimeTypeHasSuffix applies the HasSuffix predicate on the "mime_type" field.
 func MimeTypeHasSuffix(v string) predicate.Media {
 	return predicate.Media(sql.FieldHasSuffix(FieldMimeType, v))
 }
 
-// MimeTypeEqualFold applies the EqualFold predicate on the "mimeType" field.
+// MimeTypeEqualFold applies the EqualFold predicate on the "mime_type" field.
 func MimeTypeEqualFold(v string) predicate.Media {
 	return predicate.Media(sql.FieldEqualFold(FieldMimeType, v))
 }
 
-// MimeTypeContainsFold applies the ContainsFold predicate on the "mimeType" field.
+// MimeTypeContainsFold applies the ContainsFold predicate on the "mime_type" field.
 func MimeTypeContainsFold(v string) predicate.Media {
 	return predicate.Media(sql.FieldContainsFold(FieldMimeType, v))
 }
@@ -427,6 +428,29 @@ func MetadataIsNil() predicate.Media {
 // MetadataNotNil applies the NotNil predicate on the "metadata" field.
 func MetadataNotNil() predicate.Media {
 	return predicate.Media(sql.FieldNotNull(FieldMetadata))
+}
+
+// HasUser applies the HasEdge predicate on the "user" edge.
+func HasUser() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserTable, UserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
+func HasUserWith(preds ...predicate.User) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := newUserStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

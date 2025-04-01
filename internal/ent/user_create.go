@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/media"
 	"template/internal/ent/user"
 	"time"
 
@@ -74,19 +75,19 @@ func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	return uc
 }
 
-// SetPasswordHash sets the "passwordHash" field.
+// SetPasswordHash sets the "password_hash" field.
 func (uc *UserCreate) SetPasswordHash(s string) *UserCreate {
 	uc.mutation.SetPasswordHash(s)
 	return uc
 }
 
-// SetFirstName sets the "firstName" field.
+// SetFirstName sets the "first_name" field.
 func (uc *UserCreate) SetFirstName(s string) *UserCreate {
 	uc.mutation.SetFirstName(s)
 	return uc
 }
 
-// SetNillableFirstName sets the "firstName" field if the given value is not nil.
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
 func (uc *UserCreate) SetNillableFirstName(s *string) *UserCreate {
 	if s != nil {
 		uc.SetFirstName(*s)
@@ -94,13 +95,13 @@ func (uc *UserCreate) SetNillableFirstName(s *string) *UserCreate {
 	return uc
 }
 
-// SetLastName sets the "lastName" field.
+// SetLastName sets the "last_name" field.
 func (uc *UserCreate) SetLastName(s string) *UserCreate {
 	uc.mutation.SetLastName(s)
 	return uc
 }
 
-// SetNillableLastName sets the "lastName" field if the given value is not nil.
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
 func (uc *UserCreate) SetNillableLastName(s *string) *UserCreate {
 	if s != nil {
 		uc.SetLastName(*s)
@@ -108,13 +109,27 @@ func (uc *UserCreate) SetNillableLastName(s *string) *UserCreate {
 	return uc
 }
 
-// SetIsActive sets the "isActive" field.
+// SetAvatarID sets the "avatar_id" field.
+func (uc *UserCreate) SetAvatarID(s string) *UserCreate {
+	uc.mutation.SetAvatarID(s)
+	return uc
+}
+
+// SetNillableAvatarID sets the "avatar_id" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAvatarID(s *string) *UserCreate {
+	if s != nil {
+		uc.SetAvatarID(*s)
+	}
+	return uc
+}
+
+// SetIsActive sets the "is_active" field.
 func (uc *UserCreate) SetIsActive(b bool) *UserCreate {
 	uc.mutation.SetIsActive(b)
 	return uc
 }
 
-// SetNillableIsActive sets the "isActive" field if the given value is not nil.
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
 func (uc *UserCreate) SetNillableIsActive(b *bool) *UserCreate {
 	if b != nil {
 		uc.SetIsActive(*b)
@@ -126,6 +141,25 @@ func (uc *UserCreate) SetNillableIsActive(b *bool) *UserCreate {
 func (uc *UserCreate) SetID(s string) *UserCreate {
 	uc.mutation.SetID(s)
 	return uc
+}
+
+// SetMediaID sets the "media" edge to the Media entity by ID.
+func (uc *UserCreate) SetMediaID(id string) *UserCreate {
+	uc.mutation.SetMediaID(id)
+	return uc
+}
+
+// SetNillableMediaID sets the "media" edge to the Media entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableMediaID(id *string) *UserCreate {
+	if id != nil {
+		uc = uc.SetMediaID(*id)
+	}
+	return uc
+}
+
+// SetMedia sets the "media" edge to the Media entity.
+func (uc *UserCreate) SetMedia(m *Media) *UserCreate {
+	return uc.SetMediaID(m.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -211,15 +245,15 @@ func (uc *UserCreate) check() error {
 		}
 	}
 	if _, ok := uc.mutation.PasswordHash(); !ok {
-		return &ValidationError{Name: "passwordHash", err: errors.New(`ent: missing required field "User.passwordHash"`)}
+		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "User.password_hash"`)}
 	}
 	if v, ok := uc.mutation.PasswordHash(); ok {
 		if err := user.PasswordHashValidator(v); err != nil {
-			return &ValidationError{Name: "passwordHash", err: fmt.Errorf(`ent: validator failed for field "User.passwordHash": %w`, err)}
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
 	if _, ok := uc.mutation.IsActive(); !ok {
-		return &ValidationError{Name: "isActive", err: errors.New(`ent: missing required field "User.isActive"`)}
+		return &ValidationError{Name: "is_active", err: errors.New(`ent: missing required field "User.is_active"`)}
 	}
 	return nil
 }
@@ -291,6 +325,23 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.IsActive(); ok {
 		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
 		_node.IsActive = value
+	}
+	if nodes := uc.mutation.MediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.MediaTable,
+			Columns: []string{user.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.AvatarID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

@@ -24,15 +24,36 @@ type Media struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
-	// FileName holds the value of the "fileName" field.
-	FileName string `json:"fileName,omitempty"`
-	// FileUrl holds the value of the "fileUrl" field.
-	FileUrl string `json:"fileUrl,omitempty"`
-	// MimeType holds the value of the "mimeType" field.
-	MimeType string `json:"mimeType,omitempty"`
+	// FileName holds the value of the "file_name" field.
+	FileName string `json:"file_name,omitempty"`
+	// FileURL holds the value of the "file_url" field.
+	FileURL string `json:"file_url,omitempty"`
+	// MimeType holds the value of the "mime_type" field.
+	MimeType string `json:"mime_type,omitempty"`
 	// Additional metadata for the file
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the MediaQuery when eager-loading is set.
+	Edges        MediaEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// MediaEdges holds the relations/edges for other nodes in the graph.
+type MediaEdges struct {
+	// User holds the value of the user edge.
+	User []*User `json:"user,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// UserOrErr returns the User value or an error if the edge
+// was not loaded in eager-loading.
+func (e MediaEdges) UserOrErr() ([]*User, error) {
+	if e.loadedTypes[0] {
+		return e.User, nil
+	}
+	return nil, &NotLoadedError{edge: "user"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -42,7 +63,7 @@ func (*Media) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case media.FieldMetadata:
 			values[i] = new([]byte)
-		case media.FieldID, media.FieldFileName, media.FieldFileUrl, media.FieldMimeType:
+		case media.FieldID, media.FieldFileName, media.FieldFileURL, media.FieldMimeType:
 			values[i] = new(sql.NullString)
 		case media.FieldCreatedAt, media.FieldUpdatedAt, media.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -88,19 +109,19 @@ func (m *Media) assignValues(columns []string, values []any) error {
 			}
 		case media.FieldFileName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field fileName", values[i])
+				return fmt.Errorf("unexpected type %T for field file_name", values[i])
 			} else if value.Valid {
 				m.FileName = value.String
 			}
-		case media.FieldFileUrl:
+		case media.FieldFileURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field fileUrl", values[i])
+				return fmt.Errorf("unexpected type %T for field file_url", values[i])
 			} else if value.Valid {
-				m.FileUrl = value.String
+				m.FileURL = value.String
 			}
 		case media.FieldMimeType:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field mimeType", values[i])
+				return fmt.Errorf("unexpected type %T for field mime_type", values[i])
 			} else if value.Valid {
 				m.MimeType = value.String
 			}
@@ -123,6 +144,11 @@ func (m *Media) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (m *Media) Value(name string) (ent.Value, error) {
 	return m.selectValues.Get(name)
+}
+
+// QueryUser queries the "user" edge of the Media entity.
+func (m *Media) QueryUser() *UserQuery {
+	return NewMediaClient(m.config).QueryUser(m)
 }
 
 // Update returns a builder for updating this Media.
@@ -159,13 +185,13 @@ func (m *Media) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("fileName=")
+	builder.WriteString("file_name=")
 	builder.WriteString(m.FileName)
 	builder.WriteString(", ")
-	builder.WriteString("fileUrl=")
-	builder.WriteString(m.FileUrl)
+	builder.WriteString("file_url=")
+	builder.WriteString(m.FileURL)
 	builder.WriteString(", ")
-	builder.WriteString("mimeType=")
+	builder.WriteString("mime_type=")
 	builder.WriteString(m.MimeType)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")

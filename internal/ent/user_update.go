@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/user"
 	"time"
@@ -96,13 +97,13 @@ func (uu *UserUpdate) SetNillableEmail(s *string) *UserUpdate {
 	return uu
 }
 
-// SetPasswordHash sets the "passwordHash" field.
+// SetPasswordHash sets the "password_hash" field.
 func (uu *UserUpdate) SetPasswordHash(s string) *UserUpdate {
 	uu.mutation.SetPasswordHash(s)
 	return uu
 }
 
-// SetNillablePasswordHash sets the "passwordHash" field if the given value is not nil.
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
 func (uu *UserUpdate) SetNillablePasswordHash(s *string) *UserUpdate {
 	if s != nil {
 		uu.SetPasswordHash(*s)
@@ -110,13 +111,13 @@ func (uu *UserUpdate) SetNillablePasswordHash(s *string) *UserUpdate {
 	return uu
 }
 
-// SetFirstName sets the "firstName" field.
+// SetFirstName sets the "first_name" field.
 func (uu *UserUpdate) SetFirstName(s string) *UserUpdate {
 	uu.mutation.SetFirstName(s)
 	return uu
 }
 
-// SetNillableFirstName sets the "firstName" field if the given value is not nil.
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
 func (uu *UserUpdate) SetNillableFirstName(s *string) *UserUpdate {
 	if s != nil {
 		uu.SetFirstName(*s)
@@ -124,19 +125,19 @@ func (uu *UserUpdate) SetNillableFirstName(s *string) *UserUpdate {
 	return uu
 }
 
-// ClearFirstName clears the value of the "firstName" field.
+// ClearFirstName clears the value of the "first_name" field.
 func (uu *UserUpdate) ClearFirstName() *UserUpdate {
 	uu.mutation.ClearFirstName()
 	return uu
 }
 
-// SetLastName sets the "lastName" field.
+// SetLastName sets the "last_name" field.
 func (uu *UserUpdate) SetLastName(s string) *UserUpdate {
 	uu.mutation.SetLastName(s)
 	return uu
 }
 
-// SetNillableLastName sets the "lastName" field if the given value is not nil.
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
 func (uu *UserUpdate) SetNillableLastName(s *string) *UserUpdate {
 	if s != nil {
 		uu.SetLastName(*s)
@@ -144,19 +145,39 @@ func (uu *UserUpdate) SetNillableLastName(s *string) *UserUpdate {
 	return uu
 }
 
-// ClearLastName clears the value of the "lastName" field.
+// ClearLastName clears the value of the "last_name" field.
 func (uu *UserUpdate) ClearLastName() *UserUpdate {
 	uu.mutation.ClearLastName()
 	return uu
 }
 
-// SetIsActive sets the "isActive" field.
+// SetAvatarID sets the "avatar_id" field.
+func (uu *UserUpdate) SetAvatarID(s string) *UserUpdate {
+	uu.mutation.SetAvatarID(s)
+	return uu
+}
+
+// SetNillableAvatarID sets the "avatar_id" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAvatarID(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetAvatarID(*s)
+	}
+	return uu
+}
+
+// ClearAvatarID clears the value of the "avatar_id" field.
+func (uu *UserUpdate) ClearAvatarID() *UserUpdate {
+	uu.mutation.ClearAvatarID()
+	return uu
+}
+
+// SetIsActive sets the "is_active" field.
 func (uu *UserUpdate) SetIsActive(b bool) *UserUpdate {
 	uu.mutation.SetIsActive(b)
 	return uu
 }
 
-// SetNillableIsActive sets the "isActive" field if the given value is not nil.
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
 func (uu *UserUpdate) SetNillableIsActive(b *bool) *UserUpdate {
 	if b != nil {
 		uu.SetIsActive(*b)
@@ -164,9 +185,34 @@ func (uu *UserUpdate) SetNillableIsActive(b *bool) *UserUpdate {
 	return uu
 }
 
+// SetMediaID sets the "media" edge to the Media entity by ID.
+func (uu *UserUpdate) SetMediaID(id string) *UserUpdate {
+	uu.mutation.SetMediaID(id)
+	return uu
+}
+
+// SetNillableMediaID sets the "media" edge to the Media entity by ID if the given value is not nil.
+func (uu *UserUpdate) SetNillableMediaID(id *string) *UserUpdate {
+	if id != nil {
+		uu = uu.SetMediaID(*id)
+	}
+	return uu
+}
+
+// SetMedia sets the "media" edge to the Media entity.
+func (uu *UserUpdate) SetMedia(m *Media) *UserUpdate {
+	return uu.SetMediaID(m.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearMedia clears the "media" edge to the Media entity.
+func (uu *UserUpdate) ClearMedia() *UserUpdate {
+	uu.mutation.ClearMedia()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -225,7 +271,7 @@ func (uu *UserUpdate) check() error {
 	}
 	if v, ok := uu.mutation.PasswordHash(); ok {
 		if err := user.PasswordHashValidator(v); err != nil {
-			return &ValidationError{Name: "passwordHash", err: fmt.Errorf(`ent: validator failed for field "User.passwordHash": %w`, err)}
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
 	return nil
@@ -278,6 +324,35 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.IsActive(); ok {
 		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+	}
+	if uu.mutation.MediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.MediaTable,
+			Columns: []string{user.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.MediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.MediaTable,
+			Columns: []string{user.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -367,13 +442,13 @@ func (uuo *UserUpdateOne) SetNillableEmail(s *string) *UserUpdateOne {
 	return uuo
 }
 
-// SetPasswordHash sets the "passwordHash" field.
+// SetPasswordHash sets the "password_hash" field.
 func (uuo *UserUpdateOne) SetPasswordHash(s string) *UserUpdateOne {
 	uuo.mutation.SetPasswordHash(s)
 	return uuo
 }
 
-// SetNillablePasswordHash sets the "passwordHash" field if the given value is not nil.
+// SetNillablePasswordHash sets the "password_hash" field if the given value is not nil.
 func (uuo *UserUpdateOne) SetNillablePasswordHash(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetPasswordHash(*s)
@@ -381,13 +456,13 @@ func (uuo *UserUpdateOne) SetNillablePasswordHash(s *string) *UserUpdateOne {
 	return uuo
 }
 
-// SetFirstName sets the "firstName" field.
+// SetFirstName sets the "first_name" field.
 func (uuo *UserUpdateOne) SetFirstName(s string) *UserUpdateOne {
 	uuo.mutation.SetFirstName(s)
 	return uuo
 }
 
-// SetNillableFirstName sets the "firstName" field if the given value is not nil.
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
 func (uuo *UserUpdateOne) SetNillableFirstName(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetFirstName(*s)
@@ -395,19 +470,19 @@ func (uuo *UserUpdateOne) SetNillableFirstName(s *string) *UserUpdateOne {
 	return uuo
 }
 
-// ClearFirstName clears the value of the "firstName" field.
+// ClearFirstName clears the value of the "first_name" field.
 func (uuo *UserUpdateOne) ClearFirstName() *UserUpdateOne {
 	uuo.mutation.ClearFirstName()
 	return uuo
 }
 
-// SetLastName sets the "lastName" field.
+// SetLastName sets the "last_name" field.
 func (uuo *UserUpdateOne) SetLastName(s string) *UserUpdateOne {
 	uuo.mutation.SetLastName(s)
 	return uuo
 }
 
-// SetNillableLastName sets the "lastName" field if the given value is not nil.
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
 func (uuo *UserUpdateOne) SetNillableLastName(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetLastName(*s)
@@ -415,19 +490,39 @@ func (uuo *UserUpdateOne) SetNillableLastName(s *string) *UserUpdateOne {
 	return uuo
 }
 
-// ClearLastName clears the value of the "lastName" field.
+// ClearLastName clears the value of the "last_name" field.
 func (uuo *UserUpdateOne) ClearLastName() *UserUpdateOne {
 	uuo.mutation.ClearLastName()
 	return uuo
 }
 
-// SetIsActive sets the "isActive" field.
+// SetAvatarID sets the "avatar_id" field.
+func (uuo *UserUpdateOne) SetAvatarID(s string) *UserUpdateOne {
+	uuo.mutation.SetAvatarID(s)
+	return uuo
+}
+
+// SetNillableAvatarID sets the "avatar_id" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAvatarID(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetAvatarID(*s)
+	}
+	return uuo
+}
+
+// ClearAvatarID clears the value of the "avatar_id" field.
+func (uuo *UserUpdateOne) ClearAvatarID() *UserUpdateOne {
+	uuo.mutation.ClearAvatarID()
+	return uuo
+}
+
+// SetIsActive sets the "is_active" field.
 func (uuo *UserUpdateOne) SetIsActive(b bool) *UserUpdateOne {
 	uuo.mutation.SetIsActive(b)
 	return uuo
 }
 
-// SetNillableIsActive sets the "isActive" field if the given value is not nil.
+// SetNillableIsActive sets the "is_active" field if the given value is not nil.
 func (uuo *UserUpdateOne) SetNillableIsActive(b *bool) *UserUpdateOne {
 	if b != nil {
 		uuo.SetIsActive(*b)
@@ -435,9 +530,34 @@ func (uuo *UserUpdateOne) SetNillableIsActive(b *bool) *UserUpdateOne {
 	return uuo
 }
 
+// SetMediaID sets the "media" edge to the Media entity by ID.
+func (uuo *UserUpdateOne) SetMediaID(id string) *UserUpdateOne {
+	uuo.mutation.SetMediaID(id)
+	return uuo
+}
+
+// SetNillableMediaID sets the "media" edge to the Media entity by ID if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableMediaID(id *string) *UserUpdateOne {
+	if id != nil {
+		uuo = uuo.SetMediaID(*id)
+	}
+	return uuo
+}
+
+// SetMedia sets the "media" edge to the Media entity.
+func (uuo *UserUpdateOne) SetMedia(m *Media) *UserUpdateOne {
+	return uuo.SetMediaID(m.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearMedia clears the "media" edge to the Media entity.
+func (uuo *UserUpdateOne) ClearMedia() *UserUpdateOne {
+	uuo.mutation.ClearMedia()
+	return uuo
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -509,7 +629,7 @@ func (uuo *UserUpdateOne) check() error {
 	}
 	if v, ok := uuo.mutation.PasswordHash(); ok {
 		if err := user.PasswordHashValidator(v); err != nil {
-			return &ValidationError{Name: "passwordHash", err: fmt.Errorf(`ent: validator failed for field "User.passwordHash": %w`, err)}
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
 		}
 	}
 	return nil
@@ -579,6 +699,35 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.IsActive(); ok {
 		_spec.SetField(user.FieldIsActive, field.TypeBool, value)
+	}
+	if uuo.mutation.MediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.MediaTable,
+			Columns: []string{user.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.MediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.MediaTable,
+			Columns: []string{user.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(media.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

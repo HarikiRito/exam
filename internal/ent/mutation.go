@@ -40,11 +40,14 @@ type MediaMutation struct {
 	created_at    *time.Time
 	updated_at    *time.Time
 	deleted_at    *time.Time
-	fileName      *string
-	fileUrl       *string
-	mimeType      *string
+	file_name     *string
+	file_url      *string
+	mime_type     *string
 	metadata      *map[string]interface{}
 	clearedFields map[string]struct{}
+	user          map[string]struct{}
+	removeduser   map[string]struct{}
+	cleareduser   bool
 	done          bool
 	oldValue      func(context.Context) (*Media, error)
 	predicates    []predicate.Media
@@ -275,21 +278,21 @@ func (m *MediaMutation) ResetDeletedAt() {
 	delete(m.clearedFields, media.FieldDeletedAt)
 }
 
-// SetFileName sets the "fileName" field.
+// SetFileName sets the "file_name" field.
 func (m *MediaMutation) SetFileName(s string) {
-	m.fileName = &s
+	m.file_name = &s
 }
 
-// FileName returns the value of the "fileName" field in the mutation.
+// FileName returns the value of the "file_name" field in the mutation.
 func (m *MediaMutation) FileName() (r string, exists bool) {
-	v := m.fileName
+	v := m.file_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldFileName returns the old "fileName" field's value of the Media entity.
+// OldFileName returns the old "file_name" field's value of the Media entity.
 // If the Media object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *MediaMutation) OldFileName(ctx context.Context) (v string, err error) {
@@ -306,62 +309,62 @@ func (m *MediaMutation) OldFileName(ctx context.Context) (v string, err error) {
 	return oldValue.FileName, nil
 }
 
-// ResetFileName resets all changes to the "fileName" field.
+// ResetFileName resets all changes to the "file_name" field.
 func (m *MediaMutation) ResetFileName() {
-	m.fileName = nil
+	m.file_name = nil
 }
 
-// SetFileUrl sets the "fileUrl" field.
-func (m *MediaMutation) SetFileUrl(s string) {
-	m.fileUrl = &s
+// SetFileURL sets the "file_url" field.
+func (m *MediaMutation) SetFileURL(s string) {
+	m.file_url = &s
 }
 
-// FileUrl returns the value of the "fileUrl" field in the mutation.
-func (m *MediaMutation) FileUrl() (r string, exists bool) {
-	v := m.fileUrl
+// FileURL returns the value of the "file_url" field in the mutation.
+func (m *MediaMutation) FileURL() (r string, exists bool) {
+	v := m.file_url
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldFileUrl returns the old "fileUrl" field's value of the Media entity.
+// OldFileURL returns the old "file_url" field's value of the Media entity.
 // If the Media object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaMutation) OldFileUrl(ctx context.Context) (v string, err error) {
+func (m *MediaMutation) OldFileURL(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFileUrl is only allowed on UpdateOne operations")
+		return v, errors.New("OldFileURL is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFileUrl requires an ID field in the mutation")
+		return v, errors.New("OldFileURL requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFileUrl: %w", err)
+		return v, fmt.Errorf("querying old value for OldFileURL: %w", err)
 	}
-	return oldValue.FileUrl, nil
+	return oldValue.FileURL, nil
 }
 
-// ResetFileUrl resets all changes to the "fileUrl" field.
-func (m *MediaMutation) ResetFileUrl() {
-	m.fileUrl = nil
+// ResetFileURL resets all changes to the "file_url" field.
+func (m *MediaMutation) ResetFileURL() {
+	m.file_url = nil
 }
 
-// SetMimeType sets the "mimeType" field.
+// SetMimeType sets the "mime_type" field.
 func (m *MediaMutation) SetMimeType(s string) {
-	m.mimeType = &s
+	m.mime_type = &s
 }
 
-// MimeType returns the value of the "mimeType" field in the mutation.
+// MimeType returns the value of the "mime_type" field in the mutation.
 func (m *MediaMutation) MimeType() (r string, exists bool) {
-	v := m.mimeType
+	v := m.mime_type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldMimeType returns the old "mimeType" field's value of the Media entity.
+// OldMimeType returns the old "mime_type" field's value of the Media entity.
 // If the Media object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *MediaMutation) OldMimeType(ctx context.Context) (v string, err error) {
@@ -378,9 +381,9 @@ func (m *MediaMutation) OldMimeType(ctx context.Context) (v string, err error) {
 	return oldValue.MimeType, nil
 }
 
-// ResetMimeType resets all changes to the "mimeType" field.
+// ResetMimeType resets all changes to the "mime_type" field.
 func (m *MediaMutation) ResetMimeType() {
-	m.mimeType = nil
+	m.mime_type = nil
 }
 
 // SetMetadata sets the "metadata" field.
@@ -432,6 +435,60 @@ func (m *MediaMutation) ResetMetadata() {
 	delete(m.clearedFields, media.FieldMetadata)
 }
 
+// AddUserIDs adds the "user" edge to the User entity by ids.
+func (m *MediaMutation) AddUserIDs(ids ...string) {
+	if m.user == nil {
+		m.user = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.user[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *MediaMutation) ClearUser() {
+	m.cleareduser = true
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *MediaMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// RemoveUserIDs removes the "user" edge to the User entity by IDs.
+func (m *MediaMutation) RemoveUserIDs(ids ...string) {
+	if m.removeduser == nil {
+		m.removeduser = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.user, ids[i])
+		m.removeduser[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUser returns the removed IDs of the "user" edge to the User entity.
+func (m *MediaMutation) RemovedUserIDs() (ids []string) {
+	for id := range m.removeduser {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+func (m *MediaMutation) UserIDs() (ids []string) {
+	for id := range m.user {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *MediaMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+	m.removeduser = nil
+}
+
 // Where appends a list predicates to the MediaMutation builder.
 func (m *MediaMutation) Where(ps ...predicate.Media) {
 	m.predicates = append(m.predicates, ps...)
@@ -476,13 +533,13 @@ func (m *MediaMutation) Fields() []string {
 	if m.deleted_at != nil {
 		fields = append(fields, media.FieldDeletedAt)
 	}
-	if m.fileName != nil {
+	if m.file_name != nil {
 		fields = append(fields, media.FieldFileName)
 	}
-	if m.fileUrl != nil {
-		fields = append(fields, media.FieldFileUrl)
+	if m.file_url != nil {
+		fields = append(fields, media.FieldFileURL)
 	}
-	if m.mimeType != nil {
+	if m.mime_type != nil {
 		fields = append(fields, media.FieldMimeType)
 	}
 	if m.metadata != nil {
@@ -504,8 +561,8 @@ func (m *MediaMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case media.FieldFileName:
 		return m.FileName()
-	case media.FieldFileUrl:
-		return m.FileUrl()
+	case media.FieldFileURL:
+		return m.FileURL()
 	case media.FieldMimeType:
 		return m.MimeType()
 	case media.FieldMetadata:
@@ -527,8 +584,8 @@ func (m *MediaMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDeletedAt(ctx)
 	case media.FieldFileName:
 		return m.OldFileName(ctx)
-	case media.FieldFileUrl:
-		return m.OldFileUrl(ctx)
+	case media.FieldFileURL:
+		return m.OldFileURL(ctx)
 	case media.FieldMimeType:
 		return m.OldMimeType(ctx)
 	case media.FieldMetadata:
@@ -570,12 +627,12 @@ func (m *MediaMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetFileName(v)
 		return nil
-	case media.FieldFileUrl:
+	case media.FieldFileURL:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetFileUrl(v)
+		m.SetFileURL(v)
 		return nil
 	case media.FieldMimeType:
 		v, ok := value.(string)
@@ -667,8 +724,8 @@ func (m *MediaMutation) ResetField(name string) error {
 	case media.FieldFileName:
 		m.ResetFileName()
 		return nil
-	case media.FieldFileUrl:
-		m.ResetFileUrl()
+	case media.FieldFileURL:
+		m.ResetFileURL()
 		return nil
 	case media.FieldMimeType:
 		m.ResetMimeType()
@@ -682,49 +739,85 @@ func (m *MediaMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MediaMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, media.EdgeUser)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *MediaMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case media.EdgeUser:
+		ids := make([]ent.Value, 0, len(m.user))
+		for id := range m.user {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MediaMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removeduser != nil {
+		edges = append(edges, media.EdgeUser)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case media.EdgeUser:
+		ids := make([]ent.Value, 0, len(m.removeduser))
+		for id := range m.removeduser {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MediaMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, media.EdgeUser)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *MediaMutation) EdgeCleared(name string) bool {
+	switch name {
+	case media.EdgeUser:
+		return m.cleareduser
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *MediaMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Media unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *MediaMutation) ResetEdge(name string) error {
+	switch name {
+	case media.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
 	return fmt.Errorf("unknown Media edge %s", name)
 }
 
@@ -1328,11 +1421,13 @@ type UserMutation struct {
 	deleted_at    *time.Time
 	username      *string
 	email         *string
-	passwordHash  *string
-	firstName     *string
-	lastName      *string
-	isActive      *bool
+	password_hash *string
+	first_name    *string
+	last_name     *string
+	is_active     *bool
 	clearedFields map[string]struct{}
+	media         *string
+	clearedmedia  bool
 	done          bool
 	oldValue      func(context.Context) (*User, error)
 	predicates    []predicate.User
@@ -1635,21 +1730,21 @@ func (m *UserMutation) ResetEmail() {
 	m.email = nil
 }
 
-// SetPasswordHash sets the "passwordHash" field.
+// SetPasswordHash sets the "password_hash" field.
 func (m *UserMutation) SetPasswordHash(s string) {
-	m.passwordHash = &s
+	m.password_hash = &s
 }
 
-// PasswordHash returns the value of the "passwordHash" field in the mutation.
+// PasswordHash returns the value of the "password_hash" field in the mutation.
 func (m *UserMutation) PasswordHash() (r string, exists bool) {
-	v := m.passwordHash
+	v := m.password_hash
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPasswordHash returns the old "passwordHash" field's value of the User entity.
+// OldPasswordHash returns the old "password_hash" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldPasswordHash(ctx context.Context) (v string, err error) {
@@ -1666,26 +1761,26 @@ func (m *UserMutation) OldPasswordHash(ctx context.Context) (v string, err error
 	return oldValue.PasswordHash, nil
 }
 
-// ResetPasswordHash resets all changes to the "passwordHash" field.
+// ResetPasswordHash resets all changes to the "password_hash" field.
 func (m *UserMutation) ResetPasswordHash() {
-	m.passwordHash = nil
+	m.password_hash = nil
 }
 
-// SetFirstName sets the "firstName" field.
+// SetFirstName sets the "first_name" field.
 func (m *UserMutation) SetFirstName(s string) {
-	m.firstName = &s
+	m.first_name = &s
 }
 
-// FirstName returns the value of the "firstName" field in the mutation.
+// FirstName returns the value of the "first_name" field in the mutation.
 func (m *UserMutation) FirstName() (r string, exists bool) {
-	v := m.firstName
+	v := m.first_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldFirstName returns the old "firstName" field's value of the User entity.
+// OldFirstName returns the old "first_name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldFirstName(ctx context.Context) (v string, err error) {
@@ -1702,39 +1797,39 @@ func (m *UserMutation) OldFirstName(ctx context.Context) (v string, err error) {
 	return oldValue.FirstName, nil
 }
 
-// ClearFirstName clears the value of the "firstName" field.
+// ClearFirstName clears the value of the "first_name" field.
 func (m *UserMutation) ClearFirstName() {
-	m.firstName = nil
+	m.first_name = nil
 	m.clearedFields[user.FieldFirstName] = struct{}{}
 }
 
-// FirstNameCleared returns if the "firstName" field was cleared in this mutation.
+// FirstNameCleared returns if the "first_name" field was cleared in this mutation.
 func (m *UserMutation) FirstNameCleared() bool {
 	_, ok := m.clearedFields[user.FieldFirstName]
 	return ok
 }
 
-// ResetFirstName resets all changes to the "firstName" field.
+// ResetFirstName resets all changes to the "first_name" field.
 func (m *UserMutation) ResetFirstName() {
-	m.firstName = nil
+	m.first_name = nil
 	delete(m.clearedFields, user.FieldFirstName)
 }
 
-// SetLastName sets the "lastName" field.
+// SetLastName sets the "last_name" field.
 func (m *UserMutation) SetLastName(s string) {
-	m.lastName = &s
+	m.last_name = &s
 }
 
-// LastName returns the value of the "lastName" field in the mutation.
+// LastName returns the value of the "last_name" field in the mutation.
 func (m *UserMutation) LastName() (r string, exists bool) {
-	v := m.lastName
+	v := m.last_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldLastName returns the old "lastName" field's value of the User entity.
+// OldLastName returns the old "last_name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldLastName(ctx context.Context) (v string, err error) {
@@ -1751,39 +1846,88 @@ func (m *UserMutation) OldLastName(ctx context.Context) (v string, err error) {
 	return oldValue.LastName, nil
 }
 
-// ClearLastName clears the value of the "lastName" field.
+// ClearLastName clears the value of the "last_name" field.
 func (m *UserMutation) ClearLastName() {
-	m.lastName = nil
+	m.last_name = nil
 	m.clearedFields[user.FieldLastName] = struct{}{}
 }
 
-// LastNameCleared returns if the "lastName" field was cleared in this mutation.
+// LastNameCleared returns if the "last_name" field was cleared in this mutation.
 func (m *UserMutation) LastNameCleared() bool {
 	_, ok := m.clearedFields[user.FieldLastName]
 	return ok
 }
 
-// ResetLastName resets all changes to the "lastName" field.
+// ResetLastName resets all changes to the "last_name" field.
 func (m *UserMutation) ResetLastName() {
-	m.lastName = nil
+	m.last_name = nil
 	delete(m.clearedFields, user.FieldLastName)
 }
 
-// SetIsActive sets the "isActive" field.
-func (m *UserMutation) SetIsActive(b bool) {
-	m.isActive = &b
+// SetAvatarID sets the "avatar_id" field.
+func (m *UserMutation) SetAvatarID(s string) {
+	m.media = &s
 }
 
-// IsActive returns the value of the "isActive" field in the mutation.
-func (m *UserMutation) IsActive() (r bool, exists bool) {
-	v := m.isActive
+// AvatarID returns the value of the "avatar_id" field in the mutation.
+func (m *UserMutation) AvatarID() (r string, exists bool) {
+	v := m.media
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldIsActive returns the old "isActive" field's value of the User entity.
+// OldAvatarID returns the old "avatar_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldAvatarID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAvatarID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAvatarID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAvatarID: %w", err)
+	}
+	return oldValue.AvatarID, nil
+}
+
+// ClearAvatarID clears the value of the "avatar_id" field.
+func (m *UserMutation) ClearAvatarID() {
+	m.media = nil
+	m.clearedFields[user.FieldAvatarID] = struct{}{}
+}
+
+// AvatarIDCleared returns if the "avatar_id" field was cleared in this mutation.
+func (m *UserMutation) AvatarIDCleared() bool {
+	_, ok := m.clearedFields[user.FieldAvatarID]
+	return ok
+}
+
+// ResetAvatarID resets all changes to the "avatar_id" field.
+func (m *UserMutation) ResetAvatarID() {
+	m.media = nil
+	delete(m.clearedFields, user.FieldAvatarID)
+}
+
+// SetIsActive sets the "is_active" field.
+func (m *UserMutation) SetIsActive(b bool) {
+	m.is_active = &b
+}
+
+// IsActive returns the value of the "is_active" field in the mutation.
+func (m *UserMutation) IsActive() (r bool, exists bool) {
+	v := m.is_active
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsActive returns the old "is_active" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldIsActive(ctx context.Context) (v bool, err error) {
@@ -1800,9 +1944,49 @@ func (m *UserMutation) OldIsActive(ctx context.Context) (v bool, err error) {
 	return oldValue.IsActive, nil
 }
 
-// ResetIsActive resets all changes to the "isActive" field.
+// ResetIsActive resets all changes to the "is_active" field.
 func (m *UserMutation) ResetIsActive() {
-	m.isActive = nil
+	m.is_active = nil
+}
+
+// SetMediaID sets the "media" edge to the Media entity by id.
+func (m *UserMutation) SetMediaID(id string) {
+	m.media = &id
+}
+
+// ClearMedia clears the "media" edge to the Media entity.
+func (m *UserMutation) ClearMedia() {
+	m.clearedmedia = true
+	m.clearedFields[user.FieldAvatarID] = struct{}{}
+}
+
+// MediaCleared reports if the "media" edge to the Media entity was cleared.
+func (m *UserMutation) MediaCleared() bool {
+	return m.AvatarIDCleared() || m.clearedmedia
+}
+
+// MediaID returns the "media" edge ID in the mutation.
+func (m *UserMutation) MediaID() (id string, exists bool) {
+	if m.media != nil {
+		return *m.media, true
+	}
+	return
+}
+
+// MediaIDs returns the "media" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MediaID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) MediaIDs() (ids []string) {
+	if id := m.media; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMedia resets all changes to the "media" edge.
+func (m *UserMutation) ResetMedia() {
+	m.media = nil
+	m.clearedmedia = false
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -1839,7 +2023,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -1855,16 +2039,19 @@ func (m *UserMutation) Fields() []string {
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
-	if m.passwordHash != nil {
+	if m.password_hash != nil {
 		fields = append(fields, user.FieldPasswordHash)
 	}
-	if m.firstName != nil {
+	if m.first_name != nil {
 		fields = append(fields, user.FieldFirstName)
 	}
-	if m.lastName != nil {
+	if m.last_name != nil {
 		fields = append(fields, user.FieldLastName)
 	}
-	if m.isActive != nil {
+	if m.media != nil {
+		fields = append(fields, user.FieldAvatarID)
+	}
+	if m.is_active != nil {
 		fields = append(fields, user.FieldIsActive)
 	}
 	return fields
@@ -1891,6 +2078,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.FirstName()
 	case user.FieldLastName:
 		return m.LastName()
+	case user.FieldAvatarID:
+		return m.AvatarID()
 	case user.FieldIsActive:
 		return m.IsActive()
 	}
@@ -1918,6 +2107,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldFirstName(ctx)
 	case user.FieldLastName:
 		return m.OldLastName(ctx)
+	case user.FieldAvatarID:
+		return m.OldAvatarID(ctx)
 	case user.FieldIsActive:
 		return m.OldIsActive(ctx)
 	}
@@ -1985,6 +2176,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLastName(v)
 		return nil
+	case user.FieldAvatarID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAvatarID(v)
+		return nil
 	case user.FieldIsActive:
 		v, ok := value.(bool)
 		if !ok {
@@ -2031,6 +2229,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldLastName) {
 		fields = append(fields, user.FieldLastName)
 	}
+	if m.FieldCleared(user.FieldAvatarID) {
+		fields = append(fields, user.FieldAvatarID)
+	}
 	return fields
 }
 
@@ -2053,6 +2254,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldLastName:
 		m.ClearLastName()
+		return nil
+	case user.FieldAvatarID:
+		m.ClearAvatarID()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -2086,6 +2290,9 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldLastName:
 		m.ResetLastName()
 		return nil
+	case user.FieldAvatarID:
+		m.ResetAvatarID()
+		return nil
 	case user.FieldIsActive:
 		m.ResetIsActive()
 		return nil
@@ -2095,19 +2302,28 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.media != nil {
+		edges = append(edges, user.EdgeMedia)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeMedia:
+		if id := m.media; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -2119,24 +2335,41 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedmedia {
+		edges = append(edges, user.EdgeMedia)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
+	switch name {
+	case user.EdgeMedia:
+		return m.clearedmedia
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
+	switch name {
+	case user.EdgeMedia:
+		m.ClearMedia()
+		return nil
+	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
+	switch name {
+	case user.EdgeMedia:
+		m.ResetMedia()
+		return nil
+	}
 	return fmt.Errorf("unknown User edge %s", name)
 }

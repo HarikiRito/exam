@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
+	"template/internal/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -68,13 +69,13 @@ func (mu *MediaUpdate) ClearDeletedAt() *MediaUpdate {
 	return mu
 }
 
-// SetFileName sets the "fileName" field.
+// SetFileName sets the "file_name" field.
 func (mu *MediaUpdate) SetFileName(s string) *MediaUpdate {
 	mu.mutation.SetFileName(s)
 	return mu
 }
 
-// SetNillableFileName sets the "fileName" field if the given value is not nil.
+// SetNillableFileName sets the "file_name" field if the given value is not nil.
 func (mu *MediaUpdate) SetNillableFileName(s *string) *MediaUpdate {
 	if s != nil {
 		mu.SetFileName(*s)
@@ -82,27 +83,27 @@ func (mu *MediaUpdate) SetNillableFileName(s *string) *MediaUpdate {
 	return mu
 }
 
-// SetFileUrl sets the "fileUrl" field.
-func (mu *MediaUpdate) SetFileUrl(s string) *MediaUpdate {
-	mu.mutation.SetFileUrl(s)
+// SetFileURL sets the "file_url" field.
+func (mu *MediaUpdate) SetFileURL(s string) *MediaUpdate {
+	mu.mutation.SetFileURL(s)
 	return mu
 }
 
-// SetNillableFileUrl sets the "fileUrl" field if the given value is not nil.
-func (mu *MediaUpdate) SetNillableFileUrl(s *string) *MediaUpdate {
+// SetNillableFileURL sets the "file_url" field if the given value is not nil.
+func (mu *MediaUpdate) SetNillableFileURL(s *string) *MediaUpdate {
 	if s != nil {
-		mu.SetFileUrl(*s)
+		mu.SetFileURL(*s)
 	}
 	return mu
 }
 
-// SetMimeType sets the "mimeType" field.
+// SetMimeType sets the "mime_type" field.
 func (mu *MediaUpdate) SetMimeType(s string) *MediaUpdate {
 	mu.mutation.SetMimeType(s)
 	return mu
 }
 
-// SetNillableMimeType sets the "mimeType" field if the given value is not nil.
+// SetNillableMimeType sets the "mime_type" field if the given value is not nil.
 func (mu *MediaUpdate) SetNillableMimeType(s *string) *MediaUpdate {
 	if s != nil {
 		mu.SetMimeType(*s)
@@ -122,9 +123,45 @@ func (mu *MediaUpdate) ClearMetadata() *MediaUpdate {
 	return mu
 }
 
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (mu *MediaUpdate) AddUserIDs(ids ...string) *MediaUpdate {
+	mu.mutation.AddUserIDs(ids...)
+	return mu
+}
+
+// AddUser adds the "user" edges to the User entity.
+func (mu *MediaUpdate) AddUser(u ...*User) *MediaUpdate {
+	ids := make([]string, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return mu.AddUserIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
+}
+
+// ClearUser clears all "user" edges to the User entity.
+func (mu *MediaUpdate) ClearUser() *MediaUpdate {
+	mu.mutation.ClearUser()
+	return mu
+}
+
+// RemoveUserIDs removes the "user" edge to User entities by IDs.
+func (mu *MediaUpdate) RemoveUserIDs(ids ...string) *MediaUpdate {
+	mu.mutation.RemoveUserIDs(ids...)
+	return mu
+}
+
+// RemoveUser removes "user" edges to User entities.
+func (mu *MediaUpdate) RemoveUser(u ...*User) *MediaUpdate {
+	ids := make([]string, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return mu.RemoveUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -173,17 +210,17 @@ func (mu *MediaUpdate) defaults() error {
 func (mu *MediaUpdate) check() error {
 	if v, ok := mu.mutation.FileName(); ok {
 		if err := media.FileNameValidator(v); err != nil {
-			return &ValidationError{Name: "fileName", err: fmt.Errorf(`ent: validator failed for field "Media.fileName": %w`, err)}
+			return &ValidationError{Name: "file_name", err: fmt.Errorf(`ent: validator failed for field "Media.file_name": %w`, err)}
 		}
 	}
-	if v, ok := mu.mutation.FileUrl(); ok {
-		if err := media.FileUrlValidator(v); err != nil {
-			return &ValidationError{Name: "fileUrl", err: fmt.Errorf(`ent: validator failed for field "Media.fileUrl": %w`, err)}
+	if v, ok := mu.mutation.FileURL(); ok {
+		if err := media.FileURLValidator(v); err != nil {
+			return &ValidationError{Name: "file_url", err: fmt.Errorf(`ent: validator failed for field "Media.file_url": %w`, err)}
 		}
 	}
 	if v, ok := mu.mutation.MimeType(); ok {
 		if err := media.MimeTypeValidator(v); err != nil {
-			return &ValidationError{Name: "mimeType", err: fmt.Errorf(`ent: validator failed for field "Media.mimeType": %w`, err)}
+			return &ValidationError{Name: "mime_type", err: fmt.Errorf(`ent: validator failed for field "Media.mime_type": %w`, err)}
 		}
 	}
 	return nil
@@ -216,8 +253,8 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.FileName(); ok {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)
 	}
-	if value, ok := mu.mutation.FileUrl(); ok {
-		_spec.SetField(media.FieldFileUrl, field.TypeString, value)
+	if value, ok := mu.mutation.FileURL(); ok {
+		_spec.SetField(media.FieldFileURL, field.TypeString, value)
 	}
 	if value, ok := mu.mutation.MimeType(); ok {
 		_spec.SetField(media.FieldMimeType, field.TypeString, value)
@@ -227,6 +264,51 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if mu.mutation.MetadataCleared() {
 		_spec.ClearField(media.FieldMetadata, field.TypeJSON)
+	}
+	if mu.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedUserIDs(); len(nodes) > 0 && !mu.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -288,13 +370,13 @@ func (muo *MediaUpdateOne) ClearDeletedAt() *MediaUpdateOne {
 	return muo
 }
 
-// SetFileName sets the "fileName" field.
+// SetFileName sets the "file_name" field.
 func (muo *MediaUpdateOne) SetFileName(s string) *MediaUpdateOne {
 	muo.mutation.SetFileName(s)
 	return muo
 }
 
-// SetNillableFileName sets the "fileName" field if the given value is not nil.
+// SetNillableFileName sets the "file_name" field if the given value is not nil.
 func (muo *MediaUpdateOne) SetNillableFileName(s *string) *MediaUpdateOne {
 	if s != nil {
 		muo.SetFileName(*s)
@@ -302,27 +384,27 @@ func (muo *MediaUpdateOne) SetNillableFileName(s *string) *MediaUpdateOne {
 	return muo
 }
 
-// SetFileUrl sets the "fileUrl" field.
-func (muo *MediaUpdateOne) SetFileUrl(s string) *MediaUpdateOne {
-	muo.mutation.SetFileUrl(s)
+// SetFileURL sets the "file_url" field.
+func (muo *MediaUpdateOne) SetFileURL(s string) *MediaUpdateOne {
+	muo.mutation.SetFileURL(s)
 	return muo
 }
 
-// SetNillableFileUrl sets the "fileUrl" field if the given value is not nil.
-func (muo *MediaUpdateOne) SetNillableFileUrl(s *string) *MediaUpdateOne {
+// SetNillableFileURL sets the "file_url" field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableFileURL(s *string) *MediaUpdateOne {
 	if s != nil {
-		muo.SetFileUrl(*s)
+		muo.SetFileURL(*s)
 	}
 	return muo
 }
 
-// SetMimeType sets the "mimeType" field.
+// SetMimeType sets the "mime_type" field.
 func (muo *MediaUpdateOne) SetMimeType(s string) *MediaUpdateOne {
 	muo.mutation.SetMimeType(s)
 	return muo
 }
 
-// SetNillableMimeType sets the "mimeType" field if the given value is not nil.
+// SetNillableMimeType sets the "mime_type" field if the given value is not nil.
 func (muo *MediaUpdateOne) SetNillableMimeType(s *string) *MediaUpdateOne {
 	if s != nil {
 		muo.SetMimeType(*s)
@@ -342,9 +424,45 @@ func (muo *MediaUpdateOne) ClearMetadata() *MediaUpdateOne {
 	return muo
 }
 
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (muo *MediaUpdateOne) AddUserIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.AddUserIDs(ids...)
+	return muo
+}
+
+// AddUser adds the "user" edges to the User entity.
+func (muo *MediaUpdateOne) AddUser(u ...*User) *MediaUpdateOne {
+	ids := make([]string, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return muo.AddUserIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
+}
+
+// ClearUser clears all "user" edges to the User entity.
+func (muo *MediaUpdateOne) ClearUser() *MediaUpdateOne {
+	muo.mutation.ClearUser()
+	return muo
+}
+
+// RemoveUserIDs removes the "user" edge to User entities by IDs.
+func (muo *MediaUpdateOne) RemoveUserIDs(ids ...string) *MediaUpdateOne {
+	muo.mutation.RemoveUserIDs(ids...)
+	return muo
+}
+
+// RemoveUser removes "user" edges to User entities.
+func (muo *MediaUpdateOne) RemoveUser(u ...*User) *MediaUpdateOne {
+	ids := make([]string, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return muo.RemoveUserIDs(ids...)
 }
 
 // Where appends a list predicates to the MediaUpdate builder.
@@ -406,17 +524,17 @@ func (muo *MediaUpdateOne) defaults() error {
 func (muo *MediaUpdateOne) check() error {
 	if v, ok := muo.mutation.FileName(); ok {
 		if err := media.FileNameValidator(v); err != nil {
-			return &ValidationError{Name: "fileName", err: fmt.Errorf(`ent: validator failed for field "Media.fileName": %w`, err)}
+			return &ValidationError{Name: "file_name", err: fmt.Errorf(`ent: validator failed for field "Media.file_name": %w`, err)}
 		}
 	}
-	if v, ok := muo.mutation.FileUrl(); ok {
-		if err := media.FileUrlValidator(v); err != nil {
-			return &ValidationError{Name: "fileUrl", err: fmt.Errorf(`ent: validator failed for field "Media.fileUrl": %w`, err)}
+	if v, ok := muo.mutation.FileURL(); ok {
+		if err := media.FileURLValidator(v); err != nil {
+			return &ValidationError{Name: "file_url", err: fmt.Errorf(`ent: validator failed for field "Media.file_url": %w`, err)}
 		}
 	}
 	if v, ok := muo.mutation.MimeType(); ok {
 		if err := media.MimeTypeValidator(v); err != nil {
-			return &ValidationError{Name: "mimeType", err: fmt.Errorf(`ent: validator failed for field "Media.mimeType": %w`, err)}
+			return &ValidationError{Name: "mime_type", err: fmt.Errorf(`ent: validator failed for field "Media.mime_type": %w`, err)}
 		}
 	}
 	return nil
@@ -466,8 +584,8 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 	if value, ok := muo.mutation.FileName(); ok {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)
 	}
-	if value, ok := muo.mutation.FileUrl(); ok {
-		_spec.SetField(media.FieldFileUrl, field.TypeString, value)
+	if value, ok := muo.mutation.FileURL(); ok {
+		_spec.SetField(media.FieldFileURL, field.TypeString, value)
 	}
 	if value, ok := muo.mutation.MimeType(); ok {
 		_spec.SetField(media.FieldMimeType, field.TypeString, value)
@@ -477,6 +595,51 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 	}
 	if muo.mutation.MetadataCleared() {
 		_spec.ClearField(media.FieldMetadata, field.TypeJSON)
+	}
+	if muo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedUserIDs(); len(nodes) > 0 && !muo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Media{config: muo.config}
 	_spec.Assign = _node.assignValues

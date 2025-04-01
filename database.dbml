@@ -5,70 +5,70 @@ Table users {
   id varchar [pk]
   username varchar [not null, unique]
   email varchar [not null, unique]
-  passwordHash varchar [not null]
-  firstName varchar
-  lastName varchar
-  profileImageId varchar
+  password_hash varchar [not null]
+  first_name varchar
+  last_name varchar
+  profile_image_id varchar
   bio text
-  isActive boolean [default: true]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table roles {
   id varchar [pk]
   name varchar [not null, unique]
   description text
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table permissions {
   id varchar [pk]
   name varchar [not null, unique]
   description text
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table user_roles {
   id varchar [pk]
-  userId varchar [not null]
-  roleId varchar [not null]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  user_id varchar [not null]
+  role_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table role_permissions {
   id varchar [pk]
-  roleId varchar [not null]
-  permissionId varchar [not null]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  role_id varchar [not null]
+  permission_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table auth {
   id varchar [pk]
-  userId varchar [not null]
-  accessToken varchar [not null]
-  refreshToken varchar [not null]
-  accessTokenExpiresAt timestamp [not null]
-  refreshTokenExpiresAt timestamp [not null]
-  isRevoked boolean [default: false]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  user_id varchar [not null]
+  access_token varchar [not null]
+  refresh_token varchar [not null]
+  access_token_expires_at timestamp [not null]
+  refresh_token_expires_at timestamp [not null]
+  is_revoked boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 // Media Management
 Table media {
   id varchar [pk]
-  fileName varchar [not null]
-  fileUrl varchar [not null]
-  mimeType varchar [not null]
-  uploaderId varchar
+  file_name varchar [not null]
+  file_url varchar [not null]
+  mime_type varchar [not null]
+  uploader_id varchar
   metadata jsonb [note: 'Additional metadata for the file']
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 // Course Management
@@ -76,132 +76,132 @@ Table courses {
   id varchar [pk]
   title varchar [not null]
   description text
-  mediaId varchar
-  creatorId varchar [not null]
-  isPublished boolean [default: false]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  media_id varchar
+  creator_id varchar [not null]
+  is_published boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table sections {
   id varchar [pk]
-  courseId varchar [not null]
+  course_id varchar [not null]
   title varchar [not null]
   description text
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table videos {
   id varchar [pk]
-  sectionId varchar [not null]
+  section_id varchar [not null]
   title varchar [not null]
   description text
-  mediaId varchar [not null]
+  media_id varchar [not null]
   duration integer [note: 'Duration in seconds']
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 // Question Management
 Table questions {
   id varchar [pk]
-  sectionId varchar [not null]
-  questionText text [not null]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  section_id varchar [not null]
+  question_text text [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table video_question_timestamps {
   id varchar [pk]
-  videoId varchar [not null]
-  questionId varchar [not null]
+  video_id varchar [not null]
+  question_id varchar [not null]
   timestamp integer [not null, note: 'Timestamp in seconds when question should appear during video playback']
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table question_options {
   id varchar [pk]
-  questionId varchar [not null]
-  optionText text [not null]
-  isCorrect boolean [not null, default: false]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  question_id varchar [not null]
+  option_text text [not null]
+  is_correct boolean [not null, default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 // User Progress
 Table user_course_enrollments {
   id varchar [pk]
-  userId varchar [not null]
-  courseId varchar [not null]
-  enrolledAt timestamp [default: `now()`]
-  completedAt timestamp
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  user_id varchar [not null]
+  course_id varchar [not null]
+  enrolled_at timestamp [default: `now()`]
+  completed_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table user_section_progress {
   id varchar [pk]
-  userId varchar [not null]
-  sectionId varchar [not null]
-  isCompleted boolean [default: false]
-  completedAt timestamp
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  user_id varchar [not null]
+  section_id varchar [not null]
+  is_completed boolean [default: false]
+  completed_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table user_video_progress {
   id varchar [pk]
-  userId varchar [not null]
-  videoId varchar [not null]
-  watchedSeconds integer [default: 0]
-  isCompleted boolean [default: false]
-  lastWatchedAt timestamp
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  user_id varchar [not null]
+  video_id varchar [not null]
+  watched_seconds integer [default: 0]
+  is_completed boolean [default: false]
+  last_watched_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table user_question_answers {
   id varchar [pk]
-  userId varchar [not null]
-  questionId varchar [not null]
-  selectedOptionId varchar [not null]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  user_id varchar [not null]
+  question_id varchar [not null]
+  selected_option_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 // Relationships
 
 // User Management Relationships
-Ref: users.profileImageId > media.id
-Ref: user_roles.userId > users.id [delete: cascade]
-Ref: user_roles.roleId > roles.id [delete: cascade]
-Ref: role_permissions.roleId > roles.id [delete: cascade]
-Ref: role_permissions.permissionId > permissions.id [delete: cascade]
-Ref: auth.userId > users.id [delete: cascade]
+Ref: users.profile_image_id > media.id
+Ref: user_roles.user_id > users.id [delete: cascade]
+Ref: user_roles.role_id > roles.id [delete: cascade]
+Ref: role_permissions.role_id > roles.id [delete: cascade]
+Ref: role_permissions.permission_id > permissions.id [delete: cascade]
+Ref: auth.user_id > users.id [delete: cascade]
 
 // Media Relationships
-Ref: media.uploaderId > users.id
-Ref: courses.mediaId > media.id
+Ref: media.uploader_id > users.id
+Ref: courses.media_id > media.id
 
 // Course Management Relationships
-Ref: courses.creatorId > users.id
-Ref: sections.courseId > courses.id [delete: cascade]
-Ref: videos.sectionId > sections.id [delete: cascade]
-Ref: videos.mediaId > media.id
-Ref: questions.sectionId > sections.id [delete: cascade]
-Ref: video_question_timestamps.videoId > videos.id [delete: cascade]
-Ref: video_question_timestamps.questionId > questions.id [delete: cascade]
-Ref: question_options.questionId > questions.id [delete: cascade]
+Ref: courses.creator_id > users.id
+Ref: sections.course_id > courses.id [delete: cascade]
+Ref: videos.section_id > sections.id [delete: cascade]
+Ref: videos.media_id > media.id
+Ref: questions.section_id > sections.id [delete: cascade]
+Ref: video_question_timestamps.video_id > videos.id [delete: cascade]
+Ref: video_question_timestamps.question_id > questions.id [delete: cascade]
+Ref: question_options.question_id > questions.id [delete: cascade]
 
 // User Progress Relationships
-Ref: user_course_enrollments.userId > users.id [delete: cascade]
-Ref: user_course_enrollments.courseId > courses.id [delete: cascade]
-Ref: user_section_progress.userId > users.id [delete: cascade]
-Ref: user_section_progress.sectionId > sections.id [delete: cascade]
-Ref: user_video_progress.userId > users.id [delete: cascade]
-Ref: user_video_progress.videoId > videos.id [delete: cascade]
-Ref: user_question_answers.userId > users.id [delete: cascade]
-Ref: user_question_answers.questionId > questions.id [delete: cascade]
-Ref: user_question_answers.selectedOptionId > question_options.id [delete: cascade]
+Ref: user_course_enrollments.user_id > users.id [delete: cascade]
+Ref: user_course_enrollments.course_id > courses.id [delete: cascade]
+Ref: user_section_progress.user_id > users.id [delete: cascade]
+Ref: user_section_progress.section_id > sections.id [delete: cascade]
+Ref: user_video_progress.user_id > users.id [delete: cascade]
+Ref: user_video_progress.video_id > videos.id [delete: cascade]
+Ref: user_question_answers.user_id > users.id [delete: cascade]
+Ref: user_question_answers.question_id > questions.id [delete: cascade]
+Ref: user_question_answers.selected_option_id > question_options.id [delete: cascade]

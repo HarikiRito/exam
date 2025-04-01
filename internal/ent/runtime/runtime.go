@@ -31,17 +31,17 @@ func init() {
 	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
 	// media.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	media.UpdateDefaultUpdatedAt = mediaDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// mediaDescFileName is the schema descriptor for fileName field.
+	// mediaDescFileName is the schema descriptor for file_name field.
 	mediaDescFileName := mediaFields[0].Descriptor()
-	// media.FileNameValidator is a validator for the "fileName" field. It is called by the builders before save.
+	// media.FileNameValidator is a validator for the "file_name" field. It is called by the builders before save.
 	media.FileNameValidator = mediaDescFileName.Validators[0].(func(string) error)
-	// mediaDescFileUrl is the schema descriptor for fileUrl field.
-	mediaDescFileUrl := mediaFields[1].Descriptor()
-	// media.FileUrlValidator is a validator for the "fileUrl" field. It is called by the builders before save.
-	media.FileUrlValidator = mediaDescFileUrl.Validators[0].(func(string) error)
-	// mediaDescMimeType is the schema descriptor for mimeType field.
+	// mediaDescFileURL is the schema descriptor for file_url field.
+	mediaDescFileURL := mediaFields[1].Descriptor()
+	// media.FileURLValidator is a validator for the "file_url" field. It is called by the builders before save.
+	media.FileURLValidator = mediaDescFileURL.Validators[0].(func(string) error)
+	// mediaDescMimeType is the schema descriptor for mime_type field.
 	mediaDescMimeType := mediaFields[2].Descriptor()
-	// media.MimeTypeValidator is a validator for the "mimeType" field. It is called by the builders before save.
+	// media.MimeTypeValidator is a validator for the "mime_type" field. It is called by the builders before save.
 	media.MimeTypeValidator = mediaDescMimeType.Validators[0].(func(string) error)
 	todoMixin := schema.Todo{}.Mixin()
 	todoMixinHooks0 := todoMixin[0].Hooks()
@@ -85,13 +85,13 @@ func init() {
 	userDescEmail := userFields[1].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
-	// userDescPasswordHash is the schema descriptor for passwordHash field.
+	// userDescPasswordHash is the schema descriptor for password_hash field.
 	userDescPasswordHash := userFields[2].Descriptor()
-	// user.PasswordHashValidator is a validator for the "passwordHash" field. It is called by the builders before save.
+	// user.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
 	user.PasswordHashValidator = userDescPasswordHash.Validators[0].(func(string) error)
-	// userDescIsActive is the schema descriptor for isActive field.
-	userDescIsActive := userFields[5].Descriptor()
-	// user.DefaultIsActive holds the default value on creation for the isActive field.
+	// userDescIsActive is the schema descriptor for is_active field.
+	userDescIsActive := userFields[6].Descriptor()
+	// user.DefaultIsActive holds the default value on creation for the is_active field.
 	user.DefaultIsActive = userDescIsActive.Default.(bool)
 }
 

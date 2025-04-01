@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/media"
+	"template/internal/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -62,19 +63,19 @@ func (mc *MediaCreate) SetNillableDeletedAt(t *time.Time) *MediaCreate {
 	return mc
 }
 
-// SetFileName sets the "fileName" field.
+// SetFileName sets the "file_name" field.
 func (mc *MediaCreate) SetFileName(s string) *MediaCreate {
 	mc.mutation.SetFileName(s)
 	return mc
 }
 
-// SetFileUrl sets the "fileUrl" field.
-func (mc *MediaCreate) SetFileUrl(s string) *MediaCreate {
-	mc.mutation.SetFileUrl(s)
+// SetFileURL sets the "file_url" field.
+func (mc *MediaCreate) SetFileURL(s string) *MediaCreate {
+	mc.mutation.SetFileURL(s)
 	return mc
 }
 
-// SetMimeType sets the "mimeType" field.
+// SetMimeType sets the "mime_type" field.
 func (mc *MediaCreate) SetMimeType(s string) *MediaCreate {
 	mc.mutation.SetMimeType(s)
 	return mc
@@ -90,6 +91,21 @@ func (mc *MediaCreate) SetMetadata(m map[string]interface{}) *MediaCreate {
 func (mc *MediaCreate) SetID(s string) *MediaCreate {
 	mc.mutation.SetID(s)
 	return mc
+}
+
+// AddUserIDs adds the "user" edge to the User entity by IDs.
+func (mc *MediaCreate) AddUserIDs(ids ...string) *MediaCreate {
+	mc.mutation.AddUserIDs(ids...)
+	return mc
+}
+
+// AddUser adds the "user" edges to the User entity.
+func (mc *MediaCreate) AddUser(u ...*User) *MediaCreate {
+	ids := make([]string, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return mc.AddUserIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -155,27 +171,27 @@ func (mc *MediaCreate) check() error {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Media.updated_at"`)}
 	}
 	if _, ok := mc.mutation.FileName(); !ok {
-		return &ValidationError{Name: "fileName", err: errors.New(`ent: missing required field "Media.fileName"`)}
+		return &ValidationError{Name: "file_name", err: errors.New(`ent: missing required field "Media.file_name"`)}
 	}
 	if v, ok := mc.mutation.FileName(); ok {
 		if err := media.FileNameValidator(v); err != nil {
-			return &ValidationError{Name: "fileName", err: fmt.Errorf(`ent: validator failed for field "Media.fileName": %w`, err)}
+			return &ValidationError{Name: "file_name", err: fmt.Errorf(`ent: validator failed for field "Media.file_name": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.FileUrl(); !ok {
-		return &ValidationError{Name: "fileUrl", err: errors.New(`ent: missing required field "Media.fileUrl"`)}
+	if _, ok := mc.mutation.FileURL(); !ok {
+		return &ValidationError{Name: "file_url", err: errors.New(`ent: missing required field "Media.file_url"`)}
 	}
-	if v, ok := mc.mutation.FileUrl(); ok {
-		if err := media.FileUrlValidator(v); err != nil {
-			return &ValidationError{Name: "fileUrl", err: fmt.Errorf(`ent: validator failed for field "Media.fileUrl": %w`, err)}
+	if v, ok := mc.mutation.FileURL(); ok {
+		if err := media.FileURLValidator(v); err != nil {
+			return &ValidationError{Name: "file_url", err: fmt.Errorf(`ent: validator failed for field "Media.file_url": %w`, err)}
 		}
 	}
 	if _, ok := mc.mutation.MimeType(); !ok {
-		return &ValidationError{Name: "mimeType", err: errors.New(`ent: missing required field "Media.mimeType"`)}
+		return &ValidationError{Name: "mime_type", err: errors.New(`ent: missing required field "Media.mime_type"`)}
 	}
 	if v, ok := mc.mutation.MimeType(); ok {
 		if err := media.MimeTypeValidator(v); err != nil {
-			return &ValidationError{Name: "mimeType", err: fmt.Errorf(`ent: validator failed for field "Media.mimeType": %w`, err)}
+			return &ValidationError{Name: "mime_type", err: fmt.Errorf(`ent: validator failed for field "Media.mime_type": %w`, err)}
 		}
 	}
 	return nil
@@ -229,9 +245,9 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)
 		_node.FileName = value
 	}
-	if value, ok := mc.mutation.FileUrl(); ok {
-		_spec.SetField(media.FieldFileUrl, field.TypeString, value)
-		_node.FileUrl = value
+	if value, ok := mc.mutation.FileURL(); ok {
+		_spec.SetField(media.FieldFileURL, field.TypeString, value)
+		_node.FileURL = value
 	}
 	if value, ok := mc.mutation.MimeType(); ok {
 		_spec.SetField(media.FieldMimeType, field.TypeString, value)
@@ -240,6 +256,22 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.Metadata(); ok {
 		_spec.SetField(media.FieldMetadata, field.TypeJSON, value)
 		_node.Metadata = value
+	}
+	if nodes := mc.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.UserTable,
+			Columns: []string{media.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

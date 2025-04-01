@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -24,16 +25,27 @@ const (
 	FieldUsername = "username"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
-	// FieldPasswordHash holds the string denoting the passwordhash field in the database.
+	// FieldPasswordHash holds the string denoting the password_hash field in the database.
 	FieldPasswordHash = "password_hash"
-	// FieldFirstName holds the string denoting the firstname field in the database.
+	// FieldFirstName holds the string denoting the first_name field in the database.
 	FieldFirstName = "first_name"
-	// FieldLastName holds the string denoting the lastname field in the database.
+	// FieldLastName holds the string denoting the last_name field in the database.
 	FieldLastName = "last_name"
-	// FieldIsActive holds the string denoting the isactive field in the database.
+	// FieldAvatarID holds the string denoting the avatar_id field in the database.
+	FieldAvatarID = "avatar_id"
+	// FieldIsActive holds the string denoting the is_active field in the database.
 	FieldIsActive = "is_active"
+	// EdgeMedia holds the string denoting the media edge name in mutations.
+	EdgeMedia = "media"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// MediaTable is the table that holds the media relation/edge.
+	MediaTable = "users"
+	// MediaInverseTable is the table name for the Media entity.
+	// It exists in this package in order to avoid circular dependency with the "media" package.
+	MediaInverseTable = "media"
+	// MediaColumn is the table column denoting the media relation/edge.
+	MediaColumn = "avatar_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -47,6 +59,7 @@ var Columns = []string{
 	FieldPasswordHash,
 	FieldFirstName,
 	FieldLastName,
+	FieldAvatarID,
 	FieldIsActive,
 }
 
@@ -77,9 +90,9 @@ var (
 	UsernameValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
-	// PasswordHashValidator is a validator for the "passwordHash" field. It is called by the builders before save.
+	// PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
 	PasswordHashValidator func(string) error
-	// DefaultIsActive holds the default value on creation for the "isActive" field.
+	// DefaultIsActive holds the default value on creation for the "is_active" field.
 	DefaultIsActive bool
 )
 
@@ -116,22 +129,41 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
-// ByPasswordHash orders the results by the passwordHash field.
+// ByPasswordHash orders the results by the password_hash field.
 func ByPasswordHash(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPasswordHash, opts...).ToFunc()
 }
 
-// ByFirstName orders the results by the firstName field.
+// ByFirstName orders the results by the first_name field.
 func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFirstName, opts...).ToFunc()
 }
 
-// ByLastName orders the results by the lastName field.
+// ByLastName orders the results by the last_name field.
 func ByLastName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastName, opts...).ToFunc()
 }
 
-// ByIsActive orders the results by the isActive field.
+// ByAvatarID orders the results by the avatar_id field.
+func ByAvatarID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvatarID, opts...).ToFunc()
+}
+
+// ByIsActive orders the results by the is_active field.
 func ByIsActive(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsActive, opts...).ToFunc()
+}
+
+// ByMediaField orders the results by media field.
+func ByMediaField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMediaStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newMediaStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MediaInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, MediaTable, MediaColumn),
+	)
 }

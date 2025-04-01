@@ -4,6 +4,7 @@ import (
 	"template/internal/ent/schema/mixin"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -17,17 +18,19 @@ func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("username").NotEmpty().Unique(),
 		field.String("email").NotEmpty().Unique(),
-		field.String("passwordHash").NotEmpty(),
-		field.String("firstName").Optional(),
-		field.String("lastName").Optional(),
-		// field.String("avatarId").Optional(),
-		field.Bool("isActive").Default(true),
+		field.String("password_hash").NotEmpty(),
+		field.String("first_name").Optional(),
+		field.String("last_name").Optional(),
+		field.String("avatar_id").Optional(),
+		field.Bool("is_active").Default(true),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("media", Media.Type).
+			Ref("user").Field("avatar_id").Unique(),
 	}
 }
 
