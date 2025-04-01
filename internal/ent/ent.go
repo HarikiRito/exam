@@ -10,8 +10,11 @@ import (
 	"sync"
 	"template/internal/ent/auth"
 	"template/internal/ent/media"
+	"template/internal/ent/permission"
+	"template/internal/ent/role"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
+	"template/internal/ent/userrole"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -76,10 +79,13 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			auth.Table:  auth.ValidColumn,
-			media.Table: media.ValidColumn,
-			todo.Table:  todo.ValidColumn,
-			user.Table:  user.ValidColumn,
+			auth.Table:       auth.ValidColumn,
+			media.Table:      media.ValidColumn,
+			permission.Table: permission.ValidColumn,
+			role.Table:       role.ValidColumn,
+			todo.Table:       todo.ValidColumn,
+			user.Table:       user.ValidColumn,
+			userrole.Table:   userrole.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

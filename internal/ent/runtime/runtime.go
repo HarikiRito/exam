@@ -5,9 +5,12 @@ package runtime
 import (
 	"template/internal/ent/auth"
 	"template/internal/ent/media"
+	"template/internal/ent/permission"
+	"template/internal/ent/role"
 	"template/internal/ent/schema"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
+	"template/internal/ent/userrole"
 	"time"
 )
 
@@ -77,6 +80,48 @@ func init() {
 	mediaDescMimeType := mediaFields[2].Descriptor()
 	// media.MimeTypeValidator is a validator for the "mime_type" field. It is called by the builders before save.
 	media.MimeTypeValidator = mediaDescMimeType.Validators[0].(func(string) error)
+	permissionMixin := schema.Permission{}.Mixin()
+	permissionMixinHooks0 := permissionMixin[0].Hooks()
+	permission.Hooks[0] = permissionMixinHooks0[0]
+	permissionMixinFields0 := permissionMixin[0].Fields()
+	_ = permissionMixinFields0
+	permissionFields := schema.Permission{}.Fields()
+	_ = permissionFields
+	// permissionDescCreatedAt is the schema descriptor for created_at field.
+	permissionDescCreatedAt := permissionMixinFields0[1].Descriptor()
+	// permission.DefaultCreatedAt holds the default value on creation for the created_at field.
+	permission.DefaultCreatedAt = permissionDescCreatedAt.Default.(func() time.Time)
+	// permissionDescUpdatedAt is the schema descriptor for updated_at field.
+	permissionDescUpdatedAt := permissionMixinFields0[2].Descriptor()
+	// permission.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	permission.DefaultUpdatedAt = permissionDescUpdatedAt.Default.(func() time.Time)
+	// permission.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	permission.UpdateDefaultUpdatedAt = permissionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// permissionDescName is the schema descriptor for name field.
+	permissionDescName := permissionFields[0].Descriptor()
+	// permission.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	permission.NameValidator = permissionDescName.Validators[0].(func(string) error)
+	roleMixin := schema.Role{}.Mixin()
+	roleMixinHooks0 := roleMixin[0].Hooks()
+	role.Hooks[0] = roleMixinHooks0[0]
+	roleMixinFields0 := roleMixin[0].Fields()
+	_ = roleMixinFields0
+	roleFields := schema.Role{}.Fields()
+	_ = roleFields
+	// roleDescCreatedAt is the schema descriptor for created_at field.
+	roleDescCreatedAt := roleMixinFields0[1].Descriptor()
+	// role.DefaultCreatedAt holds the default value on creation for the created_at field.
+	role.DefaultCreatedAt = roleDescCreatedAt.Default.(func() time.Time)
+	// roleDescUpdatedAt is the schema descriptor for updated_at field.
+	roleDescUpdatedAt := roleMixinFields0[2].Descriptor()
+	// role.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
+	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// roleDescName is the schema descriptor for name field.
+	roleDescName := roleFields[0].Descriptor()
+	// role.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	role.NameValidator = roleDescName.Validators[0].(func(string) error)
 	todoMixin := schema.Todo{}.Mixin()
 	todoMixinHooks0 := todoMixin[0].Hooks()
 	todo.Hooks[0] = todoMixinHooks0[0]
@@ -127,6 +172,31 @@ func init() {
 	userDescIsActive := userFields[6].Descriptor()
 	// user.DefaultIsActive holds the default value on creation for the is_active field.
 	user.DefaultIsActive = userDescIsActive.Default.(bool)
+	userroleMixin := schema.UserRole{}.Mixin()
+	userroleMixinHooks0 := userroleMixin[0].Hooks()
+	userrole.Hooks[0] = userroleMixinHooks0[0]
+	userroleMixinFields0 := userroleMixin[0].Fields()
+	_ = userroleMixinFields0
+	userroleFields := schema.UserRole{}.Fields()
+	_ = userroleFields
+	// userroleDescCreatedAt is the schema descriptor for created_at field.
+	userroleDescCreatedAt := userroleMixinFields0[1].Descriptor()
+	// userrole.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userrole.DefaultCreatedAt = userroleDescCreatedAt.Default.(func() time.Time)
+	// userroleDescUpdatedAt is the schema descriptor for updated_at field.
+	userroleDescUpdatedAt := userroleMixinFields0[2].Descriptor()
+	// userrole.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userrole.DefaultUpdatedAt = userroleDescUpdatedAt.Default.(func() time.Time)
+	// userrole.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userrole.UpdateDefaultUpdatedAt = userroleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userroleDescUserID is the schema descriptor for user_id field.
+	userroleDescUserID := userroleFields[0].Descriptor()
+	// userrole.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
+	userrole.UserIDValidator = userroleDescUserID.Validators[0].(func(string) error)
+	// userroleDescRoleID is the schema descriptor for role_id field.
+	userroleDescRoleID := userroleFields[1].Descriptor()
+	// userrole.RoleIDValidator is a validator for the "role_id" field. It is called by the builders before save.
+	userrole.RoleIDValidator = userroleDescRoleID.Validators[0].(func(string) error)
 }
 
 const (

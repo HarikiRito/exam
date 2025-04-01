@@ -50,9 +50,13 @@ type UserEdges struct {
 	Media *Media `json:"media,omitempty"`
 	// AuthUser holds the value of the auth_user edge.
 	AuthUser []*Auth `json:"auth_user,omitempty"`
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
+	// UserRoles holds the value of the user_roles edge.
+	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -73,6 +77,24 @@ func (e UserEdges) AuthUserOrErr() ([]*Auth, error) {
 		return e.AuthUser, nil
 	}
 	return nil, &NotLoadedError{edge: "auth_user"}
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[2] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
+}
+
+// UserRolesOrErr returns the UserRoles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
+	if e.loadedTypes[3] {
+		return e.UserRoles, nil
+	}
+	return nil, &NotLoadedError{edge: "user_roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -189,6 +211,16 @@ func (u *User) QueryMedia() *MediaQuery {
 // QueryAuthUser queries the "auth_user" edge of the User entity.
 func (u *User) QueryAuthUser() *AuthQuery {
 	return NewUserClient(u.config).QueryAuthUser(u)
+}
+
+// QueryRoles queries the "roles" edge of the User entity.
+func (u *User) QueryRoles() *RoleQuery {
+	return NewUserClient(u.config).QueryRoles(u)
+}
+
+// QueryUserRoles queries the "user_roles" edge of the User entity.
+func (u *User) QueryUserRoles() *UserRoleQuery {
+	return NewUserClient(u.config).QueryUserRoles(u)
 }
 
 // Update returns a builder for updating this User.

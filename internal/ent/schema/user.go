@@ -32,6 +32,9 @@ func (User) Edges() []ent.Edge {
 		edge.From("media", Media.Type).
 			Ref("user_media").Field("avatar_id").Unique(),
 		edge.To("auth_user", Auth.Type),
+		edge.From("roles", Role.Type).
+			Ref("users").
+			Through("user_roles", UserRole.Type),
 	}
 }
 

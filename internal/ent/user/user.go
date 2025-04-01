@@ -39,6 +39,10 @@ const (
 	EdgeMedia = "media"
 	// EdgeAuthUser holds the string denoting the auth_user edge name in mutations.
 	EdgeAuthUser = "auth_user"
+	// EdgeRoles holds the string denoting the roles edge name in mutations.
+	EdgeRoles = "roles"
+	// EdgeUserRoles holds the string denoting the user_roles edge name in mutations.
+	EdgeUserRoles = "user_roles"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// MediaTable is the table that holds the media relation/edge.
@@ -55,6 +59,18 @@ const (
 	AuthUserInverseTable = "auths"
 	// AuthUserColumn is the table column denoting the auth_user relation/edge.
 	AuthUserColumn = "user_id"
+	// RolesTable is the table that holds the roles relation/edge. The primary key declared below.
+	RolesTable = "user_roles"
+	// RolesInverseTable is the table name for the Role entity.
+	// It exists in this package in order to avoid circular dependency with the "role" package.
+	RolesInverseTable = "roles"
+	// UserRolesTable is the table that holds the user_roles relation/edge.
+	UserRolesTable = "user_roles"
+	// UserRolesInverseTable is the table name for the UserRole entity.
+	// It exists in this package in order to avoid circular dependency with the "userrole" package.
+	UserRolesInverseTable = "user_roles"
+	// UserRolesColumn is the table column denoting the user_roles relation/edge.
+	UserRolesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -71,6 +87,12 @@ var Columns = []string{
 	FieldAvatarID,
 	FieldIsActive,
 }
+
+var (
+	// RolesPrimaryKey and RolesColumn2 are the table columns denoting the
+	// primary key for the roles relation (M2M).
+	RolesPrimaryKey = []string{"role_id", "user_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -183,6 +205,34 @@ func ByAuthUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newAuthUserStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByRolesCount orders the results by roles count.
+func ByRolesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newRolesStep(), opts...)
+	}
+}
+
+// ByRoles orders the results by roles terms.
+func ByRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByUserRolesCount orders the results by user_roles count.
+func ByUserRolesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserRolesStep(), opts...)
+	}
+}
+
+// ByUserRoles orders the results by user_roles terms.
+func ByUserRoles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserRolesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -195,5 +245,19 @@ func newAuthUserStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AuthUserInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AuthUserTable, AuthUserColumn),
+	)
+}
+func newRolesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RolesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, RolesTable, RolesPrimaryKey...),
+	)
+}
+func newUserRolesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserRolesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, UserRolesTable, UserRolesColumn),
 	)
 }

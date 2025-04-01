@@ -16,10 +16,16 @@ type Tx struct {
 	Auth *AuthClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
+	// Permission is the client for interacting with the Permission builders.
+	Permission *PermissionClient
+	// Role is the client for interacting with the Role builders.
+	Role *RoleClient
 	// Todo is the client for interacting with the Todo builders.
 	Todo *TodoClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserRole is the client for interacting with the UserRole builders.
+	UserRole *UserRoleClient
 
 	// lazily loaded.
 	client     *Client
@@ -153,8 +159,11 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Auth = NewAuthClient(tx.config)
 	tx.Media = NewMediaClient(tx.config)
+	tx.Permission = NewPermissionClient(tx.config)
+	tx.Role = NewRoleClient(tx.config)
 	tx.Todo = NewTodoClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserRole = NewUserRoleClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
