@@ -12,6 +12,8 @@ var DB_PASSWORD string
 var DB_HOST string
 var DB_PORT string
 var PORT string
+var JWT_SECRET string
+var JWT_REFRESH_SECRET string
 
 func LoadEnvironment() error {
 	err := godotenv.Load()
@@ -26,6 +28,8 @@ func LoadEnvironment() error {
 	DB_HOST = os.Getenv("DB_HOST")
 	DB_PORT = os.Getenv("DB_PORT")
 	PORT = os.Getenv("PORT")
+	JWT_SECRET = os.Getenv("JWT_SECRET")
+	JWT_REFRESH_SECRET = os.Getenv("JWT_REFRESH_SECRET")
 
 	return nil
 }
