@@ -3,7 +3,6 @@ package jwt
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -26,7 +25,7 @@ func TestJWTService(t *testing.T) {
 
 	// Test token generation
 	t.Run("GenerateTokenPair", func(t *testing.T) {
-		tokenPair, err := service.GenerateTokenPair(userID)
+		tokenPair, err := service.GenerateTokenPair(userID, nil)
 		if err != nil {
 			t.Fatalf("Failed to generate token pair: %v", err)
 		}
@@ -42,8 +41,7 @@ func TestJWTService(t *testing.T) {
 
 	// Test token validation
 	t.Run("ValidateTokens", func(t *testing.T) {
-		tokenPair, err := service.GenerateTokenPair(userID)
-		fmt.Println(tokenPair.AccessToken)
+		tokenPair, err := service.GenerateTokenPair(userID, nil)
 		if err != nil {
 			t.Fatalf("Failed to generate token pair: %v", err)
 		}
@@ -84,7 +82,7 @@ func TestJWTService(t *testing.T) {
 
 	// Test token refresh
 	t.Run("RefreshTokens", func(t *testing.T) {
-		tokenPair, err := service.GenerateTokenPair(userID)
+		tokenPair, err := service.GenerateTokenPair(userID, nil)
 		if err != nil {
 			t.Fatalf("Failed to generate token pair: %v", err)
 		}
@@ -125,7 +123,7 @@ func TestJWTService(t *testing.T) {
 
 	// Test token expiration
 	t.Run("TokenExpiration", func(t *testing.T) {
-		tokenPair, err := service.GenerateTokenPair(userID)
+		tokenPair, err := service.GenerateTokenPair(userID, nil)
 		if err != nil {
 			t.Fatalf("Failed to generate token pair: %v", err)
 		}
@@ -155,10 +153,110 @@ func TestJWTService(t *testing.T) {
 		}
 	})
 
+	// Test payload
+	t.Run("Payload", func(t *testing.T) {
+		// Create a payload
+		payload := map[string]interface{}{
+			"role":        "admin",
+			"permissions": []interface{}{"read", "write", "delete"},
+			"orgId":       "org-123",
+			"metadata": map[string]interface{}{
+				"created": "2023-01-01",
+				"source":  "test",
+			},
+		}
+
+		// Generate tokens with payload
+		tokenPair, err := service.GenerateTokenPair(userID, payload)
+		if err != nil {
+			t.Fatalf("Failed to generate token pair with payload: %v", err)
+		}
+
+		// Validate access token and check payload
+		accessClaims, err := service.ValidateAccessToken(tokenPair.AccessToken)
+		if err != nil {
+			t.Errorf("Failed to validate access token: %v", err)
+		}
+
+		// Verify payload values
+		if accessClaims.Payload["role"] != "admin" {
+			t.Errorf("Payload has wrong role. Expected: %s, Got: %v", "admin", accessClaims.Payload["role"])
+		}
+
+		// Verify nested array
+		permissions, ok := accessClaims.Payload["permissions"].([]interface{})
+		if !ok {
+			t.Errorf("Permissions is not an array: %v", accessClaims.Payload["permissions"])
+		} else {
+			if len(permissions) != 3 {
+				t.Errorf("Permissions array has wrong length. Expected: 3, Got: %d", len(permissions))
+			}
+			if permissions[0] != "read" || permissions[1] != "write" || permissions[2] != "delete" {
+				t.Errorf("Permissions array has wrong values: %v", permissions)
+			}
+		}
+
+		// Verify nested map
+		metadata, ok := accessClaims.Payload["metadata"].(map[string]interface{})
+		if !ok {
+			t.Errorf("Metadata is not a map: %v", accessClaims.Payload["metadata"])
+		} else {
+			if metadata["created"] != "2023-01-01" || metadata["source"] != "test" {
+				t.Errorf("Metadata has wrong values: %v", metadata)
+			}
+		}
+
+		// Test refresh token with payload
+		refreshClaims, err := service.ValidateRefreshToken(tokenPair.RefreshToken)
+		if err != nil {
+			t.Errorf("Failed to validate refresh token: %v", err)
+		}
+
+		// Verify that refresh token also contains the payload
+		if refreshClaims.Payload["role"] != "admin" {
+			t.Errorf("Refresh token's payload has wrong role. Expected: %s, Got: %v", "admin", refreshClaims.Payload["role"])
+		}
+	})
+
+	// Test token refresh with payload
+	t.Run("RefreshTokensWithPayload", func(t *testing.T) {
+		// Create a payload
+		payload := map[string]interface{}{
+			"role":     "manager",
+			"tenantId": "tenant-456",
+		}
+
+		// Generate tokens with payload
+		tokenPair, err := service.GenerateTokenPair(userID, payload)
+		if err != nil {
+			t.Fatalf("Failed to generate token pair with payload: %v", err)
+		}
+
+		// Refresh the tokens
+		newTokenPair, err := service.RefreshTokens(tokenPair.RefreshToken)
+		if err != nil {
+			t.Fatalf("Failed to refresh tokens: %v", err)
+		}
+
+		// Validate the new tokens
+		accessClaims, err := service.ValidateAccessToken(newTokenPair.AccessToken)
+		if err != nil {
+			t.Errorf("Failed to validate new access token: %v", err)
+		}
+
+		// Verify that payload is preserved after refresh
+		if accessClaims.Payload["role"] != "manager" {
+			t.Errorf("Refreshed token's payload has wrong role. Expected: %s, Got: %v", "manager", accessClaims.Payload["role"])
+		}
+		if accessClaims.Payload["tenantId"] != "tenant-456" {
+			t.Errorf("Refreshed token's payload has wrong tenantId. Expected: %s, Got: %v", "tenant-456", accessClaims.Payload["tenantId"])
+		}
+	})
+
 	// Test JWT tampering detection
 	t.Run("TokenTampering", func(t *testing.T) {
 		// Generate a valid token pair
-		tokenPair, err := service.GenerateTokenPair(userID)
+		tokenPair, err := service.GenerateTokenPair(userID, nil)
 		if err != nil {
 			t.Fatalf("Failed to generate token pair: %v", err)
 		}
@@ -185,6 +283,17 @@ func TestJWTService(t *testing.T) {
 
 		// Test 2: Modify payload
 		t.Run("PayloadTampering", func(t *testing.T) {
+			// Create a payload
+			payload := map[string]interface{}{
+				"role": "user",
+			}
+
+			// Generate tokens with payload
+			tokenPair, err := service.GenerateTokenPair(userID, payload)
+			if err != nil {
+				t.Fatalf("Failed to generate token pair with payload: %v", err)
+			}
+
 			// Split the token into its components
 			tamperToken := tokenPair.AccessToken
 			parts := strings.Split(tamperToken, ".")
@@ -193,34 +302,34 @@ func TestJWTService(t *testing.T) {
 			}
 
 			// Decode the original payload
-			payloadBytes, err := base64.URLEncoding.DecodeString(parts[1])
+			payloadBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
 			if err != nil {
 				t.Fatalf("Failed to decode payload: %v", err)
 			}
 
-			// Modify the payload to change user ID
-			var payload map[string]interface{}
-			err = json.Unmarshal(payloadBytes, &payload)
+			// Modify the payload to elevate privileges
+			var tokenPayload map[string]interface{}
+			err = json.Unmarshal(payloadBytes, &tokenPayload)
 			if err != nil {
 				t.Fatalf("Failed to unmarshal payload: %v", err)
 			}
 
-			// Change user ID in the payload
-			payload["userId"] = "tampered-user-id"
+			// Change role in the payload
+			payloadMap := tokenPayload["payload"].(map[string]interface{})
+			payloadMap["role"] = "admin"
 
 			// Re-encode the modified payload
-			modifiedPayload, err := json.Marshal(payload)
+			modifiedPayload, err := json.Marshal(tokenPayload)
 			if err != nil {
 				t.Fatalf("Failed to marshal modified payload: %v", err)
 			}
-			modifiedPayloadEncoded := base64.URLEncoding.EncodeToString(modifiedPayload)
+			modifiedPayloadEncoded := base64.RawURLEncoding.EncodeToString(modifiedPayload)
 
 			// Reconstruct the token with modified payload
 			tamperToken = parts[0] + "." + modifiedPayloadEncoded + "." + parts[2]
 
 			// Attempt to validate the tampered token
 			_, err = service.ValidateAccessToken(tamperToken)
-			fmt.Println("err", err)
 			if err == nil {
 				t.Error("Token validation should fail for payload tampering")
 			}

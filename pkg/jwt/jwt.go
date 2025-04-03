@@ -27,9 +27,10 @@ type TokenPair struct {
 
 // Claims defines the structure for JWT claims
 type Claims struct {
-	UserID    string    `json:"userId"`
-	TokenID   string    `json:"tokenId"`
-	TokenType TokenType `json:"tokenType"`
+	UserID    string                 `json:"userId"`
+	TokenID   string                 `json:"tokenId"`
+	TokenType TokenType              `json:"tokenType"`
+	Payload   map[string]interface{} `json:"payload,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -69,18 +70,40 @@ func JwtDefaultService() *Service {
 }
 
 // GenerateTokenPair creates a new pair of access and refresh tokens
-func (s *Service) GenerateTokenPair(userID string) (*TokenPair, error) {
+func (s *Service) GenerateTokenPair(userID string, payload map[string]interface{}) (*TokenPair, error) {
 	// Generate a unique token ID
 	tokenID := uuid.New().String()
+	now := time.Now()
 
-	// Generate access token
-	accessToken, err := s.generateToken(userID, tokenID, AccessToken, s.config.AccessTokenSecret, s.config.AccessTokenExpiry)
+	// Create base claims for both tokens
+	baseClaims := Claims{
+		UserID:  userID,
+		TokenID: tokenID,
+		Payload: payload,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ID:        tokenID,
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now),
+		},
+	}
+
+	// Create access token claims
+	accessClaims := baseClaims
+	accessClaims.TokenType = AccessToken
+	accessClaims.ExpiresAt = jwt.NewNumericDate(now.Add(s.config.AccessTokenExpiry))
+
+	// Create refresh token claims
+	refreshClaims := baseClaims
+	refreshClaims.TokenType = RefreshToken
+	refreshClaims.ExpiresAt = jwt.NewNumericDate(now.Add(s.config.RefreshTokenExpiry))
+
+	// Generate tokens
+	accessToken, err := s.generateToken(accessClaims, s.config.AccessTokenSecret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate access token: %w", err)
 	}
 
-	// Generate refresh token
-	refreshToken, err := s.generateToken(userID, tokenID, RefreshToken, s.config.RefreshTokenSecret, s.config.RefreshTokenExpiry)
+	refreshToken, err := s.generateToken(refreshClaims, s.config.RefreshTokenSecret)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
@@ -92,20 +115,7 @@ func (s *Service) GenerateTokenPair(userID string) (*TokenPair, error) {
 }
 
 // generateToken creates a new JWT token
-func (s *Service) generateToken(userID, tokenID string, tokenType TokenType, secret string, expiry time.Duration) (string, error) {
-	now := time.Now()
-	claims := Claims{
-		UserID:    userID,
-		TokenID:   tokenID,
-		TokenType: tokenType,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(now.Add(expiry)),
-			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
-			ID:        tokenID,
-		},
-	}
-
+func (s *Service) generateToken(claims Claims, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
@@ -161,15 +171,15 @@ func (s *Service) RefreshTokens(refreshToken string) (*TokenPair, error) {
 		return nil, fmt.Errorf("invalid refresh token: %w", err)
 	}
 
-	// Generate a new token pair
-	return s.GenerateTokenPair(claims.UserID)
+	// Generate a new token pair with the same payload
+	return s.GenerateTokenPair(claims.UserID, claims.Payload)
 }
 
-// GetUserIDFromToken extracts the user ID from a token
-func (s *Service) GetUserIDFromToken(tokenString string) (string, error) {
+// GetClaimsFromToken extracts the claims from a token
+func (s *Service) GetClaimsFromToken(tokenString string) (*Claims, error) {
 	claims, err := s.ValidateAccessToken(tokenString)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return claims.UserID, nil
+	return claims, nil
 }
