@@ -1,0 +1,11 @@
+extend type Mutation {
+  login(email: String!, password: String!): Auth!
+  register(email: String!, password: String!): Auth!
+  logout: String!
+}
+
+
+type Auth {
+  accessToken: String!
+  refreshToken: String!
+}

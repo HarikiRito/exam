@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/todo"
 	"template/internal/graph/model"
 )
@@ -25,19 +26,25 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+	// Extract the HTTP request from the context
+	userID, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Now you can access headers
+	fmt.Println("userID", userID)
+
+	// Rest of your resolver logic
 	return []*model.Todo{
 		{
-			ID:   "1",
+			ID:   "2",
 			Text: "Buy groceries",
 		},
 	}, nil
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

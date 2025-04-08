@@ -57,8 +57,8 @@ type Service struct {
 	config JwtConfig
 }
 
-// JwtService creates a new JWT service with the provided configuration
-func JwtService(config JwtConfig) *Service {
+// Create creates a new JWT service with the provided configuration
+func Create(config JwtConfig) *Service {
 	return &Service{
 		config: config,
 	}
@@ -66,7 +66,7 @@ func JwtService(config JwtConfig) *Service {
 
 // JwtDefaultService creates a new JWT service with default configuration
 func JwtDefaultService() *Service {
-	return JwtService(DefaultConfig())
+	return Create(DefaultConfig())
 }
 
 // GenerateTokenPair creates a new pair of access and refresh tokens

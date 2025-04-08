@@ -18,7 +18,7 @@ func TestJWTService(t *testing.T) {
 	}
 
 	// Create a new JWT service
-	service := JwtService(config)
+	service := Create(config)
 
 	// Test user ID
 	userID := "test-user-123"
