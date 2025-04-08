@@ -644,29 +644,6 @@ func HasMediaWith(preds ...predicate.Media) predicate.User {
 	})
 }
 
-// HasAuthUser applies the HasEdge predicate on the "auth_user" edge.
-func HasAuthUser() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, AuthUserTable, AuthUserColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasAuthUserWith applies the HasEdge predicate on the "auth_user" edge with a given conditions (other predicates).
-func HasAuthUserWith(preds ...predicate.Auth) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newAuthUserStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasMediaUploader applies the HasEdge predicate on the "media_uploader" edge.
 func HasMediaUploader() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

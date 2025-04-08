@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
-	"template/internal/ent/auth"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
@@ -85,7 +84,6 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			auth.Table:                   auth.ValidColumn,
 			course.Table:                 course.ValidColumn,
 			coursesection.Table:          coursesection.ValidColumn,
 			media.Table:                  media.ValidColumn,

@@ -47,18 +47,6 @@ Table role_permissions {
   updated_at timestamp [default: `now()`]
 }
 
-Table auth {
-  id varchar [pk]
-  user_id varchar [not null]
-  access_token varchar [not null]
-  refresh_token varchar [not null]
-  access_token_expires_at timestamp [not null]
-  refresh_token_expires_at timestamp [not null]
-  is_revoked boolean [default: false]
-  created_at timestamp [default: `now()`]
-  updated_at timestamp [default: `now()`]
-}
-
 // Media Management
 Table media {
   id varchar [pk]
@@ -179,7 +167,6 @@ Ref: user_roles.user_id > users.id [delete: cascade]
 Ref: user_roles.role_id > roles.id [delete: cascade]
 Ref: role_permissions.role_id > roles.id [delete: cascade]
 Ref: role_permissions.permission_id > permissions.id [delete: cascade]
-Ref: auth.user_id > users.id [delete: cascade]
 
 // Media Relationships
 Ref: media.uploader_id > users.id

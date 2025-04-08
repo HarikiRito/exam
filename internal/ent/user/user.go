@@ -37,8 +37,6 @@ const (
 	FieldIsActive = "is_active"
 	// EdgeMedia holds the string denoting the media edge name in mutations.
 	EdgeMedia = "media"
-	// EdgeAuthUser holds the string denoting the auth_user edge name in mutations.
-	EdgeAuthUser = "auth_user"
 	// EdgeMediaUploader holds the string denoting the media_uploader edge name in mutations.
 	EdgeMediaUploader = "media_uploader"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
@@ -56,13 +54,6 @@ const (
 	MediaInverseTable = "media"
 	// MediaColumn is the table column denoting the media relation/edge.
 	MediaColumn = "avatar_id"
-	// AuthUserTable is the table that holds the auth_user relation/edge.
-	AuthUserTable = "auths"
-	// AuthUserInverseTable is the table name for the Auth entity.
-	// It exists in this package in order to avoid circular dependency with the "auth" package.
-	AuthUserInverseTable = "auths"
-	// AuthUserColumn is the table column denoting the auth_user relation/edge.
-	AuthUserColumn = "user_id"
 	// MediaUploaderTable is the table that holds the media_uploader relation/edge.
 	MediaUploaderTable = "media"
 	// MediaUploaderInverseTable is the table name for the Media entity.
@@ -206,20 +197,6 @@ func ByMediaField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByAuthUserCount orders the results by auth_user count.
-func ByAuthUserCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newAuthUserStep(), opts...)
-	}
-}
-
-// ByAuthUser orders the results by auth_user terms.
-func ByAuthUser(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAuthUserStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByMediaUploaderCount orders the results by media_uploader count.
 func ByMediaUploaderCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -280,13 +257,6 @@ func newMediaStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MediaInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, MediaTable, MediaColumn),
-	)
-}
-func newAuthUserStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(AuthUserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, AuthUserTable, AuthUserColumn),
 	)
 }
 func newMediaUploaderStep() *sqlgraph.Step {

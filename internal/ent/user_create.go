@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/auth"
 	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/role"
@@ -173,21 +172,6 @@ func (uc *UserCreate) SetNillableMediaID(id *uuid.UUID) *UserCreate {
 // SetMedia sets the "media" edge to the Media entity.
 func (uc *UserCreate) SetMedia(m *Media) *UserCreate {
 	return uc.SetMediaID(m.ID)
-}
-
-// AddAuthUserIDs adds the "auth_user" edge to the Auth entity by IDs.
-func (uc *UserCreate) AddAuthUserIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddAuthUserIDs(ids...)
-	return uc
-}
-
-// AddAuthUser adds the "auth_user" edges to the Auth entity.
-func (uc *UserCreate) AddAuthUser(a ...*Auth) *UserCreate {
-	ids := make([]uuid.UUID, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
-	}
-	return uc.AddAuthUserIDs(ids...)
 }
 
 // AddMediaUploaderIDs adds the "media_uploader" edge to the Media entity by IDs.
@@ -424,22 +408,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.AvatarID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.AuthUserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.AuthUserTable,
-			Columns: []string{user.AuthUserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(auth.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uc.mutation.MediaUploaderIDs(); len(nodes) > 0 {

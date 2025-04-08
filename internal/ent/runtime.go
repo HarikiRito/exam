@@ -3,7 +3,6 @@
 package ent
 
 import (
-	"template/internal/ent/auth"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
@@ -26,37 +25,6 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	authMixin := schema.Auth{}.Mixin()
-	authMixinFields0 := authMixin[0].Fields()
-	_ = authMixinFields0
-	authFields := schema.Auth{}.Fields()
-	_ = authFields
-	// authDescCreatedAt is the schema descriptor for created_at field.
-	authDescCreatedAt := authMixinFields0[1].Descriptor()
-	// auth.DefaultCreatedAt holds the default value on creation for the created_at field.
-	auth.DefaultCreatedAt = authDescCreatedAt.Default.(func() time.Time)
-	// authDescUpdatedAt is the schema descriptor for updated_at field.
-	authDescUpdatedAt := authMixinFields0[2].Descriptor()
-	// auth.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	auth.DefaultUpdatedAt = authDescUpdatedAt.Default.(func() time.Time)
-	// auth.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	auth.UpdateDefaultUpdatedAt = authDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// authDescAccessToken is the schema descriptor for access_token field.
-	authDescAccessToken := authFields[1].Descriptor()
-	// auth.AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
-	auth.AccessTokenValidator = authDescAccessToken.Validators[0].(func(string) error)
-	// authDescRefreshToken is the schema descriptor for refresh_token field.
-	authDescRefreshToken := authFields[2].Descriptor()
-	// auth.RefreshTokenValidator is a validator for the "refresh_token" field. It is called by the builders before save.
-	auth.RefreshTokenValidator = authDescRefreshToken.Validators[0].(func(string) error)
-	// authDescIsRevoked is the schema descriptor for is_revoked field.
-	authDescIsRevoked := authFields[5].Descriptor()
-	// auth.DefaultIsRevoked holds the default value on creation for the is_revoked field.
-	auth.DefaultIsRevoked = authDescIsRevoked.Default.(bool)
-	// authDescID is the schema descriptor for id field.
-	authDescID := authMixinFields0[0].Descriptor()
-	// auth.DefaultID holds the default value on creation for the id field.
-	auth.DefaultID = authDescID.Default.(func() uuid.UUID)
 	courseMixin := schema.Course{}.Mixin()
 	courseMixinFields0 := courseMixin[0].Fields()
 	_ = courseMixinFields0

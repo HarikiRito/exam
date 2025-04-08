@@ -11,7 +11,6 @@ import (
 
 	"template/internal/ent/migrate"
 
-	"template/internal/ent/auth"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
@@ -37,8 +36,6 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Auth is the client for interacting with the Auth builders.
-	Auth *AuthClient
 	// Course is the client for interacting with the Course builders.
 	Course *CourseClient
 	// CourseSection is the client for interacting with the CourseSection builders.
@@ -74,7 +71,6 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Auth = NewAuthClient(c.config)
 	c.Course = NewCourseClient(c.config)
 	c.CourseSection = NewCourseSectionClient(c.config)
 	c.Media = NewMediaClient(c.config)
@@ -179,7 +175,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                    ctx,
 		config:                 cfg,
-		Auth:                   NewAuthClient(cfg),
 		Course:                 NewCourseClient(cfg),
 		CourseSection:          NewCourseSectionClient(cfg),
 		Media:                  NewMediaClient(cfg),
@@ -211,7 +206,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                    ctx,
 		config:                 cfg,
-		Auth:                   NewAuthClient(cfg),
 		Course:                 NewCourseClient(cfg),
 		CourseSection:          NewCourseSectionClient(cfg),
 		Media:                  NewMediaClient(cfg),
@@ -230,7 +224,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Auth.
+//		Course.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -253,9 +247,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Auth, c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
-		c.QuestionOption, c.Role, c.Todo, c.User, c.UserRole, c.Video,
-		c.VideoQuestionTimestamp,
+		c.Course, c.CourseSection, c.Media, c.Permission, c.Question, c.QuestionOption,
+		c.Role, c.Todo, c.User, c.UserRole, c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Use(hooks...)
 	}
@@ -265,9 +258,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Auth, c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
-		c.QuestionOption, c.Role, c.Todo, c.User, c.UserRole, c.Video,
-		c.VideoQuestionTimestamp,
+		c.Course, c.CourseSection, c.Media, c.Permission, c.Question, c.QuestionOption,
+		c.Role, c.Todo, c.User, c.UserRole, c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -276,8 +268,6 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *AuthMutation:
-		return c.Auth.mutate(ctx, m)
 	case *CourseMutation:
 		return c.Course.mutate(ctx, m)
 	case *CourseSectionMutation:
@@ -304,155 +294,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.VideoQuestionTimestamp.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
-	}
-}
-
-// AuthClient is a client for the Auth schema.
-type AuthClient struct {
-	config
-}
-
-// NewAuthClient returns a client for the Auth from the given config.
-func NewAuthClient(c config) *AuthClient {
-	return &AuthClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `auth.Hooks(f(g(h())))`.
-func (c *AuthClient) Use(hooks ...Hook) {
-	c.hooks.Auth = append(c.hooks.Auth, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `auth.Intercept(f(g(h())))`.
-func (c *AuthClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Auth = append(c.inters.Auth, interceptors...)
-}
-
-// Create returns a builder for creating a Auth entity.
-func (c *AuthClient) Create() *AuthCreate {
-	mutation := newAuthMutation(c.config, OpCreate)
-	return &AuthCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Auth entities.
-func (c *AuthClient) CreateBulk(builders ...*AuthCreate) *AuthCreateBulk {
-	return &AuthCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *AuthClient) MapCreateBulk(slice any, setFunc func(*AuthCreate, int)) *AuthCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &AuthCreateBulk{err: fmt.Errorf("calling to AuthClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*AuthCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &AuthCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Auth.
-func (c *AuthClient) Update() *AuthUpdate {
-	mutation := newAuthMutation(c.config, OpUpdate)
-	return &AuthUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *AuthClient) UpdateOne(a *Auth) *AuthUpdateOne {
-	mutation := newAuthMutation(c.config, OpUpdateOne, withAuth(a))
-	return &AuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *AuthClient) UpdateOneID(id uuid.UUID) *AuthUpdateOne {
-	mutation := newAuthMutation(c.config, OpUpdateOne, withAuthID(id))
-	return &AuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Auth.
-func (c *AuthClient) Delete() *AuthDelete {
-	mutation := newAuthMutation(c.config, OpDelete)
-	return &AuthDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *AuthClient) DeleteOne(a *Auth) *AuthDeleteOne {
-	return c.DeleteOneID(a.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AuthClient) DeleteOneID(id uuid.UUID) *AuthDeleteOne {
-	builder := c.Delete().Where(auth.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &AuthDeleteOne{builder}
-}
-
-// Query returns a query builder for Auth.
-func (c *AuthClient) Query() *AuthQuery {
-	return &AuthQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeAuth},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Auth entity by its id.
-func (c *AuthClient) Get(ctx context.Context, id uuid.UUID) (*Auth, error) {
-	return c.Query().Where(auth.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *AuthClient) GetX(ctx context.Context, id uuid.UUID) *Auth {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a Auth.
-func (c *AuthClient) QueryUser(a *Auth) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(auth.Table, auth.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, auth.UserTable, auth.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *AuthClient) Hooks() []Hook {
-	return c.hooks.Auth
-}
-
-// Interceptors returns the client interceptors.
-func (c *AuthClient) Interceptors() []Interceptor {
-	return c.inters.Auth
-}
-
-func (c *AuthClient) mutate(ctx context.Context, m *AuthMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&AuthCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&AuthUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&AuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&AuthDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Auth mutation op: %q", m.Op())
 	}
 }
 
@@ -1948,22 +1789,6 @@ func (c *UserClient) QueryMedia(u *User) *MediaQuery {
 	return query
 }
 
-// QueryAuthUser queries the auth_user edge of a User.
-func (c *UserClient) QueryAuthUser(u *User) *AuthQuery {
-	query := (&AuthClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(auth.Table, auth.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.AuthUserTable, user.AuthUserColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryMediaUploader queries the media_uploader edge of a User.
 func (c *UserClient) QueryMediaUploader(u *User) *MediaQuery {
 	query := (&MediaClient{config: c.config}).Query()
@@ -2583,11 +2408,11 @@ func (c *VideoQuestionTimestampClient) mutate(ctx context.Context, m *VideoQuest
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Auth, Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
-		Todo, User, UserRole, Video, VideoQuestionTimestamp []ent.Hook
+		Course, CourseSection, Media, Permission, Question, QuestionOption, Role, Todo,
+		User, UserRole, Video, VideoQuestionTimestamp []ent.Hook
 	}
 	inters struct {
-		Auth, Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
-		Todo, User, UserRole, Video, VideoQuestionTimestamp []ent.Interceptor
+		Course, CourseSection, Media, Permission, Question, QuestionOption, Role, Todo,
+		User, UserRole, Video, VideoQuestionTimestamp []ent.Interceptor
 	}
 )

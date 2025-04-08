@@ -49,8 +49,6 @@ type User struct {
 type UserEdges struct {
 	// Media holds the value of the media edge.
 	Media *Media `json:"media,omitempty"`
-	// AuthUser holds the value of the auth_user edge.
-	AuthUser []*Auth `json:"auth_user,omitempty"`
 	// MediaUploader holds the value of the media_uploader edge.
 	MediaUploader []*Media `json:"media_uploader,omitempty"`
 	// Roles holds the value of the roles edge.
@@ -61,7 +59,7 @@ type UserEdges struct {
 	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [5]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -75,19 +73,10 @@ func (e UserEdges) MediaOrErr() (*Media, error) {
 	return nil, &NotLoadedError{edge: "media"}
 }
 
-// AuthUserOrErr returns the AuthUser value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) AuthUserOrErr() ([]*Auth, error) {
-	if e.loadedTypes[1] {
-		return e.AuthUser, nil
-	}
-	return nil, &NotLoadedError{edge: "auth_user"}
-}
-
 // MediaUploaderOrErr returns the MediaUploader value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) MediaUploaderOrErr() ([]*Media, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		return e.MediaUploader, nil
 	}
 	return nil, &NotLoadedError{edge: "media_uploader"}
@@ -96,7 +85,7 @@ func (e UserEdges) MediaUploaderOrErr() ([]*Media, error) {
 // RolesOrErr returns the Roles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) RolesOrErr() ([]*Role, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[2] {
 		return e.Roles, nil
 	}
 	return nil, &NotLoadedError{edge: "roles"}
@@ -105,7 +94,7 @@ func (e UserEdges) RolesOrErr() ([]*Role, error) {
 // CourseCreatorOrErr returns the CourseCreator value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) CourseCreatorOrErr() ([]*Course, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[3] {
 		return e.CourseCreator, nil
 	}
 	return nil, &NotLoadedError{edge: "course_creator"}
@@ -114,7 +103,7 @@ func (e UserEdges) CourseCreatorOrErr() ([]*Course, error) {
 // UserRolesOrErr returns the UserRoles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[4] {
 		return e.UserRoles, nil
 	}
 	return nil, &NotLoadedError{edge: "user_roles"}
@@ -231,11 +220,6 @@ func (u *User) Value(name string) (ent.Value, error) {
 // QueryMedia queries the "media" edge of the User entity.
 func (u *User) QueryMedia() *MediaQuery {
 	return NewUserClient(u.config).QueryMedia(u)
-}
-
-// QueryAuthUser queries the "auth_user" edge of the User entity.
-func (u *User) QueryAuthUser() *AuthQuery {
-	return NewUserClient(u.config).QueryAuthUser(u)
 }
 
 // QueryMediaUploader queries the "media_uploader" edge of the User entity.

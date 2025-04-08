@@ -8,33 +8,6 @@ import (
 )
 
 var (
-	// AuthsColumns holds the columns for the "auths" table.
-	AuthsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "access_token", Type: field.TypeString},
-		{Name: "refresh_token", Type: field.TypeString},
-		{Name: "access_token_expires_at", Type: field.TypeTime},
-		{Name: "refresh_token_expires_at", Type: field.TypeTime},
-		{Name: "is_revoked", Type: field.TypeBool, Default: false},
-		{Name: "user_id", Type: field.TypeUUID},
-	}
-	// AuthsTable holds the schema information for the "auths" table.
-	AuthsTable = &schema.Table{
-		Name:       "auths",
-		Columns:    AuthsColumns,
-		PrimaryKey: []*schema.Column{AuthsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "auths_users_auth_user",
-				Columns:    []*schema.Column{AuthsColumns[9]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-	}
 	// CoursesColumns holds the columns for the "courses" table.
 	CoursesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -369,7 +342,6 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		AuthsTable,
 		CoursesTable,
 		CourseSectionsTable,
 		MediaTable,
@@ -387,7 +359,6 @@ var (
 )
 
 func init() {
-	AuthsTable.ForeignKeys[0].RefTable = UsersTable
 	CoursesTable.ForeignKeys[0].RefTable = MediaTable
 	CoursesTable.ForeignKeys[1].RefTable = UsersTable
 	CourseSectionsTable.ForeignKeys[0].RefTable = CoursesTable

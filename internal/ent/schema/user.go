@@ -33,7 +33,6 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("media", Media.Type).
 			Ref("user_media").Field("avatar_id").Unique(),
-		edge.To("auth_user", Auth.Type),
 		edge.To("media_uploader", Media.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("roles", Role.Type).
 			Ref("users").

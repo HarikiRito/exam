@@ -1,7 +1,7 @@
 .ONESHELL:
 
 
-generate: graphql_generate ent_generate
+generate: ent_generate graphql_generate
 
 ent_generate:
 	@echo "Generating ent files..."

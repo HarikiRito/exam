@@ -8,18 +8,6 @@ import (
 	"template/internal/ent"
 )
 
-// The AuthFunc type is an adapter to allow the use of ordinary
-// function as Auth mutator.
-type AuthFunc func(context.Context, *ent.AuthMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f AuthFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.AuthMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthMutation", m)
-}
-
 // The CourseFunc type is an adapter to allow the use of ordinary
 // function as Course mutator.
 type CourseFunc func(context.Context, *ent.CourseMutation) (ent.Value, error)
