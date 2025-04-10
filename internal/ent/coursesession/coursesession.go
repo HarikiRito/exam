@@ -23,16 +23,16 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
-	// FieldCourseID holds the string denoting the course_id field in the database.
-	FieldCourseID = "course_id"
+	// FieldCourseSectionID holds the string denoting the course_section_id field in the database.
+	FieldCourseSectionID = "course_section_id"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
 	// FieldTotalScore holds the string denoting the total_score field in the database.
 	FieldTotalScore = "total_score"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
-	// EdgeCourse holds the string denoting the course edge name in mutations.
-	EdgeCourse = "course"
+	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
+	EdgeCourseSection = "course_section"
 	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
 	EdgeUserQuestionAnswers = "user_question_answers"
 	// Table holds the table name of the coursesession in the database.
@@ -44,13 +44,13 @@ const (
 	UserInverseTable = "users"
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
-	// CourseTable is the table that holds the course relation/edge.
-	CourseTable = "course_sessions"
-	// CourseInverseTable is the table name for the Course entity.
-	// It exists in this package in order to avoid circular dependency with the "course" package.
-	CourseInverseTable = "courses"
-	// CourseColumn is the table column denoting the course relation/edge.
-	CourseColumn = "course_id"
+	// CourseSectionTable is the table that holds the course_section relation/edge.
+	CourseSectionTable = "course_sessions"
+	// CourseSectionInverseTable is the table name for the CourseSection entity.
+	// It exists in this package in order to avoid circular dependency with the "coursesection" package.
+	CourseSectionInverseTable = "course_sections"
+	// CourseSectionColumn is the table column denoting the course_section relation/edge.
+	CourseSectionColumn = "course_section_id"
 	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
 	UserQuestionAnswersTable = "user_question_answers"
 	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
@@ -67,7 +67,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldUserID,
-	FieldCourseID,
+	FieldCourseSectionID,
 	FieldCompletedAt,
 	FieldTotalScore,
 }
@@ -123,9 +123,9 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
-// ByCourseID orders the results by the course_id field.
-func ByCourseID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCourseID, opts...).ToFunc()
+// ByCourseSectionID orders the results by the course_section_id field.
+func ByCourseSectionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCourseSectionID, opts...).ToFunc()
 }
 
 // ByCompletedAt orders the results by the completed_at field.
@@ -145,10 +145,10 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByCourseField orders the results by course field.
-func ByCourseField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByCourseSectionField orders the results by course_section field.
+func ByCourseSectionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCourseStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newCourseSectionStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -172,11 +172,11 @@ func newUserStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
 	)
 }
-func newCourseStep() *sqlgraph.Step {
+func newCourseSectionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CourseInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CourseTable, CourseColumn),
+		sqlgraph.To(CourseSectionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CourseSectionTable, CourseSectionColumn),
 	)
 }
 func newUserQuestionAnswersStep() *sqlgraph.Step {

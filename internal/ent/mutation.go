@@ -77,9 +77,6 @@ type CourseMutation struct {
 	course_videos          map[uuid.UUID]struct{}
 	removedcourse_videos   map[uuid.UUID]struct{}
 	clearedcourse_videos   bool
-	course_sessions        map[uuid.UUID]struct{}
-	removedcourse_sessions map[uuid.UUID]struct{}
-	clearedcourse_sessions bool
 	done                   bool
 	oldValue               func(context.Context) (*Course, error)
 	predicates             []predicate.Course
@@ -678,60 +675,6 @@ func (m *CourseMutation) ResetCourseVideos() {
 	m.removedcourse_videos = nil
 }
 
-// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by ids.
-func (m *CourseMutation) AddCourseSessionIDs(ids ...uuid.UUID) {
-	if m.course_sessions == nil {
-		m.course_sessions = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.course_sessions[ids[i]] = struct{}{}
-	}
-}
-
-// ClearCourseSessions clears the "course_sessions" edge to the CourseSession entity.
-func (m *CourseMutation) ClearCourseSessions() {
-	m.clearedcourse_sessions = true
-}
-
-// CourseSessionsCleared reports if the "course_sessions" edge to the CourseSession entity was cleared.
-func (m *CourseMutation) CourseSessionsCleared() bool {
-	return m.clearedcourse_sessions
-}
-
-// RemoveCourseSessionIDs removes the "course_sessions" edge to the CourseSession entity by IDs.
-func (m *CourseMutation) RemoveCourseSessionIDs(ids ...uuid.UUID) {
-	if m.removedcourse_sessions == nil {
-		m.removedcourse_sessions = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.course_sessions, ids[i])
-		m.removedcourse_sessions[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedCourseSessions returns the removed IDs of the "course_sessions" edge to the CourseSession entity.
-func (m *CourseMutation) RemovedCourseSessionsIDs() (ids []uuid.UUID) {
-	for id := range m.removedcourse_sessions {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// CourseSessionsIDs returns the "course_sessions" edge IDs in the mutation.
-func (m *CourseMutation) CourseSessionsIDs() (ids []uuid.UUID) {
-	for id := range m.course_sessions {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetCourseSessions resets all changes to the "course_sessions" edge.
-func (m *CourseMutation) ResetCourseSessions() {
-	m.course_sessions = nil
-	m.clearedcourse_sessions = false
-	m.removedcourse_sessions = nil
-}
-
 // Where appends a list predicates to the CourseMutation builder.
 func (m *CourseMutation) Where(ps ...predicate.Course) {
 	m.predicates = append(m.predicates, ps...)
@@ -1005,7 +948,7 @@ func (m *CourseMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *CourseMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 4)
 	if m.media != nil {
 		edges = append(edges, course.EdgeMedia)
 	}
@@ -1017,9 +960,6 @@ func (m *CourseMutation) AddedEdges() []string {
 	}
 	if m.course_videos != nil {
 		edges = append(edges, course.EdgeCourseVideos)
-	}
-	if m.course_sessions != nil {
-		edges = append(edges, course.EdgeCourseSessions)
 	}
 	return edges
 }
@@ -1048,27 +988,18 @@ func (m *CourseMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case course.EdgeCourseSessions:
-		ids := make([]ent.Value, 0, len(m.course_sessions))
-		for id := range m.course_sessions {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CourseMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 4)
 	if m.removedcourse_sections != nil {
 		edges = append(edges, course.EdgeCourseSections)
 	}
 	if m.removedcourse_videos != nil {
 		edges = append(edges, course.EdgeCourseVideos)
-	}
-	if m.removedcourse_sessions != nil {
-		edges = append(edges, course.EdgeCourseSessions)
 	}
 	return edges
 }
@@ -1089,19 +1020,13 @@ func (m *CourseMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case course.EdgeCourseSessions:
-		ids := make([]ent.Value, 0, len(m.removedcourse_sessions))
-		for id := range m.removedcourse_sessions {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *CourseMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 4)
 	if m.clearedmedia {
 		edges = append(edges, course.EdgeMedia)
 	}
@@ -1113,9 +1038,6 @@ func (m *CourseMutation) ClearedEdges() []string {
 	}
 	if m.clearedcourse_videos {
 		edges = append(edges, course.EdgeCourseVideos)
-	}
-	if m.clearedcourse_sessions {
-		edges = append(edges, course.EdgeCourseSessions)
 	}
 	return edges
 }
@@ -1132,8 +1054,6 @@ func (m *CourseMutation) EdgeCleared(name string) bool {
 		return m.clearedcourse_sections
 	case course.EdgeCourseVideos:
 		return m.clearedcourse_videos
-	case course.EdgeCourseSessions:
-		return m.clearedcourse_sessions
 	}
 	return false
 }
@@ -1168,9 +1088,6 @@ func (m *CourseMutation) ResetEdge(name string) error {
 	case course.EdgeCourseVideos:
 		m.ResetCourseVideos()
 		return nil
-	case course.EdgeCourseSessions:
-		m.ResetCourseSessions()
-		return nil
 	}
 	return fmt.Errorf("unknown Course edge %s", name)
 }
@@ -1195,6 +1112,9 @@ type CourseSectionMutation struct {
 	questions                    map[uuid.UUID]struct{}
 	removedquestions             map[uuid.UUID]struct{}
 	clearedquestions             bool
+	course_sessions              map[uuid.UUID]struct{}
+	removedcourse_sessions       map[uuid.UUID]struct{}
+	clearedcourse_sessions       bool
 	done                         bool
 	oldValue                     func(context.Context) (*CourseSection, error)
 	predicates                   []predicate.CourseSection
@@ -1681,6 +1601,60 @@ func (m *CourseSectionMutation) ResetQuestions() {
 	m.removedquestions = nil
 }
 
+// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by ids.
+func (m *CourseSectionMutation) AddCourseSessionIDs(ids ...uuid.UUID) {
+	if m.course_sessions == nil {
+		m.course_sessions = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.course_sessions[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCourseSessions clears the "course_sessions" edge to the CourseSession entity.
+func (m *CourseSectionMutation) ClearCourseSessions() {
+	m.clearedcourse_sessions = true
+}
+
+// CourseSessionsCleared reports if the "course_sessions" edge to the CourseSession entity was cleared.
+func (m *CourseSectionMutation) CourseSessionsCleared() bool {
+	return m.clearedcourse_sessions
+}
+
+// RemoveCourseSessionIDs removes the "course_sessions" edge to the CourseSession entity by IDs.
+func (m *CourseSectionMutation) RemoveCourseSessionIDs(ids ...uuid.UUID) {
+	if m.removedcourse_sessions == nil {
+		m.removedcourse_sessions = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.course_sessions, ids[i])
+		m.removedcourse_sessions[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCourseSessions returns the removed IDs of the "course_sessions" edge to the CourseSession entity.
+func (m *CourseSectionMutation) RemovedCourseSessionsIDs() (ids []uuid.UUID) {
+	for id := range m.removedcourse_sessions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CourseSessionsIDs returns the "course_sessions" edge IDs in the mutation.
+func (m *CourseSectionMutation) CourseSessionsIDs() (ids []uuid.UUID) {
+	for id := range m.course_sessions {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCourseSessions resets all changes to the "course_sessions" edge.
+func (m *CourseSectionMutation) ResetCourseSessions() {
+	m.course_sessions = nil
+	m.clearedcourse_sessions = false
+	m.removedcourse_sessions = nil
+}
+
 // Where appends a list predicates to the CourseSectionMutation builder.
 func (m *CourseSectionMutation) Where(ps ...predicate.CourseSection) {
 	m.predicates = append(m.predicates, ps...)
@@ -1914,7 +1888,7 @@ func (m *CourseSectionMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *CourseSectionMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.course != nil {
 		edges = append(edges, coursesection.EdgeCourse)
 	}
@@ -1923,6 +1897,9 @@ func (m *CourseSectionMutation) AddedEdges() []string {
 	}
 	if m.questions != nil {
 		edges = append(edges, coursesection.EdgeQuestions)
+	}
+	if m.course_sessions != nil {
+		edges = append(edges, coursesection.EdgeCourseSessions)
 	}
 	return edges
 }
@@ -1947,18 +1924,27 @@ func (m *CourseSectionMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case coursesection.EdgeCourseSessions:
+		ids := make([]ent.Value, 0, len(m.course_sessions))
+		for id := range m.course_sessions {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CourseSectionMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedcourse_section_videos != nil {
 		edges = append(edges, coursesection.EdgeCourseSectionVideos)
 	}
 	if m.removedquestions != nil {
 		edges = append(edges, coursesection.EdgeQuestions)
+	}
+	if m.removedcourse_sessions != nil {
+		edges = append(edges, coursesection.EdgeCourseSessions)
 	}
 	return edges
 }
@@ -1979,13 +1965,19 @@ func (m *CourseSectionMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case coursesection.EdgeCourseSessions:
+		ids := make([]ent.Value, 0, len(m.removedcourse_sessions))
+		for id := range m.removedcourse_sessions {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *CourseSectionMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedcourse {
 		edges = append(edges, coursesection.EdgeCourse)
 	}
@@ -1994,6 +1986,9 @@ func (m *CourseSectionMutation) ClearedEdges() []string {
 	}
 	if m.clearedquestions {
 		edges = append(edges, coursesection.EdgeQuestions)
+	}
+	if m.clearedcourse_sessions {
+		edges = append(edges, coursesection.EdgeCourseSessions)
 	}
 	return edges
 }
@@ -2008,6 +2003,8 @@ func (m *CourseSectionMutation) EdgeCleared(name string) bool {
 		return m.clearedcourse_section_videos
 	case coursesection.EdgeQuestions:
 		return m.clearedquestions
+	case coursesection.EdgeCourseSessions:
+		return m.clearedcourse_sessions
 	}
 	return false
 }
@@ -2036,6 +2033,9 @@ func (m *CourseSectionMutation) ResetEdge(name string) error {
 	case coursesection.EdgeQuestions:
 		m.ResetQuestions()
 		return nil
+	case coursesection.EdgeCourseSessions:
+		m.ResetCourseSessions()
+		return nil
 	}
 	return fmt.Errorf("unknown CourseSection edge %s", name)
 }
@@ -2055,8 +2055,8 @@ type CourseSessionMutation struct {
 	clearedFields                map[string]struct{}
 	user                         *uuid.UUID
 	cleareduser                  bool
-	course                       *uuid.UUID
-	clearedcourse                bool
+	course_section               *uuid.UUID
+	clearedcourse_section        bool
 	user_question_answers        map[uuid.UUID]struct{}
 	removeduser_question_answers map[uuid.UUID]struct{}
 	cleareduser_question_answers bool
@@ -2326,40 +2326,40 @@ func (m *CourseSessionMutation) ResetUserID() {
 	m.user = nil
 }
 
-// SetCourseID sets the "course_id" field.
-func (m *CourseSessionMutation) SetCourseID(u uuid.UUID) {
-	m.course = &u
+// SetCourseSectionID sets the "course_section_id" field.
+func (m *CourseSessionMutation) SetCourseSectionID(u uuid.UUID) {
+	m.course_section = &u
 }
 
-// CourseID returns the value of the "course_id" field in the mutation.
-func (m *CourseSessionMutation) CourseID() (r uuid.UUID, exists bool) {
-	v := m.course
+// CourseSectionID returns the value of the "course_section_id" field in the mutation.
+func (m *CourseSessionMutation) CourseSectionID() (r uuid.UUID, exists bool) {
+	v := m.course_section
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCourseID returns the old "course_id" field's value of the CourseSession entity.
+// OldCourseSectionID returns the old "course_section_id" field's value of the CourseSession entity.
 // If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldCourseID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *CourseSessionMutation) OldCourseSectionID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCourseID is only allowed on UpdateOne operations")
+		return v, errors.New("OldCourseSectionID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCourseID requires an ID field in the mutation")
+		return v, errors.New("OldCourseSectionID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCourseID: %w", err)
+		return v, fmt.Errorf("querying old value for OldCourseSectionID: %w", err)
 	}
-	return oldValue.CourseID, nil
+	return oldValue.CourseSectionID, nil
 }
 
-// ResetCourseID resets all changes to the "course_id" field.
-func (m *CourseSessionMutation) ResetCourseID() {
-	m.course = nil
+// ResetCourseSectionID resets all changes to the "course_section_id" field.
+func (m *CourseSessionMutation) ResetCourseSectionID() {
+	m.course_section = nil
 }
 
 // SetCompletedAt sets the "completed_at" field.
@@ -2494,31 +2494,31 @@ func (m *CourseSessionMutation) ResetUser() {
 	m.cleareduser = false
 }
 
-// ClearCourse clears the "course" edge to the Course entity.
-func (m *CourseSessionMutation) ClearCourse() {
-	m.clearedcourse = true
-	m.clearedFields[coursesession.FieldCourseID] = struct{}{}
+// ClearCourseSection clears the "course_section" edge to the CourseSection entity.
+func (m *CourseSessionMutation) ClearCourseSection() {
+	m.clearedcourse_section = true
+	m.clearedFields[coursesession.FieldCourseSectionID] = struct{}{}
 }
 
-// CourseCleared reports if the "course" edge to the Course entity was cleared.
-func (m *CourseSessionMutation) CourseCleared() bool {
-	return m.clearedcourse
+// CourseSectionCleared reports if the "course_section" edge to the CourseSection entity was cleared.
+func (m *CourseSessionMutation) CourseSectionCleared() bool {
+	return m.clearedcourse_section
 }
 
-// CourseIDs returns the "course" edge IDs in the mutation.
+// CourseSectionIDs returns the "course_section" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// CourseID instead. It exists only for internal usage by the builders.
-func (m *CourseSessionMutation) CourseIDs() (ids []uuid.UUID) {
-	if id := m.course; id != nil {
+// CourseSectionID instead. It exists only for internal usage by the builders.
+func (m *CourseSessionMutation) CourseSectionIDs() (ids []uuid.UUID) {
+	if id := m.course_section; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetCourse resets all changes to the "course" edge.
-func (m *CourseSessionMutation) ResetCourse() {
-	m.course = nil
-	m.clearedcourse = false
+// ResetCourseSection resets all changes to the "course_section" edge.
+func (m *CourseSessionMutation) ResetCourseSection() {
+	m.course_section = nil
+	m.clearedcourse_section = false
 }
 
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by ids.
@@ -2622,8 +2622,8 @@ func (m *CourseSessionMutation) Fields() []string {
 	if m.user != nil {
 		fields = append(fields, coursesession.FieldUserID)
 	}
-	if m.course != nil {
-		fields = append(fields, coursesession.FieldCourseID)
+	if m.course_section != nil {
+		fields = append(fields, coursesession.FieldCourseSectionID)
 	}
 	if m.completed_at != nil {
 		fields = append(fields, coursesession.FieldCompletedAt)
@@ -2647,8 +2647,8 @@ func (m *CourseSessionMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case coursesession.FieldUserID:
 		return m.UserID()
-	case coursesession.FieldCourseID:
-		return m.CourseID()
+	case coursesession.FieldCourseSectionID:
+		return m.CourseSectionID()
 	case coursesession.FieldCompletedAt:
 		return m.CompletedAt()
 	case coursesession.FieldTotalScore:
@@ -2670,8 +2670,8 @@ func (m *CourseSessionMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldDeletedAt(ctx)
 	case coursesession.FieldUserID:
 		return m.OldUserID(ctx)
-	case coursesession.FieldCourseID:
-		return m.OldCourseID(ctx)
+	case coursesession.FieldCourseSectionID:
+		return m.OldCourseSectionID(ctx)
 	case coursesession.FieldCompletedAt:
 		return m.OldCompletedAt(ctx)
 	case coursesession.FieldTotalScore:
@@ -2713,12 +2713,12 @@ func (m *CourseSessionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserID(v)
 		return nil
-	case coursesession.FieldCourseID:
+	case coursesession.FieldCourseSectionID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCourseID(v)
+		m.SetCourseSectionID(v)
 		return nil
 	case coursesession.FieldCompletedAt:
 		v, ok := value.(time.Time)
@@ -2825,8 +2825,8 @@ func (m *CourseSessionMutation) ResetField(name string) error {
 	case coursesession.FieldUserID:
 		m.ResetUserID()
 		return nil
-	case coursesession.FieldCourseID:
-		m.ResetCourseID()
+	case coursesession.FieldCourseSectionID:
+		m.ResetCourseSectionID()
 		return nil
 	case coursesession.FieldCompletedAt:
 		m.ResetCompletedAt()
@@ -2844,8 +2844,8 @@ func (m *CourseSessionMutation) AddedEdges() []string {
 	if m.user != nil {
 		edges = append(edges, coursesession.EdgeUser)
 	}
-	if m.course != nil {
-		edges = append(edges, coursesession.EdgeCourse)
+	if m.course_section != nil {
+		edges = append(edges, coursesession.EdgeCourseSection)
 	}
 	if m.user_question_answers != nil {
 		edges = append(edges, coursesession.EdgeUserQuestionAnswers)
@@ -2861,8 +2861,8 @@ func (m *CourseSessionMutation) AddedIDs(name string) []ent.Value {
 		if id := m.user; id != nil {
 			return []ent.Value{*id}
 		}
-	case coursesession.EdgeCourse:
-		if id := m.course; id != nil {
+	case coursesession.EdgeCourseSection:
+		if id := m.course_section; id != nil {
 			return []ent.Value{*id}
 		}
 	case coursesession.EdgeUserQuestionAnswers:
@@ -2904,8 +2904,8 @@ func (m *CourseSessionMutation) ClearedEdges() []string {
 	if m.cleareduser {
 		edges = append(edges, coursesession.EdgeUser)
 	}
-	if m.clearedcourse {
-		edges = append(edges, coursesession.EdgeCourse)
+	if m.clearedcourse_section {
+		edges = append(edges, coursesession.EdgeCourseSection)
 	}
 	if m.cleareduser_question_answers {
 		edges = append(edges, coursesession.EdgeUserQuestionAnswers)
@@ -2919,8 +2919,8 @@ func (m *CourseSessionMutation) EdgeCleared(name string) bool {
 	switch name {
 	case coursesession.EdgeUser:
 		return m.cleareduser
-	case coursesession.EdgeCourse:
-		return m.clearedcourse
+	case coursesession.EdgeCourseSection:
+		return m.clearedcourse_section
 	case coursesession.EdgeUserQuestionAnswers:
 		return m.cleareduser_question_answers
 	}
@@ -2934,8 +2934,8 @@ func (m *CourseSessionMutation) ClearEdge(name string) error {
 	case coursesession.EdgeUser:
 		m.ClearUser()
 		return nil
-	case coursesession.EdgeCourse:
-		m.ClearCourse()
+	case coursesession.EdgeCourseSection:
+		m.ClearCourseSection()
 		return nil
 	}
 	return fmt.Errorf("unknown CourseSession unique edge %s", name)
@@ -2948,8 +2948,8 @@ func (m *CourseSessionMutation) ResetEdge(name string) error {
 	case coursesession.EdgeUser:
 		m.ResetUser()
 		return nil
-	case coursesession.EdgeCourse:
-		m.ResetCourse()
+	case coursesession.EdgeCourseSection:
+		m.ResetCourseSection()
 		return nil
 	case coursesession.EdgeUserQuestionAnswers:
 		m.ResetUserQuestionAnswers()

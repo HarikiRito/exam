@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/course"
+	"template/internal/ent/coursesection"
 	"template/internal/ent/coursesession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -72,9 +72,9 @@ func (csc *CourseSessionCreate) SetUserID(u uuid.UUID) *CourseSessionCreate {
 	return csc
 }
 
-// SetCourseID sets the "course_id" field.
-func (csc *CourseSessionCreate) SetCourseID(u uuid.UUID) *CourseSessionCreate {
-	csc.mutation.SetCourseID(u)
+// SetCourseSectionID sets the "course_section_id" field.
+func (csc *CourseSessionCreate) SetCourseSectionID(u uuid.UUID) *CourseSessionCreate {
+	csc.mutation.SetCourseSectionID(u)
 	return csc
 }
 
@@ -125,9 +125,9 @@ func (csc *CourseSessionCreate) SetUser(u *User) *CourseSessionCreate {
 	return csc.SetUserID(u.ID)
 }
 
-// SetCourse sets the "course" edge to the Course entity.
-func (csc *CourseSessionCreate) SetCourse(c *Course) *CourseSessionCreate {
-	return csc.SetCourseID(c.ID)
+// SetCourseSection sets the "course_section" edge to the CourseSection entity.
+func (csc *CourseSessionCreate) SetCourseSection(c *CourseSection) *CourseSessionCreate {
+	return csc.SetCourseSectionID(c.ID)
 }
 
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
@@ -209,8 +209,8 @@ func (csc *CourseSessionCreate) check() error {
 	if _, ok := csc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "CourseSession.user_id"`)}
 	}
-	if _, ok := csc.mutation.CourseID(); !ok {
-		return &ValidationError{Name: "course_id", err: errors.New(`ent: missing required field "CourseSession.course_id"`)}
+	if _, ok := csc.mutation.CourseSectionID(); !ok {
+		return &ValidationError{Name: "course_section_id", err: errors.New(`ent: missing required field "CourseSession.course_section_id"`)}
 	}
 	if _, ok := csc.mutation.TotalScore(); !ok {
 		return &ValidationError{Name: "total_score", err: errors.New(`ent: missing required field "CourseSession.total_score"`)}
@@ -218,8 +218,8 @@ func (csc *CourseSessionCreate) check() error {
 	if len(csc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "CourseSession.user"`)}
 	}
-	if len(csc.mutation.CourseIDs()) == 0 {
-		return &ValidationError{Name: "course", err: errors.New(`ent: missing required edge "CourseSession.course"`)}
+	if len(csc.mutation.CourseSectionIDs()) == 0 {
+		return &ValidationError{Name: "course_section", err: errors.New(`ent: missing required edge "CourseSession.course_section"`)}
 	}
 	return nil
 }
@@ -293,21 +293,21 @@ func (csc *CourseSessionCreate) createSpec() (*CourseSession, *sqlgraph.CreateSp
 		_node.UserID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := csc.mutation.CourseIDs(); len(nodes) > 0 {
+	if nodes := csc.mutation.CourseSectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   coursesession.CourseTable,
-			Columns: []string{coursesession.CourseColumn},
+			Table:   coursesession.CourseSectionTable,
+			Columns: []string{coursesession.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.CourseID = nodes[0]
+		_node.CourseSectionID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := csc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {

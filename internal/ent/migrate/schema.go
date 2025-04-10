@@ -72,7 +72,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "total_score", Type: field.TypeInt, Default: 0},
-		{Name: "course_id", Type: field.TypeUUID},
+		{Name: "course_section_id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// CourseSessionsTable holds the schema information for the "course_sessions" table.
@@ -82,9 +82,9 @@ var (
 		PrimaryKey: []*schema.Column{CourseSessionsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "course_sessions_courses_course_sessions",
+				Symbol:     "course_sessions_course_sections_course_sessions",
 				Columns:    []*schema.Column{CourseSessionsColumns[6]},
-				RefColumns: []*schema.Column{CoursesColumns[0]},
+				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
@@ -438,7 +438,7 @@ func init() {
 	CoursesTable.ForeignKeys[0].RefTable = MediaTable
 	CoursesTable.ForeignKeys[1].RefTable = UsersTable
 	CourseSectionsTable.ForeignKeys[0].RefTable = CoursesTable
-	CourseSessionsTable.ForeignKeys[0].RefTable = CoursesTable
+	CourseSessionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
 	CourseSessionsTable.ForeignKeys[1].RefTable = UsersTable
 	MediaTable.ForeignKeys[0].RefTable = UsersTable
 	QuestionsTable.ForeignKeys[0].RefTable = CourseSectionsTable

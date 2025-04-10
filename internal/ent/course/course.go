@@ -39,8 +39,6 @@ const (
 	EdgeCourseSections = "course_sections"
 	// EdgeCourseVideos holds the string denoting the course_videos edge name in mutations.
 	EdgeCourseVideos = "course_videos"
-	// EdgeCourseSessions holds the string denoting the course_sessions edge name in mutations.
-	EdgeCourseSessions = "course_sessions"
 	// Table holds the table name of the course in the database.
 	Table = "courses"
 	// MediaTable is the table that holds the media relation/edge.
@@ -71,13 +69,6 @@ const (
 	CourseVideosInverseTable = "videos"
 	// CourseVideosColumn is the table column denoting the course_videos relation/edge.
 	CourseVideosColumn = "course_id"
-	// CourseSessionsTable is the table that holds the course_sessions relation/edge.
-	CourseSessionsTable = "course_sessions"
-	// CourseSessionsInverseTable is the table name for the CourseSession entity.
-	// It exists in this package in order to avoid circular dependency with the "coursesession" package.
-	CourseSessionsInverseTable = "course_sessions"
-	// CourseSessionsColumn is the table column denoting the course_sessions relation/edge.
-	CourseSessionsColumn = "course_id"
 )
 
 // Columns holds all SQL columns for course fields.
@@ -207,20 +198,6 @@ func ByCourseVideos(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCourseVideosStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-
-// ByCourseSessionsCount orders the results by course_sessions count.
-func ByCourseSessionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newCourseSessionsStep(), opts...)
-	}
-}
-
-// ByCourseSessions orders the results by course_sessions terms.
-func ByCourseSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCourseSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
 func newMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -247,12 +224,5 @@ func newCourseVideosStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CourseVideosInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CourseVideosTable, CourseVideosColumn),
-	)
-}
-func newCourseSessionsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CourseSessionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, CourseSessionsTable, CourseSessionsColumn),
 	)
 }

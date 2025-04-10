@@ -5,7 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"template/internal/ent/course"
+	"template/internal/ent/coursesection"
 	"template/internal/ent/coursesession"
 	"template/internal/ent/user"
 	"time"
@@ -28,8 +28,8 @@ type CourseSession struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
-	// CourseID holds the value of the "course_id" field.
-	CourseID uuid.UUID `json:"course_id,omitempty"`
+	// CourseSectionID holds the value of the "course_section_id" field.
+	CourseSectionID uuid.UUID `json:"course_section_id,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt time.Time `json:"completed_at,omitempty"`
 	// TotalScore holds the value of the "total_score" field.
@@ -44,8 +44,8 @@ type CourseSession struct {
 type CourseSessionEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
-	// Course holds the value of the course edge.
-	Course *Course `json:"course,omitempty"`
+	// CourseSection holds the value of the course_section edge.
+	CourseSection *CourseSection `json:"course_section,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
 	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -64,15 +64,15 @@ func (e CourseSessionEdges) UserOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "user"}
 }
 
-// CourseOrErr returns the Course value or an error if the edge
+// CourseSectionOrErr returns the CourseSection value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e CourseSessionEdges) CourseOrErr() (*Course, error) {
-	if e.Course != nil {
-		return e.Course, nil
+func (e CourseSessionEdges) CourseSectionOrErr() (*CourseSection, error) {
+	if e.CourseSection != nil {
+		return e.CourseSection, nil
 	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: course.Label}
+		return nil, &NotFoundError{label: coursesection.Label}
 	}
-	return nil, &NotLoadedError{edge: "course"}
+	return nil, &NotLoadedError{edge: "course_section"}
 }
 
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
@@ -93,7 +93,7 @@ func (*CourseSession) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case coursesession.FieldCreatedAt, coursesession.FieldUpdatedAt, coursesession.FieldDeletedAt, coursesession.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case coursesession.FieldID, coursesession.FieldUserID, coursesession.FieldCourseID:
+		case coursesession.FieldID, coursesession.FieldUserID, coursesession.FieldCourseSectionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -141,11 +141,11 @@ func (cs *CourseSession) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				cs.UserID = *value
 			}
-		case coursesession.FieldCourseID:
+		case coursesession.FieldCourseSectionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field course_id", values[i])
+				return fmt.Errorf("unexpected type %T for field course_section_id", values[i])
 			} else if value != nil {
-				cs.CourseID = *value
+				cs.CourseSectionID = *value
 			}
 		case coursesession.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -177,9 +177,9 @@ func (cs *CourseSession) QueryUser() *UserQuery {
 	return NewCourseSessionClient(cs.config).QueryUser(cs)
 }
 
-// QueryCourse queries the "course" edge of the CourseSession entity.
-func (cs *CourseSession) QueryCourse() *CourseQuery {
-	return NewCourseSessionClient(cs.config).QueryCourse(cs)
+// QueryCourseSection queries the "course_section" edge of the CourseSession entity.
+func (cs *CourseSession) QueryCourseSection() *CourseSectionQuery {
+	return NewCourseSessionClient(cs.config).QueryCourseSection(cs)
 }
 
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the CourseSession entity.
@@ -224,8 +224,8 @@ func (cs *CourseSession) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", cs.UserID))
 	builder.WriteString(", ")
-	builder.WriteString("course_id=")
-	builder.WriteString(fmt.Sprintf("%v", cs.CourseID))
+	builder.WriteString("course_section_id=")
+	builder.WriteString(fmt.Sprintf("%v", cs.CourseSectionID))
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
 	builder.WriteString(cs.CompletedAt.Format(time.ANSIC))

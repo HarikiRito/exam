@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/user"
@@ -196,21 +195,6 @@ func (cu *CourseUpdate) AddCourseVideos(v ...*Video) *CourseUpdate {
 	return cu.AddCourseVideoIDs(ids...)
 }
 
-// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by IDs.
-func (cu *CourseUpdate) AddCourseSessionIDs(ids ...uuid.UUID) *CourseUpdate {
-	cu.mutation.AddCourseSessionIDs(ids...)
-	return cu
-}
-
-// AddCourseSessions adds the "course_sessions" edges to the CourseSession entity.
-func (cu *CourseUpdate) AddCourseSessions(c ...*CourseSession) *CourseUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cu.AddCourseSessionIDs(ids...)
-}
-
 // Mutation returns the CourseMutation object of the builder.
 func (cu *CourseUpdate) Mutation() *CourseMutation {
 	return cu.mutation
@@ -268,27 +252,6 @@ func (cu *CourseUpdate) RemoveCourseVideos(v ...*Video) *CourseUpdate {
 		ids[i] = v[i].ID
 	}
 	return cu.RemoveCourseVideoIDs(ids...)
-}
-
-// ClearCourseSessions clears all "course_sessions" edges to the CourseSession entity.
-func (cu *CourseUpdate) ClearCourseSessions() *CourseUpdate {
-	cu.mutation.ClearCourseSessions()
-	return cu
-}
-
-// RemoveCourseSessionIDs removes the "course_sessions" edge to CourseSession entities by IDs.
-func (cu *CourseUpdate) RemoveCourseSessionIDs(ids ...uuid.UUID) *CourseUpdate {
-	cu.mutation.RemoveCourseSessionIDs(ids...)
-	return cu
-}
-
-// RemoveCourseSessions removes "course_sessions" edges to CourseSession entities.
-func (cu *CourseUpdate) RemoveCourseSessions(c ...*CourseSession) *CourseUpdate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cu.RemoveCourseSessionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -524,51 +487,6 @@ func (cu *CourseUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cu.mutation.CourseSessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.RemovedCourseSessionsIDs(); len(nodes) > 0 && !cu.mutation.CourseSessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.CourseSessionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{course.Label}
@@ -751,21 +669,6 @@ func (cuo *CourseUpdateOne) AddCourseVideos(v ...*Video) *CourseUpdateOne {
 	return cuo.AddCourseVideoIDs(ids...)
 }
 
-// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by IDs.
-func (cuo *CourseUpdateOne) AddCourseSessionIDs(ids ...uuid.UUID) *CourseUpdateOne {
-	cuo.mutation.AddCourseSessionIDs(ids...)
-	return cuo
-}
-
-// AddCourseSessions adds the "course_sessions" edges to the CourseSession entity.
-func (cuo *CourseUpdateOne) AddCourseSessions(c ...*CourseSession) *CourseUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cuo.AddCourseSessionIDs(ids...)
-}
-
 // Mutation returns the CourseMutation object of the builder.
 func (cuo *CourseUpdateOne) Mutation() *CourseMutation {
 	return cuo.mutation
@@ -823,27 +726,6 @@ func (cuo *CourseUpdateOne) RemoveCourseVideos(v ...*Video) *CourseUpdateOne {
 		ids[i] = v[i].ID
 	}
 	return cuo.RemoveCourseVideoIDs(ids...)
-}
-
-// ClearCourseSessions clears all "course_sessions" edges to the CourseSession entity.
-func (cuo *CourseUpdateOne) ClearCourseSessions() *CourseUpdateOne {
-	cuo.mutation.ClearCourseSessions()
-	return cuo
-}
-
-// RemoveCourseSessionIDs removes the "course_sessions" edge to CourseSession entities by IDs.
-func (cuo *CourseUpdateOne) RemoveCourseSessionIDs(ids ...uuid.UUID) *CourseUpdateOne {
-	cuo.mutation.RemoveCourseSessionIDs(ids...)
-	return cuo
-}
-
-// RemoveCourseSessions removes "course_sessions" edges to CourseSession entities.
-func (cuo *CourseUpdateOne) RemoveCourseSessions(c ...*CourseSession) *CourseUpdateOne {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cuo.RemoveCourseSessionIDs(ids...)
 }
 
 // Where appends a list predicates to the CourseUpdate builder.
@@ -1102,51 +984,6 @@ func (cuo *CourseUpdateOne) sqlSave(ctx context.Context) (_node *Course, err err
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if cuo.mutation.CourseSessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.RemovedCourseSessionsIDs(); len(nodes) > 0 && !cuo.mutation.CourseSessionsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.CourseSessionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

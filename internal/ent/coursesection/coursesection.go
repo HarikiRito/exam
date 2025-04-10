@@ -33,6 +33,8 @@ const (
 	EdgeCourseSectionVideos = "course_section_videos"
 	// EdgeQuestions holds the string denoting the questions edge name in mutations.
 	EdgeQuestions = "questions"
+	// EdgeCourseSessions holds the string denoting the course_sessions edge name in mutations.
+	EdgeCourseSessions = "course_sessions"
 	// Table holds the table name of the coursesection in the database.
 	Table = "course_sections"
 	// CourseTable is the table that holds the course relation/edge.
@@ -56,6 +58,13 @@ const (
 	QuestionsInverseTable = "questions"
 	// QuestionsColumn is the table column denoting the questions relation/edge.
 	QuestionsColumn = "section_id"
+	// CourseSessionsTable is the table that holds the course_sessions relation/edge.
+	CourseSessionsTable = "course_sessions"
+	// CourseSessionsInverseTable is the table name for the CourseSession entity.
+	// It exists in this package in order to avoid circular dependency with the "coursesession" package.
+	CourseSessionsInverseTable = "course_sessions"
+	// CourseSessionsColumn is the table column denoting the course_sessions relation/edge.
+	CourseSessionsColumn = "course_section_id"
 )
 
 // Columns holds all SQL columns for coursesection fields.
@@ -164,6 +173,20 @@ func ByQuestions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newQuestionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByCourseSessionsCount orders the results by course_sessions count.
+func ByCourseSessionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCourseSessionsStep(), opts...)
+	}
+}
+
+// ByCourseSessions orders the results by course_sessions terms.
+func ByCourseSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCourseSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCourseStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -183,5 +206,12 @@ func newQuestionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(QuestionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, QuestionsTable, QuestionsColumn),
+	)
+}
+func newCourseSessionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CourseSessionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CourseSessionsTable, CourseSessionsColumn),
 	)
 }

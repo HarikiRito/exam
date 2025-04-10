@@ -18,7 +18,7 @@ type CourseSession struct {
 func (CourseSession) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
-		field.UUID("course_id", uuid.UUID{}),
+		field.UUID("course_section_id", uuid.UUID{}),
 		field.Time("completed_at").Optional(),
 		field.Int("total_score").Default(0),
 	}
@@ -32,9 +32,9 @@ func (CourseSession) Edges() []ent.Edge {
 			Field("user_id").
 			Unique().
 			Required(),
-		edge.From("course", Course.Type).
+		edge.From("course_section", CourseSection.Type).
 			Ref("course_sessions").
-			Field("course_id").
+			Field("course_section_id").
 			Unique().
 			Required(),
 		edge.To("user_question_answers", UserQuestionAnswer.Type),

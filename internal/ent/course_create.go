@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/user"
 	"template/internal/ent/video"
@@ -174,21 +173,6 @@ func (cc *CourseCreate) AddCourseVideos(v ...*Video) *CourseCreate {
 		ids[i] = v[i].ID
 	}
 	return cc.AddCourseVideoIDs(ids...)
-}
-
-// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by IDs.
-func (cc *CourseCreate) AddCourseSessionIDs(ids ...uuid.UUID) *CourseCreate {
-	cc.mutation.AddCourseSessionIDs(ids...)
-	return cc
-}
-
-// AddCourseSessions adds the "course_sessions" edges to the CourseSession entity.
-func (cc *CourseCreate) AddCourseSessions(c ...*CourseSession) *CourseCreate {
-	ids := make([]uuid.UUID, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return cc.AddCourseSessionIDs(ids...)
 }
 
 // Mutation returns the CourseMutation object of the builder.
@@ -387,22 +371,6 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := cc.mutation.CourseSessionsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   course.CourseSessionsTable,
-			Columns: []string{course.CourseSessionsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

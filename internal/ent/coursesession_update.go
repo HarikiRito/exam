@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/course"
+	"template/internal/ent/coursesection"
 	"template/internal/ent/coursesession"
 	"template/internal/ent/predicate"
 	"template/internal/ent/user"
@@ -86,16 +86,16 @@ func (csu *CourseSessionUpdate) SetNillableUserID(u *uuid.UUID) *CourseSessionUp
 	return csu
 }
 
-// SetCourseID sets the "course_id" field.
-func (csu *CourseSessionUpdate) SetCourseID(u uuid.UUID) *CourseSessionUpdate {
-	csu.mutation.SetCourseID(u)
+// SetCourseSectionID sets the "course_section_id" field.
+func (csu *CourseSessionUpdate) SetCourseSectionID(u uuid.UUID) *CourseSessionUpdate {
+	csu.mutation.SetCourseSectionID(u)
 	return csu
 }
 
-// SetNillableCourseID sets the "course_id" field if the given value is not nil.
-func (csu *CourseSessionUpdate) SetNillableCourseID(u *uuid.UUID) *CourseSessionUpdate {
+// SetNillableCourseSectionID sets the "course_section_id" field if the given value is not nil.
+func (csu *CourseSessionUpdate) SetNillableCourseSectionID(u *uuid.UUID) *CourseSessionUpdate {
 	if u != nil {
-		csu.SetCourseID(*u)
+		csu.SetCourseSectionID(*u)
 	}
 	return csu
 }
@@ -146,9 +146,9 @@ func (csu *CourseSessionUpdate) SetUser(u *User) *CourseSessionUpdate {
 	return csu.SetUserID(u.ID)
 }
 
-// SetCourse sets the "course" edge to the Course entity.
-func (csu *CourseSessionUpdate) SetCourse(c *Course) *CourseSessionUpdate {
-	return csu.SetCourseID(c.ID)
+// SetCourseSection sets the "course_section" edge to the CourseSection entity.
+func (csu *CourseSessionUpdate) SetCourseSection(c *CourseSection) *CourseSessionUpdate {
+	return csu.SetCourseSectionID(c.ID)
 }
 
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
@@ -177,9 +177,9 @@ func (csu *CourseSessionUpdate) ClearUser() *CourseSessionUpdate {
 	return csu
 }
 
-// ClearCourse clears the "course" edge to the Course entity.
-func (csu *CourseSessionUpdate) ClearCourse() *CourseSessionUpdate {
-	csu.mutation.ClearCourse()
+// ClearCourseSection clears the "course_section" edge to the CourseSection entity.
+func (csu *CourseSessionUpdate) ClearCourseSection() *CourseSessionUpdate {
+	csu.mutation.ClearCourseSection()
 	return csu
 }
 
@@ -245,8 +245,8 @@ func (csu *CourseSessionUpdate) check() error {
 	if csu.mutation.UserCleared() && len(csu.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CourseSession.user"`)
 	}
-	if csu.mutation.CourseCleared() && len(csu.mutation.CourseIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "CourseSession.course"`)
+	if csu.mutation.CourseSectionCleared() && len(csu.mutation.CourseSectionIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "CourseSession.course_section"`)
 	}
 	return nil
 }
@@ -316,28 +316,28 @@ func (csu *CourseSessionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if csu.mutation.CourseCleared() {
+	if csu.mutation.CourseSectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   coursesession.CourseTable,
-			Columns: []string{coursesession.CourseColumn},
+			Table:   coursesession.CourseSectionTable,
+			Columns: []string{coursesession.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csu.mutation.CourseIDs(); len(nodes) > 0 {
+	if nodes := csu.mutation.CourseSectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   coursesession.CourseTable,
-			Columns: []string{coursesession.CourseColumn},
+			Table:   coursesession.CourseSectionTable,
+			Columns: []string{coursesession.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -464,16 +464,16 @@ func (csuo *CourseSessionUpdateOne) SetNillableUserID(u *uuid.UUID) *CourseSessi
 	return csuo
 }
 
-// SetCourseID sets the "course_id" field.
-func (csuo *CourseSessionUpdateOne) SetCourseID(u uuid.UUID) *CourseSessionUpdateOne {
-	csuo.mutation.SetCourseID(u)
+// SetCourseSectionID sets the "course_section_id" field.
+func (csuo *CourseSessionUpdateOne) SetCourseSectionID(u uuid.UUID) *CourseSessionUpdateOne {
+	csuo.mutation.SetCourseSectionID(u)
 	return csuo
 }
 
-// SetNillableCourseID sets the "course_id" field if the given value is not nil.
-func (csuo *CourseSessionUpdateOne) SetNillableCourseID(u *uuid.UUID) *CourseSessionUpdateOne {
+// SetNillableCourseSectionID sets the "course_section_id" field if the given value is not nil.
+func (csuo *CourseSessionUpdateOne) SetNillableCourseSectionID(u *uuid.UUID) *CourseSessionUpdateOne {
 	if u != nil {
-		csuo.SetCourseID(*u)
+		csuo.SetCourseSectionID(*u)
 	}
 	return csuo
 }
@@ -524,9 +524,9 @@ func (csuo *CourseSessionUpdateOne) SetUser(u *User) *CourseSessionUpdateOne {
 	return csuo.SetUserID(u.ID)
 }
 
-// SetCourse sets the "course" edge to the Course entity.
-func (csuo *CourseSessionUpdateOne) SetCourse(c *Course) *CourseSessionUpdateOne {
-	return csuo.SetCourseID(c.ID)
+// SetCourseSection sets the "course_section" edge to the CourseSection entity.
+func (csuo *CourseSessionUpdateOne) SetCourseSection(c *CourseSection) *CourseSessionUpdateOne {
+	return csuo.SetCourseSectionID(c.ID)
 }
 
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
@@ -555,9 +555,9 @@ func (csuo *CourseSessionUpdateOne) ClearUser() *CourseSessionUpdateOne {
 	return csuo
 }
 
-// ClearCourse clears the "course" edge to the Course entity.
-func (csuo *CourseSessionUpdateOne) ClearCourse() *CourseSessionUpdateOne {
-	csuo.mutation.ClearCourse()
+// ClearCourseSection clears the "course_section" edge to the CourseSection entity.
+func (csuo *CourseSessionUpdateOne) ClearCourseSection() *CourseSessionUpdateOne {
+	csuo.mutation.ClearCourseSection()
 	return csuo
 }
 
@@ -636,8 +636,8 @@ func (csuo *CourseSessionUpdateOne) check() error {
 	if csuo.mutation.UserCleared() && len(csuo.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CourseSession.user"`)
 	}
-	if csuo.mutation.CourseCleared() && len(csuo.mutation.CourseIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "CourseSession.course"`)
+	if csuo.mutation.CourseSectionCleared() && len(csuo.mutation.CourseSectionIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "CourseSession.course_section"`)
 	}
 	return nil
 }
@@ -724,28 +724,28 @@ func (csuo *CourseSessionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if csuo.mutation.CourseCleared() {
+	if csuo.mutation.CourseSectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   coursesession.CourseTable,
-			Columns: []string{coursesession.CourseColumn},
+			Table:   coursesession.CourseSectionTable,
+			Columns: []string{coursesession.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csuo.mutation.CourseIDs(); len(nodes) > 0 {
+	if nodes := csuo.mutation.CourseSectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   coursesession.CourseTable,
-			Columns: []string{coursesession.CourseColumn},
+			Table:   coursesession.CourseSectionTable,
+			Columns: []string{coursesession.CourseSectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

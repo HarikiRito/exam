@@ -76,9 +76,9 @@ func UserID(v uuid.UUID) predicate.CourseSession {
 	return predicate.CourseSession(sql.FieldEQ(FieldUserID, v))
 }
 
-// CourseID applies equality check predicate on the "course_id" field. It's identical to CourseIDEQ.
-func CourseID(v uuid.UUID) predicate.CourseSession {
-	return predicate.CourseSession(sql.FieldEQ(FieldCourseID, v))
+// CourseSectionID applies equality check predicate on the "course_section_id" field. It's identical to CourseSectionIDEQ.
+func CourseSectionID(v uuid.UUID) predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldEQ(FieldCourseSectionID, v))
 }
 
 // CompletedAt applies equality check predicate on the "completed_at" field. It's identical to CompletedAtEQ.
@@ -241,24 +241,24 @@ func UserIDNotIn(vs ...uuid.UUID) predicate.CourseSession {
 	return predicate.CourseSession(sql.FieldNotIn(FieldUserID, vs...))
 }
 
-// CourseIDEQ applies the EQ predicate on the "course_id" field.
-func CourseIDEQ(v uuid.UUID) predicate.CourseSession {
-	return predicate.CourseSession(sql.FieldEQ(FieldCourseID, v))
+// CourseSectionIDEQ applies the EQ predicate on the "course_section_id" field.
+func CourseSectionIDEQ(v uuid.UUID) predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldEQ(FieldCourseSectionID, v))
 }
 
-// CourseIDNEQ applies the NEQ predicate on the "course_id" field.
-func CourseIDNEQ(v uuid.UUID) predicate.CourseSession {
-	return predicate.CourseSession(sql.FieldNEQ(FieldCourseID, v))
+// CourseSectionIDNEQ applies the NEQ predicate on the "course_section_id" field.
+func CourseSectionIDNEQ(v uuid.UUID) predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldNEQ(FieldCourseSectionID, v))
 }
 
-// CourseIDIn applies the In predicate on the "course_id" field.
-func CourseIDIn(vs ...uuid.UUID) predicate.CourseSession {
-	return predicate.CourseSession(sql.FieldIn(FieldCourseID, vs...))
+// CourseSectionIDIn applies the In predicate on the "course_section_id" field.
+func CourseSectionIDIn(vs ...uuid.UUID) predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldIn(FieldCourseSectionID, vs...))
 }
 
-// CourseIDNotIn applies the NotIn predicate on the "course_id" field.
-func CourseIDNotIn(vs ...uuid.UUID) predicate.CourseSession {
-	return predicate.CourseSession(sql.FieldNotIn(FieldCourseID, vs...))
+// CourseSectionIDNotIn applies the NotIn predicate on the "course_section_id" field.
+func CourseSectionIDNotIn(vs ...uuid.UUID) predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldNotIn(FieldCourseSectionID, vs...))
 }
 
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
@@ -374,21 +374,21 @@ func HasUserWith(preds ...predicate.User) predicate.CourseSession {
 	})
 }
 
-// HasCourse applies the HasEdge predicate on the "course" edge.
-func HasCourse() predicate.CourseSession {
+// HasCourseSection applies the HasEdge predicate on the "course_section" edge.
+func HasCourseSection() predicate.CourseSession {
 	return predicate.CourseSession(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, CourseTable, CourseColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, CourseSectionTable, CourseSectionColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasCourseWith applies the HasEdge predicate on the "course" edge with a given conditions (other predicates).
-func HasCourseWith(preds ...predicate.Course) predicate.CourseSession {
+// HasCourseSectionWith applies the HasEdge predicate on the "course_section" edge with a given conditions (other predicates).
+func HasCourseSectionWith(preds ...predicate.CourseSection) predicate.CourseSession {
 	return predicate.CourseSession(func(s *sql.Selector) {
-		step := newCourseStep()
+		step := newCourseSectionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

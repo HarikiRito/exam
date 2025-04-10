@@ -487,22 +487,6 @@ func (c *CourseClient) QueryCourseVideos(co *Course) *VideoQuery {
 	return query
 }
 
-// QueryCourseSessions queries the course_sessions edge of a Course.
-func (c *CourseClient) QueryCourseSessions(co *Course) *CourseSessionQuery {
-	query := (&CourseSessionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := co.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(course.Table, course.FieldID, id),
-			sqlgraph.To(coursesession.Table, coursesession.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, course.CourseSessionsTable, course.CourseSessionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *CourseClient) Hooks() []Hook {
 	return c.hooks.Course
@@ -684,6 +668,22 @@ func (c *CourseSectionClient) QueryQuestions(cs *CourseSection) *QuestionQuery {
 	return query
 }
 
+// QueryCourseSessions queries the course_sessions edge of a CourseSection.
+func (c *CourseSectionClient) QueryCourseSessions(cs *CourseSection) *CourseSessionQuery {
+	query := (&CourseSessionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(coursesession.Table, coursesession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseSessionsTable, coursesection.CourseSessionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *CourseSectionClient) Hooks() []Hook {
 	return c.hooks.CourseSection
@@ -833,15 +833,15 @@ func (c *CourseSessionClient) QueryUser(cs *CourseSession) *UserQuery {
 	return query
 }
 
-// QueryCourse queries the course edge of a CourseSession.
-func (c *CourseSessionClient) QueryCourse(cs *CourseSession) *CourseQuery {
-	query := (&CourseClient{config: c.config}).Query()
+// QueryCourseSection queries the course_section edge of a CourseSession.
+func (c *CourseSessionClient) QueryCourseSection(cs *CourseSession) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := cs.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(coursesession.Table, coursesession.FieldID, id),
-			sqlgraph.To(course.Table, course.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, coursesession.CourseTable, coursesession.CourseColumn),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, coursesession.CourseSectionTable, coursesession.CourseSectionColumn),
 		)
 		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
 		return fromV, nil
