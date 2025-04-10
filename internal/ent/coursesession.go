@@ -29,7 +29,7 @@ type CourseSession struct {
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// CourseSectionID holds the value of the "course_section_id" field.
-	CourseSectionID uuid.UUID `json:"course_section_id,omitempty"`
+	CourseSectionID *uuid.UUID `json:"course_section_id,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt time.Time `json:"completed_at,omitempty"`
 	// TotalScore holds the value of the "total_score" field.
@@ -89,11 +89,13 @@ func (*CourseSession) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case coursesession.FieldCourseSectionID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case coursesession.FieldTotalScore:
 			values[i] = new(sql.NullInt64)
 		case coursesession.FieldCreatedAt, coursesession.FieldUpdatedAt, coursesession.FieldDeletedAt, coursesession.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case coursesession.FieldID, coursesession.FieldUserID, coursesession.FieldCourseSectionID:
+		case coursesession.FieldID, coursesession.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -142,10 +144,11 @@ func (cs *CourseSession) assignValues(columns []string, values []any) error {
 				cs.UserID = *value
 			}
 		case coursesession.FieldCourseSectionID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field course_section_id", values[i])
-			} else if value != nil {
-				cs.CourseSectionID = *value
+			} else if value.Valid {
+				cs.CourseSectionID = new(uuid.UUID)
+				*cs.CourseSectionID = *value.S.(*uuid.UUID)
 			}
 		case coursesession.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -224,8 +227,10 @@ func (cs *CourseSession) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", cs.UserID))
 	builder.WriteString(", ")
-	builder.WriteString("course_section_id=")
-	builder.WriteString(fmt.Sprintf("%v", cs.CourseSectionID))
+	if v := cs.CourseSectionID; v != nil {
+		builder.WriteString("course_section_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
 	builder.WriteString(cs.CompletedAt.Format(time.ANSIC))

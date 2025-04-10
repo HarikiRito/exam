@@ -78,6 +78,14 @@ func (csc *CourseSessionCreate) SetCourseSectionID(u uuid.UUID) *CourseSessionCr
 	return csc
 }
 
+// SetNillableCourseSectionID sets the "course_section_id" field if the given value is not nil.
+func (csc *CourseSessionCreate) SetNillableCourseSectionID(u *uuid.UUID) *CourseSessionCreate {
+	if u != nil {
+		csc.SetCourseSectionID(*u)
+	}
+	return csc
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (csc *CourseSessionCreate) SetCompletedAt(t time.Time) *CourseSessionCreate {
 	csc.mutation.SetCompletedAt(t)
@@ -209,17 +217,11 @@ func (csc *CourseSessionCreate) check() error {
 	if _, ok := csc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "CourseSession.user_id"`)}
 	}
-	if _, ok := csc.mutation.CourseSectionID(); !ok {
-		return &ValidationError{Name: "course_section_id", err: errors.New(`ent: missing required field "CourseSession.course_section_id"`)}
-	}
 	if _, ok := csc.mutation.TotalScore(); !ok {
 		return &ValidationError{Name: "total_score", err: errors.New(`ent: missing required field "CourseSession.total_score"`)}
 	}
 	if len(csc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "CourseSession.user"`)}
-	}
-	if len(csc.mutation.CourseSectionIDs()) == 0 {
-		return &ValidationError{Name: "course_section", err: errors.New(`ent: missing required edge "CourseSession.course_section"`)}
 	}
 	return nil
 }
@@ -307,7 +309,7 @@ func (csc *CourseSessionCreate) createSpec() (*CourseSession, *sqlgraph.CreateSp
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.CourseSectionID = nodes[0]
+		_node.CourseSectionID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := csc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {

@@ -2343,7 +2343,7 @@ func (m *CourseSessionMutation) CourseSectionID() (r uuid.UUID, exists bool) {
 // OldCourseSectionID returns the old "course_section_id" field's value of the CourseSession entity.
 // If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldCourseSectionID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *CourseSessionMutation) OldCourseSectionID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCourseSectionID is only allowed on UpdateOne operations")
 	}
@@ -2357,9 +2357,22 @@ func (m *CourseSessionMutation) OldCourseSectionID(ctx context.Context) (v uuid.
 	return oldValue.CourseSectionID, nil
 }
 
+// ClearCourseSectionID clears the value of the "course_section_id" field.
+func (m *CourseSessionMutation) ClearCourseSectionID() {
+	m.course_section = nil
+	m.clearedFields[coursesession.FieldCourseSectionID] = struct{}{}
+}
+
+// CourseSectionIDCleared returns if the "course_section_id" field was cleared in this mutation.
+func (m *CourseSessionMutation) CourseSectionIDCleared() bool {
+	_, ok := m.clearedFields[coursesession.FieldCourseSectionID]
+	return ok
+}
+
 // ResetCourseSectionID resets all changes to the "course_section_id" field.
 func (m *CourseSessionMutation) ResetCourseSectionID() {
 	m.course_section = nil
+	delete(m.clearedFields, coursesession.FieldCourseSectionID)
 }
 
 // SetCompletedAt sets the "completed_at" field.
@@ -2502,7 +2515,7 @@ func (m *CourseSessionMutation) ClearCourseSection() {
 
 // CourseSectionCleared reports if the "course_section" edge to the CourseSection entity was cleared.
 func (m *CourseSessionMutation) CourseSectionCleared() bool {
-	return m.clearedcourse_section
+	return m.CourseSectionIDCleared() || m.clearedcourse_section
 }
 
 // CourseSectionIDs returns the "course_section" edge IDs in the mutation.
@@ -2782,6 +2795,9 @@ func (m *CourseSessionMutation) ClearedFields() []string {
 	if m.FieldCleared(coursesession.FieldDeletedAt) {
 		fields = append(fields, coursesession.FieldDeletedAt)
 	}
+	if m.FieldCleared(coursesession.FieldCourseSectionID) {
+		fields = append(fields, coursesession.FieldCourseSectionID)
+	}
 	if m.FieldCleared(coursesession.FieldCompletedAt) {
 		fields = append(fields, coursesession.FieldCompletedAt)
 	}
@@ -2801,6 +2817,9 @@ func (m *CourseSessionMutation) ClearField(name string) error {
 	switch name {
 	case coursesession.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case coursesession.FieldCourseSectionID:
+		m.ClearCourseSectionID()
 		return nil
 	case coursesession.FieldCompletedAt:
 		m.ClearCompletedAt()

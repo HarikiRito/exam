@@ -72,7 +72,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "total_score", Type: field.TypeInt, Default: 0},
-		{Name: "course_section_id", Type: field.TypeUUID},
+		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// CourseSessionsTable holds the schema information for the "course_sessions" table.
@@ -85,7 +85,7 @@ var (
 				Symbol:     "course_sessions_course_sections_course_sessions",
 				Columns:    []*schema.Column{CourseSessionsColumns[6]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "course_sessions_users_course_sessions",

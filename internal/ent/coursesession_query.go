@@ -525,7 +525,10 @@ func (csq *CourseSessionQuery) loadCourseSection(ctx context.Context, query *Cou
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*CourseSession)
 	for i := range nodes {
-		fk := nodes[i].CourseSectionID
+		if nodes[i].CourseSectionID == nil {
+			continue
+		}
+		fk := *nodes[i].CourseSectionID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}

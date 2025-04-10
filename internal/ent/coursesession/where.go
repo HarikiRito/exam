@@ -261,6 +261,16 @@ func CourseSectionIDNotIn(vs ...uuid.UUID) predicate.CourseSession {
 	return predicate.CourseSession(sql.FieldNotIn(FieldCourseSectionID, vs...))
 }
 
+// CourseSectionIDIsNil applies the IsNil predicate on the "course_section_id" field.
+func CourseSectionIDIsNil() predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldIsNull(FieldCourseSectionID))
+}
+
+// CourseSectionIDNotNil applies the NotNil predicate on the "course_section_id" field.
+func CourseSectionIDNotNil() predicate.CourseSession {
+	return predicate.CourseSession(sql.FieldNotNull(FieldCourseSectionID))
+}
+
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
 func CompletedAtEQ(v time.Time) predicate.CourseSession {
 	return predicate.CourseSession(sql.FieldEQ(FieldCompletedAt, v))

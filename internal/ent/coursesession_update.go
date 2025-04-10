@@ -100,6 +100,12 @@ func (csu *CourseSessionUpdate) SetNillableCourseSectionID(u *uuid.UUID) *Course
 	return csu
 }
 
+// ClearCourseSectionID clears the value of the "course_section_id" field.
+func (csu *CourseSessionUpdate) ClearCourseSectionID() *CourseSessionUpdate {
+	csu.mutation.ClearCourseSectionID()
+	return csu
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (csu *CourseSessionUpdate) SetCompletedAt(t time.Time) *CourseSessionUpdate {
 	csu.mutation.SetCompletedAt(t)
@@ -244,9 +250,6 @@ func (csu *CourseSessionUpdate) defaults() {
 func (csu *CourseSessionUpdate) check() error {
 	if csu.mutation.UserCleared() && len(csu.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CourseSession.user"`)
-	}
-	if csu.mutation.CourseSectionCleared() && len(csu.mutation.CourseSectionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "CourseSession.course_section"`)
 	}
 	return nil
 }
@@ -478,6 +481,12 @@ func (csuo *CourseSessionUpdateOne) SetNillableCourseSectionID(u *uuid.UUID) *Co
 	return csuo
 }
 
+// ClearCourseSectionID clears the value of the "course_section_id" field.
+func (csuo *CourseSessionUpdateOne) ClearCourseSectionID() *CourseSessionUpdateOne {
+	csuo.mutation.ClearCourseSectionID()
+	return csuo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (csuo *CourseSessionUpdateOne) SetCompletedAt(t time.Time) *CourseSessionUpdateOne {
 	csuo.mutation.SetCompletedAt(t)
@@ -635,9 +644,6 @@ func (csuo *CourseSessionUpdateOne) defaults() {
 func (csuo *CourseSessionUpdateOne) check() error {
 	if csuo.mutation.UserCleared() && len(csuo.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "CourseSession.user"`)
-	}
-	if csuo.mutation.CourseSectionCleared() && len(csuo.mutation.CourseSectionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "CourseSession.course_section"`)
 	}
 	return nil
 }
