@@ -5,6 +5,7 @@ package ent
 import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
@@ -13,6 +14,7 @@ import (
 	"template/internal/ent/schema"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
+	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/userrole"
 	"template/internal/ent/video"
 	"template/internal/ent/videoquestiontimestamp"
@@ -75,6 +77,29 @@ func init() {
 	coursesectionDescID := coursesectionMixinFields0[0].Descriptor()
 	// coursesection.DefaultID holds the default value on creation for the id field.
 	coursesection.DefaultID = coursesectionDescID.Default.(func() uuid.UUID)
+	coursesessionMixin := schema.CourseSession{}.Mixin()
+	coursesessionMixinFields0 := coursesessionMixin[0].Fields()
+	_ = coursesessionMixinFields0
+	coursesessionFields := schema.CourseSession{}.Fields()
+	_ = coursesessionFields
+	// coursesessionDescCreatedAt is the schema descriptor for created_at field.
+	coursesessionDescCreatedAt := coursesessionMixinFields0[1].Descriptor()
+	// coursesession.DefaultCreatedAt holds the default value on creation for the created_at field.
+	coursesession.DefaultCreatedAt = coursesessionDescCreatedAt.Default.(func() time.Time)
+	// coursesessionDescUpdatedAt is the schema descriptor for updated_at field.
+	coursesessionDescUpdatedAt := coursesessionMixinFields0[2].Descriptor()
+	// coursesession.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	coursesession.DefaultUpdatedAt = coursesessionDescUpdatedAt.Default.(func() time.Time)
+	// coursesession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	coursesession.UpdateDefaultUpdatedAt = coursesessionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// coursesessionDescTotalScore is the schema descriptor for total_score field.
+	coursesessionDescTotalScore := coursesessionFields[3].Descriptor()
+	// coursesession.DefaultTotalScore holds the default value on creation for the total_score field.
+	coursesession.DefaultTotalScore = coursesessionDescTotalScore.Default.(int)
+	// coursesessionDescID is the schema descriptor for id field.
+	coursesessionDescID := coursesessionMixinFields0[0].Descriptor()
+	// coursesession.DefaultID holds the default value on creation for the id field.
+	coursesession.DefaultID = coursesessionDescID.Default.(func() uuid.UUID)
 	mediaMixin := schema.Media{}.Mixin()
 	mediaMixinFields0 := mediaMixin[0].Fields()
 	_ = mediaMixinFields0
@@ -256,6 +281,25 @@ func init() {
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() uuid.UUID)
+	userquestionanswerMixin := schema.UserQuestionAnswer{}.Mixin()
+	userquestionanswerMixinFields0 := userquestionanswerMixin[0].Fields()
+	_ = userquestionanswerMixinFields0
+	userquestionanswerFields := schema.UserQuestionAnswer{}.Fields()
+	_ = userquestionanswerFields
+	// userquestionanswerDescCreatedAt is the schema descriptor for created_at field.
+	userquestionanswerDescCreatedAt := userquestionanswerMixinFields0[1].Descriptor()
+	// userquestionanswer.DefaultCreatedAt holds the default value on creation for the created_at field.
+	userquestionanswer.DefaultCreatedAt = userquestionanswerDescCreatedAt.Default.(func() time.Time)
+	// userquestionanswerDescUpdatedAt is the schema descriptor for updated_at field.
+	userquestionanswerDescUpdatedAt := userquestionanswerMixinFields0[2].Descriptor()
+	// userquestionanswer.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	userquestionanswer.DefaultUpdatedAt = userquestionanswerDescUpdatedAt.Default.(func() time.Time)
+	// userquestionanswer.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	userquestionanswer.UpdateDefaultUpdatedAt = userquestionanswerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userquestionanswerDescID is the schema descriptor for id field.
+	userquestionanswerDescID := userquestionanswerMixinFields0[0].Descriptor()
+	// userquestionanswer.DefaultID holds the default value on creation for the id field.
+	userquestionanswer.DefaultID = userquestionanswerDescID.Default.(func() uuid.UUID)
 	userroleMixin := schema.UserRole{}.Mixin()
 	userroleMixinFields0 := userroleMixin[0].Fields()
 	_ = userroleMixinFields0

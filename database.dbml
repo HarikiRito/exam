@@ -153,8 +153,21 @@ Table user_video_progress {
 Table user_question_answers {
   id varchar [pk]
   user_id varchar [not null]
+  course_session_id varchar [not null]
   question_id varchar [not null]
   selected_option_id varchar [not null]
+  is_correct boolean
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Course Session Management
+Table course_sessions {
+  id varchar [pk]
+  user_id varchar [not null]
+  course_id varchar [not null]
+  completed_at timestamp
+  total_score integer [default: 0]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
 }
@@ -192,3 +205,8 @@ Ref: user_video_progress.video_id > videos.id [delete: cascade]
 Ref: user_question_answers.user_id > users.id [delete: cascade]
 Ref: user_question_answers.question_id > questions.id [delete: cascade]
 Ref: user_question_answers.selected_option_id > question_options.id [delete: cascade]
+
+// Course Session Relationships
+Ref: course_sessions.user_id > users.id [delete: cascade]
+Ref: course_sessions.course_id > courses.id [delete: cascade]
+Ref: user_question_answers.course_session_id > course_sessions.id [delete: cascade]

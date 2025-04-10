@@ -32,6 +32,18 @@ func (f CourseSectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CourseSectionMutation", m)
 }
 
+// The CourseSessionFunc type is an adapter to allow the use of ordinary
+// function as CourseSession mutator.
+type CourseSessionFunc func(context.Context, *ent.CourseSessionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CourseSessionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CourseSessionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CourseSessionMutation", m)
+}
+
 // The MediaFunc type is an adapter to allow the use of ordinary
 // function as Media mutator.
 type MediaFunc func(context.Context, *ent.MediaMutation) (ent.Value, error)
@@ -114,6 +126,18 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+}
+
+// The UserQuestionAnswerFunc type is an adapter to allow the use of ordinary
+// function as UserQuestionAnswer mutator.
+type UserQuestionAnswerFunc func(context.Context, *ent.UserQuestionAnswerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserQuestionAnswerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserQuestionAnswerMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserQuestionAnswerMutation", m)
 }
 
 // The UserRoleFunc type is an adapter to allow the use of ordinary

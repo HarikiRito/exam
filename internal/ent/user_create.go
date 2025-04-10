@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/course"
+	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/role"
 	"template/internal/ent/user"
+	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/userrole"
 	"time"
 
@@ -217,6 +219,36 @@ func (uc *UserCreate) AddCourseCreator(c ...*Course) *UserCreate {
 		ids[i] = c[i].ID
 	}
 	return uc.AddCourseCreatorIDs(ids...)
+}
+
+// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
+func (uc *UserCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddUserQuestionAnswerIDs(ids...)
+	return uc
+}
+
+// AddUserQuestionAnswers adds the "user_question_answers" edges to the UserQuestionAnswer entity.
+func (uc *UserCreate) AddUserQuestionAnswers(u ...*UserQuestionAnswer) *UserCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uc.AddUserQuestionAnswerIDs(ids...)
+}
+
+// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by IDs.
+func (uc *UserCreate) AddCourseSessionIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddCourseSessionIDs(ids...)
+	return uc
+}
+
+// AddCourseSessions adds the "course_sessions" edges to the CourseSession entity.
+func (uc *UserCreate) AddCourseSessions(c ...*CourseSession) *UserCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddCourseSessionIDs(ids...)
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
@@ -458,6 +490,38 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UserQuestionAnswersTable,
+			Columns: []string{user.UserQuestionAnswersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userquestionanswer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CourseSessionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CourseSessionsTable,
+			Columns: []string{user.CourseSessionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

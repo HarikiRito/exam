@@ -713,6 +713,52 @@ func HasCourseCreatorWith(preds ...predicate.Course) predicate.User {
 	})
 }
 
+// HasUserQuestionAnswers applies the HasEdge predicate on the "user_question_answers" edge.
+func HasUserQuestionAnswers() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserQuestionAnswersWith applies the HasEdge predicate on the "user_question_answers" edge with a given conditions (other predicates).
+func HasUserQuestionAnswersWith(preds ...predicate.UserQuestionAnswer) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newUserQuestionAnswersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCourseSessions applies the HasEdge predicate on the "course_sessions" edge.
+func HasCourseSessions() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CourseSessionsTable, CourseSessionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCourseSessionsWith applies the HasEdge predicate on the "course_sessions" edge with a given conditions (other predicates).
+func HasCourseSessionsWith(preds ...predicate.CourseSession) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newCourseSessionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUserRoles applies the HasEdge predicate on the "user_roles" edge.
 func HasUserRoles() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

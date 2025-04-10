@@ -365,6 +365,29 @@ func HasVideoQuestionTimestampsQuestionWith(preds ...predicate.VideoQuestionTime
 	})
 }
 
+// HasUserQuestionAnswers applies the HasEdge predicate on the "user_question_answers" edge.
+func HasUserQuestionAnswers() predicate.Question {
+	return predicate.Question(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserQuestionAnswersWith applies the HasEdge predicate on the "user_question_answers" edge with a given conditions (other predicates).
+func HasUserQuestionAnswersWith(preds ...predicate.UserQuestionAnswer) predicate.Question {
+	return predicate.Question(func(s *sql.Selector) {
+		step := newUserQuestionAnswersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Question) predicate.Question {
 	return predicate.Question(sql.AndPredicates(predicates...))

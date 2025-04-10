@@ -9,6 +9,7 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/videoquestiontimestamp"
 	"time"
 
@@ -125,6 +126,21 @@ func (qc *QuestionCreate) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestion
 		ids[i] = v[i].ID
 	}
 	return qc.AddVideoQuestionTimestampsQuestionIDs(ids...)
+}
+
+// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
+func (qc *QuestionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionCreate {
+	qc.mutation.AddUserQuestionAnswerIDs(ids...)
+	return qc
+}
+
+// AddUserQuestionAnswers adds the "user_question_answers" edges to the UserQuestionAnswer entity.
+func (qc *QuestionCreate) AddUserQuestionAnswers(u ...*UserQuestionAnswer) *QuestionCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return qc.AddUserQuestionAnswerIDs(ids...)
 }
 
 // Mutation returns the QuestionMutation object of the builder.
@@ -291,6 +307,22 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(videoquestiontimestamp.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := qc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   question.UserQuestionAnswersTable,
+			Columns: []string{question.UserQuestionAnswersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(userquestionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

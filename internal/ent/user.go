@@ -55,11 +55,15 @@ type UserEdges struct {
 	Roles []*Role `json:"roles,omitempty"`
 	// CourseCreator holds the value of the course_creator edge.
 	CourseCreator []*Course `json:"course_creator,omitempty"`
+	// UserQuestionAnswers holds the value of the user_question_answers edge.
+	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
+	// CourseSessions holds the value of the course_sessions edge.
+	CourseSessions []*CourseSession `json:"course_sessions,omitempty"`
 	// UserRoles holds the value of the user_roles edge.
 	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [7]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -100,10 +104,28 @@ func (e UserEdges) CourseCreatorOrErr() ([]*Course, error) {
 	return nil, &NotLoadedError{edge: "course_creator"}
 }
 
+// UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
+	if e.loadedTypes[4] {
+		return e.UserQuestionAnswers, nil
+	}
+	return nil, &NotLoadedError{edge: "user_question_answers"}
+}
+
+// CourseSessionsOrErr returns the CourseSessions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) CourseSessionsOrErr() ([]*CourseSession, error) {
+	if e.loadedTypes[5] {
+		return e.CourseSessions, nil
+	}
+	return nil, &NotLoadedError{edge: "course_sessions"}
+}
+
 // UserRolesOrErr returns the UserRoles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[6] {
 		return e.UserRoles, nil
 	}
 	return nil, &NotLoadedError{edge: "user_roles"}
@@ -235,6 +257,16 @@ func (u *User) QueryRoles() *RoleQuery {
 // QueryCourseCreator queries the "course_creator" edge of the User entity.
 func (u *User) QueryCourseCreator() *CourseQuery {
 	return NewUserClient(u.config).QueryCourseCreator(u)
+}
+
+// QueryUserQuestionAnswers queries the "user_question_answers" edge of the User entity.
+func (u *User) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+	return NewUserClient(u.config).QueryUserQuestionAnswers(u)
+}
+
+// QueryCourseSessions queries the "course_sessions" edge of the User entity.
+func (u *User) QueryCourseSessions() *CourseSessionQuery {
+	return NewUserClient(u.config).QueryCourseSessions(u)
 }
 
 // QueryUserRoles queries the "user_roles" edge of the User entity.

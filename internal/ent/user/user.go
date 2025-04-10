@@ -43,6 +43,10 @@ const (
 	EdgeRoles = "roles"
 	// EdgeCourseCreator holds the string denoting the course_creator edge name in mutations.
 	EdgeCourseCreator = "course_creator"
+	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
+	EdgeUserQuestionAnswers = "user_question_answers"
+	// EdgeCourseSessions holds the string denoting the course_sessions edge name in mutations.
+	EdgeCourseSessions = "course_sessions"
 	// EdgeUserRoles holds the string denoting the user_roles edge name in mutations.
 	EdgeUserRoles = "user_roles"
 	// Table holds the table name of the user in the database.
@@ -73,6 +77,20 @@ const (
 	CourseCreatorInverseTable = "courses"
 	// CourseCreatorColumn is the table column denoting the course_creator relation/edge.
 	CourseCreatorColumn = "creator_id"
+	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
+	UserQuestionAnswersTable = "user_question_answers"
+	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "userquestionanswer" package.
+	UserQuestionAnswersInverseTable = "user_question_answers"
+	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
+	UserQuestionAnswersColumn = "user_id"
+	// CourseSessionsTable is the table that holds the course_sessions relation/edge.
+	CourseSessionsTable = "course_sessions"
+	// CourseSessionsInverseTable is the table name for the CourseSession entity.
+	// It exists in this package in order to avoid circular dependency with the "coursesession" package.
+	CourseSessionsInverseTable = "course_sessions"
+	// CourseSessionsColumn is the table column denoting the course_sessions relation/edge.
+	CourseSessionsColumn = "user_id"
 	// UserRolesTable is the table that holds the user_roles relation/edge.
 	UserRolesTable = "user_roles"
 	// UserRolesInverseTable is the table name for the UserRole entity.
@@ -239,6 +257,34 @@ func ByCourseCreator(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByUserQuestionAnswersCount orders the results by user_question_answers count.
+func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserQuestionAnswersStep(), opts...)
+	}
+}
+
+// ByUserQuestionAnswers orders the results by user_question_answers terms.
+func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByCourseSessionsCount orders the results by course_sessions count.
+func ByCourseSessionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCourseSessionsStep(), opts...)
+	}
+}
+
+// ByCourseSessions orders the results by course_sessions terms.
+func ByCourseSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCourseSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByUserRolesCount orders the results by user_roles count.
 func ByUserRolesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -278,6 +324,20 @@ func newCourseCreatorStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CourseCreatorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CourseCreatorTable, CourseCreatorColumn),
+	)
+}
+func newUserQuestionAnswersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+	)
+}
+func newCourseSessionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CourseSessionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CourseSessionsTable, CourseSessionsColumn),
 	)
 }
 func newUserRolesStep() *sqlgraph.Step {

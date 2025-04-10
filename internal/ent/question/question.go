@@ -31,6 +31,8 @@ const (
 	EdgeQuestionOptions = "question_options"
 	// EdgeVideoQuestionTimestampsQuestion holds the string denoting the video_question_timestamps_question edge name in mutations.
 	EdgeVideoQuestionTimestampsQuestion = "video_question_timestamps_question"
+	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
+	EdgeUserQuestionAnswers = "user_question_answers"
 	// Table holds the table name of the question in the database.
 	Table = "questions"
 	// SectionTable is the table that holds the section relation/edge.
@@ -54,6 +56,13 @@ const (
 	VideoQuestionTimestampsQuestionInverseTable = "video_question_timestamps"
 	// VideoQuestionTimestampsQuestionColumn is the table column denoting the video_question_timestamps_question relation/edge.
 	VideoQuestionTimestampsQuestionColumn = "question_id"
+	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
+	UserQuestionAnswersTable = "user_question_answers"
+	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "userquestionanswer" package.
+	UserQuestionAnswersInverseTable = "user_question_answers"
+	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
+	UserQuestionAnswersColumn = "question_id"
 )
 
 // Columns holds all SQL columns for question fields.
@@ -156,6 +165,20 @@ func ByVideoQuestionTimestampsQuestion(term sql.OrderTerm, terms ...sql.OrderTer
 		sqlgraph.OrderByNeighborTerms(s, newVideoQuestionTimestampsQuestionStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUserQuestionAnswersCount orders the results by user_question_answers count.
+func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUserQuestionAnswersStep(), opts...)
+	}
+}
+
+// ByUserQuestionAnswers orders the results by user_question_answers terms.
+func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSectionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -175,5 +198,12 @@ func newVideoQuestionTimestampsQuestionStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(VideoQuestionTimestampsQuestionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, VideoQuestionTimestampsQuestionTable, VideoQuestionTimestampsQuestionColumn),
+	)
+}
+func newUserQuestionAnswersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
 	)
 }

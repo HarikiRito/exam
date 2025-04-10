@@ -12,6 +12,9 @@ type Course func(*sql.Selector)
 // CourseSection is the predicate function for coursesection builders.
 type CourseSection func(*sql.Selector)
 
+// CourseSession is the predicate function for coursesession builders.
+type CourseSession func(*sql.Selector)
+
 // Media is the predicate function for media builders.
 type Media func(*sql.Selector)
 
@@ -32,6 +35,9 @@ type Todo func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// UserQuestionAnswer is the predicate function for userquestionanswer builders.
+type UserQuestionAnswer func(*sql.Selector)
 
 // UserRole is the predicate function for userrole builders.
 type UserRole func(*sql.Selector)

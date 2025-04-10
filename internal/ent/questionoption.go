@@ -41,9 +41,11 @@ type QuestionOption struct {
 type QuestionOptionEdges struct {
 	// Question holds the value of the question edge.
 	Question *Question `json:"question,omitempty"`
+	// UserQuestionAnswers holds the value of the user_question_answers edge.
+	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // QuestionOrErr returns the Question value or an error if the edge
@@ -55,6 +57,15 @@ func (e QuestionOptionEdges) QuestionOrErr() (*Question, error) {
 		return nil, &NotFoundError{label: question.Label}
 	}
 	return nil, &NotLoadedError{edge: "question"}
+}
+
+// UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
+// was not loaded in eager-loading.
+func (e QuestionOptionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
+	if e.loadedTypes[1] {
+		return e.UserQuestionAnswers, nil
+	}
+	return nil, &NotLoadedError{edge: "user_question_answers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -144,6 +155,11 @@ func (qo *QuestionOption) Value(name string) (ent.Value, error) {
 // QueryQuestion queries the "question" edge of the QuestionOption entity.
 func (qo *QuestionOption) QueryQuestion() *QuestionQuery {
 	return NewQuestionOptionClient(qo.config).QueryQuestion(qo)
+}
+
+// QueryUserQuestionAnswers queries the "user_question_answers" edge of the QuestionOption entity.
+func (qo *QuestionOption) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+	return NewQuestionOptionClient(qo.config).QueryUserQuestionAnswers(qo)
 }
 
 // Update returns a builder for updating this QuestionOption.

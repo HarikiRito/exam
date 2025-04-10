@@ -42,6 +42,7 @@ func (Course) Edges() []ent.Edge {
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("course_videos", Video.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("course_sessions", CourseSession.Type),
 	}
 }
 

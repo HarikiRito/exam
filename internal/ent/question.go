@@ -43,9 +43,11 @@ type QuestionEdges struct {
 	QuestionOptions []*QuestionOption `json:"question_options,omitempty"`
 	// VideoQuestionTimestampsQuestion holds the value of the video_question_timestamps_question edge.
 	VideoQuestionTimestampsQuestion []*VideoQuestionTimestamp `json:"video_question_timestamps_question,omitempty"`
+	// UserQuestionAnswers holds the value of the user_question_answers edge.
+	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // SectionOrErr returns the Section value or an error if the edge
@@ -75,6 +77,15 @@ func (e QuestionEdges) VideoQuestionTimestampsQuestionOrErr() ([]*VideoQuestionT
 		return e.VideoQuestionTimestampsQuestion, nil
 	}
 	return nil, &NotLoadedError{edge: "video_question_timestamps_question"}
+}
+
+// UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
+// was not loaded in eager-loading.
+func (e QuestionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
+	if e.loadedTypes[3] {
+		return e.UserQuestionAnswers, nil
+	}
+	return nil, &NotLoadedError{edge: "user_question_answers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -166,6 +177,11 @@ func (q *Question) QueryQuestionOptions() *QuestionOptionQuery {
 // QueryVideoQuestionTimestampsQuestion queries the "video_question_timestamps_question" edge of the Question entity.
 func (q *Question) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTimestampQuery {
 	return NewQuestionClient(q.config).QueryVideoQuestionTimestampsQuestion(q)
+}
+
+// QueryUserQuestionAnswers queries the "user_question_answers" edge of the Question entity.
+func (q *Question) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+	return NewQuestionClient(q.config).QueryUserQuestionAnswers(q)
 }
 
 // Update returns a builder for updating this Question.

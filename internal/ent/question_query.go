@@ -11,6 +11,7 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/videoquestiontimestamp"
 
 	"entgo.io/ent"
@@ -30,6 +31,7 @@ type QuestionQuery struct {
 	withSection                         *CourseSectionQuery
 	withQuestionOptions                 *QuestionOptionQuery
 	withVideoQuestionTimestampsQuestion *VideoQuestionTimestampQuery
+	withUserQuestionAnswers             *UserQuestionAnswerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -125,6 +127,28 @@ func (qq *QuestionQuery) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTi
 			sqlgraph.From(question.Table, question.FieldID, selector),
 			sqlgraph.To(videoquestiontimestamp.Table, videoquestiontimestamp.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, question.VideoQuestionTimestampsQuestionTable, question.VideoQuestionTimestampsQuestionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUserQuestionAnswers chains the current query on the "user_question_answers" edge.
+func (qq *QuestionQuery) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+	query := (&UserQuestionAnswerClient{config: qq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := qq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := qq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, selector),
+			sqlgraph.To(userquestionanswer.Table, userquestionanswer.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, question.UserQuestionAnswersTable, question.UserQuestionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
 		return fromU, nil
@@ -327,6 +351,7 @@ func (qq *QuestionQuery) Clone() *QuestionQuery {
 		withSection:                         qq.withSection.Clone(),
 		withQuestionOptions:                 qq.withQuestionOptions.Clone(),
 		withVideoQuestionTimestampsQuestion: qq.withVideoQuestionTimestampsQuestion.Clone(),
+		withUserQuestionAnswers:             qq.withUserQuestionAnswers.Clone(),
 		// clone intermediate query.
 		sql:  qq.sql.Clone(),
 		path: qq.path,
@@ -363,6 +388,17 @@ func (qq *QuestionQuery) WithVideoQuestionTimestampsQuestion(opts ...func(*Video
 		opt(query)
 	}
 	qq.withVideoQuestionTimestampsQuestion = query
+	return qq
+}
+
+// WithUserQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
+// the "user_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
+func (qq *QuestionQuery) WithUserQuestionAnswers(opts ...func(*UserQuestionAnswerQuery)) *QuestionQuery {
+	query := (&UserQuestionAnswerClient{config: qq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	qq.withUserQuestionAnswers = query
 	return qq
 }
 
@@ -444,10 +480,11 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 	var (
 		nodes       = []*Question{}
 		_spec       = qq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			qq.withSection != nil,
 			qq.withQuestionOptions != nil,
 			qq.withVideoQuestionTimestampsQuestion != nil,
+			qq.withUserQuestionAnswers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -486,6 +523,15 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 			func(n *Question) { n.Edges.VideoQuestionTimestampsQuestion = []*VideoQuestionTimestamp{} },
 			func(n *Question, e *VideoQuestionTimestamp) {
 				n.Edges.VideoQuestionTimestampsQuestion = append(n.Edges.VideoQuestionTimestampsQuestion, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := qq.withUserQuestionAnswers; query != nil {
+		if err := qq.loadUserQuestionAnswers(ctx, query, nodes,
+			func(n *Question) { n.Edges.UserQuestionAnswers = []*UserQuestionAnswer{} },
+			func(n *Question, e *UserQuestionAnswer) {
+				n.Edges.UserQuestionAnswers = append(n.Edges.UserQuestionAnswers, e)
 			}); err != nil {
 			return nil, err
 		}
@@ -567,6 +613,36 @@ func (qq *QuestionQuery) loadVideoQuestionTimestampsQuestion(ctx context.Context
 	}
 	query.Where(predicate.VideoQuestionTimestamp(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(question.VideoQuestionTimestampsQuestionColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.QuestionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "question_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (qq *QuestionQuery) loadUserQuestionAnswers(ctx context.Context, query *UserQuestionAnswerQuery, nodes []*Question, init func(*Question), assign func(*Question, *UserQuestionAnswer)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Question)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(userquestionanswer.FieldQuestionID)
+	}
+	query.Where(predicate.UserQuestionAnswer(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(question.UserQuestionAnswersColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

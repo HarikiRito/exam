@@ -16,6 +16,8 @@ type Tx struct {
 	Course *CourseClient
 	// CourseSection is the client for interacting with the CourseSection builders.
 	CourseSection *CourseSectionClient
+	// CourseSession is the client for interacting with the CourseSession builders.
+	CourseSession *CourseSessionClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
 	// Permission is the client for interacting with the Permission builders.
@@ -30,6 +32,8 @@ type Tx struct {
 	Todo *TodoClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserQuestionAnswer is the client for interacting with the UserQuestionAnswer builders.
+	UserQuestionAnswer *UserQuestionAnswerClient
 	// UserRole is the client for interacting with the UserRole builders.
 	UserRole *UserRoleClient
 	// Video is the client for interacting with the Video builders.
@@ -169,6 +173,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Course = NewCourseClient(tx.config)
 	tx.CourseSection = NewCourseSectionClient(tx.config)
+	tx.CourseSession = NewCourseSessionClient(tx.config)
 	tx.Media = NewMediaClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Question = NewQuestionClient(tx.config)
@@ -176,6 +181,7 @@ func (tx *Tx) init() {
 	tx.Role = NewRoleClient(tx.config)
 	tx.Todo = NewTodoClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserQuestionAnswer = NewUserQuestionAnswerClient(tx.config)
 	tx.UserRole = NewUserRoleClient(tx.config)
 	tx.Video = NewVideoClient(tx.config)
 	tx.VideoQuestionTimestamp = NewVideoQuestionTimestampClient(tx.config)

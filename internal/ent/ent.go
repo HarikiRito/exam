@@ -10,6 +10,7 @@ import (
 	"sync"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
@@ -17,6 +18,7 @@ import (
 	"template/internal/ent/role"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
+	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/userrole"
 	"template/internal/ent/video"
 	"template/internal/ent/videoquestiontimestamp"
@@ -86,6 +88,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			course.Table:                 course.ValidColumn,
 			coursesection.Table:          coursesection.ValidColumn,
+			coursesession.Table:          coursesession.ValidColumn,
 			media.Table:                  media.ValidColumn,
 			permission.Table:             permission.ValidColumn,
 			question.Table:               question.ValidColumn,
@@ -93,6 +96,7 @@ func checkColumn(table, column string) error {
 			role.Table:                   role.ValidColumn,
 			todo.Table:                   todo.ValidColumn,
 			user.Table:                   user.ValidColumn,
+			userquestionanswer.Table:     userquestionanswer.ValidColumn,
 			userrole.Table:               userrole.ValidColumn,
 			video.Table:                  video.ValidColumn,
 			videoquestiontimestamp.Table: videoquestiontimestamp.ValidColumn,
