@@ -54,9 +54,9 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
-		Login      func(childComplexity int, email string, password string) int
+		Login      func(childComplexity int, input model.LoginInput) int
 		Logout     func(childComplexity int) int
-		Register   func(childComplexity int, email string, password string) int
+		Register   func(childComplexity int, input model.RegisterInput) int
 	}
 
 	Query struct {
@@ -70,8 +70,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Login(ctx context.Context, email string, password string) (*model.Auth, error)
-	Register(ctx context.Context, email string, password string) (*model.Auth, error)
+	Login(ctx context.Context, input model.LoginInput) (*model.Auth, error)
+	Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error)
 	Logout(ctx context.Context) (string, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 }
@@ -134,7 +134,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Login(childComplexity, args["email"].(string), args["password"].(string)), true
+		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
 
 	case "Mutation.logout":
 		if e.complexity.Mutation.Logout == nil {
@@ -153,7 +153,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Register(childComplexity, args["email"].(string), args["password"].(string)), true
+		return e.complexity.Mutation.Register(childComplexity, args["input"].(model.RegisterInput)), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -184,7 +184,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputNewTodo,
+		ec.unmarshalInputRegisterInput,
 	)
 	first := true
 
@@ -281,7 +283,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/schema.gql" "schema/todo/auth.gql" "schema/todo/models.gql" "schema/todo/todo.gql"
+//go:embed "schema/auth.gql" "schema/schema.gql" "schema/todo/models.gql" "schema/todo/todo.gql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -293,8 +295,8 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
+	{Name: "schema/auth.gql", Input: sourceData("schema/auth.gql"), BuiltIn: false},
 	{Name: "schema/schema.gql", Input: sourceData("schema/schema.gql"), BuiltIn: false},
-	{Name: "schema/todo/auth.gql", Input: sourceData("schema/todo/auth.gql"), BuiltIn: false},
 	{Name: "schema/todo/models.gql", Input: sourceData("schema/todo/models.gql"), BuiltIn: false},
 	{Name: "schema/todo/todo.gql", Input: sourceData("schema/todo/todo.gql"), BuiltIn: false},
 }
@@ -330,82 +332,46 @@ func (ec *executionContext) field_Mutation_createTodo_argsInput(
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_login_argsEmail(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_login_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["email"] = arg0
-	arg1, err := ec.field_Mutation_login_argsPassword(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["password"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_login_argsEmail(
+func (ec *executionContext) field_Mutation_login_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-	if tmp, ok := rawArgs["email"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
+) (model.LoginInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNLoginInput2templateᚋinternalᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
 	}
 
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_login_argsPassword(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-	if tmp, ok := rawArgs["password"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
+	var zeroVal model.LoginInput
 	return zeroVal, nil
 }
 
 func (ec *executionContext) field_Mutation_register_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_register_argsEmail(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_register_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["email"] = arg0
-	arg1, err := ec.field_Mutation_register_argsPassword(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["password"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_register_argsEmail(
+func (ec *executionContext) field_Mutation_register_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-	if tmp, ok := rawArgs["email"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
+) (model.RegisterInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNRegisterInput2templateᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx, tmp)
 	}
 
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_register_argsPassword(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-	if tmp, ok := rawArgs["password"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
+	var zeroVal model.RegisterInput
 	return zeroVal, nil
 }
 
@@ -588,7 +554,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, fc.Args["email"].(string), fc.Args["password"].(string))
+		return ec.resolvers.Mutation().Login(rctx, fc.Args["input"].(model.LoginInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -649,7 +615,7 @@ func (ec *executionContext) _Mutation_register(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Register(rctx, fc.Args["email"].(string), fc.Args["password"].(string))
+		return ec.resolvers.Mutation().Register(rctx, fc.Args["input"].(model.RegisterInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2841,6 +2807,40 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (model.LoginInput, error) {
+	var it model.LoginInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj interface{}) (model.NewTodo, error) {
 	var it model.NewTodo
 	asMap := map[string]interface{}{}
@@ -2862,6 +2862,40 @@ func (ec *executionContext) unmarshalInputNewTodo(ctx context.Context, obj inter
 				return it, err
 			}
 			it.Text = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj interface{}) (model.RegisterInput, error) {
+	var it model.RegisterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
 		}
 	}
 
@@ -3476,8 +3510,18 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
+func (ec *executionContext) unmarshalNLoginInput2templateᚋinternalᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
+	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewTodo2templateᚋinternalᚋgraphᚋmodelᚐNewTodo(ctx context.Context, v interface{}) (model.NewTodo, error) {
 	res, err := ec.unmarshalInputNewTodo(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRegisterInput2templateᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (model.RegisterInput, error) {
+	res, err := ec.unmarshalInputRegisterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

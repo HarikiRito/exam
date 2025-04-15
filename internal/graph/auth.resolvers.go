@@ -7,16 +7,18 @@ package graph
 import (
 	"context"
 	"fmt"
+	"template/internal/features/auth"
 	"template/internal/features/jwt"
 	"template/internal/graph/model"
 )
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.Auth, error) {
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Auth, error) {
 	payload := map[string]interface{}{
-		"email": email,
+		"email": input.Email,
 	}
 	tokenPair, err := jwt.GenerateTokenPair("course123", payload)
+	
 	if err != nil {
 		return nil, err
 	}
@@ -27,8 +29,22 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 }
 
 // Register is the resolver for the register field.
-func (r *mutationResolver) Register(ctx context.Context, email string, password string) (*model.Auth, error) {
-	panic(fmt.Errorf("not implemented: Register - register"))
+func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error) {
+	user, err := auth.Register(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
+		"email": user.Email,
+		"username": user.Username,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.Auth{
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+	}, nil
 }
 
 // Logout is the resolver for the logout field.

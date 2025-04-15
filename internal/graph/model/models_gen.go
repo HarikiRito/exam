@@ -7,6 +7,11 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type Mutation struct {
 }
 
@@ -15,6 +20,11 @@ type NewTodo struct {
 }
 
 type Query struct {
+}
+
+type RegisterInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Todo struct {

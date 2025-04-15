@@ -6,9 +6,11 @@ import (
 	"time"
 )
 
+type TokenPair = jwtPkg.TokenPair
+
 // JwtService interface defines the contract for JWT-related operations
 type JwtService interface {
-	GenerateTokenPair(userID string, payload map[string]interface{}) (*jwtPkg.TokenPair, error)
+	GenerateTokenPair(userID string, payload map[string]interface{}) (*TokenPair, error)
 	ValidateAccessToken(token string) (*jwtPkg.Claims, error)
 	ValidateRefreshToken(token string) (*jwtPkg.Claims, error)
 	RefreshTokenPair(refreshToken string) (*jwtPkg.TokenPair, error)
@@ -37,7 +39,7 @@ func ValidateRefreshToken(token string) (*jwtPkg.Claims, error) {
 }
 
 // RefreshTokenPair generates a new token pair using a valid refresh token
-func RefreshTokenPair(refreshToken string) (*jwtPkg.TokenPair, error) {
+func RefreshTokenPair(refreshToken string) (*TokenPair, error) {
 	// Validate the refresh token first
 	claims, err := jwtService.ValidateRefreshToken(refreshToken)
 	if err != nil {
