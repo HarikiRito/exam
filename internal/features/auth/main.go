@@ -23,10 +23,7 @@ func Login(ctx context.Context, input model.LoginInput) (*ent.User, error) {
 	// Find user by email or username
 	user, err := client.User.Query().
 		Where(
-			user.Or(
-				user.EmailEQ(input.Email),
-				user.UsernameEQ(input.Email),
-			),
+			user.EmailEQ(input.Email),
 		).
 		First(ctx)
 	if err != nil {
