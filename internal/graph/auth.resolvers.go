@@ -14,14 +14,21 @@ import (
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Auth, error) {
-	payload := map[string]interface{}{
-		"email": input.Email,
-	}
-	tokenPair, err := jwt.GenerateTokenPair("course123", payload)
-
+	// Use the transaction-based login from the auth package
+	user, err := auth.Login(ctx, input)
 	if err != nil {
 		return nil, err
 	}
+
+	// Generate token pair after successful authentication
+	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
+		"email":    user.Email,
+		"username": user.Username,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.Auth{
 		AccessToken:  tokenPair.AccessToken,
 		RefreshToken: tokenPair.RefreshToken,
