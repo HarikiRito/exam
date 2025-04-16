@@ -1,7 +1,7 @@
 extend type Mutation {
   login(input: LoginInput!): Auth!
   register(input: RegisterInput!): Auth!
-  logout: String!
+  renewToken(refreshToken: String!): Auth!
 }
 
 

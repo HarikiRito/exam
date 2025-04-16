@@ -19,7 +19,7 @@ type JwtService interface {
 var jwtService = jwtPkg.Create(jwtPkg.JwtConfig{
 	AccessTokenSecret:  environment.JWT_SECRET,
 	RefreshTokenSecret: environment.JWT_REFRESH_SECRET,
-	AccessTokenExpiry:  time.Hour * 24 * 30,
+	AccessTokenExpiry:  time.Hour * 24 * 30, //TODO Make sure this is short lived
 	RefreshTokenExpiry: time.Hour * 24 * 180,
 })
 

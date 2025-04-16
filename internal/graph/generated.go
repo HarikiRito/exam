@@ -55,8 +55,8 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateTodo func(childComplexity int, input model.NewTodo) int
 		Login      func(childComplexity int, input model.LoginInput) int
-		Logout     func(childComplexity int) int
 		Register   func(childComplexity int, input model.RegisterInput) int
+		RenewToken func(childComplexity int, refreshToken string) int
 	}
 
 	Query struct {
@@ -72,7 +72,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Login(ctx context.Context, input model.LoginInput) (*model.Auth, error)
 	Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error)
-	Logout(ctx context.Context) (string, error)
+	RenewToken(ctx context.Context, refreshToken string) (*model.Auth, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 }
 type QueryResolver interface {
@@ -136,13 +136,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
 
-	case "Mutation.logout":
-		if e.complexity.Mutation.Logout == nil {
-			break
-		}
-
-		return e.complexity.Mutation.Logout(childComplexity), true
-
 	case "Mutation.register":
 		if e.complexity.Mutation.Register == nil {
 			break
@@ -154,6 +147,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Register(childComplexity, args["input"].(model.RegisterInput)), true
+
+	case "Mutation.renewToken":
+		if e.complexity.Mutation.RenewToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_renewToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RenewToken(childComplexity, args["refreshToken"].(string)), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -372,6 +377,29 @@ func (ec *executionContext) field_Mutation_register_argsInput(
 	}
 
 	var zeroVal model.RegisterInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_renewToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_renewToken_argsRefreshToken(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["refreshToken"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_renewToken_argsRefreshToken(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
+	if tmp, ok := rawArgs["refreshToken"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
 	return zeroVal, nil
 }
 
@@ -662,8 +690,8 @@ func (ec *executionContext) fieldContext_Mutation_register(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_logout(ctx, field)
+func (ec *executionContext) _Mutation_renewToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_renewToken(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -676,7 +704,7 @@ func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Logout(rctx)
+		return ec.resolvers.Mutation().RenewToken(rctx, fc.Args["refreshToken"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -688,20 +716,37 @@ func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*model.Auth)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNAuth2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐAuth(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_logout(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_renewToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "accessToken":
+				return ec.fieldContext_Auth_accessToken(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_Auth_refreshToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Auth", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_renewToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -2987,9 +3032,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "logout":
+		case "renewToken":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_logout(ctx, field)
+				return ec._Mutation_renewToken(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
