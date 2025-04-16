@@ -18,7 +18,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 		"email": input.Email,
 	}
 	tokenPair, err := jwt.GenerateTokenPair("course123", payload)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -30,14 +30,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error) {
-	user, err := auth.Register(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
-		"email": user.Email,
-		"username": user.Username,
-	})
+	tokenPair, err := auth.Register(ctx, input)
 	if err != nil {
 		return nil, err
 	}

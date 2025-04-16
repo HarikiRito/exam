@@ -30,27 +30,27 @@ func Login(ctx context.Context, input model.LoginInput) (*ent.User, error) {
 		).
 		First(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("User not found")
+		return nil, fmt.Errorf("user not found")
 	}
 
 	// Compare passwords
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password))
 	if err != nil {
-		return nil, fmt.Errorf("Invalid credentials")
+		return nil, fmt.Errorf("invalid credentials")
 	}
 
 	return user, nil
 }
 
 func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, error) {
-	client, err := db.OpenClient()
+	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+	defer db.CloseTransaction(tx)
 
 	// Check if email already exists
-	existingUser, err := client.User.Query().
+	existingUser, err := tx.User.Query().
 		Where(
 			user.Or(
 				user.EmailEQ(input.Email),
@@ -59,35 +59,38 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 		).
 		First(ctx)
 	if existingUser != nil {
-		return nil, fmt.Errorf("email or username already exists")
+		return nil, db.Rollback(tx, fmt.Errorf("email or username already exists"))
 	}
 	// If the error is not a "not found" error, return it
 	if err != nil && !ent.IsNotFound(err) {
-		return nil, err
+		return nil, db.Rollback(tx, err)
 	}
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to hash password")
+		return nil, db.Rollback(tx, fmt.Errorf("failed to hash password"))
 	}
 
 	// Create the user with the hashed password
-	user, err := client.User.Create().
+	user, err := tx.User.Create().
 		SetEmail(input.Email).
 		SetUsername(input.Email). // Use email as username if not provided
 		SetPasswordHash(string(hashedPassword)).
 		Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, db.Rollback(tx, err)
 	}
 
-
 	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
-		"email": user.Email,
+		"email":    user.Email,
 		"username": user.Username,
 	})
 	if err != nil {
+		return nil, db.Rollback(tx, err)
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
