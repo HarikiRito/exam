@@ -44,4 +44,3 @@ func GetCourseByID(ctx context.Context, courseID string) (*ent.Course, error) {
 
 	return client.Course.Get(ctx, id)
 }
-

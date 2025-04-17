@@ -4,6 +4,8 @@ import (
 	"template/internal/shared/utilities/id"
 	"time"
 
+	_ "template/internal/ent/runtime"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
@@ -38,24 +40,12 @@ func (BaseMixin) Fields() []ent.Field {
 	}
 }
 
-func (BaseMixin) Hooks() []ent.Hook {
-	return []ent.Hook{
-		// UUIDv7Generator(),
+func (BaseMixin) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		// intercept.SoftDeleteMixin{},
 	}
 }
 
 type Common interface {
 	SetID(id string)
 }
-
-// func UUIDv7Generator() ent.Hook {
-// 	return hook.On(func(next ent.Mutator) ent.Mutator {
-// 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-// 			if s, ok := m.(Common); ok {
-// 				ID := id.NextId()
-// 				s.SetID(ID)
-// 			}
-// 			return next.Mutate(ctx, m)
-// 		})
-// 	}, ent.OpCreate)
-// }
