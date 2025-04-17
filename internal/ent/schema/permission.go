@@ -30,7 +30,5 @@ func (Permission) Edges() []ent.Edge {
 }
 
 func (Permission) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

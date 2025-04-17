@@ -40,7 +40,5 @@ func (VideoQuestionTimestamp) Edges() []ent.Edge {
 }
 
 func (VideoQuestionTimestamp) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

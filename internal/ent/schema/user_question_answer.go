@@ -51,7 +51,5 @@ func (UserQuestionAnswer) Edges() []ent.Edge {
 }
 
 func (UserQuestionAnswer) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

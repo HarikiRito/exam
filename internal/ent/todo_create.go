@@ -49,6 +49,20 @@ func (tc *TodoCreate) SetNillableUpdatedAt(t *time.Time) *TodoCreate {
 	return tc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (tc *TodoCreate) SetDeletedAt(t time.Time) *TodoCreate {
+	tc.mutation.SetDeletedAt(t)
+	return tc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (tc *TodoCreate) SetNillableDeletedAt(t *time.Time) *TodoCreate {
+	if t != nil {
+		tc.SetDeletedAt(*t)
+	}
+	return tc
+}
+
 // SetTitle sets the "title" field.
 func (tc *TodoCreate) SetTitle(s string) *TodoCreate {
 	tc.mutation.SetTitle(s)
@@ -90,7 +104,9 @@ func (tc *TodoCreate) Mutation() *TodoMutation {
 
 // Save creates the Todo in the database.
 func (tc *TodoCreate) Save(ctx context.Context) (*Todo, error) {
-	tc.defaults()
+	if err := tc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, tc.sqlSave, tc.mutation, tc.hooks)
 }
 
@@ -117,19 +133,29 @@ func (tc *TodoCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tc *TodoCreate) defaults() {
+func (tc *TodoCreate) defaults() error {
 	if _, ok := tc.mutation.CreatedAt(); !ok {
+		if todo.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized todo.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := todo.DefaultCreatedAt()
 		tc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := tc.mutation.UpdatedAt(); !ok {
+		if todo.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized todo.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := todo.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := tc.mutation.ID(); !ok {
+		if todo.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized todo.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := todo.DefaultID()
 		tc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -185,6 +211,10 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := tc.mutation.DeletedAt(); ok {
+		_spec.SetField(todo.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := tc.mutation.Title(); ok {
 		_spec.SetField(todo.FieldTitle, field.TypeString, value)

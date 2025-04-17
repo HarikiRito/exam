@@ -688,12 +688,14 @@ func (c *CourseSectionClient) QueryCourseSessions(cs *CourseSection) *CourseSess
 
 // Hooks returns the client hooks.
 func (c *CourseSectionClient) Hooks() []Hook {
-	return c.hooks.CourseSection
+	hooks := c.hooks.CourseSection
+	return append(hooks[:len(hooks):len(hooks)], coursesection.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *CourseSectionClient) Interceptors() []Interceptor {
-	return c.inters.CourseSection
+	inters := c.inters.CourseSection
+	return append(inters[:len(inters):len(inters)], coursesection.Interceptors[:]...)
 }
 
 func (c *CourseSectionClient) mutate(ctx context.Context, m *CourseSectionMutation) (Value, error) {
@@ -869,12 +871,14 @@ func (c *CourseSessionClient) QueryUserQuestionAnswers(cs *CourseSession) *UserQ
 
 // Hooks returns the client hooks.
 func (c *CourseSessionClient) Hooks() []Hook {
-	return c.hooks.CourseSession
+	hooks := c.hooks.CourseSession
+	return append(hooks[:len(hooks):len(hooks)], coursesession.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *CourseSessionClient) Interceptors() []Interceptor {
-	return c.inters.CourseSession
+	inters := c.inters.CourseSession
+	return append(inters[:len(inters):len(inters)], coursesession.Interceptors[:]...)
 }
 
 func (c *CourseSessionClient) mutate(ctx context.Context, m *CourseSessionMutation) (Value, error) {
@@ -1066,12 +1070,14 @@ func (c *MediaClient) QueryVideoMedia(m *Media) *VideoQuery {
 
 // Hooks returns the client hooks.
 func (c *MediaClient) Hooks() []Hook {
-	return c.hooks.Media
+	hooks := c.hooks.Media
+	return append(hooks[:len(hooks):len(hooks)], media.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *MediaClient) Interceptors() []Interceptor {
-	return c.inters.Media
+	inters := c.inters.Media
+	return append(inters[:len(inters):len(inters)], media.Interceptors[:]...)
 }
 
 func (c *MediaClient) mutate(ctx context.Context, m *MediaMutation) (Value, error) {
@@ -1215,12 +1221,14 @@ func (c *PermissionClient) QueryRoles(pe *Permission) *RoleQuery {
 
 // Hooks returns the client hooks.
 func (c *PermissionClient) Hooks() []Hook {
-	return c.hooks.Permission
+	hooks := c.hooks.Permission
+	return append(hooks[:len(hooks):len(hooks)], permission.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *PermissionClient) Interceptors() []Interceptor {
-	return c.inters.Permission
+	inters := c.inters.Permission
+	return append(inters[:len(inters):len(inters)], permission.Interceptors[:]...)
 }
 
 func (c *PermissionClient) mutate(ctx context.Context, m *PermissionMutation) (Value, error) {
@@ -1412,12 +1420,14 @@ func (c *QuestionClient) QueryUserQuestionAnswers(q *Question) *UserQuestionAnsw
 
 // Hooks returns the client hooks.
 func (c *QuestionClient) Hooks() []Hook {
-	return c.hooks.Question
+	hooks := c.hooks.Question
+	return append(hooks[:len(hooks):len(hooks)], question.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *QuestionClient) Interceptors() []Interceptor {
-	return c.inters.Question
+	inters := c.inters.Question
+	return append(inters[:len(inters):len(inters)], question.Interceptors[:]...)
 }
 
 func (c *QuestionClient) mutate(ctx context.Context, m *QuestionMutation) (Value, error) {
@@ -1577,12 +1587,14 @@ func (c *QuestionOptionClient) QueryUserQuestionAnswers(qo *QuestionOption) *Use
 
 // Hooks returns the client hooks.
 func (c *QuestionOptionClient) Hooks() []Hook {
-	return c.hooks.QuestionOption
+	hooks := c.hooks.QuestionOption
+	return append(hooks[:len(hooks):len(hooks)], questionoption.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *QuestionOptionClient) Interceptors() []Interceptor {
-	return c.inters.QuestionOption
+	inters := c.inters.QuestionOption
+	return append(inters[:len(inters):len(inters)], questionoption.Interceptors[:]...)
 }
 
 func (c *QuestionOptionClient) mutate(ctx context.Context, m *QuestionOptionMutation) (Value, error) {
@@ -1758,12 +1770,14 @@ func (c *RoleClient) QueryUserRoles(r *Role) *UserRoleQuery {
 
 // Hooks returns the client hooks.
 func (c *RoleClient) Hooks() []Hook {
-	return c.hooks.Role
+	hooks := c.hooks.Role
+	return append(hooks[:len(hooks):len(hooks)], role.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *RoleClient) Interceptors() []Interceptor {
-	return c.inters.Role
+	inters := c.inters.Role
+	return append(inters[:len(inters):len(inters)], role.Interceptors[:]...)
 }
 
 func (c *RoleClient) mutate(ctx context.Context, m *RoleMutation) (Value, error) {
@@ -1891,12 +1905,14 @@ func (c *TodoClient) GetX(ctx context.Context, id uuid.UUID) *Todo {
 
 // Hooks returns the client hooks.
 func (c *TodoClient) Hooks() []Hook {
-	return c.hooks.Todo
+	hooks := c.hooks.Todo
+	return append(hooks[:len(hooks):len(hooks)], todo.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *TodoClient) Interceptors() []Interceptor {
-	return c.inters.Todo
+	inters := c.inters.Todo
+	return append(inters[:len(inters):len(inters)], todo.Interceptors[:]...)
 }
 
 func (c *TodoClient) mutate(ctx context.Context, m *TodoMutation) (Value, error) {
@@ -2136,12 +2152,14 @@ func (c *UserClient) QueryUserRoles(u *User) *UserRoleQuery {
 
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
+	hooks := c.hooks.User
+	return append(hooks[:len(hooks):len(hooks)], user.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *UserClient) Interceptors() []Interceptor {
-	return c.inters.User
+	inters := c.inters.User
+	return append(inters[:len(inters):len(inters)], user.Interceptors[:]...)
 }
 
 func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error) {
@@ -2333,12 +2351,14 @@ func (c *UserQuestionAnswerClient) QueryCourseSession(uqa *UserQuestionAnswer) *
 
 // Hooks returns the client hooks.
 func (c *UserQuestionAnswerClient) Hooks() []Hook {
-	return c.hooks.UserQuestionAnswer
+	hooks := c.hooks.UserQuestionAnswer
+	return append(hooks[:len(hooks):len(hooks)], userquestionanswer.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *UserQuestionAnswerClient) Interceptors() []Interceptor {
-	return c.inters.UserQuestionAnswer
+	inters := c.inters.UserQuestionAnswer
+	return append(inters[:len(inters):len(inters)], userquestionanswer.Interceptors[:]...)
 }
 
 func (c *UserQuestionAnswerClient) mutate(ctx context.Context, m *UserQuestionAnswerMutation) (Value, error) {
@@ -2498,12 +2518,14 @@ func (c *UserRoleClient) QueryRole(ur *UserRole) *RoleQuery {
 
 // Hooks returns the client hooks.
 func (c *UserRoleClient) Hooks() []Hook {
-	return c.hooks.UserRole
+	hooks := c.hooks.UserRole
+	return append(hooks[:len(hooks):len(hooks)], userrole.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *UserRoleClient) Interceptors() []Interceptor {
-	return c.inters.UserRole
+	inters := c.inters.UserRole
+	return append(inters[:len(inters):len(inters)], userrole.Interceptors[:]...)
 }
 
 func (c *UserRoleClient) mutate(ctx context.Context, m *UserRoleMutation) (Value, error) {
@@ -2695,12 +2717,14 @@ func (c *VideoClient) QueryVideoQuestionTimestampsVideo(v *Video) *VideoQuestion
 
 // Hooks returns the client hooks.
 func (c *VideoClient) Hooks() []Hook {
-	return c.hooks.Video
+	hooks := c.hooks.Video
+	return append(hooks[:len(hooks):len(hooks)], video.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *VideoClient) Interceptors() []Interceptor {
-	return c.inters.Video
+	inters := c.inters.Video
+	return append(inters[:len(inters):len(inters)], video.Interceptors[:]...)
 }
 
 func (c *VideoClient) mutate(ctx context.Context, m *VideoMutation) (Value, error) {
@@ -2860,12 +2884,14 @@ func (c *VideoQuestionTimestampClient) QueryQuestion(vqt *VideoQuestionTimestamp
 
 // Hooks returns the client hooks.
 func (c *VideoQuestionTimestampClient) Hooks() []Hook {
-	return c.hooks.VideoQuestionTimestamp
+	hooks := c.hooks.VideoQuestionTimestamp
+	return append(hooks[:len(hooks):len(hooks)], videoquestiontimestamp.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *VideoQuestionTimestampClient) Interceptors() []Interceptor {
-	return c.inters.VideoQuestionTimestamp
+	inters := c.inters.VideoQuestionTimestamp
+	return append(inters[:len(inters):len(inters)], videoquestiontimestamp.Interceptors[:]...)
 }
 
 func (c *VideoQuestionTimestampClient) mutate(ctx context.Context, m *VideoQuestionTimestampMutation) (Value, error) {

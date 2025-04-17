@@ -51,6 +51,20 @@ func (urc *UserRoleCreate) SetNillableUpdatedAt(t *time.Time) *UserRoleCreate {
 	return urc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (urc *UserRoleCreate) SetDeletedAt(t time.Time) *UserRoleCreate {
+	urc.mutation.SetDeletedAt(t)
+	return urc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (urc *UserRoleCreate) SetNillableDeletedAt(t *time.Time) *UserRoleCreate {
+	if t != nil {
+		urc.SetDeletedAt(*t)
+	}
+	return urc
+}
+
 // SetUserID sets the "user_id" field.
 func (urc *UserRoleCreate) SetUserID(u uuid.UUID) *UserRoleCreate {
 	urc.mutation.SetUserID(u)
@@ -94,7 +108,9 @@ func (urc *UserRoleCreate) Mutation() *UserRoleMutation {
 
 // Save creates the UserRole in the database.
 func (urc *UserRoleCreate) Save(ctx context.Context) (*UserRole, error) {
-	urc.defaults()
+	if err := urc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, urc.sqlSave, urc.mutation, urc.hooks)
 }
 
@@ -121,19 +137,29 @@ func (urc *UserRoleCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (urc *UserRoleCreate) defaults() {
+func (urc *UserRoleCreate) defaults() error {
 	if _, ok := urc.mutation.CreatedAt(); !ok {
+		if userrole.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized userrole.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := userrole.DefaultCreatedAt()
 		urc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := urc.mutation.UpdatedAt(); !ok {
+		if userrole.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized userrole.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := userrole.DefaultUpdatedAt()
 		urc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := urc.mutation.ID(); !ok {
+		if userrole.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized userrole.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := userrole.DefaultID()
 		urc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -198,6 +224,10 @@ func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 	if value, ok := urc.mutation.UpdatedAt(); ok {
 		_spec.SetField(userrole.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := urc.mutation.DeletedAt(); ok {
+		_spec.SetField(userrole.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if nodes := urc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

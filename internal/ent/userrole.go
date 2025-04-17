@@ -24,6 +24,8 @@ type UserRole struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// RoleID holds the value of the "role_id" field.
@@ -72,7 +74,7 @@ func (*UserRole) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case userrole.FieldCreatedAt, userrole.FieldUpdatedAt:
+		case userrole.FieldCreatedAt, userrole.FieldUpdatedAt, userrole.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case userrole.FieldID, userrole.FieldUserID, userrole.FieldRoleID:
 			values[i] = new(uuid.UUID)
@@ -108,6 +110,13 @@ func (ur *UserRole) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				ur.UpdatedAt = value.Time
+			}
+		case userrole.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				ur.DeletedAt = new(time.Time)
+				*ur.DeletedAt = value.Time
 			}
 		case userrole.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -172,6 +181,11 @@ func (ur *UserRole) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(ur.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := ur.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", ur.UserID))

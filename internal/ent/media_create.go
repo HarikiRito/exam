@@ -52,6 +52,20 @@ func (mc *MediaCreate) SetNillableUpdatedAt(t *time.Time) *MediaCreate {
 	return mc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (mc *MediaCreate) SetDeletedAt(t time.Time) *MediaCreate {
+	mc.mutation.SetDeletedAt(t)
+	return mc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (mc *MediaCreate) SetNillableDeletedAt(t *time.Time) *MediaCreate {
+	if t != nil {
+		mc.SetDeletedAt(*t)
+	}
+	return mc
+}
+
 // SetFileName sets the "file_name" field.
 func (mc *MediaCreate) SetFileName(s string) *MediaCreate {
 	mc.mutation.SetFileName(s)
@@ -175,7 +189,9 @@ func (mc *MediaCreate) Mutation() *MediaMutation {
 
 // Save creates the Media in the database.
 func (mc *MediaCreate) Save(ctx context.Context) (*Media, error) {
-	mc.defaults()
+	if err := mc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, mc.sqlSave, mc.mutation, mc.hooks)
 }
 
@@ -202,19 +218,29 @@ func (mc *MediaCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (mc *MediaCreate) defaults() {
+func (mc *MediaCreate) defaults() error {
 	if _, ok := mc.mutation.CreatedAt(); !ok {
+		if media.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized media.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := media.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := mc.mutation.UpdatedAt(); !ok {
+		if media.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized media.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := media.DefaultUpdatedAt()
 		mc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := mc.mutation.ID(); !ok {
+		if media.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized media.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := media.DefaultID()
 		mc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -291,6 +317,10 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.UpdatedAt(); ok {
 		_spec.SetField(media.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := mc.mutation.DeletedAt(); ok {
+		_spec.SetField(media.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := mc.mutation.FileName(); ok {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)

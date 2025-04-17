@@ -23,6 +23,8 @@ type QuestionOption struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// QuestionID holds the value of the "question_id" field.
 	QuestionID uuid.UUID `json:"question_id,omitempty"`
 	// OptionText holds the value of the "option_text" field.
@@ -75,7 +77,7 @@ func (*QuestionOption) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case questionoption.FieldOptionText:
 			values[i] = new(sql.NullString)
-		case questionoption.FieldCreatedAt, questionoption.FieldUpdatedAt:
+		case questionoption.FieldCreatedAt, questionoption.FieldUpdatedAt, questionoption.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case questionoption.FieldID, questionoption.FieldQuestionID:
 			values[i] = new(uuid.UUID)
@@ -111,6 +113,13 @@ func (qo *QuestionOption) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				qo.UpdatedAt = value.Time
+			}
+		case questionoption.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				qo.DeletedAt = new(time.Time)
+				*qo.DeletedAt = value.Time
 			}
 		case questionoption.FieldQuestionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -181,6 +190,11 @@ func (qo *QuestionOption) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(qo.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := qo.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("question_id=")
 	builder.WriteString(fmt.Sprintf("%v", qo.QuestionID))

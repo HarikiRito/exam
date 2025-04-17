@@ -59,6 +59,10 @@ func init() {
 	// course.DefaultID holds the default value on creation for the id field.
 	course.DefaultID = courseDescID.Default.(func() uuid.UUID)
 	coursesectionMixin := schema.CourseSection{}.Mixin()
+	coursesectionMixinHooks1 := coursesectionMixin[1].Hooks()
+	coursesection.Hooks[0] = coursesectionMixinHooks1[0]
+	coursesectionMixinInters1 := coursesectionMixin[1].Interceptors()
+	coursesection.Interceptors[0] = coursesectionMixinInters1[0]
 	coursesectionMixinFields0 := coursesectionMixin[0].Fields()
 	_ = coursesectionMixinFields0
 	coursesectionFields := schema.CourseSection{}.Fields()
@@ -82,6 +86,10 @@ func init() {
 	// coursesection.DefaultID holds the default value on creation for the id field.
 	coursesection.DefaultID = coursesectionDescID.Default.(func() uuid.UUID)
 	coursesessionMixin := schema.CourseSession{}.Mixin()
+	coursesessionMixinHooks1 := coursesessionMixin[1].Hooks()
+	coursesession.Hooks[0] = coursesessionMixinHooks1[0]
+	coursesessionMixinInters1 := coursesessionMixin[1].Interceptors()
+	coursesession.Interceptors[0] = coursesessionMixinInters1[0]
 	coursesessionMixinFields0 := coursesessionMixin[0].Fields()
 	_ = coursesessionMixinFields0
 	coursesessionFields := schema.CourseSession{}.Fields()
@@ -105,6 +113,10 @@ func init() {
 	// coursesession.DefaultID holds the default value on creation for the id field.
 	coursesession.DefaultID = coursesessionDescID.Default.(func() uuid.UUID)
 	mediaMixin := schema.Media{}.Mixin()
+	mediaMixinHooks1 := mediaMixin[1].Hooks()
+	media.Hooks[0] = mediaMixinHooks1[0]
+	mediaMixinInters1 := mediaMixin[1].Interceptors()
+	media.Interceptors[0] = mediaMixinInters1[0]
 	mediaMixinFields0 := mediaMixin[0].Fields()
 	_ = mediaMixinFields0
 	mediaFields := schema.Media{}.Fields()
@@ -136,6 +148,10 @@ func init() {
 	// media.DefaultID holds the default value on creation for the id field.
 	media.DefaultID = mediaDescID.Default.(func() uuid.UUID)
 	permissionMixin := schema.Permission{}.Mixin()
+	permissionMixinHooks1 := permissionMixin[1].Hooks()
+	permission.Hooks[0] = permissionMixinHooks1[0]
+	permissionMixinInters1 := permissionMixin[1].Interceptors()
+	permission.Interceptors[0] = permissionMixinInters1[0]
 	permissionMixinFields0 := permissionMixin[0].Fields()
 	_ = permissionMixinFields0
 	permissionFields := schema.Permission{}.Fields()
@@ -159,6 +175,10 @@ func init() {
 	// permission.DefaultID holds the default value on creation for the id field.
 	permission.DefaultID = permissionDescID.Default.(func() uuid.UUID)
 	questionMixin := schema.Question{}.Mixin()
+	questionMixinHooks1 := questionMixin[1].Hooks()
+	question.Hooks[0] = questionMixinHooks1[0]
+	questionMixinInters1 := questionMixin[1].Interceptors()
+	question.Interceptors[0] = questionMixinInters1[0]
 	questionMixinFields0 := questionMixin[0].Fields()
 	_ = questionMixinFields0
 	questionFields := schema.Question{}.Fields()
@@ -182,6 +202,10 @@ func init() {
 	// question.DefaultID holds the default value on creation for the id field.
 	question.DefaultID = questionDescID.Default.(func() uuid.UUID)
 	questionoptionMixin := schema.QuestionOption{}.Mixin()
+	questionoptionMixinHooks1 := questionoptionMixin[1].Hooks()
+	questionoption.Hooks[0] = questionoptionMixinHooks1[0]
+	questionoptionMixinInters1 := questionoptionMixin[1].Interceptors()
+	questionoption.Interceptors[0] = questionoptionMixinInters1[0]
 	questionoptionMixinFields0 := questionoptionMixin[0].Fields()
 	_ = questionoptionMixinFields0
 	questionoptionFields := schema.QuestionOption{}.Fields()
@@ -209,6 +233,10 @@ func init() {
 	// questionoption.DefaultID holds the default value on creation for the id field.
 	questionoption.DefaultID = questionoptionDescID.Default.(func() uuid.UUID)
 	roleMixin := schema.Role{}.Mixin()
+	roleMixinHooks1 := roleMixin[1].Hooks()
+	role.Hooks[0] = roleMixinHooks1[0]
+	roleMixinInters1 := roleMixin[1].Interceptors()
+	role.Interceptors[0] = roleMixinInters1[0]
 	roleMixinFields0 := roleMixin[0].Fields()
 	_ = roleMixinFields0
 	roleFields := schema.Role{}.Fields()
@@ -232,6 +260,10 @@ func init() {
 	// role.DefaultID holds the default value on creation for the id field.
 	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
 	todoMixin := schema.Todo{}.Mixin()
+	todoMixinHooks1 := todoMixin[1].Hooks()
+	todo.Hooks[0] = todoMixinHooks1[0]
+	todoMixinInters1 := todoMixin[1].Interceptors()
+	todo.Interceptors[0] = todoMixinInters1[0]
 	todoMixinFields0 := todoMixin[0].Fields()
 	_ = todoMixinFields0
 	todoFields := schema.Todo{}.Fields()
@@ -251,6 +283,10 @@ func init() {
 	// todo.DefaultID holds the default value on creation for the id field.
 	todo.DefaultID = todoDescID.Default.(func() uuid.UUID)
 	userMixin := schema.User{}.Mixin()
+	userMixinHooks1 := userMixin[1].Hooks()
+	user.Hooks[0] = userMixinHooks1[0]
+	userMixinInters1 := userMixin[1].Interceptors()
+	user.Interceptors[0] = userMixinInters1[0]
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0
 	userFields := schema.User{}.Fields()
@@ -286,6 +322,10 @@ func init() {
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() uuid.UUID)
 	userquestionanswerMixin := schema.UserQuestionAnswer{}.Mixin()
+	userquestionanswerMixinHooks1 := userquestionanswerMixin[1].Hooks()
+	userquestionanswer.Hooks[0] = userquestionanswerMixinHooks1[0]
+	userquestionanswerMixinInters1 := userquestionanswerMixin[1].Interceptors()
+	userquestionanswer.Interceptors[0] = userquestionanswerMixinInters1[0]
 	userquestionanswerMixinFields0 := userquestionanswerMixin[0].Fields()
 	_ = userquestionanswerMixinFields0
 	userquestionanswerFields := schema.UserQuestionAnswer{}.Fields()
@@ -305,6 +345,10 @@ func init() {
 	// userquestionanswer.DefaultID holds the default value on creation for the id field.
 	userquestionanswer.DefaultID = userquestionanswerDescID.Default.(func() uuid.UUID)
 	userroleMixin := schema.UserRole{}.Mixin()
+	userroleMixinHooks1 := userroleMixin[1].Hooks()
+	userrole.Hooks[0] = userroleMixinHooks1[0]
+	userroleMixinInters1 := userroleMixin[1].Interceptors()
+	userrole.Interceptors[0] = userroleMixinInters1[0]
 	userroleMixinFields0 := userroleMixin[0].Fields()
 	_ = userroleMixinFields0
 	userroleFields := schema.UserRole{}.Fields()
@@ -324,6 +368,10 @@ func init() {
 	// userrole.DefaultID holds the default value on creation for the id field.
 	userrole.DefaultID = userroleDescID.Default.(func() uuid.UUID)
 	videoMixin := schema.Video{}.Mixin()
+	videoMixinHooks1 := videoMixin[1].Hooks()
+	video.Hooks[0] = videoMixinHooks1[0]
+	videoMixinInters1 := videoMixin[1].Interceptors()
+	video.Interceptors[0] = videoMixinInters1[0]
 	videoMixinFields0 := videoMixin[0].Fields()
 	_ = videoMixinFields0
 	videoFields := schema.Video{}.Fields()
@@ -347,6 +395,10 @@ func init() {
 	// video.DefaultID holds the default value on creation for the id field.
 	video.DefaultID = videoDescID.Default.(func() uuid.UUID)
 	videoquestiontimestampMixin := schema.VideoQuestionTimestamp{}.Mixin()
+	videoquestiontimestampMixinHooks1 := videoquestiontimestampMixin[1].Hooks()
+	videoquestiontimestamp.Hooks[0] = videoquestiontimestampMixinHooks1[0]
+	videoquestiontimestampMixinInters1 := videoquestiontimestampMixin[1].Interceptors()
+	videoquestiontimestamp.Interceptors[0] = videoquestiontimestampMixinInters1[0]
 	videoquestiontimestampMixinFields0 := videoquestiontimestampMixin[0].Fields()
 	_ = videoquestiontimestampMixinFields0
 	videoquestiontimestampFields := schema.VideoQuestionTimestamp{}.Fields()

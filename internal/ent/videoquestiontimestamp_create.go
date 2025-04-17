@@ -51,6 +51,20 @@ func (vqtc *VideoQuestionTimestampCreate) SetNillableUpdatedAt(t *time.Time) *Vi
 	return vqtc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (vqtc *VideoQuestionTimestampCreate) SetDeletedAt(t time.Time) *VideoQuestionTimestampCreate {
+	vqtc.mutation.SetDeletedAt(t)
+	return vqtc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (vqtc *VideoQuestionTimestampCreate) SetNillableDeletedAt(t *time.Time) *VideoQuestionTimestampCreate {
+	if t != nil {
+		vqtc.SetDeletedAt(*t)
+	}
+	return vqtc
+}
+
 // SetVideoID sets the "video_id" field.
 func (vqtc *VideoQuestionTimestampCreate) SetVideoID(u uuid.UUID) *VideoQuestionTimestampCreate {
 	vqtc.mutation.SetVideoID(u)
@@ -100,7 +114,9 @@ func (vqtc *VideoQuestionTimestampCreate) Mutation() *VideoQuestionTimestampMuta
 
 // Save creates the VideoQuestionTimestamp in the database.
 func (vqtc *VideoQuestionTimestampCreate) Save(ctx context.Context) (*VideoQuestionTimestamp, error) {
-	vqtc.defaults()
+	if err := vqtc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, vqtc.sqlSave, vqtc.mutation, vqtc.hooks)
 }
 
@@ -127,19 +143,29 @@ func (vqtc *VideoQuestionTimestampCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vqtc *VideoQuestionTimestampCreate) defaults() {
+func (vqtc *VideoQuestionTimestampCreate) defaults() error {
 	if _, ok := vqtc.mutation.CreatedAt(); !ok {
+		if videoquestiontimestamp.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := videoquestiontimestamp.DefaultCreatedAt()
 		vqtc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := vqtc.mutation.UpdatedAt(); !ok {
+		if videoquestiontimestamp.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := videoquestiontimestamp.DefaultUpdatedAt()
 		vqtc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := vqtc.mutation.ID(); !ok {
+		if videoquestiontimestamp.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := videoquestiontimestamp.DefaultID()
 		vqtc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -207,6 +233,10 @@ func (vqtc *VideoQuestionTimestampCreate) createSpec() (*VideoQuestionTimestamp,
 	if value, ok := vqtc.mutation.UpdatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := vqtc.mutation.DeletedAt(); ok {
+		_spec.SetField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := vqtc.mutation.Timestamp(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldTimestamp, field.TypeInt, value)

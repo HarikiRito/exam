@@ -39,7 +39,5 @@ func (Media) Edges() []ent.Edge {
 }
 
 func (Media) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

@@ -53,6 +53,20 @@ func (qc *QuestionCreate) SetNillableUpdatedAt(t *time.Time) *QuestionCreate {
 	return qc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (qc *QuestionCreate) SetDeletedAt(t time.Time) *QuestionCreate {
+	qc.mutation.SetDeletedAt(t)
+	return qc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (qc *QuestionCreate) SetNillableDeletedAt(t *time.Time) *QuestionCreate {
+	if t != nil {
+		qc.SetDeletedAt(*t)
+	}
+	return qc
+}
+
 // SetSectionID sets the "section_id" field.
 func (qc *QuestionCreate) SetSectionID(u uuid.UUID) *QuestionCreate {
 	qc.mutation.SetSectionID(u)
@@ -136,7 +150,9 @@ func (qc *QuestionCreate) Mutation() *QuestionMutation {
 
 // Save creates the Question in the database.
 func (qc *QuestionCreate) Save(ctx context.Context) (*Question, error) {
-	qc.defaults()
+	if err := qc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, qc.sqlSave, qc.mutation, qc.hooks)
 }
 
@@ -163,19 +179,29 @@ func (qc *QuestionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qc *QuestionCreate) defaults() {
+func (qc *QuestionCreate) defaults() error {
 	if _, ok := qc.mutation.CreatedAt(); !ok {
+		if question.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized question.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := question.DefaultCreatedAt()
 		qc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := qc.mutation.UpdatedAt(); !ok {
+		if question.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized question.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := question.DefaultUpdatedAt()
 		qc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := qc.mutation.ID(); !ok {
+		if question.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized question.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := question.DefaultID()
 		qc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -242,6 +268,10 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 	if value, ok := qc.mutation.UpdatedAt(); ok {
 		_spec.SetField(question.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := qc.mutation.DeletedAt(); ok {
+		_spec.SetField(question.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := qc.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)

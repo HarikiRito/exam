@@ -51,7 +51,5 @@ func (Video) Edges() []ent.Edge {
 }
 
 func (Video) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

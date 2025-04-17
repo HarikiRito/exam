@@ -53,6 +53,26 @@ func (uqau *UserQuestionAnswerUpdate) SetUpdatedAt(t time.Time) *UserQuestionAns
 	return uqau
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (uqau *UserQuestionAnswerUpdate) SetDeletedAt(t time.Time) *UserQuestionAnswerUpdate {
+	uqau.mutation.SetDeletedAt(t)
+	return uqau
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (uqau *UserQuestionAnswerUpdate) SetNillableDeletedAt(t *time.Time) *UserQuestionAnswerUpdate {
+	if t != nil {
+		uqau.SetDeletedAt(*t)
+	}
+	return uqau
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (uqau *UserQuestionAnswerUpdate) ClearDeletedAt() *UserQuestionAnswerUpdate {
+	uqau.mutation.ClearDeletedAt()
+	return uqau
+}
+
 // SetUserID sets the "user_id" field.
 func (uqau *UserQuestionAnswerUpdate) SetUserID(u uuid.UUID) *UserQuestionAnswerUpdate {
 	uqau.mutation.SetUserID(u)
@@ -166,7 +186,9 @@ func (uqau *UserQuestionAnswerUpdate) ClearCourseSession() *UserQuestionAnswerUp
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uqau *UserQuestionAnswerUpdate) Save(ctx context.Context) (int, error) {
-	uqau.defaults()
+	if err := uqau.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, uqau.sqlSave, uqau.mutation, uqau.hooks)
 }
 
@@ -193,11 +215,15 @@ func (uqau *UserQuestionAnswerUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uqau *UserQuestionAnswerUpdate) defaults() {
+func (uqau *UserQuestionAnswerUpdate) defaults() error {
 	if _, ok := uqau.mutation.UpdatedAt(); !ok {
+		if userquestionanswer.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized userquestionanswer.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := userquestionanswer.UpdateDefaultUpdatedAt()
 		uqau.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -234,6 +260,12 @@ func (uqau *UserQuestionAnswerUpdate) sqlSave(ctx context.Context) (n int, err e
 	}
 	if value, ok := uqau.mutation.UpdatedAt(); ok {
 		_spec.SetField(userquestionanswer.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uqau.mutation.DeletedAt(); ok {
+		_spec.SetField(userquestionanswer.FieldDeletedAt, field.TypeTime, value)
+	}
+	if uqau.mutation.DeletedAtCleared() {
+		_spec.ClearField(userquestionanswer.FieldDeletedAt, field.TypeTime)
 	}
 	if uqau.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -391,6 +423,26 @@ func (uqauo *UserQuestionAnswerUpdateOne) SetUpdatedAt(t time.Time) *UserQuestio
 	return uqauo
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (uqauo *UserQuestionAnswerUpdateOne) SetDeletedAt(t time.Time) *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.SetDeletedAt(t)
+	return uqauo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (uqauo *UserQuestionAnswerUpdateOne) SetNillableDeletedAt(t *time.Time) *UserQuestionAnswerUpdateOne {
+	if t != nil {
+		uqauo.SetDeletedAt(*t)
+	}
+	return uqauo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (uqauo *UserQuestionAnswerUpdateOne) ClearDeletedAt() *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.ClearDeletedAt()
+	return uqauo
+}
+
 // SetUserID sets the "user_id" field.
 func (uqauo *UserQuestionAnswerUpdateOne) SetUserID(u uuid.UUID) *UserQuestionAnswerUpdateOne {
 	uqauo.mutation.SetUserID(u)
@@ -517,7 +569,9 @@ func (uqauo *UserQuestionAnswerUpdateOne) Select(field string, fields ...string)
 
 // Save executes the query and returns the updated UserQuestionAnswer entity.
 func (uqauo *UserQuestionAnswerUpdateOne) Save(ctx context.Context) (*UserQuestionAnswer, error) {
-	uqauo.defaults()
+	if err := uqauo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, uqauo.sqlSave, uqauo.mutation, uqauo.hooks)
 }
 
@@ -544,11 +598,15 @@ func (uqauo *UserQuestionAnswerUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uqauo *UserQuestionAnswerUpdateOne) defaults() {
+func (uqauo *UserQuestionAnswerUpdateOne) defaults() error {
 	if _, ok := uqauo.mutation.UpdatedAt(); !ok {
+		if userquestionanswer.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized userquestionanswer.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := userquestionanswer.UpdateDefaultUpdatedAt()
 		uqauo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -602,6 +660,12 @@ func (uqauo *UserQuestionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *U
 	}
 	if value, ok := uqauo.mutation.UpdatedAt(); ok {
 		_spec.SetField(userquestionanswer.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uqauo.mutation.DeletedAt(); ok {
+		_spec.SetField(userquestionanswer.FieldDeletedAt, field.TypeTime, value)
+	}
+	if uqauo.mutation.DeletedAtCleared() {
+		_spec.ClearField(userquestionanswer.FieldDeletedAt, field.TypeTime)
 	}
 	if uqauo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

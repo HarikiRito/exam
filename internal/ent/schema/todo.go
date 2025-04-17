@@ -25,7 +25,5 @@ func (Todo) Edges() []ent.Edge {
 }
 
 func (Todo) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

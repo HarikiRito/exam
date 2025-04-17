@@ -53,6 +53,26 @@ func (vu *VideoUpdate) SetUpdatedAt(t time.Time) *VideoUpdate {
 	return vu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (vu *VideoUpdate) SetDeletedAt(t time.Time) *VideoUpdate {
+	vu.mutation.SetDeletedAt(t)
+	return vu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableDeletedAt(t *time.Time) *VideoUpdate {
+	if t != nil {
+		vu.SetDeletedAt(*t)
+	}
+	return vu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (vu *VideoUpdate) ClearDeletedAt() *VideoUpdate {
+	vu.mutation.ClearDeletedAt()
+	return vu
+}
+
 // SetSectionID sets the "section_id" field.
 func (vu *VideoUpdate) SetSectionID(u uuid.UUID) *VideoUpdate {
 	vu.mutation.SetSectionID(u)
@@ -238,7 +258,9 @@ func (vu *VideoUpdate) RemoveVideoQuestionTimestampsVideo(v ...*VideoQuestionTim
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (vu *VideoUpdate) Save(ctx context.Context) (int, error) {
-	vu.defaults()
+	if err := vu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, vu.sqlSave, vu.mutation, vu.hooks)
 }
 
@@ -265,11 +287,15 @@ func (vu *VideoUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vu *VideoUpdate) defaults() {
+func (vu *VideoUpdate) defaults() error {
 	if _, ok := vu.mutation.UpdatedAt(); !ok {
+		if video.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized video.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := video.UpdateDefaultUpdatedAt()
 		vu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -308,6 +334,12 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := vu.mutation.UpdatedAt(); ok {
 		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := vu.mutation.DeletedAt(); ok {
+		_spec.SetField(video.FieldDeletedAt, field.TypeTime, value)
+	}
+	if vu.mutation.DeletedAtCleared() {
+		_spec.ClearField(video.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := vu.mutation.Title(); ok {
 		_spec.SetField(video.FieldTitle, field.TypeString, value)
@@ -496,6 +528,26 @@ func (vuo *VideoUpdateOne) SetNillableCreatedAt(t *time.Time) *VideoUpdateOne {
 // SetUpdatedAt sets the "updated_at" field.
 func (vuo *VideoUpdateOne) SetUpdatedAt(t time.Time) *VideoUpdateOne {
 	vuo.mutation.SetUpdatedAt(t)
+	return vuo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (vuo *VideoUpdateOne) SetDeletedAt(t time.Time) *VideoUpdateOne {
+	vuo.mutation.SetDeletedAt(t)
+	return vuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableDeletedAt(t *time.Time) *VideoUpdateOne {
+	if t != nil {
+		vuo.SetDeletedAt(*t)
+	}
+	return vuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (vuo *VideoUpdateOne) ClearDeletedAt() *VideoUpdateOne {
+	vuo.mutation.ClearDeletedAt()
 	return vuo
 }
 
@@ -697,7 +749,9 @@ func (vuo *VideoUpdateOne) Select(field string, fields ...string) *VideoUpdateOn
 
 // Save executes the query and returns the updated Video entity.
 func (vuo *VideoUpdateOne) Save(ctx context.Context) (*Video, error) {
-	vuo.defaults()
+	if err := vuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, vuo.sqlSave, vuo.mutation, vuo.hooks)
 }
 
@@ -724,11 +778,15 @@ func (vuo *VideoUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vuo *VideoUpdateOne) defaults() {
+func (vuo *VideoUpdateOne) defaults() error {
 	if _, ok := vuo.mutation.UpdatedAt(); !ok {
+		if video.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized video.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := video.UpdateDefaultUpdatedAt()
 		vuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -784,6 +842,12 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (_node *Video, err error
 	}
 	if value, ok := vuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := vuo.mutation.DeletedAt(); ok {
+		_spec.SetField(video.FieldDeletedAt, field.TypeTime, value)
+	}
+	if vuo.mutation.DeletedAtCleared() {
+		_spec.ClearField(video.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := vuo.mutation.Title(); ok {
 		_spec.SetField(video.FieldTitle, field.TypeString, value)

@@ -51,6 +51,20 @@ func (qoc *QuestionOptionCreate) SetNillableUpdatedAt(t *time.Time) *QuestionOpt
 	return qoc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (qoc *QuestionOptionCreate) SetDeletedAt(t time.Time) *QuestionOptionCreate {
+	qoc.mutation.SetDeletedAt(t)
+	return qoc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (qoc *QuestionOptionCreate) SetNillableDeletedAt(t *time.Time) *QuestionOptionCreate {
+	if t != nil {
+		qoc.SetDeletedAt(*t)
+	}
+	return qoc
+}
+
 // SetQuestionID sets the "question_id" field.
 func (qoc *QuestionOptionCreate) SetQuestionID(u uuid.UUID) *QuestionOptionCreate {
 	qoc.mutation.SetQuestionID(u)
@@ -118,7 +132,9 @@ func (qoc *QuestionOptionCreate) Mutation() *QuestionOptionMutation {
 
 // Save creates the QuestionOption in the database.
 func (qoc *QuestionOptionCreate) Save(ctx context.Context) (*QuestionOption, error) {
-	qoc.defaults()
+	if err := qoc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, qoc.sqlSave, qoc.mutation, qoc.hooks)
 }
 
@@ -145,12 +161,18 @@ func (qoc *QuestionOptionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qoc *QuestionOptionCreate) defaults() {
+func (qoc *QuestionOptionCreate) defaults() error {
 	if _, ok := qoc.mutation.CreatedAt(); !ok {
+		if questionoption.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized questionoption.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := questionoption.DefaultCreatedAt()
 		qoc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := qoc.mutation.UpdatedAt(); !ok {
+		if questionoption.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized questionoption.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := questionoption.DefaultUpdatedAt()
 		qoc.mutation.SetUpdatedAt(v)
 	}
@@ -159,9 +181,13 @@ func (qoc *QuestionOptionCreate) defaults() {
 		qoc.mutation.SetIsCorrect(v)
 	}
 	if _, ok := qoc.mutation.ID(); !ok {
+		if questionoption.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized questionoption.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := questionoption.DefaultID()
 		qoc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -231,6 +257,10 @@ func (qoc *QuestionOptionCreate) createSpec() (*QuestionOption, *sqlgraph.Create
 	if value, ok := qoc.mutation.UpdatedAt(); ok {
 		_spec.SetField(questionoption.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := qoc.mutation.DeletedAt(); ok {
+		_spec.SetField(questionoption.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := qoc.mutation.OptionText(); ok {
 		_spec.SetField(questionoption.FieldOptionText, field.TypeString, value)

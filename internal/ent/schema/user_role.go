@@ -37,7 +37,5 @@ func (UserRole) Edges() []ent.Edge {
 }
 
 func (UserRole) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

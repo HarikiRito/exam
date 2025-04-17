@@ -31,7 +31,5 @@ func (Role) Edges() []ent.Edge {
 }
 
 func (Role) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

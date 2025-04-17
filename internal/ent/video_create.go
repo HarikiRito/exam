@@ -53,6 +53,20 @@ func (vc *VideoCreate) SetNillableUpdatedAt(t *time.Time) *VideoCreate {
 	return vc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (vc *VideoCreate) SetDeletedAt(t time.Time) *VideoCreate {
+	vc.mutation.SetDeletedAt(t)
+	return vc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (vc *VideoCreate) SetNillableDeletedAt(t *time.Time) *VideoCreate {
+	if t != nil {
+		vc.SetDeletedAt(*t)
+	}
+	return vc
+}
+
 // SetSectionID sets the "section_id" field.
 func (vc *VideoCreate) SetSectionID(u uuid.UUID) *VideoCreate {
 	vc.mutation.SetSectionID(u)
@@ -162,7 +176,9 @@ func (vc *VideoCreate) Mutation() *VideoMutation {
 
 // Save creates the Video in the database.
 func (vc *VideoCreate) Save(ctx context.Context) (*Video, error) {
-	vc.defaults()
+	if err := vc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, vc.sqlSave, vc.mutation, vc.hooks)
 }
 
@@ -189,19 +205,29 @@ func (vc *VideoCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vc *VideoCreate) defaults() {
+func (vc *VideoCreate) defaults() error {
 	if _, ok := vc.mutation.CreatedAt(); !ok {
+		if video.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized video.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := video.DefaultCreatedAt()
 		vc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := vc.mutation.UpdatedAt(); !ok {
+		if video.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized video.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := video.DefaultUpdatedAt()
 		vc.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := vc.mutation.ID(); !ok {
+		if video.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized video.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := video.DefaultID()
 		vc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -280,6 +306,10 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 	if value, ok := vc.mutation.UpdatedAt(); ok {
 		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := vc.mutation.DeletedAt(); ok {
+		_spec.SetField(video.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if value, ok := vc.mutation.Title(); ok {
 		_spec.SetField(video.FieldTitle, field.TypeString, value)

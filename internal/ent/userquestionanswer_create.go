@@ -53,6 +53,20 @@ func (uqac *UserQuestionAnswerCreate) SetNillableUpdatedAt(t *time.Time) *UserQu
 	return uqac
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (uqac *UserQuestionAnswerCreate) SetDeletedAt(t time.Time) *UserQuestionAnswerCreate {
+	uqac.mutation.SetDeletedAt(t)
+	return uqac
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (uqac *UserQuestionAnswerCreate) SetNillableDeletedAt(t *time.Time) *UserQuestionAnswerCreate {
+	if t != nil {
+		uqac.SetDeletedAt(*t)
+	}
+	return uqac
+}
+
 // SetUserID sets the "user_id" field.
 func (uqac *UserQuestionAnswerCreate) SetUserID(u uuid.UUID) *UserQuestionAnswerCreate {
 	uqac.mutation.SetUserID(u)
@@ -124,7 +138,9 @@ func (uqac *UserQuestionAnswerCreate) Mutation() *UserQuestionAnswerMutation {
 
 // Save creates the UserQuestionAnswer in the database.
 func (uqac *UserQuestionAnswerCreate) Save(ctx context.Context) (*UserQuestionAnswer, error) {
-	uqac.defaults()
+	if err := uqac.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, uqac.sqlSave, uqac.mutation, uqac.hooks)
 }
 
@@ -151,19 +167,29 @@ func (uqac *UserQuestionAnswerCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uqac *UserQuestionAnswerCreate) defaults() {
+func (uqac *UserQuestionAnswerCreate) defaults() error {
 	if _, ok := uqac.mutation.CreatedAt(); !ok {
+		if userquestionanswer.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized userquestionanswer.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := userquestionanswer.DefaultCreatedAt()
 		uqac.mutation.SetCreatedAt(v)
 	}
 	if _, ok := uqac.mutation.UpdatedAt(); !ok {
+		if userquestionanswer.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized userquestionanswer.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := userquestionanswer.DefaultUpdatedAt()
 		uqac.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := uqac.mutation.ID(); !ok {
+		if userquestionanswer.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized userquestionanswer.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := userquestionanswer.DefaultID()
 		uqac.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -240,6 +266,10 @@ func (uqac *UserQuestionAnswerCreate) createSpec() (*UserQuestionAnswer, *sqlgra
 	if value, ok := uqac.mutation.UpdatedAt(); ok {
 		_spec.SetField(userquestionanswer.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := uqac.mutation.DeletedAt(); ok {
+		_spec.SetField(userquestionanswer.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	if nodes := uqac.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -51,6 +51,26 @@ func (vqtu *VideoQuestionTimestampUpdate) SetUpdatedAt(t time.Time) *VideoQuesti
 	return vqtu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (vqtu *VideoQuestionTimestampUpdate) SetDeletedAt(t time.Time) *VideoQuestionTimestampUpdate {
+	vqtu.mutation.SetDeletedAt(t)
+	return vqtu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (vqtu *VideoQuestionTimestampUpdate) SetNillableDeletedAt(t *time.Time) *VideoQuestionTimestampUpdate {
+	if t != nil {
+		vqtu.SetDeletedAt(*t)
+	}
+	return vqtu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (vqtu *VideoQuestionTimestampUpdate) ClearDeletedAt() *VideoQuestionTimestampUpdate {
+	vqtu.mutation.ClearDeletedAt()
+	return vqtu
+}
+
 // SetVideoID sets the "video_id" field.
 func (vqtu *VideoQuestionTimestampUpdate) SetVideoID(u uuid.UUID) *VideoQuestionTimestampUpdate {
 	vqtu.mutation.SetVideoID(u)
@@ -129,7 +149,9 @@ func (vqtu *VideoQuestionTimestampUpdate) ClearQuestion() *VideoQuestionTimestam
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (vqtu *VideoQuestionTimestampUpdate) Save(ctx context.Context) (int, error) {
-	vqtu.defaults()
+	if err := vqtu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, vqtu.sqlSave, vqtu.mutation, vqtu.hooks)
 }
 
@@ -156,11 +178,15 @@ func (vqtu *VideoQuestionTimestampUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vqtu *VideoQuestionTimestampUpdate) defaults() {
+func (vqtu *VideoQuestionTimestampUpdate) defaults() error {
 	if _, ok := vqtu.mutation.UpdatedAt(); !ok {
+		if videoquestiontimestamp.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := videoquestiontimestamp.UpdateDefaultUpdatedAt()
 		vqtu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -191,6 +217,12 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 	}
 	if value, ok := vqtu.mutation.UpdatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := vqtu.mutation.DeletedAt(); ok {
+		_spec.SetField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime, value)
+	}
+	if vqtu.mutation.DeletedAtCleared() {
+		_spec.ClearField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := vqtu.mutation.Timestamp(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldTimestamp, field.TypeInt, value)
@@ -296,6 +328,26 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) SetUpdatedAt(t time.Time) *VideoQu
 	return vqtuo
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (vqtuo *VideoQuestionTimestampUpdateOne) SetDeletedAt(t time.Time) *VideoQuestionTimestampUpdateOne {
+	vqtuo.mutation.SetDeletedAt(t)
+	return vqtuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableDeletedAt(t *time.Time) *VideoQuestionTimestampUpdateOne {
+	if t != nil {
+		vqtuo.SetDeletedAt(*t)
+	}
+	return vqtuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (vqtuo *VideoQuestionTimestampUpdateOne) ClearDeletedAt() *VideoQuestionTimestampUpdateOne {
+	vqtuo.mutation.ClearDeletedAt()
+	return vqtuo
+}
+
 // SetVideoID sets the "video_id" field.
 func (vqtuo *VideoQuestionTimestampUpdateOne) SetVideoID(u uuid.UUID) *VideoQuestionTimestampUpdateOne {
 	vqtuo.mutation.SetVideoID(u)
@@ -387,7 +439,9 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) Select(field string, fields ...str
 
 // Save executes the query and returns the updated VideoQuestionTimestamp entity.
 func (vqtuo *VideoQuestionTimestampUpdateOne) Save(ctx context.Context) (*VideoQuestionTimestamp, error) {
-	vqtuo.defaults()
+	if err := vqtuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, vqtuo.sqlSave, vqtuo.mutation, vqtuo.hooks)
 }
 
@@ -414,11 +468,15 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (vqtuo *VideoQuestionTimestampUpdateOne) defaults() {
+func (vqtuo *VideoQuestionTimestampUpdateOne) defaults() error {
 	if _, ok := vqtuo.mutation.UpdatedAt(); !ok {
+		if videoquestiontimestamp.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized videoquestiontimestamp.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := videoquestiontimestamp.UpdateDefaultUpdatedAt()
 		vqtuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -466,6 +524,12 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 	}
 	if value, ok := vqtuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := vqtuo.mutation.DeletedAt(); ok {
+		_spec.SetField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime, value)
+	}
+	if vqtuo.mutation.DeletedAtCleared() {
+		_spec.ClearField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := vqtuo.mutation.Timestamp(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldTimestamp, field.TypeInt, value)

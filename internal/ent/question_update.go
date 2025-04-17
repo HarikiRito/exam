@@ -53,6 +53,26 @@ func (qu *QuestionUpdate) SetUpdatedAt(t time.Time) *QuestionUpdate {
 	return qu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (qu *QuestionUpdate) SetDeletedAt(t time.Time) *QuestionUpdate {
+	qu.mutation.SetDeletedAt(t)
+	return qu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (qu *QuestionUpdate) SetNillableDeletedAt(t *time.Time) *QuestionUpdate {
+	if t != nil {
+		qu.SetDeletedAt(*t)
+	}
+	return qu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (qu *QuestionUpdate) ClearDeletedAt() *QuestionUpdate {
+	qu.mutation.ClearDeletedAt()
+	return qu
+}
+
 // SetSectionID sets the "section_id" field.
 func (qu *QuestionUpdate) SetSectionID(u uuid.UUID) *QuestionUpdate {
 	qu.mutation.SetSectionID(u)
@@ -207,7 +227,9 @@ func (qu *QuestionUpdate) RemoveUserQuestionAnswers(u ...*UserQuestionAnswer) *Q
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (qu *QuestionUpdate) Save(ctx context.Context) (int, error) {
-	qu.defaults()
+	if err := qu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, qu.sqlSave, qu.mutation, qu.hooks)
 }
 
@@ -234,11 +256,15 @@ func (qu *QuestionUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (qu *QuestionUpdate) defaults() {
+func (qu *QuestionUpdate) defaults() error {
 	if _, ok := qu.mutation.UpdatedAt(); !ok {
+		if question.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized question.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := question.UpdateDefaultUpdatedAt()
 		qu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -271,6 +297,12 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := qu.mutation.UpdatedAt(); ok {
 		_spec.SetField(question.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := qu.mutation.DeletedAt(); ok {
+		_spec.SetField(question.FieldDeletedAt, field.TypeTime, value)
+	}
+	if qu.mutation.DeletedAtCleared() {
+		_spec.ClearField(question.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := qu.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
@@ -479,6 +511,26 @@ func (quo *QuestionUpdateOne) SetUpdatedAt(t time.Time) *QuestionUpdateOne {
 	return quo
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (quo *QuestionUpdateOne) SetDeletedAt(t time.Time) *QuestionUpdateOne {
+	quo.mutation.SetDeletedAt(t)
+	return quo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (quo *QuestionUpdateOne) SetNillableDeletedAt(t *time.Time) *QuestionUpdateOne {
+	if t != nil {
+		quo.SetDeletedAt(*t)
+	}
+	return quo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (quo *QuestionUpdateOne) ClearDeletedAt() *QuestionUpdateOne {
+	quo.mutation.ClearDeletedAt()
+	return quo
+}
+
 // SetSectionID sets the "section_id" field.
 func (quo *QuestionUpdateOne) SetSectionID(u uuid.UUID) *QuestionUpdateOne {
 	quo.mutation.SetSectionID(u)
@@ -646,7 +698,9 @@ func (quo *QuestionUpdateOne) Select(field string, fields ...string) *QuestionUp
 
 // Save executes the query and returns the updated Question entity.
 func (quo *QuestionUpdateOne) Save(ctx context.Context) (*Question, error) {
-	quo.defaults()
+	if err := quo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, quo.sqlSave, quo.mutation, quo.hooks)
 }
 
@@ -673,11 +727,15 @@ func (quo *QuestionUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (quo *QuestionUpdateOne) defaults() {
+func (quo *QuestionUpdateOne) defaults() error {
 	if _, ok := quo.mutation.UpdatedAt(); !ok {
+		if question.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized question.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := question.UpdateDefaultUpdatedAt()
 		quo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -727,6 +785,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 	}
 	if value, ok := quo.mutation.UpdatedAt(); ok {
 		_spec.SetField(question.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := quo.mutation.DeletedAt(); ok {
+		_spec.SetField(question.FieldDeletedAt, field.TypeTime, value)
+	}
+	if quo.mutation.DeletedAtCleared() {
+		_spec.ClearField(question.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := quo.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)

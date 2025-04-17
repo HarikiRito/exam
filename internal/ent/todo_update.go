@@ -48,6 +48,26 @@ func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
 	return tu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (tu *TodoUpdate) SetDeletedAt(t time.Time) *TodoUpdate {
+	tu.mutation.SetDeletedAt(t)
+	return tu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (tu *TodoUpdate) SetNillableDeletedAt(t *time.Time) *TodoUpdate {
+	if t != nil {
+		tu.SetDeletedAt(*t)
+	}
+	return tu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (tu *TodoUpdate) ClearDeletedAt() *TodoUpdate {
+	tu.mutation.ClearDeletedAt()
+	return tu
+}
+
 // SetTitle sets the "title" field.
 func (tu *TodoUpdate) SetTitle(s string) *TodoUpdate {
 	tu.mutation.SetTitle(s)
@@ -89,7 +109,9 @@ func (tu *TodoUpdate) Mutation() *TodoMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (tu *TodoUpdate) Save(ctx context.Context) (int, error) {
-	tu.defaults()
+	if err := tu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, tu.sqlSave, tu.mutation, tu.hooks)
 }
 
@@ -116,11 +138,15 @@ func (tu *TodoUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tu *TodoUpdate) defaults() {
+func (tu *TodoUpdate) defaults() error {
 	if _, ok := tu.mutation.UpdatedAt(); !ok {
+		if todo.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized todo.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := todo.UpdateDefaultUpdatedAt()
 		tu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
@@ -137,6 +163,12 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := tu.mutation.DeletedAt(); ok {
+		_spec.SetField(todo.FieldDeletedAt, field.TypeTime, value)
+	}
+	if tu.mutation.DeletedAtCleared() {
+		_spec.ClearField(todo.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := tu.mutation.Title(); ok {
 		_spec.SetField(todo.FieldTitle, field.TypeString, value)
@@ -184,6 +216,26 @@ func (tuo *TodoUpdateOne) SetNillableCreatedAt(t *time.Time) *TodoUpdateOne {
 // SetUpdatedAt sets the "updated_at" field.
 func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
 	tuo.mutation.SetUpdatedAt(t)
+	return tuo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (tuo *TodoUpdateOne) SetDeletedAt(t time.Time) *TodoUpdateOne {
+	tuo.mutation.SetDeletedAt(t)
+	return tuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (tuo *TodoUpdateOne) SetNillableDeletedAt(t *time.Time) *TodoUpdateOne {
+	if t != nil {
+		tuo.SetDeletedAt(*t)
+	}
+	return tuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (tuo *TodoUpdateOne) ClearDeletedAt() *TodoUpdateOne {
+	tuo.mutation.ClearDeletedAt()
 	return tuo
 }
 
@@ -241,7 +293,9 @@ func (tuo *TodoUpdateOne) Select(field string, fields ...string) *TodoUpdateOne 
 
 // Save executes the query and returns the updated Todo entity.
 func (tuo *TodoUpdateOne) Save(ctx context.Context) (*Todo, error) {
-	tuo.defaults()
+	if err := tuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, tuo.sqlSave, tuo.mutation, tuo.hooks)
 }
 
@@ -268,11 +322,15 @@ func (tuo *TodoUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tuo *TodoUpdateOne) defaults() {
+func (tuo *TodoUpdateOne) defaults() error {
 	if _, ok := tuo.mutation.UpdatedAt(); !ok {
+		if todo.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized todo.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := todo.UpdateDefaultUpdatedAt()
 		tuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) {
@@ -306,6 +364,12 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 	}
 	if value, ok := tuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := tuo.mutation.DeletedAt(); ok {
+		_spec.SetField(todo.FieldDeletedAt, field.TypeTime, value)
+	}
+	if tuo.mutation.DeletedAtCleared() {
+		_spec.ClearField(todo.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := tuo.mutation.Title(); ok {
 		_spec.SetField(todo.FieldTitle, field.TypeString, value)

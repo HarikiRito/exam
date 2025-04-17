@@ -53,6 +53,26 @@ func (csu *CourseSectionUpdate) SetUpdatedAt(t time.Time) *CourseSectionUpdate {
 	return csu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (csu *CourseSectionUpdate) SetDeletedAt(t time.Time) *CourseSectionUpdate {
+	csu.mutation.SetDeletedAt(t)
+	return csu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (csu *CourseSectionUpdate) SetNillableDeletedAt(t *time.Time) *CourseSectionUpdate {
+	if t != nil {
+		csu.SetDeletedAt(*t)
+	}
+	return csu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (csu *CourseSectionUpdate) ClearDeletedAt() *CourseSectionUpdate {
+	csu.mutation.ClearDeletedAt()
+	return csu
+}
+
 // SetCourseID sets the "course_id" field.
 func (csu *CourseSectionUpdate) SetCourseID(u uuid.UUID) *CourseSectionUpdate {
 	csu.mutation.SetCourseID(u)
@@ -227,7 +247,9 @@ func (csu *CourseSectionUpdate) RemoveCourseSessions(c ...*CourseSession) *Cours
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (csu *CourseSectionUpdate) Save(ctx context.Context) (int, error) {
-	csu.defaults()
+	if err := csu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, csu.sqlSave, csu.mutation, csu.hooks)
 }
 
@@ -254,11 +276,15 @@ func (csu *CourseSectionUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (csu *CourseSectionUpdate) defaults() {
+func (csu *CourseSectionUpdate) defaults() error {
 	if _, ok := csu.mutation.UpdatedAt(); !ok {
+		if coursesection.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized coursesection.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := coursesection.UpdateDefaultUpdatedAt()
 		csu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -291,6 +317,12 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	}
 	if value, ok := csu.mutation.UpdatedAt(); ok {
 		_spec.SetField(coursesection.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := csu.mutation.DeletedAt(); ok {
+		_spec.SetField(coursesection.FieldDeletedAt, field.TypeTime, value)
+	}
+	if csu.mutation.DeletedAtCleared() {
+		_spec.ClearField(coursesection.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := csu.mutation.Title(); ok {
 		_spec.SetField(coursesection.FieldTitle, field.TypeString, value)
@@ -505,6 +537,26 @@ func (csuo *CourseSectionUpdateOne) SetUpdatedAt(t time.Time) *CourseSectionUpda
 	return csuo
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (csuo *CourseSectionUpdateOne) SetDeletedAt(t time.Time) *CourseSectionUpdateOne {
+	csuo.mutation.SetDeletedAt(t)
+	return csuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (csuo *CourseSectionUpdateOne) SetNillableDeletedAt(t *time.Time) *CourseSectionUpdateOne {
+	if t != nil {
+		csuo.SetDeletedAt(*t)
+	}
+	return csuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (csuo *CourseSectionUpdateOne) ClearDeletedAt() *CourseSectionUpdateOne {
+	csuo.mutation.ClearDeletedAt()
+	return csuo
+}
+
 // SetCourseID sets the "course_id" field.
 func (csuo *CourseSectionUpdateOne) SetCourseID(u uuid.UUID) *CourseSectionUpdateOne {
 	csuo.mutation.SetCourseID(u)
@@ -692,7 +744,9 @@ func (csuo *CourseSectionUpdateOne) Select(field string, fields ...string) *Cour
 
 // Save executes the query and returns the updated CourseSection entity.
 func (csuo *CourseSectionUpdateOne) Save(ctx context.Context) (*CourseSection, error) {
-	csuo.defaults()
+	if err := csuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, csuo.sqlSave, csuo.mutation, csuo.hooks)
 }
 
@@ -719,11 +773,15 @@ func (csuo *CourseSectionUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (csuo *CourseSectionUpdateOne) defaults() {
+func (csuo *CourseSectionUpdateOne) defaults() error {
 	if _, ok := csuo.mutation.UpdatedAt(); !ok {
+		if coursesection.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized coursesection.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := coursesection.UpdateDefaultUpdatedAt()
 		csuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -773,6 +831,12 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 	}
 	if value, ok := csuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(coursesection.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := csuo.mutation.DeletedAt(); ok {
+		_spec.SetField(coursesection.FieldDeletedAt, field.TypeTime, value)
+	}
+	if csuo.mutation.DeletedAtCleared() {
+		_spec.ClearField(coursesection.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := csuo.mutation.Title(); ok {
 		_spec.SetField(coursesection.FieldTitle, field.TypeString, value)
