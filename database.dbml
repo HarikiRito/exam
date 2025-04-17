@@ -71,9 +71,10 @@ Table courses {
   updated_at timestamp [default: `now()`]
 }
 
-Table sections {
+Table course_sections {
   id varchar [pk]
   course_id varchar [not null]
+  parent_id varchar [note: 'Self-reference to parent section', ref: > course_sections.id]
   title varchar [not null]
   description text
   created_at timestamp [default: `now()`]
@@ -187,10 +188,10 @@ Ref: courses.media_id > media.id
 
 // Course Management Relationships
 Ref: courses.creator_id > users.id
-Ref: sections.course_id > courses.id [delete: cascade]
-Ref: videos.section_id > sections.id [delete: cascade]
+Ref: course_sections.course_id > courses.id [delete: cascade]
+Ref: videos.section_id > course_sections.id [delete: cascade]
 Ref: videos.media_id > media.id
-Ref: questions.section_id > sections.id [delete: cascade]
+Ref: questions.section_id > course_sections.id [delete: cascade]
 Ref: video_question_timestamps.video_id > videos.id [delete: cascade]
 Ref: video_question_timestamps.question_id > questions.id [delete: cascade]
 Ref: question_options.question_id > questions.id [delete: cascade]
@@ -199,7 +200,7 @@ Ref: question_options.question_id > questions.id [delete: cascade]
 Ref: user_course_enrollments.user_id > users.id [delete: cascade]
 Ref: user_course_enrollments.course_id > courses.id [delete: cascade]
 Ref: user_section_progress.user_id > users.id [delete: cascade]
-Ref: user_section_progress.section_id > sections.id [delete: cascade]
+Ref: user_section_progress.section_id > course_sections.id [delete: cascade]
 Ref: user_video_progress.user_id > users.id [delete: cascade]
 Ref: user_video_progress.video_id > videos.id [delete: cascade]
 Ref: user_question_answers.user_id > users.id [delete: cascade]

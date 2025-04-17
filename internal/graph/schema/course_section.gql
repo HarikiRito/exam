@@ -1,0 +1,19 @@
+extend type Mutation {
+  createCourseSection(input: CreateCourseSectionInput!): CourseSection!
+}
+
+extend type Query {
+  courseSection(id: ID!): CourseSection!
+}
+
+
+type CourseSection {
+  id: ID!
+  title: String!
+  description: String!
+}
+
+input CreateCourseSectionInput {
+  title: String!
+  description: String!
+}

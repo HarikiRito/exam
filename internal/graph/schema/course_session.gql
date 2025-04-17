@@ -1,0 +1,17 @@
+extend type Mutation {
+  createCourseSession(input: CreateCourseSessionInput!): CourseSession!
+}
+
+extend type Query {
+  courseSession(id: ID!): CourseSession!
+}
+
+type CourseSession {
+  id: ID!
+  courseId: ID!
+  totalScore: Int!
+}
+
+input CreateCourseSessionInput {
+  courseId: ID!
+}

@@ -7,6 +7,39 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type Course struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Creator     *User  `json:"creator"`
+}
+
+type CourseSection struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type CourseSession struct {
+	ID         string `json:"id"`
+	CourseID   string `json:"courseId"`
+	TotalScore int    `json:"totalScore"`
+}
+
+type CreateCourseInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type CreateCourseSectionInput struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type CreateCourseSessionInput struct {
+	CourseID string `json:"courseId"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -17,6 +50,25 @@ type Mutation struct {
 
 type NewTodo struct {
 	Text string `json:"text"`
+}
+
+type PaginatedCourse struct {
+	Pagination *Pagination `json:"pagination"`
+	Items      []*Course   `json:"items"`
+}
+
+type Pagination struct {
+	CurrentPage     int  `json:"currentPage"`
+	TotalPages      int  `json:"totalPages"`
+	TotalItems      int  `json:"totalItems"`
+	HasNextPage     bool `json:"hasNextPage"`
+	HasPreviousPage bool `json:"hasPreviousPage"`
+}
+
+type PaginationInput struct {
+	Page   int     `json:"page"`
+	Limit  int     `json:"limit"`
+	Search *string `json:"search,omitempty"`
 }
 
 type Query struct {

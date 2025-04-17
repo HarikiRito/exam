@@ -1,0 +1,26 @@
+extend type Mutation {
+  createCourse(input: CreateCourseInput!): Course!
+}
+
+extend type Query {
+  course(id: ID!): Course!
+  paginatedCourses(input: PaginationInput): PaginatedCourse!
+}
+
+type Course {
+  id: ID!
+  title: String!
+  description: String!
+  creator: User!
+}
+
+
+type PaginatedCourse {
+  pagination: Pagination!
+  items: [Course!]!
+}
+
+input CreateCourseInput {
+  title: String!
+  description: String!
+}
