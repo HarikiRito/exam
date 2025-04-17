@@ -7,7 +7,6 @@ package graph
 import (
 	"context"
 	"errors"
-	"fmt"
 	"template/internal/features/course"
 	"template/internal/graph/model"
 )
@@ -33,12 +32,28 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateC
 
 // RemoveCourse is the resolver for the removeCourse field.
 func (r *mutationResolver) RemoveCourse(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: RemoveCourse - removeCourse"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return course.RemoveCourse(ctx, userId, id)
 }
 
 // UpdateCourse is the resolver for the updateCourse field.
 func (r *mutationResolver) UpdateCourse(ctx context.Context, id string, input model.UpdateCourseInput) (*model.Course, error) {
-	panic(fmt.Errorf("not implemented: UpdateCourse - updateCourse"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	updatedCourse, err := course.UpdateCourse(ctx, userId, id, input)
+	if err != nil {
+		return nil, err
+	}
+	return &model.Course{
+		ID:          updatedCourse.ID.String(),
+		Title:       updatedCourse.Title,
+		Description: updatedCourse.Description,
+	}, nil
 }
 
 // Course is the resolver for the course field.
@@ -57,5 +72,33 @@ func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, e
 
 // PaginatedCourses is the resolver for the paginatedCourses field.
 func (r *queryResolver) PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourse, error) {
-	panic(fmt.Errorf("not implemented: PaginatedCourses - paginatedCourses"))
+	courses, total, err := course.PaginatedCourses(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	items := make([]*model.Course, 0, len(courses))
+	for _, c := range courses {
+		items = append(items, &model.Course{
+			ID:          c.ID.String(),
+			Title:       c.Title,
+			Description: c.Description,
+		})
+	}
+	pagination := &model.Pagination{
+		CurrentPage:     1,
+		TotalPages:      1,
+		TotalItems:      total,
+		HasNextPage:     false,
+		HasPreviousPage: false,
+	}
+	if input != nil && input.Limit > 0 {
+		pagination.TotalPages = (total + input.Limit - 1) / input.Limit
+		pagination.CurrentPage = input.Page
+		pagination.HasNextPage = input.Page < pagination.TotalPages
+		pagination.HasPreviousPage = input.Page > 1
+	}
+	return &model.PaginatedCourse{
+		Pagination: pagination,
+		Items:      items,
+	}, nil
 }
