@@ -6,18 +6,43 @@ package graph
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"template/internal/features/course"
 	"template/internal/graph/model"
 )
 
 // CreateCourse is the resolver for the createCourse field.
 func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateCourseInput) (*model.Course, error) {
-	panic(fmt.Errorf("not implemented: CreateCourse - createCourse"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	createdCourse, err := course.CreateCourse(ctx, userId, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Course{
+		ID:          createdCourse.ID.String(),
+		Title:       createdCourse.Title,
+		Description: createdCourse.Description,
+	}, nil
 }
 
 // Course is the resolver for the course field.
 func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, error) {
-	panic(fmt.Errorf("not implemented: Course - course"))
+	foundCourse, err := course.GetCourseByID(ctx, id)
+	if err != nil {
+		return nil, errors.New("course not found")
+	}
+
+	return &model.Course{
+		ID:          foundCourse.ID.String(),
+		Title:       foundCourse.Title,
+		Description: foundCourse.Description,
+	}, nil
 }
 
 // PaginatedCourses is the resolver for the paginatedCourses field.
