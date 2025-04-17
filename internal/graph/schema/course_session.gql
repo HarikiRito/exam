@@ -1,9 +1,12 @@
 extend type Mutation {
   createCourseSession(input: CreateCourseSessionInput!): CourseSession!
+  updateCourseSession(id: ID!, input: UpdateCourseSessionInput!): CourseSession!
+  removeCourseSession(id: ID!): Boolean!
 }
 
 extend type Query {
   courseSession(id: ID!): CourseSession!
+  paginatedCourseSessions(input: PaginationInput): PaginatedCourseSession!
 }
 
 type CourseSession {
@@ -14,4 +17,13 @@ type CourseSession {
 
 input CreateCourseSessionInput {
   courseId: ID!
+}
+
+input UpdateCourseSessionInput {
+  totalScore: Int
+}
+
+type PaginatedCourseSession {
+  pagination: Pagination!
+  items: [CourseSession!]!
 }

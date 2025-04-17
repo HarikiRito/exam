@@ -15,7 +15,22 @@ func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.
 	panic(fmt.Errorf("not implemented: CreateCourseSection - createCourseSection"))
 }
 
+// UpdateCourseSection is the resolver for the updateCourseSection field.
+func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id string, input model.UpdateCourseSectionInput) (*model.CourseSection, error) {
+	panic(fmt.Errorf("not implemented: UpdateCourseSection - updateCourseSection"))
+}
+
+// RemoveCourseSection is the resolver for the removeCourseSection field.
+func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveCourseSection - removeCourseSection"))
+}
+
 // CourseSection is the resolver for the courseSection field.
 func (r *queryResolver) CourseSection(ctx context.Context, id string) (*model.CourseSection, error) {
 	panic(fmt.Errorf("not implemented: CourseSection - courseSection"))
+}
+
+// PaginatedCourseSections is the resolver for the paginatedCourseSections field.
+func (r *queryResolver) PaginatedCourseSections(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourseSection, error) {
+	panic(fmt.Errorf("not implemented: PaginatedCourseSections - paginatedCourseSections"))
 }

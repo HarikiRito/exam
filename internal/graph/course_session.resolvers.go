@@ -15,7 +15,22 @@ func (r *mutationResolver) CreateCourseSession(ctx context.Context, input model.
 	panic(fmt.Errorf("not implemented: CreateCourseSession - createCourseSession"))
 }
 
+// UpdateCourseSession is the resolver for the updateCourseSession field.
+func (r *mutationResolver) UpdateCourseSession(ctx context.Context, id string, input model.UpdateCourseSessionInput) (*model.CourseSession, error) {
+	panic(fmt.Errorf("not implemented: UpdateCourseSession - updateCourseSession"))
+}
+
+// RemoveCourseSession is the resolver for the removeCourseSession field.
+func (r *mutationResolver) RemoveCourseSession(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveCourseSession - removeCourseSession"))
+}
+
 // CourseSession is the resolver for the courseSession field.
 func (r *queryResolver) CourseSession(ctx context.Context, id string) (*model.CourseSession, error) {
 	panic(fmt.Errorf("not implemented: CourseSession - courseSession"))
+}
+
+// PaginatedCourseSessions is the resolver for the paginatedCourseSessions field.
+func (r *queryResolver) PaginatedCourseSessions(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourseSession, error) {
+	panic(fmt.Errorf("not implemented: PaginatedCourseSessions - paginatedCourseSessions"))
 }

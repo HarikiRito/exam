@@ -31,6 +31,16 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateC
 	}, nil
 }
 
+// RemoveCourse is the resolver for the removeCourse field.
+func (r *mutationResolver) RemoveCourse(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveCourse - removeCourse"))
+}
+
+// UpdateCourse is the resolver for the updateCourse field.
+func (r *mutationResolver) UpdateCourse(ctx context.Context, id string, input model.UpdateCourseInput) (*model.Course, error) {
+	panic(fmt.Errorf("not implemented: UpdateCourse - updateCourse"))
+}
+
 // Course is the resolver for the course field.
 func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, error) {
 	foundCourse, err := course.GetCourseByID(ctx, id)

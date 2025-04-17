@@ -57,6 +57,16 @@ type PaginatedCourse struct {
 	Items      []*Course   `json:"items"`
 }
 
+type PaginatedCourseSection struct {
+	Pagination *Pagination      `json:"pagination"`
+	Items      []*CourseSection `json:"items"`
+}
+
+type PaginatedCourseSession struct {
+	Pagination *Pagination      `json:"pagination"`
+	Items      []*CourseSession `json:"items"`
+}
+
 type Pagination struct {
 	CurrentPage     int  `json:"currentPage"`
 	TotalPages      int  `json:"totalPages"`
@@ -82,6 +92,20 @@ type RegisterInput struct {
 type Todo struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
+}
+
+type UpdateCourseInput struct {
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+type UpdateCourseSectionInput struct {
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
+type UpdateCourseSessionInput struct {
+	TotalScore *int `json:"totalScore,omitempty"`
 }
 
 type User struct {
