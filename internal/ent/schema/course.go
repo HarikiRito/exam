@@ -46,7 +46,5 @@ func (Course) Edges() []ent.Edge {
 }
 
 func (Course) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.BaseMixin{},
-	}
+	return mixin.DefaultMixins()
 }

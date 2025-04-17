@@ -182,7 +182,9 @@ func (cc *CourseCreate) Mutation() *CourseMutation {
 
 // Save creates the Course in the database.
 func (cc *CourseCreate) Save(ctx context.Context) (*Course, error) {
-	cc.defaults()
+	if err := cc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -209,12 +211,18 @@ func (cc *CourseCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CourseCreate) defaults() {
+func (cc *CourseCreate) defaults() error {
 	if _, ok := cc.mutation.CreatedAt(); !ok {
+		if course.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized course.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := course.DefaultCreatedAt()
 		cc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := cc.mutation.UpdatedAt(); !ok {
+		if course.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized course.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := course.DefaultUpdatedAt()
 		cc.mutation.SetUpdatedAt(v)
 	}
@@ -223,9 +231,13 @@ func (cc *CourseCreate) defaults() {
 		cc.mutation.SetIsPublished(v)
 	}
 	if _, ok := cc.mutation.ID(); !ok {
+		if course.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized course.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := course.DefaultID()
 		cc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

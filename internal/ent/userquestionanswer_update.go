@@ -53,26 +53,6 @@ func (uqau *UserQuestionAnswerUpdate) SetUpdatedAt(t time.Time) *UserQuestionAns
 	return uqau
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (uqau *UserQuestionAnswerUpdate) SetDeletedAt(t time.Time) *UserQuestionAnswerUpdate {
-	uqau.mutation.SetDeletedAt(t)
-	return uqau
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (uqau *UserQuestionAnswerUpdate) SetNillableDeletedAt(t *time.Time) *UserQuestionAnswerUpdate {
-	if t != nil {
-		uqau.SetDeletedAt(*t)
-	}
-	return uqau
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (uqau *UserQuestionAnswerUpdate) ClearDeletedAt() *UserQuestionAnswerUpdate {
-	uqau.mutation.ClearDeletedAt()
-	return uqau
-}
-
 // SetUserID sets the "user_id" field.
 func (uqau *UserQuestionAnswerUpdate) SetUserID(u uuid.UUID) *UserQuestionAnswerUpdate {
 	uqau.mutation.SetUserID(u)
@@ -255,12 +235,6 @@ func (uqau *UserQuestionAnswerUpdate) sqlSave(ctx context.Context) (n int, err e
 	if value, ok := uqau.mutation.UpdatedAt(); ok {
 		_spec.SetField(userquestionanswer.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := uqau.mutation.DeletedAt(); ok {
-		_spec.SetField(userquestionanswer.FieldDeletedAt, field.TypeTime, value)
-	}
-	if uqau.mutation.DeletedAtCleared() {
-		_spec.ClearField(userquestionanswer.FieldDeletedAt, field.TypeTime)
-	}
 	if uqau.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -414,26 +388,6 @@ func (uqauo *UserQuestionAnswerUpdateOne) SetNillableCreatedAt(t *time.Time) *Us
 // SetUpdatedAt sets the "updated_at" field.
 func (uqauo *UserQuestionAnswerUpdateOne) SetUpdatedAt(t time.Time) *UserQuestionAnswerUpdateOne {
 	uqauo.mutation.SetUpdatedAt(t)
-	return uqauo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (uqauo *UserQuestionAnswerUpdateOne) SetDeletedAt(t time.Time) *UserQuestionAnswerUpdateOne {
-	uqauo.mutation.SetDeletedAt(t)
-	return uqauo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (uqauo *UserQuestionAnswerUpdateOne) SetNillableDeletedAt(t *time.Time) *UserQuestionAnswerUpdateOne {
-	if t != nil {
-		uqauo.SetDeletedAt(*t)
-	}
-	return uqauo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (uqauo *UserQuestionAnswerUpdateOne) ClearDeletedAt() *UserQuestionAnswerUpdateOne {
-	uqauo.mutation.ClearDeletedAt()
 	return uqauo
 }
 
@@ -648,12 +602,6 @@ func (uqauo *UserQuestionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *U
 	}
 	if value, ok := uqauo.mutation.UpdatedAt(); ok {
 		_spec.SetField(userquestionanswer.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := uqauo.mutation.DeletedAt(); ok {
-		_spec.SetField(userquestionanswer.FieldDeletedAt, field.TypeTime, value)
-	}
-	if uqauo.mutation.DeletedAtCleared() {
-		_spec.ClearField(userquestionanswer.FieldDeletedAt, field.TypeTime)
 	}
 	if uqauo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

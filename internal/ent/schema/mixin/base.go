@@ -4,8 +4,6 @@ import (
 	"template/internal/shared/utilities/id"
 	"time"
 
-	_ "template/internal/ent/runtime"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
@@ -31,21 +29,12 @@ func (BaseMixin) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				dialect.Postgres: "timestamp without time zone",
 			}),
-		field.Time("deleted_at").
-			Nillable().
-			Optional().
-			SchemaType(map[string]string{
-				dialect.Postgres: "timestamp without time zone",
-			}),
 	}
 }
 
-func (BaseMixin) Mixin() []ent.Mixin {
+func DefaultMixins() []ent.Mixin {
 	return []ent.Mixin{
-		// intercept.SoftDeleteMixin{},
+		BaseMixin{},
+		SoftDeleteMixin{},
 	}
-}
-
-type Common interface {
-	SetID(id string)
 }

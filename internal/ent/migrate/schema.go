@@ -45,7 +45,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "course_id", Type: field.TypeUUID},
@@ -58,7 +57,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "course_sections_courses_course_sections",
-				Columns:    []*schema.Column{CourseSectionsColumns[6]},
+				Columns:    []*schema.Column{CourseSectionsColumns[5]},
 				RefColumns: []*schema.Column{CoursesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -69,7 +68,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "total_score", Type: field.TypeInt, Default: 0},
 		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
@@ -83,13 +81,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "course_sessions_course_sections_course_sessions",
-				Columns:    []*schema.Column{CourseSessionsColumns[6]},
+				Columns:    []*schema.Column{CourseSessionsColumns[5]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "course_sessions_users_course_sessions",
-				Columns:    []*schema.Column{CourseSessionsColumns[7]},
+				Columns:    []*schema.Column{CourseSessionsColumns[6]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -100,7 +98,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "file_name", Type: field.TypeString},
 		{Name: "file_url", Type: field.TypeString},
 		{Name: "mime_type", Type: field.TypeString},
@@ -115,7 +112,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "media_users_media_uploader",
-				Columns:    []*schema.Column{MediaColumns[8]},
+				Columns:    []*schema.Column{MediaColumns[7]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -126,7 +123,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 	}
@@ -141,7 +137,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "question_text", Type: field.TypeString, Size: 2147483647},
 		{Name: "section_id", Type: field.TypeUUID},
 	}
@@ -153,7 +148,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "questions_course_sections_questions",
-				Columns:    []*schema.Column{QuestionsColumns[5]},
+				Columns:    []*schema.Column{QuestionsColumns[4]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -164,7 +159,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "option_text", Type: field.TypeString, Size: 2147483647},
 		{Name: "is_correct", Type: field.TypeBool, Default: false},
 		{Name: "question_id", Type: field.TypeUUID},
@@ -177,7 +171,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "question_options_questions_question_options",
-				Columns:    []*schema.Column{QuestionOptionsColumns[6]},
+				Columns:    []*schema.Column{QuestionOptionsColumns[5]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -188,7 +182,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 	}
@@ -203,7 +196,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true},
 	}
@@ -218,7 +210,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "username", Type: field.TypeString, Unique: true},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "password_hash", Type: field.TypeString},
@@ -235,7 +226,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_media_user_media",
-				Columns:    []*schema.Column{UsersColumns[10]},
+				Columns:    []*schema.Column{UsersColumns[9]},
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -246,7 +237,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "session_id", Type: field.TypeUUID},
 		{Name: "question_id", Type: field.TypeUUID},
 		{Name: "selected_option_id", Type: field.TypeUUID},
@@ -260,25 +250,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_question_answers_course_sessions_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[4]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[3]},
 				RefColumns: []*schema.Column{CourseSessionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_question_answers_questions_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[5]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[4]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_question_answers_question_options_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[6]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[5]},
 				RefColumns: []*schema.Column{QuestionOptionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_question_answers_users_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[7]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[6]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -289,7 +279,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "role_id", Type: field.TypeUUID},
 	}
@@ -301,13 +290,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_roles_users_user",
-				Columns:    []*schema.Column{UserRolesColumns[4]},
+				Columns:    []*schema.Column{UserRolesColumns[3]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_roles_roles_role",
-				Columns:    []*schema.Column{UserRolesColumns[5]},
+				Columns:    []*schema.Column{UserRolesColumns[4]},
 				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -316,7 +305,7 @@ var (
 			{
 				Name:    "userrole_role_id_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{UserRolesColumns[5], UserRolesColumns[4]},
+				Columns: []*schema.Column{UserRolesColumns[4], UserRolesColumns[3]},
 			},
 		},
 	}
@@ -325,7 +314,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "duration", Type: field.TypeInt, Nullable: true},
@@ -341,19 +329,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "videos_courses_course_videos",
-				Columns:    []*schema.Column{VideosColumns[7]},
+				Columns:    []*schema.Column{VideosColumns[6]},
 				RefColumns: []*schema.Column{CoursesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "videos_course_sections_course_section_videos",
-				Columns:    []*schema.Column{VideosColumns[8]},
+				Columns:    []*schema.Column{VideosColumns[7]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "videos_media_video_media",
-				Columns:    []*schema.Column{VideosColumns[9]},
+				Columns:    []*schema.Column{VideosColumns[8]},
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -364,7 +352,6 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "timestamp", Type: field.TypeInt},
 		{Name: "question_id", Type: field.TypeUUID},
 		{Name: "video_id", Type: field.TypeUUID},
@@ -377,13 +364,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "video_question_timestamps_questions_video_question_timestamps_question",
-				Columns:    []*schema.Column{VideoQuestionTimestampsColumns[5]},
+				Columns:    []*schema.Column{VideoQuestionTimestampsColumns[4]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "video_question_timestamps_videos_video_question_timestamps_video",
-				Columns:    []*schema.Column{VideoQuestionTimestampsColumns[6]},
+				Columns:    []*schema.Column{VideoQuestionTimestampsColumns[5]},
 				RefColumns: []*schema.Column{VideosColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

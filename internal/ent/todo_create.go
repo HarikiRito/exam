@@ -49,20 +49,6 @@ func (tc *TodoCreate) SetNillableUpdatedAt(t *time.Time) *TodoCreate {
 	return tc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (tc *TodoCreate) SetDeletedAt(t time.Time) *TodoCreate {
-	tc.mutation.SetDeletedAt(t)
-	return tc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (tc *TodoCreate) SetNillableDeletedAt(t *time.Time) *TodoCreate {
-	if t != nil {
-		tc.SetDeletedAt(*t)
-	}
-	return tc
-}
-
 // SetTitle sets the "title" field.
 func (tc *TodoCreate) SetTitle(s string) *TodoCreate {
 	tc.mutation.SetTitle(s)
@@ -199,10 +185,6 @@ func (tc *TodoCreate) createSpec() (*Todo, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := tc.mutation.DeletedAt(); ok {
-		_spec.SetField(todo.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := tc.mutation.Title(); ok {
 		_spec.SetField(todo.FieldTitle, field.TypeString, value)

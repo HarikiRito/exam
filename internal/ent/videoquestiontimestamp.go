@@ -24,8 +24,6 @@ type VideoQuestionTimestamp struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// VideoID holds the value of the "video_id" field.
 	VideoID uuid.UUID `json:"video_id,omitempty"`
 	// QuestionID holds the value of the "question_id" field.
@@ -78,7 +76,7 @@ func (*VideoQuestionTimestamp) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case videoquestiontimestamp.FieldTimestamp:
 			values[i] = new(sql.NullInt64)
-		case videoquestiontimestamp.FieldCreatedAt, videoquestiontimestamp.FieldUpdatedAt, videoquestiontimestamp.FieldDeletedAt:
+		case videoquestiontimestamp.FieldCreatedAt, videoquestiontimestamp.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case videoquestiontimestamp.FieldID, videoquestiontimestamp.FieldVideoID, videoquestiontimestamp.FieldQuestionID:
 			values[i] = new(uuid.UUID)
@@ -114,13 +112,6 @@ func (vqt *VideoQuestionTimestamp) assignValues(columns []string, values []any) 
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				vqt.UpdatedAt = value.Time
-			}
-		case videoquestiontimestamp.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				vqt.DeletedAt = new(time.Time)
-				*vqt.DeletedAt = value.Time
 			}
 		case videoquestiontimestamp.FieldVideoID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -191,11 +182,6 @@ func (vqt *VideoQuestionTimestamp) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(vqt.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := vqt.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("video_id=")
 	builder.WriteString(fmt.Sprintf("%v", vqt.VideoID))

@@ -50,20 +50,6 @@ func (pc *PermissionCreate) SetNillableUpdatedAt(t *time.Time) *PermissionCreate
 	return pc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (pc *PermissionCreate) SetDeletedAt(t time.Time) *PermissionCreate {
-	pc.mutation.SetDeletedAt(t)
-	return pc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (pc *PermissionCreate) SetNillableDeletedAt(t *time.Time) *PermissionCreate {
-	if t != nil {
-		pc.SetDeletedAt(*t)
-	}
-	return pc
-}
-
 // SetName sets the "name" field.
 func (pc *PermissionCreate) SetName(s string) *PermissionCreate {
 	pc.mutation.SetName(s)
@@ -220,10 +206,6 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.UpdatedAt(); ok {
 		_spec.SetField(permission.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := pc.mutation.DeletedAt(); ok {
-		_spec.SetField(permission.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := pc.mutation.Name(); ok {
 		_spec.SetField(permission.FieldName, field.TypeString, value)

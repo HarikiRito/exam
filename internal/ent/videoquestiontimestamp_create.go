@@ -51,20 +51,6 @@ func (vqtc *VideoQuestionTimestampCreate) SetNillableUpdatedAt(t *time.Time) *Vi
 	return vqtc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (vqtc *VideoQuestionTimestampCreate) SetDeletedAt(t time.Time) *VideoQuestionTimestampCreate {
-	vqtc.mutation.SetDeletedAt(t)
-	return vqtc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (vqtc *VideoQuestionTimestampCreate) SetNillableDeletedAt(t *time.Time) *VideoQuestionTimestampCreate {
-	if t != nil {
-		vqtc.SetDeletedAt(*t)
-	}
-	return vqtc
-}
-
 // SetVideoID sets the "video_id" field.
 func (vqtc *VideoQuestionTimestampCreate) SetVideoID(u uuid.UUID) *VideoQuestionTimestampCreate {
 	vqtc.mutation.SetVideoID(u)
@@ -221,10 +207,6 @@ func (vqtc *VideoQuestionTimestampCreate) createSpec() (*VideoQuestionTimestamp,
 	if value, ok := vqtc.mutation.UpdatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := vqtc.mutation.DeletedAt(); ok {
-		_spec.SetField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := vqtc.mutation.Timestamp(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldTimestamp, field.TypeInt, value)

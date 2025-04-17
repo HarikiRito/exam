@@ -52,20 +52,6 @@ func (mc *MediaCreate) SetNillableUpdatedAt(t *time.Time) *MediaCreate {
 	return mc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (mc *MediaCreate) SetDeletedAt(t time.Time) *MediaCreate {
-	mc.mutation.SetDeletedAt(t)
-	return mc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (mc *MediaCreate) SetNillableDeletedAt(t *time.Time) *MediaCreate {
-	if t != nil {
-		mc.SetDeletedAt(*t)
-	}
-	return mc
-}
-
 // SetFileName sets the "file_name" field.
 func (mc *MediaCreate) SetFileName(s string) *MediaCreate {
 	mc.mutation.SetFileName(s)
@@ -305,10 +291,6 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.UpdatedAt(); ok {
 		_spec.SetField(media.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := mc.mutation.DeletedAt(); ok {
-		_spec.SetField(media.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := mc.mutation.FileName(); ok {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)

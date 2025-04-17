@@ -489,12 +489,14 @@ func (c *CourseClient) QueryCourseVideos(co *Course) *VideoQuery {
 
 // Hooks returns the client hooks.
 func (c *CourseClient) Hooks() []Hook {
-	return c.hooks.Course
+	hooks := c.hooks.Course
+	return append(hooks[:len(hooks):len(hooks)], course.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *CourseClient) Interceptors() []Interceptor {
-	return c.inters.Course
+	inters := c.inters.Course
+	return append(inters[:len(inters):len(inters)], course.Interceptors[:]...)
 }
 
 func (c *CourseClient) mutate(ctx context.Context, m *CourseMutation) (Value, error) {

@@ -52,20 +52,6 @@ func (csc *CourseSessionCreate) SetNillableUpdatedAt(t *time.Time) *CourseSessio
 	return csc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (csc *CourseSessionCreate) SetDeletedAt(t time.Time) *CourseSessionCreate {
-	csc.mutation.SetDeletedAt(t)
-	return csc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (csc *CourseSessionCreate) SetNillableDeletedAt(t *time.Time) *CourseSessionCreate {
-	if t != nil {
-		csc.SetDeletedAt(*t)
-	}
-	return csc
-}
-
 // SetUserID sets the "user_id" field.
 func (csc *CourseSessionCreate) SetUserID(u uuid.UUID) *CourseSessionCreate {
 	csc.mutation.SetUserID(u)
@@ -265,10 +251,6 @@ func (csc *CourseSessionCreate) createSpec() (*CourseSession, *sqlgraph.CreateSp
 	if value, ok := csc.mutation.UpdatedAt(); ok {
 		_spec.SetField(coursesession.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := csc.mutation.DeletedAt(); ok {
-		_spec.SetField(coursesession.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := csc.mutation.CompletedAt(); ok {
 		_spec.SetField(coursesession.FieldCompletedAt, field.TypeTime, value)

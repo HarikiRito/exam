@@ -48,26 +48,6 @@ func (tu *TodoUpdate) SetUpdatedAt(t time.Time) *TodoUpdate {
 	return tu
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (tu *TodoUpdate) SetDeletedAt(t time.Time) *TodoUpdate {
-	tu.mutation.SetDeletedAt(t)
-	return tu
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (tu *TodoUpdate) SetNillableDeletedAt(t *time.Time) *TodoUpdate {
-	if t != nil {
-		tu.SetDeletedAt(*t)
-	}
-	return tu
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (tu *TodoUpdate) ClearDeletedAt() *TodoUpdate {
-	tu.mutation.ClearDeletedAt()
-	return tu
-}
-
 // SetTitle sets the "title" field.
 func (tu *TodoUpdate) SetTitle(s string) *TodoUpdate {
 	tu.mutation.SetTitle(s)
@@ -158,12 +138,6 @@ func (tu *TodoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := tu.mutation.DeletedAt(); ok {
-		_spec.SetField(todo.FieldDeletedAt, field.TypeTime, value)
-	}
-	if tu.mutation.DeletedAtCleared() {
-		_spec.ClearField(todo.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := tu.mutation.Title(); ok {
 		_spec.SetField(todo.FieldTitle, field.TypeString, value)
 	}
@@ -210,26 +184,6 @@ func (tuo *TodoUpdateOne) SetNillableCreatedAt(t *time.Time) *TodoUpdateOne {
 // SetUpdatedAt sets the "updated_at" field.
 func (tuo *TodoUpdateOne) SetUpdatedAt(t time.Time) *TodoUpdateOne {
 	tuo.mutation.SetUpdatedAt(t)
-	return tuo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (tuo *TodoUpdateOne) SetDeletedAt(t time.Time) *TodoUpdateOne {
-	tuo.mutation.SetDeletedAt(t)
-	return tuo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (tuo *TodoUpdateOne) SetNillableDeletedAt(t *time.Time) *TodoUpdateOne {
-	if t != nil {
-		tuo.SetDeletedAt(*t)
-	}
-	return tuo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (tuo *TodoUpdateOne) ClearDeletedAt() *TodoUpdateOne {
-	tuo.mutation.ClearDeletedAt()
 	return tuo
 }
 
@@ -352,12 +306,6 @@ func (tuo *TodoUpdateOne) sqlSave(ctx context.Context) (_node *Todo, err error) 
 	}
 	if value, ok := tuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(todo.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := tuo.mutation.DeletedAt(); ok {
-		_spec.SetField(todo.FieldDeletedAt, field.TypeTime, value)
-	}
-	if tuo.mutation.DeletedAtCleared() {
-		_spec.ClearField(todo.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := tuo.mutation.Title(); ok {
 		_spec.SetField(todo.FieldTitle, field.TypeString, value)

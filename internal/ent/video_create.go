@@ -53,20 +53,6 @@ func (vc *VideoCreate) SetNillableUpdatedAt(t *time.Time) *VideoCreate {
 	return vc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (vc *VideoCreate) SetDeletedAt(t time.Time) *VideoCreate {
-	vc.mutation.SetDeletedAt(t)
-	return vc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (vc *VideoCreate) SetNillableDeletedAt(t *time.Time) *VideoCreate {
-	if t != nil {
-		vc.SetDeletedAt(*t)
-	}
-	return vc
-}
-
 // SetSectionID sets the "section_id" field.
 func (vc *VideoCreate) SetSectionID(u uuid.UUID) *VideoCreate {
 	vc.mutation.SetSectionID(u)
@@ -294,10 +280,6 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 	if value, ok := vc.mutation.UpdatedAt(); ok {
 		_spec.SetField(video.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := vc.mutation.DeletedAt(); ok {
-		_spec.SetField(video.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := vc.mutation.Title(); ok {
 		_spec.SetField(video.FieldTitle, field.TypeString, value)

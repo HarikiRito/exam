@@ -51,20 +51,6 @@ func (urc *UserRoleCreate) SetNillableUpdatedAt(t *time.Time) *UserRoleCreate {
 	return urc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (urc *UserRoleCreate) SetDeletedAt(t time.Time) *UserRoleCreate {
-	urc.mutation.SetDeletedAt(t)
-	return urc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (urc *UserRoleCreate) SetNillableDeletedAt(t *time.Time) *UserRoleCreate {
-	if t != nil {
-		urc.SetDeletedAt(*t)
-	}
-	return urc
-}
-
 // SetUserID sets the "user_id" field.
 func (urc *UserRoleCreate) SetUserID(u uuid.UUID) *UserRoleCreate {
 	urc.mutation.SetUserID(u)
@@ -212,10 +198,6 @@ func (urc *UserRoleCreate) createSpec() (*UserRole, *sqlgraph.CreateSpec) {
 	if value, ok := urc.mutation.UpdatedAt(); ok {
 		_spec.SetField(userrole.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := urc.mutation.DeletedAt(); ok {
-		_spec.SetField(userrole.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if nodes := urc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

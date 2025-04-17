@@ -52,26 +52,6 @@ func (mu *MediaUpdate) SetUpdatedAt(t time.Time) *MediaUpdate {
 	return mu
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (mu *MediaUpdate) SetDeletedAt(t time.Time) *MediaUpdate {
-	mu.mutation.SetDeletedAt(t)
-	return mu
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (mu *MediaUpdate) SetNillableDeletedAt(t *time.Time) *MediaUpdate {
-	if t != nil {
-		mu.SetDeletedAt(*t)
-	}
-	return mu
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (mu *MediaUpdate) ClearDeletedAt() *MediaUpdate {
-	mu.mutation.ClearDeletedAt()
-	return mu
-}
-
 // SetFileName sets the "file_name" field.
 func (mu *MediaUpdate) SetFileName(s string) *MediaUpdate {
 	mu.mutation.SetFileName(s)
@@ -358,12 +338,6 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.UpdatedAt(); ok {
 		_spec.SetField(media.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := mu.mutation.DeletedAt(); ok {
-		_spec.SetField(media.FieldDeletedAt, field.TypeTime, value)
-	}
-	if mu.mutation.DeletedAtCleared() {
-		_spec.ClearField(media.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := mu.mutation.FileName(); ok {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)
 	}
@@ -580,26 +554,6 @@ func (muo *MediaUpdateOne) SetNillableCreatedAt(t *time.Time) *MediaUpdateOne {
 // SetUpdatedAt sets the "updated_at" field.
 func (muo *MediaUpdateOne) SetUpdatedAt(t time.Time) *MediaUpdateOne {
 	muo.mutation.SetUpdatedAt(t)
-	return muo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (muo *MediaUpdateOne) SetDeletedAt(t time.Time) *MediaUpdateOne {
-	muo.mutation.SetDeletedAt(t)
-	return muo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (muo *MediaUpdateOne) SetNillableDeletedAt(t *time.Time) *MediaUpdateOne {
-	if t != nil {
-		muo.SetDeletedAt(*t)
-	}
-	return muo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (muo *MediaUpdateOne) ClearDeletedAt() *MediaUpdateOne {
-	muo.mutation.ClearDeletedAt()
 	return muo
 }
 
@@ -918,12 +872,6 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 	}
 	if value, ok := muo.mutation.UpdatedAt(); ok {
 		_spec.SetField(media.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := muo.mutation.DeletedAt(); ok {
-		_spec.SetField(media.FieldDeletedAt, field.TypeTime, value)
-	}
-	if muo.mutation.DeletedAtCleared() {
-		_spec.ClearField(media.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := muo.mutation.FileName(); ok {
 		_spec.SetField(media.FieldFileName, field.TypeString, value)

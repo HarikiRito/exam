@@ -23,8 +23,6 @@ type CourseSection struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// CourseID holds the value of the "course_id" field.
 	CourseID uuid.UUID `json:"course_id,omitempty"`
 	// Title holds the value of the "title" field.
@@ -97,7 +95,7 @@ func (*CourseSection) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case coursesection.FieldTitle, coursesection.FieldDescription:
 			values[i] = new(sql.NullString)
-		case coursesection.FieldCreatedAt, coursesection.FieldUpdatedAt, coursesection.FieldDeletedAt:
+		case coursesection.FieldCreatedAt, coursesection.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case coursesection.FieldID, coursesection.FieldCourseID:
 			values[i] = new(uuid.UUID)
@@ -133,13 +131,6 @@ func (cs *CourseSection) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				cs.UpdatedAt = value.Time
-			}
-		case coursesection.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				cs.DeletedAt = new(time.Time)
-				*cs.DeletedAt = value.Time
 			}
 		case coursesection.FieldCourseID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -220,11 +211,6 @@ func (cs *CourseSection) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(cs.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := cs.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("course_id=")
 	builder.WriteString(fmt.Sprintf("%v", cs.CourseID))

@@ -51,26 +51,6 @@ func (qou *QuestionOptionUpdate) SetUpdatedAt(t time.Time) *QuestionOptionUpdate
 	return qou
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (qou *QuestionOptionUpdate) SetDeletedAt(t time.Time) *QuestionOptionUpdate {
-	qou.mutation.SetDeletedAt(t)
-	return qou
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (qou *QuestionOptionUpdate) SetNillableDeletedAt(t *time.Time) *QuestionOptionUpdate {
-	if t != nil {
-		qou.SetDeletedAt(*t)
-	}
-	return qou
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (qou *QuestionOptionUpdate) ClearDeletedAt() *QuestionOptionUpdate {
-	qou.mutation.ClearDeletedAt()
-	return qou
-}
-
 // SetQuestionID sets the "question_id" field.
 func (qou *QuestionOptionUpdate) SetQuestionID(u uuid.UUID) *QuestionOptionUpdate {
 	qou.mutation.SetQuestionID(u)
@@ -232,12 +212,6 @@ func (qou *QuestionOptionUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := qou.mutation.UpdatedAt(); ok {
 		_spec.SetField(questionoption.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := qou.mutation.DeletedAt(); ok {
-		_spec.SetField(questionoption.FieldDeletedAt, field.TypeTime, value)
-	}
-	if qou.mutation.DeletedAtCleared() {
-		_spec.ClearField(questionoption.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := qou.mutation.OptionText(); ok {
 		_spec.SetField(questionoption.FieldOptionText, field.TypeString, value)
 	}
@@ -355,26 +329,6 @@ func (qouo *QuestionOptionUpdateOne) SetNillableCreatedAt(t *time.Time) *Questio
 // SetUpdatedAt sets the "updated_at" field.
 func (qouo *QuestionOptionUpdateOne) SetUpdatedAt(t time.Time) *QuestionOptionUpdateOne {
 	qouo.mutation.SetUpdatedAt(t)
-	return qouo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (qouo *QuestionOptionUpdateOne) SetDeletedAt(t time.Time) *QuestionOptionUpdateOne {
-	qouo.mutation.SetDeletedAt(t)
-	return qouo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (qouo *QuestionOptionUpdateOne) SetNillableDeletedAt(t *time.Time) *QuestionOptionUpdateOne {
-	if t != nil {
-		qouo.SetDeletedAt(*t)
-	}
-	return qouo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (qouo *QuestionOptionUpdateOne) ClearDeletedAt() *QuestionOptionUpdateOne {
-	qouo.mutation.ClearDeletedAt()
 	return qouo
 }
 
@@ -568,12 +522,6 @@ func (qouo *QuestionOptionUpdateOne) sqlSave(ctx context.Context) (_node *Questi
 	}
 	if value, ok := qouo.mutation.UpdatedAt(); ok {
 		_spec.SetField(questionoption.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := qouo.mutation.DeletedAt(); ok {
-		_spec.SetField(questionoption.FieldDeletedAt, field.TypeTime, value)
-	}
-	if qouo.mutation.DeletedAtCleared() {
-		_spec.ClearField(questionoption.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := qouo.mutation.OptionText(); ok {
 		_spec.SetField(questionoption.FieldOptionText, field.TypeString, value)

@@ -53,26 +53,6 @@ func (qu *QuestionUpdate) SetUpdatedAt(t time.Time) *QuestionUpdate {
 	return qu
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (qu *QuestionUpdate) SetDeletedAt(t time.Time) *QuestionUpdate {
-	qu.mutation.SetDeletedAt(t)
-	return qu
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (qu *QuestionUpdate) SetNillableDeletedAt(t *time.Time) *QuestionUpdate {
-	if t != nil {
-		qu.SetDeletedAt(*t)
-	}
-	return qu
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (qu *QuestionUpdate) ClearDeletedAt() *QuestionUpdate {
-	qu.mutation.ClearDeletedAt()
-	return qu
-}
-
 // SetSectionID sets the "section_id" field.
 func (qu *QuestionUpdate) SetSectionID(u uuid.UUID) *QuestionUpdate {
 	qu.mutation.SetSectionID(u)
@@ -292,12 +272,6 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := qu.mutation.UpdatedAt(); ok {
 		_spec.SetField(question.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := qu.mutation.DeletedAt(); ok {
-		_spec.SetField(question.FieldDeletedAt, field.TypeTime, value)
-	}
-	if qu.mutation.DeletedAtCleared() {
-		_spec.ClearField(question.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := qu.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
 	}
@@ -502,26 +476,6 @@ func (quo *QuestionUpdateOne) SetNillableCreatedAt(t *time.Time) *QuestionUpdate
 // SetUpdatedAt sets the "updated_at" field.
 func (quo *QuestionUpdateOne) SetUpdatedAt(t time.Time) *QuestionUpdateOne {
 	quo.mutation.SetUpdatedAt(t)
-	return quo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (quo *QuestionUpdateOne) SetDeletedAt(t time.Time) *QuestionUpdateOne {
-	quo.mutation.SetDeletedAt(t)
-	return quo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (quo *QuestionUpdateOne) SetNillableDeletedAt(t *time.Time) *QuestionUpdateOne {
-	if t != nil {
-		quo.SetDeletedAt(*t)
-	}
-	return quo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (quo *QuestionUpdateOne) ClearDeletedAt() *QuestionUpdateOne {
-	quo.mutation.ClearDeletedAt()
 	return quo
 }
 
@@ -773,12 +727,6 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 	}
 	if value, ok := quo.mutation.UpdatedAt(); ok {
 		_spec.SetField(question.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := quo.mutation.DeletedAt(); ok {
-		_spec.SetField(question.FieldDeletedAt, field.TypeTime, value)
-	}
-	if quo.mutation.DeletedAtCleared() {
-		_spec.ClearField(question.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := quo.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)

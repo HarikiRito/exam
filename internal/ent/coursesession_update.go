@@ -52,26 +52,6 @@ func (csu *CourseSessionUpdate) SetUpdatedAt(t time.Time) *CourseSessionUpdate {
 	return csu
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (csu *CourseSessionUpdate) SetDeletedAt(t time.Time) *CourseSessionUpdate {
-	csu.mutation.SetDeletedAt(t)
-	return csu
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (csu *CourseSessionUpdate) SetNillableDeletedAt(t *time.Time) *CourseSessionUpdate {
-	if t != nil {
-		csu.SetDeletedAt(*t)
-	}
-	return csu
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (csu *CourseSessionUpdate) ClearDeletedAt() *CourseSessionUpdate {
-	csu.mutation.ClearDeletedAt()
-	return csu
-}
-
 // SetUserID sets the "user_id" field.
 func (csu *CourseSessionUpdate) SetUserID(u uuid.UUID) *CourseSessionUpdate {
 	csu.mutation.SetUserID(u)
@@ -272,12 +252,6 @@ func (csu *CourseSessionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	if value, ok := csu.mutation.UpdatedAt(); ok {
 		_spec.SetField(coursesession.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := csu.mutation.DeletedAt(); ok {
-		_spec.SetField(coursesession.FieldDeletedAt, field.TypeTime, value)
-	}
-	if csu.mutation.DeletedAtCleared() {
-		_spec.ClearField(coursesession.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := csu.mutation.CompletedAt(); ok {
 		_spec.SetField(coursesession.FieldCompletedAt, field.TypeTime, value)
 	}
@@ -430,26 +404,6 @@ func (csuo *CourseSessionUpdateOne) SetNillableCreatedAt(t *time.Time) *CourseSe
 // SetUpdatedAt sets the "updated_at" field.
 func (csuo *CourseSessionUpdateOne) SetUpdatedAt(t time.Time) *CourseSessionUpdateOne {
 	csuo.mutation.SetUpdatedAt(t)
-	return csuo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (csuo *CourseSessionUpdateOne) SetDeletedAt(t time.Time) *CourseSessionUpdateOne {
-	csuo.mutation.SetDeletedAt(t)
-	return csuo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (csuo *CourseSessionUpdateOne) SetNillableDeletedAt(t *time.Time) *CourseSessionUpdateOne {
-	if t != nil {
-		csuo.SetDeletedAt(*t)
-	}
-	return csuo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (csuo *CourseSessionUpdateOne) ClearDeletedAt() *CourseSessionUpdateOne {
-	csuo.mutation.ClearDeletedAt()
 	return csuo
 }
 
@@ -682,12 +636,6 @@ func (csuo *CourseSessionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 	}
 	if value, ok := csuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(coursesession.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := csuo.mutation.DeletedAt(); ok {
-		_spec.SetField(coursesession.FieldDeletedAt, field.TypeTime, value)
-	}
-	if csuo.mutation.DeletedAtCleared() {
-		_spec.ClearField(coursesession.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := csuo.mutation.CompletedAt(); ok {
 		_spec.SetField(coursesession.FieldCompletedAt, field.TypeTime, value)

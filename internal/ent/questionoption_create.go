@@ -51,20 +51,6 @@ func (qoc *QuestionOptionCreate) SetNillableUpdatedAt(t *time.Time) *QuestionOpt
 	return qoc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (qoc *QuestionOptionCreate) SetDeletedAt(t time.Time) *QuestionOptionCreate {
-	qoc.mutation.SetDeletedAt(t)
-	return qoc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (qoc *QuestionOptionCreate) SetNillableDeletedAt(t *time.Time) *QuestionOptionCreate {
-	if t != nil {
-		qoc.SetDeletedAt(*t)
-	}
-	return qoc
-}
-
 // SetQuestionID sets the "question_id" field.
 func (qoc *QuestionOptionCreate) SetQuestionID(u uuid.UUID) *QuestionOptionCreate {
 	qoc.mutation.SetQuestionID(u)
@@ -245,10 +231,6 @@ func (qoc *QuestionOptionCreate) createSpec() (*QuestionOption, *sqlgraph.Create
 	if value, ok := qoc.mutation.UpdatedAt(); ok {
 		_spec.SetField(questionoption.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := qoc.mutation.DeletedAt(); ok {
-		_spec.SetField(questionoption.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := qoc.mutation.OptionText(); ok {
 		_spec.SetField(questionoption.FieldOptionText, field.TypeString, value)

@@ -256,7 +256,9 @@ func (cu *CourseUpdate) RemoveCourseVideos(v ...*Video) *CourseUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CourseUpdate) Save(ctx context.Context) (int, error) {
-	cu.defaults()
+	if err := cu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -283,11 +285,15 @@ func (cu *CourseUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cu *CourseUpdate) defaults() {
+func (cu *CourseUpdate) defaults() error {
 	if _, ok := cu.mutation.UpdatedAt(); !ok {
+		if course.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized course.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := course.UpdateDefaultUpdatedAt()
 		cu.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -743,7 +749,9 @@ func (cuo *CourseUpdateOne) Select(field string, fields ...string) *CourseUpdate
 
 // Save executes the query and returns the updated Course entity.
 func (cuo *CourseUpdateOne) Save(ctx context.Context) (*Course, error) {
-	cuo.defaults()
+	if err := cuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -770,11 +778,15 @@ func (cuo *CourseUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cuo *CourseUpdateOne) defaults() {
+func (cuo *CourseUpdateOne) defaults() error {
 	if _, ok := cuo.mutation.UpdatedAt(); !ok {
+		if course.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized course.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := course.UpdateDefaultUpdatedAt()
 		cuo.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

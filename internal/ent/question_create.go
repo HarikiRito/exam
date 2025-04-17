@@ -53,20 +53,6 @@ func (qc *QuestionCreate) SetNillableUpdatedAt(t *time.Time) *QuestionCreate {
 	return qc
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (qc *QuestionCreate) SetDeletedAt(t time.Time) *QuestionCreate {
-	qc.mutation.SetDeletedAt(t)
-	return qc
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (qc *QuestionCreate) SetNillableDeletedAt(t *time.Time) *QuestionCreate {
-	if t != nil {
-		qc.SetDeletedAt(*t)
-	}
-	return qc
-}
-
 // SetSectionID sets the "section_id" field.
 func (qc *QuestionCreate) SetSectionID(u uuid.UUID) *QuestionCreate {
 	qc.mutation.SetSectionID(u)
@@ -256,10 +242,6 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 	if value, ok := qc.mutation.UpdatedAt(); ok {
 		_spec.SetField(question.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
-	}
-	if value, ok := qc.mutation.DeletedAt(); ok {
-		_spec.SetField(question.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = &value
 	}
 	if value, ok := qc.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)

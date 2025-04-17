@@ -26,8 +26,6 @@ type UserQuestionAnswer struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// QuestionID holds the value of the "question_id" field.
@@ -106,7 +104,7 @@ func (*UserQuestionAnswer) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case userquestionanswer.FieldCreatedAt, userquestionanswer.FieldUpdatedAt, userquestionanswer.FieldDeletedAt:
+		case userquestionanswer.FieldCreatedAt, userquestionanswer.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case userquestionanswer.FieldID, userquestionanswer.FieldUserID, userquestionanswer.FieldQuestionID, userquestionanswer.FieldSelectedOptionID, userquestionanswer.FieldSessionID:
 			values[i] = new(uuid.UUID)
@@ -142,13 +140,6 @@ func (uqa *UserQuestionAnswer) assignValues(columns []string, values []any) erro
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				uqa.UpdatedAt = value.Time
-			}
-		case userquestionanswer.FieldDeletedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
-			} else if value.Valid {
-				uqa.DeletedAt = new(time.Time)
-				*uqa.DeletedAt = value.Time
 			}
 		case userquestionanswer.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -235,11 +226,6 @@ func (uqa *UserQuestionAnswer) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(uqa.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	if v := uqa.DeletedAt; v != nil {
-		builder.WriteString("deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", uqa.UserID))

@@ -51,26 +51,6 @@ func (vqtu *VideoQuestionTimestampUpdate) SetUpdatedAt(t time.Time) *VideoQuesti
 	return vqtu
 }
 
-// SetDeletedAt sets the "deleted_at" field.
-func (vqtu *VideoQuestionTimestampUpdate) SetDeletedAt(t time.Time) *VideoQuestionTimestampUpdate {
-	vqtu.mutation.SetDeletedAt(t)
-	return vqtu
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (vqtu *VideoQuestionTimestampUpdate) SetNillableDeletedAt(t *time.Time) *VideoQuestionTimestampUpdate {
-	if t != nil {
-		vqtu.SetDeletedAt(*t)
-	}
-	return vqtu
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (vqtu *VideoQuestionTimestampUpdate) ClearDeletedAt() *VideoQuestionTimestampUpdate {
-	vqtu.mutation.ClearDeletedAt()
-	return vqtu
-}
-
 // SetVideoID sets the "video_id" field.
 func (vqtu *VideoQuestionTimestampUpdate) SetVideoID(u uuid.UUID) *VideoQuestionTimestampUpdate {
 	vqtu.mutation.SetVideoID(u)
@@ -212,12 +192,6 @@ func (vqtu *VideoQuestionTimestampUpdate) sqlSave(ctx context.Context) (n int, e
 	if value, ok := vqtu.mutation.UpdatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := vqtu.mutation.DeletedAt(); ok {
-		_spec.SetField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime, value)
-	}
-	if vqtu.mutation.DeletedAtCleared() {
-		_spec.ClearField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime)
-	}
 	if value, ok := vqtu.mutation.Timestamp(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldTimestamp, field.TypeInt, value)
 	}
@@ -319,26 +293,6 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableCreatedAt(t *time.Time)
 // SetUpdatedAt sets the "updated_at" field.
 func (vqtuo *VideoQuestionTimestampUpdateOne) SetUpdatedAt(t time.Time) *VideoQuestionTimestampUpdateOne {
 	vqtuo.mutation.SetUpdatedAt(t)
-	return vqtuo
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (vqtuo *VideoQuestionTimestampUpdateOne) SetDeletedAt(t time.Time) *VideoQuestionTimestampUpdateOne {
-	vqtuo.mutation.SetDeletedAt(t)
-	return vqtuo
-}
-
-// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
-func (vqtuo *VideoQuestionTimestampUpdateOne) SetNillableDeletedAt(t *time.Time) *VideoQuestionTimestampUpdateOne {
-	if t != nil {
-		vqtuo.SetDeletedAt(*t)
-	}
-	return vqtuo
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (vqtuo *VideoQuestionTimestampUpdateOne) ClearDeletedAt() *VideoQuestionTimestampUpdateOne {
-	vqtuo.mutation.ClearDeletedAt()
 	return vqtuo
 }
 
@@ -512,12 +466,6 @@ func (vqtuo *VideoQuestionTimestampUpdateOne) sqlSave(ctx context.Context) (_nod
 	}
 	if value, ok := vqtuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldUpdatedAt, field.TypeTime, value)
-	}
-	if value, ok := vqtuo.mutation.DeletedAt(); ok {
-		_spec.SetField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime, value)
-	}
-	if vqtuo.mutation.DeletedAtCleared() {
-		_spec.ClearField(videoquestiontimestamp.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := vqtuo.mutation.Timestamp(); ok {
 		_spec.SetField(videoquestiontimestamp.FieldTimestamp, field.TypeInt, value)
