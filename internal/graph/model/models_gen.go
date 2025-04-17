@@ -31,3 +31,8 @@ type Todo struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
 }
+
+type User struct {
+	ID    string `json:"id"`
+	Email string `json:"email"`
+}

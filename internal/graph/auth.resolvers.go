@@ -12,29 +12,6 @@ import (
 	"template/internal/graph/model"
 )
 
-// Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Auth, error) {
-	// Use the transaction-based login from the auth package
-	user, err := auth.Login(ctx, input)
-	if err != nil {
-		return nil, err
-	}
-
-	// Generate token pair after successful authentication
-	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
-		"email":    user.Email,
-		"username": user.Username,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.Auth{
-		AccessToken:  tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
-	}, nil
-}
-
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error) {
 	tokenPair, err := auth.Register(ctx, input)
@@ -59,10 +36,46 @@ func (r *mutationResolver) RenewToken(ctx context.Context, refreshToken string) 
 	}, nil
 }
 
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	currentUser, err := GetUserFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return currentUser, nil
+}
+
+// Login is the resolver for the login field.
+func (r *queryResolver) Login(ctx context.Context, input model.LoginInput) (*model.Auth, error) {
+	user, err := auth.Login(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate token pair after successful authentication
+	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
+		"email":    user.Email,
+		"username": user.Username,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Auth{
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+	}, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
@@ -70,8 +83,3 @@ type mutationResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) Logout(ctx context.Context) (string, error) {
-	panic(fmt.Errorf("not implemented: Logout - logout"))
-}
-*/

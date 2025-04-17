@@ -43,8 +43,3 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 		},
 	}, nil
 }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type queryResolver struct{ *Resolver }

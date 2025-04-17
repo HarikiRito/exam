@@ -49,9 +49,8 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 	// Check if email already exists
 	existingUser, err := tx.User.Query().
 		Where(
-			user.Or(
-				user.EmailEQ(input.Email),
-				user.UsernameEQ(input.Email),
+			user.EmailEQ(
+				input.Email,
 			),
 		).
 		First(ctx)

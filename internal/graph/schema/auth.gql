@@ -1,7 +1,11 @@
 extend type Mutation {
-  login(input: LoginInput!): Auth!
   register(input: RegisterInput!): Auth!
   renewToken(refreshToken: String!): Auth!
+}
+
+extend type Query {
+  me: User!
+  login(input: LoginInput!): Auth!
 }
 
 

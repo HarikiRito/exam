@@ -6,6 +6,11 @@ import (
 	"net/http"
 	"strings"
 	"template/internal/features/jwt"
+	"template/internal/features/user"
+	"template/internal/graph/model"
+	"template/internal/shared/utilities/id"
+
+	"github.com/google/uuid"
 )
 
 func ExtractJwtTokenFromRequestContext(ctx context.Context) (string, error) {
@@ -19,7 +24,7 @@ func ExtractJwtTokenFromRequestContext(ctx context.Context) (string, error) {
 		return "", errors.New("no authorization header found")
 	}
 
-	token := strings.TrimPrefix(authHeader, "Bearer ")	
+	token := strings.TrimPrefix(authHeader, "Bearer ")
 	return token, nil
 }
 
@@ -32,12 +37,38 @@ func GetUserIdFromJwtToken(token string) (string, error) {
 	return claims.UserID, nil
 }
 
-
-func GetUserIdFromRequestContext(ctx context.Context) (string, error) {
+func GetUserIdFromRequestContext(ctx context.Context) (uuid.UUID, error) {
 	token, err := ExtractJwtTokenFromRequestContext(ctx)
 	if err != nil {
-		return "", err
+		return uuid.Nil, err
 	}
 
-	return GetUserIdFromJwtToken(token)
+	userID, err := GetUserIdFromJwtToken(token)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	uuidValue, err := id.StringToUUID(userID)
+	if err != nil {
+		return uuid.Nil, errors.New("invalid user ID format")
+	}
+
+	return uuidValue, nil
+}
+
+func GetUserFromRequestContext(ctx context.Context) (*model.User, error) {
+	userID, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := user.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.User{
+		ID:    user.ID.String(),
+		Email: user.Email,
+	}, nil
 }

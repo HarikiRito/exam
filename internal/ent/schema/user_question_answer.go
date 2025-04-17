@@ -55,5 +55,3 @@ func (UserQuestionAnswer) Mixin() []ent.Mixin {
 		mixin.BaseMixin{},
 	}
 }
-
-

@@ -44,4 +44,4 @@ func (CourseSession) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.BaseMixin{},
 	}
-} 
+}
