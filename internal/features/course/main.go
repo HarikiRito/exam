@@ -6,6 +6,7 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/course"
 	"template/internal/ent/db"
+	"template/internal/features/common"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
@@ -103,10 +104,10 @@ func RemoveCourse(ctx context.Context, userId uuid.UUID, courseID string) (bool,
 }
 
 // PaginatedCourses returns a paginated list of courses.
-func PaginatedCourses(ctx context.Context, input *model.PaginationInput) ([]*ent.Course, int, error) {
+func PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*common.PaginatedResult[*ent.Course], error) {
 	client, err := db.OpenClient()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer client.Close()
 
@@ -115,26 +116,7 @@ func PaginatedCourses(ctx context.Context, input *model.PaginationInput) ([]*ent
 		query = query.Where(course.TitleContains(*input.Search))
 	}
 
-	total, err := query.Count(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
+	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
 
-	page := 1
-	limit := 10
-	if input != nil {
-		if input.Page > 0 {
-			page = input.Page
-		}
-		if input.Limit > 0 {
-			limit = input.Limit
-		}
-	}
-	offset := (page - 1) * limit
-	courses, err := query.Offset(offset).Limit(limit).All(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return courses, total, nil
+	return common.EntQueryPaginated(ctx, query, newInput.Page, newInput.Limit)
 }

@@ -7,8 +7,10 @@ package graph
 import (
 	"context"
 	"errors"
+	"template/internal/ent"
 	"template/internal/features/course"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 )
 
 // CreateCourse is the resolver for the createCourse field.
@@ -72,30 +74,23 @@ func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, e
 
 // PaginatedCourses is the resolver for the paginatedCourses field.
 func (r *queryResolver) PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourse, error) {
-	courses, total, err := course.PaginatedCourses(ctx, input)
+	paginatedCourse, err := course.PaginatedCourses(ctx, input)
 	if err != nil {
 		return nil, err
 	}
-	items := make([]*model.Course, 0, len(courses))
-	for _, c := range courses {
-		items = append(items, &model.Course{
+	items := slice.Map(paginatedCourse.Items, func(c *ent.Course) *model.Course {
+		return &model.Course{
 			ID:          c.ID.String(),
 			Title:       c.Title,
 			Description: c.Description,
-		})
-	}
+		}
+	})
 	pagination := &model.Pagination{
-		CurrentPage:     1,
-		TotalPages:      1,
-		TotalItems:      total,
-		HasNextPage:     false,
-		HasPreviousPage: false,
-	}
-	if input != nil && input.Limit > 0 {
-		pagination.TotalPages = (total + input.Limit - 1) / input.Limit
-		pagination.CurrentPage = input.Page
-		pagination.HasNextPage = input.Page < pagination.TotalPages
-		pagination.HasPreviousPage = input.Page > 1
+		CurrentPage:     paginatedCourse.CurrentPage,
+		TotalPages:      paginatedCourse.TotalPages,
+		TotalItems:      paginatedCourse.TotalItems,
+		HasNextPage:     paginatedCourse.HasNextPage,
+		HasPreviousPage: paginatedCourse.HasPrevPage,
 	}
 	return &model.PaginatedCourse{
 		Pagination: pagination,
