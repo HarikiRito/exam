@@ -10,7 +10,7 @@ import (
 func GraphQLHandler() gin.HandlerFunc {
 	h := handler.NewDefaultServer(NewExecutableSchema(Config{Resolvers: &Resolver{}}))
 	return func(c *gin.Context) {
-		ctx := context.WithValue(c.Request.Context(), RequestKey, c.Request)
+		ctx := context.WithValue(c.Request.Context(), RequestKey{}, c.Request)
 		c.Request = c.Request.WithContext(ctx)
 		h.ServeHTTP(c.Writer, c.Request.WithContext(ctx))
 	}

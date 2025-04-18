@@ -14,7 +14,7 @@ import (
 )
 
 func ExtractJwtTokenFromRequestContext(ctx context.Context) (string, error) {
-	httpRequest, ok := ctx.Value(RequestKey).(*http.Request)
+	httpRequest, ok := ctx.Value(RequestKey{}).(*http.Request)
 	if !ok {
 		return "", errors.New("could not extract HTTP request from context")
 	}

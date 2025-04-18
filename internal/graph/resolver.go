@@ -8,4 +8,4 @@ package graph
 
 type Resolver struct{}
 
-const RequestKey = "request"
+type RequestKey struct{}

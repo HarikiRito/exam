@@ -104,7 +104,7 @@ func RemoveCourse(ctx context.Context, userId uuid.UUID, courseID string) (bool,
 }
 
 // PaginatedCourses returns a paginated list of courses.
-func PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*common.PaginatedResult[*ent.Course], error) {
+func PaginatedCourses(ctx context.Context, userId uuid.UUID, input *model.PaginationInput) (*common.PaginatedResult[*ent.Course], error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
@@ -112,6 +112,7 @@ func PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*commo
 	defer client.Close()
 
 	query := client.Course.Query()
+	query = query.Where(course.CreatorID(userId))
 	if input != nil && input.Search != nil && *input.Search != "" {
 		query = query.Where(course.TitleContains(*input.Search))
 	}

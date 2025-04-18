@@ -74,7 +74,11 @@ func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, e
 
 // PaginatedCourses is the resolver for the paginatedCourses field.
 func (r *queryResolver) PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourse, error) {
-	paginatedCourse, err := course.PaginatedCourses(ctx, input)
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	paginatedCourse, err := course.PaginatedCourses(ctx, userId, input)
 	if err != nil {
 		return nil, err
 	}
