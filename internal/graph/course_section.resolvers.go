@@ -6,31 +6,73 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"template/internal/features/course_section"
 	"template/internal/graph/model"
+
+	"github.com/google/uuid"
 )
 
 // CreateCourseSection is the resolver for the createCourseSection field.
 func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.CreateCourseSectionInput) (*model.CourseSection, error) {
-	panic(fmt.Errorf("not implemented: CreateCourseSection - createCourseSection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cid, err := uuid.Parse(input.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	cs, err := course_section.CreateCourseSection(ctx, userId, cid, input)
+	if err != nil {
+		return nil, err
+	}
+	return model.ConvertCourseSectionToModel(cs), nil
 }
 
 // UpdateCourseSection is the resolver for the updateCourseSection field.
 func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id string, input model.UpdateCourseSectionInput) (*model.CourseSection, error) {
-	panic(fmt.Errorf("not implemented: UpdateCourseSection - updateCourseSection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	sectionUUID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	courseSection, err := course_section.UpdateCourseSection(ctx, userId, sectionUUID, input)
+	if err != nil {
+		return nil, err
+	}
+	return model.ConvertCourseSectionToModel(courseSection), nil
 }
 
 // RemoveCourseSection is the resolver for the removeCourseSection field.
 func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: RemoveCourseSection - removeCourseSection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return false, err
+	}
+	return course_section.RemoveCourseSection(ctx, userId, uid)
 }
 
 // CourseSection is the resolver for the courseSection field.
 func (r *queryResolver) CourseSection(ctx context.Context, id string) (*model.CourseSection, error) {
-	panic(fmt.Errorf("not implemented: CourseSection - courseSection"))
-}
-
-// PaginatedCourseSections is the resolver for the paginatedCourseSections field.
-func (r *queryResolver) PaginatedCourseSections(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourseSection, error) {
-	panic(fmt.Errorf("not implemented: PaginatedCourseSections - paginatedCourseSections"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	cs, err := course_section.GetCourseSectionByID(ctx, userId, uid)
+	if err != nil {
+		return nil, err
+	}
+	return model.ConvertCourseSectionToModel(cs), nil
 }

@@ -7,11 +7,22 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"template/internal/ent"
 	"template/internal/features/course"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 )
+
+// Creator is the resolver for the creator field.
+func (r *courseResolver) Creator(ctx context.Context, obj *model.Course) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: Creator - creator"))
+}
+
+// Sections is the resolver for the sections field.
+func (r *courseResolver) Sections(ctx context.Context, obj *model.Course) ([]*model.CourseSection, error) {
+	panic(fmt.Errorf("not implemented: Sections - sections"))
+}
 
 // CreateCourse is the resolver for the createCourse field.
 func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateCourseInput) (*model.Course, error) {
@@ -101,3 +112,8 @@ func (r *queryResolver) PaginatedCourses(ctx context.Context, input *model.Pagin
 		Items:      items,
 	}, nil
 }
+
+// Course returns CourseResolver implementation.
+func (r *Resolver) Course() CourseResolver { return &courseResolver{r} }
+
+type courseResolver struct{ *Resolver }

@@ -6,7 +6,6 @@ extend type Mutation {
 
 extend type Query {
   courseSection(id: ID!): CourseSection!
-  paginatedCourseSections(input: PaginationInput): PaginatedCourseSection!
 }
 
 
@@ -14,11 +13,13 @@ type CourseSection {
   id: ID!
   title: String!
   description: String!
+  courseId: ID!
 }
 
 input CreateCourseSectionInput {
   title: String!
   description: String!
+  courseId: ID!
 }
 
 input UpdateCourseSectionInput {
@@ -26,7 +27,3 @@ input UpdateCourseSectionInput {
   description: String
 }
 
-type PaginatedCourseSection {
-  pagination: Pagination!
-  items: [CourseSection!]!
-}

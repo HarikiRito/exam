@@ -7,17 +7,11 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-type Course struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Creator     *User  `json:"creator"`
-}
-
 type CourseSection struct {
 	ID          string `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	CourseID    string `json:"courseId"`
 }
 
 type CourseSession struct {
@@ -34,6 +28,7 @@ type CreateCourseInput struct {
 type CreateCourseSectionInput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	CourseID    string `json:"courseId"`
 }
 
 type CreateCourseSessionInput struct {
@@ -55,11 +50,6 @@ type NewTodo struct {
 type PaginatedCourse struct {
 	Pagination *Pagination `json:"pagination"`
 	Items      []*Course   `json:"items"`
-}
-
-type PaginatedCourseSection struct {
-	Pagination *Pagination      `json:"pagination"`
-	Items      []*CourseSection `json:"items"`
 }
 
 type PaginatedCourseSession struct {
