@@ -2,47 +2,22 @@ package dataloader
 
 import (
 	"context"
-	"fmt"
 	"template/internal/ent"
 	"template/internal/features/user"
 	"template/internal/graph/model"
 )
 
 func getUsers(ctx context.Context, userIDs []string) ([]*model.User, []error) {
-	lu := NewLoaderByIds[model.User](userIDs)
+	lu := NewLoaderByIds[ent.User, model.User](userIDs)
 
-	err := lu.parseUUIDs(userIDs)
-	if err != nil {
-		return lu.Items, lu.Errors
-	}
-
-	entUsers, err := user.GetUsersByIDs(ctx, lu.UUIDs)
-	if err != nil {
-		for _, i := range lu.IdMap {
-			if lu.Errors[i] == nil {
-				lu.Errors[i] = err
-			}
-		}
-		return lu.Items, lu.Errors
-	}
-
-	userMap := make(map[string]*ent.User)
-	for _, entUser := range entUsers {
-		userMap[entUser.ID.String()] = entUser
-	}
-
-	for uid, i := range lu.IdMap {
-		if entUser, ok := userMap[uid]; ok {
-			lu.Items[i] = &model.User{
-				ID:    entUser.ID.String(),
-				Email: entUser.Email,
-			}
-			lu.Errors[i] = nil
-		} else {
-			lu.Items[i] = nil
-			lu.Errors[i] = fmt.Errorf("user not found for id %s", uid)
-		}
-	}
+	lu.LoadItems(ctx, user.GetUsersByIDs, func(entUser *ent.User) string {
+		return entUser.ID.String()
+	}, func(entUser *ent.User) (*model.User, error) {
+		return &model.User{
+			ID:    entUser.ID.String(),
+			Email: entUser.Email,
+		}, nil
+	})
 
 	return lu.Items, lu.Errors
 }
