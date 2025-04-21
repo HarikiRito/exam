@@ -9,3 +9,10 @@ func ConvertCourseSectionToModel(cs *ent.CourseSection) *CourseSection {
 		Description: cs.Description,
 	}
 }
+
+type CourseSection struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	CourseID    string `json:"courseId"`
+}

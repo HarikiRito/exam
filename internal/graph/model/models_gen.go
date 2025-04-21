@@ -7,13 +7,6 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-type CourseSection struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CourseID    string `json:"courseId"`
-}
-
 type CourseSession struct {
 	ID         string `json:"id"`
 	CourseID   string `json:"courseId"`

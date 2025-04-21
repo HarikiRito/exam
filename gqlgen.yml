@@ -100,3 +100,6 @@ models:
   Course:
     model:
       - template/internal/graph/model.Course
+  CourseSection:
+    model:
+      - template/internal/graph/model.CourseSection
