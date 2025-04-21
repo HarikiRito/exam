@@ -8,7 +8,7 @@ import (
 )
 
 func OpenClient() (*ent.Client, error) {
-	return ent.Open("postgres", connectionString())
+	return ent.Open("postgres", connectionString(), ent.Debug())
 }
 
 func connectionString() string {
