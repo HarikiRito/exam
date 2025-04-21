@@ -10,13 +10,14 @@ import (
 	"fmt"
 	"template/internal/ent"
 	"template/internal/features/course"
+	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 )
 
 // Creator is the resolver for the creator field.
 func (r *courseResolver) Creator(ctx context.Context, obj *model.Course) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: Creator - creator"))
+	return dataloader.GetUser(ctx, obj.CreatorID)
 }
 
 // Sections is the resolver for the sections field.
@@ -98,6 +99,7 @@ func (r *queryResolver) PaginatedCourses(ctx context.Context, input *model.Pagin
 			ID:          c.ID.String(),
 			Title:       c.Title,
 			Description: c.Description,
+			CreatorID:   c.CreatorID.String(),
 		}
 	})
 	pagination := &model.Pagination{
