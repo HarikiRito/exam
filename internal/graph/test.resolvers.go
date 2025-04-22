@@ -31,6 +31,6 @@ func (r *queryResolver) Test(ctx context.Context, id string) (*model.Test, error
 }
 
 // Tests is the resolver for the tests field.
-func (r *queryResolver) Tests(ctx context.Context, pagination *model.PaginationInput) (*model.PaginatedTest, error) {
+func (r *queryResolver) Tests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error) {
 	panic(fmt.Errorf("not implemented: Tests - tests"))
 }

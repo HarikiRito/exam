@@ -18,6 +18,18 @@ type CreateCourseSectionInput struct {
 	CourseID    string `json:"courseId"`
 }
 
+type CreateQuestionInput struct {
+	QuestionText    string   `json:"questionText"`
+	CourseSectionID *string  `json:"courseSectionId,omitempty"`
+	OptionIds       []string `json:"optionIds,omitempty"`
+}
+
+type CreateQuestionOptionInput struct {
+	QuestionID string `json:"questionId"`
+	OptionText string `json:"optionText"`
+	IsCorrect  bool   `json:"isCorrect"`
+}
+
 type CreateTestInput struct {
 	Name            string   `json:"name"`
 	CourseSectionID *string  `json:"courseSectionId,omitempty"`
@@ -42,6 +54,16 @@ type PaginatedCourse struct {
 	Items      []*Course   `json:"items"`
 }
 
+type PaginatedQuestion struct {
+	Pagination *Pagination `json:"pagination"`
+	Items      []*Question `json:"items"`
+}
+
+type PaginatedQuestionOption struct {
+	Pagination *Pagination       `json:"pagination"`
+	Items      []*QuestionOption `json:"items"`
+}
+
 type PaginatedTest struct {
 	Pagination *Pagination `json:"pagination"`
 	Items      []*Test     `json:"items"`
@@ -62,6 +84,20 @@ type PaginationInput struct {
 }
 
 type Query struct {
+}
+
+type Question struct {
+	ID           string            `json:"id"`
+	QuestionText string            `json:"questionText"`
+	Section      *CourseSection    `json:"section,omitempty"`
+	Options      []*QuestionOption `json:"options"`
+}
+
+type QuestionOption struct {
+	ID         string    `json:"id"`
+	Question   *Question `json:"question"`
+	OptionText string    `json:"optionText"`
+	IsCorrect  bool      `json:"isCorrect"`
 }
 
 type RegisterInput struct {
@@ -89,6 +125,17 @@ type UpdateCourseInput struct {
 type UpdateCourseSectionInput struct {
 	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
+}
+
+type UpdateQuestionInput struct {
+	QuestionText    *string  `json:"questionText,omitempty"`
+	CourseSectionID *string  `json:"courseSectionId,omitempty"`
+	OptionIds       []string `json:"optionIds,omitempty"`
+}
+
+type UpdateQuestionOptionInput struct {
+	OptionText *string `json:"optionText,omitempty"`
+	IsCorrect  *bool   `json:"isCorrect,omitempty"`
 }
 
 type UpdateTestInput struct {

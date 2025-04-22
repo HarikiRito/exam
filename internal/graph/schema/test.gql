@@ -6,7 +6,7 @@ extend type Mutation {
 
 extend type Query {
   test(id: ID!): Test!
-  tests(pagination: PaginationInput): PaginatedTest!
+  tests(paginationInput: PaginationInput): PaginatedTest!
 }
 
 

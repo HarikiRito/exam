@@ -1,0 +1,33 @@
+extend type Mutation {
+  createQuestionOption(input: CreateQuestionOptionInput!): QuestionOption!
+  updateQuestionOption(id: ID!, input: UpdateQuestionOptionInput!): QuestionOption!
+  deleteQuestionOption(id: ID!): Boolean!
+}
+
+extend type Query {
+  questionOption(id: ID!): QuestionOption!
+  paginatedQuestionOptions(paginationInput: PaginationInput): PaginatedQuestionOption!
+}
+
+type QuestionOption {
+  id: ID!
+  question: Question!
+  optionText: String!
+  isCorrect: Boolean!
+}
+
+type PaginatedQuestionOption {
+  pagination: Pagination!
+  items: [QuestionOption!]!
+}
+
+input CreateQuestionOptionInput {
+  questionId: ID!
+  optionText: String!
+  isCorrect: Boolean!
+}
+
+input UpdateQuestionOptionInput {
+  optionText: String
+  isCorrect: Boolean
+} 

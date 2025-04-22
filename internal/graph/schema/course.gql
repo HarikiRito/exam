@@ -6,7 +6,7 @@ extend type Mutation {
 
 extend type Query {
   course(id: ID!): Course!
-  paginatedCourses(input: PaginationInput): PaginatedCourse!
+  paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!
 }
 
 type Course {
