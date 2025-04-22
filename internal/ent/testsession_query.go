@@ -9,6 +9,7 @@ import (
 	"math"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -29,6 +30,7 @@ type TestSessionQuery struct {
 	predicates              []predicate.TestSession
 	withUser                *UserQuery
 	withCourseSection       *CourseSectionQuery
+	withTest                *TestQuery
 	withUserQuestionAnswers *UserQuestionAnswerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -103,6 +105,28 @@ func (tsq *TestSessionQuery) QueryCourseSection() *CourseSectionQuery {
 			sqlgraph.From(testsession.Table, testsession.FieldID, selector),
 			sqlgraph.To(coursesection.Table, coursesection.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, testsession.CourseSectionTable, testsession.CourseSectionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(tsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTest chains the current query on the "test" edge.
+func (tsq *TestSessionQuery) QueryTest() *TestQuery {
+	query := (&TestClient{config: tsq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsession.Table, testsession.FieldID, selector),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, testsession.TestTable, testsession.TestColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tsq.driver.Dialect(), step)
 		return fromU, nil
@@ -326,6 +350,7 @@ func (tsq *TestSessionQuery) Clone() *TestSessionQuery {
 		predicates:              append([]predicate.TestSession{}, tsq.predicates...),
 		withUser:                tsq.withUser.Clone(),
 		withCourseSection:       tsq.withCourseSection.Clone(),
+		withTest:                tsq.withTest.Clone(),
 		withUserQuestionAnswers: tsq.withUserQuestionAnswers.Clone(),
 		// clone intermediate query.
 		sql:  tsq.sql.Clone(),
@@ -352,6 +377,17 @@ func (tsq *TestSessionQuery) WithCourseSection(opts ...func(*CourseSectionQuery)
 		opt(query)
 	}
 	tsq.withCourseSection = query
+	return tsq
+}
+
+// WithTest tells the query-builder to eager-load the nodes that are connected to
+// the "test" edge. The optional arguments are used to configure the query builder of the edge.
+func (tsq *TestSessionQuery) WithTest(opts ...func(*TestQuery)) *TestSessionQuery {
+	query := (&TestClient{config: tsq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	tsq.withTest = query
 	return tsq
 }
 
@@ -444,9 +480,10 @@ func (tsq *TestSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*TestSession{}
 		_spec       = tsq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			tsq.withUser != nil,
 			tsq.withCourseSection != nil,
+			tsq.withTest != nil,
 			tsq.withUserQuestionAnswers != nil,
 		}
 	)
@@ -477,6 +514,12 @@ func (tsq *TestSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if query := tsq.withCourseSection; query != nil {
 		if err := tsq.loadCourseSection(ctx, query, nodes, nil,
 			func(n *TestSession, e *CourseSection) { n.Edges.CourseSection = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := tsq.withTest; query != nil {
+		if err := tsq.loadTest(ctx, query, nodes, nil,
+			func(n *TestSession, e *Test) { n.Edges.Test = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -553,6 +596,35 @@ func (tsq *TestSessionQuery) loadCourseSection(ctx context.Context, query *Cours
 	}
 	return nil
 }
+func (tsq *TestSessionQuery) loadTest(ctx context.Context, query *TestQuery, nodes []*TestSession, init func(*TestSession), assign func(*TestSession, *Test)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*TestSession)
+	for i := range nodes {
+		fk := nodes[i].TestID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(test.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "test_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (tsq *TestSessionQuery) loadUserQuestionAnswers(ctx context.Context, query *UserQuestionAnswerQuery, nodes []*TestSession, init func(*TestSession), assign func(*TestSession, *UserQuestionAnswer)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*TestSession)
@@ -614,6 +686,9 @@ func (tsq *TestSessionQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if tsq.withCourseSection != nil {
 			_spec.Node.AddColumnOnce(testsession.FieldCourseSectionID)
+		}
+		if tsq.withTest != nil {
+			_spec.Node.AddColumnOnce(testsession.FieldTestID)
 		}
 	}
 	if ps := tsq.predicates; len(ps) > 0 {

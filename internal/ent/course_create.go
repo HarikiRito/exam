@@ -9,6 +9,7 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/media"
+	"template/internal/ent/test"
 	"template/internal/ent/user"
 	"template/internal/ent/video"
 	"time"
@@ -173,6 +174,21 @@ func (cc *CourseCreate) AddCourseVideos(v ...*Video) *CourseCreate {
 		ids[i] = v[i].ID
 	}
 	return cc.AddCourseVideoIDs(ids...)
+}
+
+// AddTestIDs adds the "tests" edge to the Test entity by IDs.
+func (cc *CourseCreate) AddTestIDs(ids ...uuid.UUID) *CourseCreate {
+	cc.mutation.AddTestIDs(ids...)
+	return cc
+}
+
+// AddTests adds the "tests" edges to the Test entity.
+func (cc *CourseCreate) AddTests(t ...*Test) *CourseCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return cc.AddTestIDs(ids...)
 }
 
 // Mutation returns the CourseMutation object of the builder.
@@ -383,6 +399,22 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(video.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.TestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   course.TestsTable,
+			Columns: []string{course.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

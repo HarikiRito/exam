@@ -11,6 +11,7 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/video"
 
@@ -32,6 +33,7 @@ type CourseSectionQuery struct {
 	withCourseSectionVideos *VideoQuery
 	withQuestions           *QuestionQuery
 	withTestSessions        *TestSessionQuery
+	withTests               *TestQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -149,6 +151,28 @@ func (csq *CourseSectionQuery) QueryTestSessions() *TestSessionQuery {
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
 			sqlgraph.To(testsession.Table, testsession.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.TestSessionsTable, coursesection.TestSessionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTests chains the current query on the "tests" edge.
+func (csq *CourseSectionQuery) QueryTests() *TestQuery {
+	query := (&TestClient{config: csq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := csq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := csq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.TestsTable, coursesection.TestsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
 		return fromU, nil
@@ -352,6 +376,7 @@ func (csq *CourseSectionQuery) Clone() *CourseSectionQuery {
 		withCourseSectionVideos: csq.withCourseSectionVideos.Clone(),
 		withQuestions:           csq.withQuestions.Clone(),
 		withTestSessions:        csq.withTestSessions.Clone(),
+		withTests:               csq.withTests.Clone(),
 		// clone intermediate query.
 		sql:  csq.sql.Clone(),
 		path: csq.path,
@@ -399,6 +424,17 @@ func (csq *CourseSectionQuery) WithTestSessions(opts ...func(*TestSessionQuery))
 		opt(query)
 	}
 	csq.withTestSessions = query
+	return csq
+}
+
+// WithTests tells the query-builder to eager-load the nodes that are connected to
+// the "tests" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CourseSectionQuery) WithTests(opts ...func(*TestQuery)) *CourseSectionQuery {
+	query := (&TestClient{config: csq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	csq.withTests = query
 	return csq
 }
 
@@ -480,11 +516,12 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	var (
 		nodes       = []*CourseSection{}
 		_spec       = csq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			csq.withCourse != nil,
 			csq.withCourseSectionVideos != nil,
 			csq.withQuestions != nil,
 			csq.withTestSessions != nil,
+			csq.withTests != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -529,6 +566,13 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 		if err := csq.loadTestSessions(ctx, query, nodes,
 			func(n *CourseSection) { n.Edges.TestSessions = []*TestSession{} },
 			func(n *CourseSection, e *TestSession) { n.Edges.TestSessions = append(n.Edges.TestSessions, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := csq.withTests; query != nil {
+		if err := csq.loadTests(ctx, query, nodes,
+			func(n *CourseSection) { n.Edges.Tests = []*Test{} },
+			func(n *CourseSection, e *Test) { n.Edges.Tests = append(n.Edges.Tests, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -639,6 +683,39 @@ func (csq *CourseSectionQuery) loadTestSessions(ctx context.Context, query *Test
 	}
 	query.Where(predicate.TestSession(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(coursesection.TestSessionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CourseSectionID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "course_section_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "course_section_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (csq *CourseSectionQuery) loadTests(ctx context.Context, query *TestQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Test)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*CourseSection)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(test.FieldCourseSectionID)
+	}
+	query.Where(predicate.Test(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(coursesection.TestsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

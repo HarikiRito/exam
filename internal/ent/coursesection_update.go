@@ -10,6 +10,7 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/video"
 	"time"
@@ -171,6 +172,21 @@ func (csu *CourseSectionUpdate) AddTestSessions(t ...*TestSession) *CourseSectio
 	return csu.AddTestSessionIDs(ids...)
 }
 
+// AddTestIDs adds the "tests" edge to the Test entity by IDs.
+func (csu *CourseSectionUpdate) AddTestIDs(ids ...uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.AddTestIDs(ids...)
+	return csu
+}
+
+// AddTests adds the "tests" edges to the Test entity.
+func (csu *CourseSectionUpdate) AddTests(t ...*Test) *CourseSectionUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return csu.AddTestIDs(ids...)
+}
+
 // Mutation returns the CourseSectionMutation object of the builder.
 func (csu *CourseSectionUpdate) Mutation() *CourseSectionMutation {
 	return csu.mutation
@@ -243,6 +259,27 @@ func (csu *CourseSectionUpdate) RemoveTestSessions(t ...*TestSession) *CourseSec
 		ids[i] = t[i].ID
 	}
 	return csu.RemoveTestSessionIDs(ids...)
+}
+
+// ClearTests clears all "tests" edges to the Test entity.
+func (csu *CourseSectionUpdate) ClearTests() *CourseSectionUpdate {
+	csu.mutation.ClearTests()
+	return csu
+}
+
+// RemoveTestIDs removes the "tests" edge to Test entities by IDs.
+func (csu *CourseSectionUpdate) RemoveTestIDs(ids ...uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.RemoveTestIDs(ids...)
+	return csu
+}
+
+// RemoveTests removes "tests" edges to Test entities.
+func (csu *CourseSectionUpdate) RemoveTests(t ...*Test) *CourseSectionUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return csu.RemoveTestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -497,6 +534,51 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if csu.mutation.TestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.RemovedTestsIDs(); len(nodes) > 0 && !csu.mutation.TestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.TestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, csu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{coursesection.Label}
@@ -655,6 +737,21 @@ func (csuo *CourseSectionUpdateOne) AddTestSessions(t ...*TestSession) *CourseSe
 	return csuo.AddTestSessionIDs(ids...)
 }
 
+// AddTestIDs adds the "tests" edge to the Test entity by IDs.
+func (csuo *CourseSectionUpdateOne) AddTestIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.AddTestIDs(ids...)
+	return csuo
+}
+
+// AddTests adds the "tests" edges to the Test entity.
+func (csuo *CourseSectionUpdateOne) AddTests(t ...*Test) *CourseSectionUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return csuo.AddTestIDs(ids...)
+}
+
 // Mutation returns the CourseSectionMutation object of the builder.
 func (csuo *CourseSectionUpdateOne) Mutation() *CourseSectionMutation {
 	return csuo.mutation
@@ -727,6 +824,27 @@ func (csuo *CourseSectionUpdateOne) RemoveTestSessions(t ...*TestSession) *Cours
 		ids[i] = t[i].ID
 	}
 	return csuo.RemoveTestSessionIDs(ids...)
+}
+
+// ClearTests clears all "tests" edges to the Test entity.
+func (csuo *CourseSectionUpdateOne) ClearTests() *CourseSectionUpdateOne {
+	csuo.mutation.ClearTests()
+	return csuo
+}
+
+// RemoveTestIDs removes the "tests" edge to Test entities by IDs.
+func (csuo *CourseSectionUpdateOne) RemoveTestIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.RemoveTestIDs(ids...)
+	return csuo
+}
+
+// RemoveTests removes "tests" edges to Test entities.
+func (csuo *CourseSectionUpdateOne) RemoveTests(t ...*Test) *CourseSectionUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return csuo.RemoveTestIDs(ids...)
 }
 
 // Where appends a list predicates to the CourseSectionUpdate builder.
@@ -1004,6 +1122,51 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if csuo.mutation.TestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.RemovedTestsIDs(); len(nodes) > 0 && !csuo.mutation.TestsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.TestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

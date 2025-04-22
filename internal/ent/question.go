@@ -45,9 +45,11 @@ type QuestionEdges struct {
 	VideoQuestionTimestampsQuestion []*VideoQuestionTimestamp `json:"video_question_timestamps_question,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
 	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
+	// Tests holds the value of the tests edge.
+	Tests []*Test `json:"tests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // SectionOrErr returns the Section value or an error if the edge
@@ -86,6 +88,15 @@ func (e QuestionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error)
 		return e.UserQuestionAnswers, nil
 	}
 	return nil, &NotLoadedError{edge: "user_question_answers"}
+}
+
+// TestsOrErr returns the Tests value or an error if the edge
+// was not loaded in eager-loading.
+func (e QuestionEdges) TestsOrErr() ([]*Test, error) {
+	if e.loadedTypes[4] {
+		return e.Tests, nil
+	}
+	return nil, &NotLoadedError{edge: "tests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -182,6 +193,11 @@ func (q *Question) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTimestam
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the Question entity.
 func (q *Question) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
 	return NewQuestionClient(q.config).QueryUserQuestionAnswers(q)
+}
+
+// QueryTests queries the "tests" edge of the Question entity.
+func (q *Question) QueryTests() *TestQuery {
+	return NewQuestionClient(q.config).QueryTests(q)
 }
 
 // Update returns a builder for updating this Question.

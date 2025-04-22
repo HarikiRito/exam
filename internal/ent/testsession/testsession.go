@@ -26,6 +26,8 @@ const (
 	FieldUserID = "user_id"
 	// FieldCourseSectionID holds the string denoting the course_section_id field in the database.
 	FieldCourseSectionID = "course_section_id"
+	// FieldTestID holds the string denoting the test_id field in the database.
+	FieldTestID = "test_id"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
 	// FieldTotalScore holds the string denoting the total_score field in the database.
@@ -34,6 +36,8 @@ const (
 	EdgeUser = "user"
 	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
 	EdgeCourseSection = "course_section"
+	// EdgeTest holds the string denoting the test edge name in mutations.
+	EdgeTest = "test"
 	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
 	EdgeUserQuestionAnswers = "user_question_answers"
 	// Table holds the table name of the testsession in the database.
@@ -52,6 +56,13 @@ const (
 	CourseSectionInverseTable = "course_sections"
 	// CourseSectionColumn is the table column denoting the course_section relation/edge.
 	CourseSectionColumn = "course_section_id"
+	// TestTable is the table that holds the test relation/edge.
+	TestTable = "test_sessions"
+	// TestInverseTable is the table name for the Test entity.
+	// It exists in this package in order to avoid circular dependency with the "test" package.
+	TestInverseTable = "tests"
+	// TestColumn is the table column denoting the test relation/edge.
+	TestColumn = "test_id"
 	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
 	UserQuestionAnswersTable = "user_question_answers"
 	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
@@ -69,6 +80,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldUserID,
 	FieldCourseSectionID,
+	FieldTestID,
 	FieldCompletedAt,
 	FieldTotalScore,
 }
@@ -136,6 +148,11 @@ func ByCourseSectionID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCourseSectionID, opts...).ToFunc()
 }
 
+// ByTestID orders the results by the test_id field.
+func ByTestID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTestID, opts...).ToFunc()
+}
+
 // ByCompletedAt orders the results by the completed_at field.
 func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
@@ -157,6 +174,13 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 func ByCourseSectionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newCourseSectionStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByTestField orders the results by test field.
+func ByTestField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -185,6 +209,13 @@ func newCourseSectionStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CourseSectionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, CourseSectionTable, CourseSectionColumn),
+	)
+}
+func newTestStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TestTable, TestColumn),
 	)
 }
 func newUserQuestionAnswersStep() *sqlgraph.Step {

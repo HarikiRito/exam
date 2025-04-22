@@ -11,6 +11,7 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/schema"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -232,6 +233,33 @@ func init() {
 	roleDescID := roleMixinFields0[0].Descriptor()
 	// role.DefaultID holds the default value on creation for the id field.
 	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
+	testMixin := schema.Test{}.Mixin()
+	testMixinHooks1 := testMixin[1].Hooks()
+	test.Hooks[0] = testMixinHooks1[0]
+	testMixinInters1 := testMixin[1].Interceptors()
+	test.Interceptors[0] = testMixinInters1[0]
+	testMixinFields0 := testMixin[0].Fields()
+	_ = testMixinFields0
+	testFields := schema.Test{}.Fields()
+	_ = testFields
+	// testDescCreatedAt is the schema descriptor for created_at field.
+	testDescCreatedAt := testMixinFields0[1].Descriptor()
+	// test.DefaultCreatedAt holds the default value on creation for the created_at field.
+	test.DefaultCreatedAt = testDescCreatedAt.Default.(func() time.Time)
+	// testDescUpdatedAt is the schema descriptor for updated_at field.
+	testDescUpdatedAt := testMixinFields0[2].Descriptor()
+	// test.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	test.DefaultUpdatedAt = testDescUpdatedAt.Default.(func() time.Time)
+	// test.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	test.UpdateDefaultUpdatedAt = testDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// testDescName is the schema descriptor for name field.
+	testDescName := testFields[0].Descriptor()
+	// test.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	test.NameValidator = testDescName.Validators[0].(func(string) error)
+	// testDescID is the schema descriptor for id field.
+	testDescID := testMixinFields0[0].Descriptor()
+	// test.DefaultID holds the default value on creation for the id field.
+	test.DefaultID = testDescID.Default.(func() uuid.UUID)
 	testsessionMixin := schema.TestSession{}.Mixin()
 	testsessionMixinHooks1 := testsessionMixin[1].Hooks()
 	testsession.Hooks[0] = testsessionMixinHooks1[0]
@@ -252,7 +280,7 @@ func init() {
 	// testsession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	testsession.UpdateDefaultUpdatedAt = testsessionDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// testsessionDescTotalScore is the schema descriptor for total_score field.
-	testsessionDescTotalScore := testsessionFields[3].Descriptor()
+	testsessionDescTotalScore := testsessionFields[4].Descriptor()
 	// testsession.DefaultTotalScore holds the default value on creation for the total_score field.
 	testsession.DefaultTotalScore = testsessionDescTotalScore.Default.(int)
 	// testsessionDescID is the schema descriptor for id field.

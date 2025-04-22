@@ -34,6 +34,8 @@ const (
 	EdgeVideoQuestionTimestampsQuestion = "video_question_timestamps_question"
 	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
 	EdgeUserQuestionAnswers = "user_question_answers"
+	// EdgeTests holds the string denoting the tests edge name in mutations.
+	EdgeTests = "tests"
 	// Table holds the table name of the question in the database.
 	Table = "questions"
 	// SectionTable is the table that holds the section relation/edge.
@@ -64,6 +66,11 @@ const (
 	UserQuestionAnswersInverseTable = "user_question_answers"
 	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
 	UserQuestionAnswersColumn = "question_id"
+	// TestsTable is the table that holds the tests relation/edge. The primary key declared below.
+	TestsTable = "test_questions"
+	// TestsInverseTable is the table name for the Test entity.
+	// It exists in this package in order to avoid circular dependency with the "test" package.
+	TestsInverseTable = "tests"
 )
 
 // Columns holds all SQL columns for question fields.
@@ -75,6 +82,12 @@ var Columns = []string{
 	FieldSectionID,
 	FieldQuestionText,
 }
+
+var (
+	// TestsPrimaryKey and TestsColumn2 are the table columns denoting the
+	// primary key for the tests relation (M2M).
+	TestsPrimaryKey = []string{"test_id", "question_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -187,6 +200,20 @@ func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpti
 		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTestsCount orders the results by tests count.
+func ByTestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestsStep(), opts...)
+	}
+}
+
+// ByTests orders the results by tests terms.
+func ByTests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newSectionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -213,5 +240,12 @@ func newUserQuestionAnswersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+	)
+}
+func newTestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, TestsTable, TestsPrimaryKey...),
 	)
 }

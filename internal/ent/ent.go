@@ -15,6 +15,7 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -93,6 +94,7 @@ func checkColumn(table, column string) error {
 			question.Table:               question.ValidColumn,
 			questionoption.Table:         questionoption.ValidColumn,
 			role.Table:                   role.ValidColumn,
+			test.Table:                   test.ValidColumn,
 			testsession.Table:            testsession.ValidColumn,
 			todo.Table:                   todo.ValidColumn,
 			user.Table:                   user.ValidColumn,

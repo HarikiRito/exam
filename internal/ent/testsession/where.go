@@ -81,6 +81,11 @@ func CourseSectionID(v uuid.UUID) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldCourseSectionID, v))
 }
 
+// TestID applies equality check predicate on the "test_id" field. It's identical to TestIDEQ.
+func TestID(v uuid.UUID) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldTestID, v))
+}
+
 // CompletedAt applies equality check predicate on the "completed_at" field. It's identical to CompletedAtEQ.
 func CompletedAt(v time.Time) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldCompletedAt, v))
@@ -271,6 +276,26 @@ func CourseSectionIDNotNil() predicate.TestSession {
 	return predicate.TestSession(sql.FieldNotNull(FieldCourseSectionID))
 }
 
+// TestIDEQ applies the EQ predicate on the "test_id" field.
+func TestIDEQ(v uuid.UUID) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldTestID, v))
+}
+
+// TestIDNEQ applies the NEQ predicate on the "test_id" field.
+func TestIDNEQ(v uuid.UUID) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNEQ(FieldTestID, v))
+}
+
+// TestIDIn applies the In predicate on the "test_id" field.
+func TestIDIn(vs ...uuid.UUID) predicate.TestSession {
+	return predicate.TestSession(sql.FieldIn(FieldTestID, vs...))
+}
+
+// TestIDNotIn applies the NotIn predicate on the "test_id" field.
+func TestIDNotIn(vs ...uuid.UUID) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotIn(FieldTestID, vs...))
+}
+
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
 func CompletedAtEQ(v time.Time) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldCompletedAt, v))
@@ -399,6 +424,29 @@ func HasCourseSection() predicate.TestSession {
 func HasCourseSectionWith(preds ...predicate.CourseSection) predicate.TestSession {
 	return predicate.TestSession(func(s *sql.Selector) {
 		step := newCourseSectionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTest applies the HasEdge predicate on the "test" edge.
+func HasTest() predicate.TestSession {
+	return predicate.TestSession(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, TestTable, TestColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTestWith applies the HasEdge predicate on the "test" edge with a given conditions (other predicates).
+func HasTestWith(preds ...predicate.Test) predicate.TestSession {
+	return predicate.TestSession(func(s *sql.Selector) {
+		step := newTestStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

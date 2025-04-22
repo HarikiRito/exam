@@ -36,6 +36,8 @@ const (
 	EdgeQuestions = "questions"
 	// EdgeTestSessions holds the string denoting the test_sessions edge name in mutations.
 	EdgeTestSessions = "test_sessions"
+	// EdgeTests holds the string denoting the tests edge name in mutations.
+	EdgeTests = "tests"
 	// Table holds the table name of the coursesection in the database.
 	Table = "course_sections"
 	// CourseTable is the table that holds the course relation/edge.
@@ -66,6 +68,13 @@ const (
 	TestSessionsInverseTable = "test_sessions"
 	// TestSessionsColumn is the table column denoting the test_sessions relation/edge.
 	TestSessionsColumn = "course_section_id"
+	// TestsTable is the table that holds the tests relation/edge.
+	TestsTable = "tests"
+	// TestsInverseTable is the table name for the Test entity.
+	// It exists in this package in order to avoid circular dependency with the "test" package.
+	TestsInverseTable = "tests"
+	// TestsColumn is the table column denoting the tests relation/edge.
+	TestsColumn = "course_section_id"
 )
 
 // Columns holds all SQL columns for coursesection fields.
@@ -195,6 +204,20 @@ func ByTestSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTestSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTestsCount orders the results by tests count.
+func ByTestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestsStep(), opts...)
+	}
+}
+
+// ByTests orders the results by tests terms.
+func ByTests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCourseStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -221,5 +244,12 @@ func newTestSessionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TestSessionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionsTable, TestSessionsColumn),
+	)
+}
+func newTestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestsTable, TestsColumn),
 	)
 }

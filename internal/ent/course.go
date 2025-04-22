@@ -52,9 +52,11 @@ type CourseEdges struct {
 	CourseSections []*CourseSection `json:"course_sections,omitempty"`
 	// CourseVideos holds the value of the course_videos edge.
 	CourseVideos []*Video `json:"course_videos,omitempty"`
+	// Tests holds the value of the tests edge.
+	Tests []*Test `json:"tests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -95,6 +97,15 @@ func (e CourseEdges) CourseVideosOrErr() ([]*Video, error) {
 		return e.CourseVideos, nil
 	}
 	return nil, &NotLoadedError{edge: "course_videos"}
+}
+
+// TestsOrErr returns the Tests value or an error if the edge
+// was not loaded in eager-loading.
+func (e CourseEdges) TestsOrErr() ([]*Test, error) {
+	if e.loadedTypes[4] {
+		return e.Tests, nil
+	}
+	return nil, &NotLoadedError{edge: "tests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -211,6 +222,11 @@ func (c *Course) QueryCourseSections() *CourseSectionQuery {
 // QueryCourseVideos queries the "course_videos" edge of the Course entity.
 func (c *Course) QueryCourseVideos() *VideoQuery {
 	return NewCourseClient(c.config).QueryCourseVideos(c)
+}
+
+// QueryTests queries the "tests" edge of the Course entity.
+func (c *Course) QueryTests() *TestQuery {
+	return NewCourseClient(c.config).QueryTests(c)
 }
 
 // Update returns a builder for updating this Course.

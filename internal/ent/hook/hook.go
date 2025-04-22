@@ -92,6 +92,18 @@ func (f RoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RoleMutation", m)
 }
 
+// The TestFunc type is an adapter to allow the use of ordinary
+// function as Test mutator.
+type TestFunc func(context.Context, *ent.TestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestMutation", m)
+}
+
 // The TestSessionFunc type is an adapter to allow the use of ordinary
 // function as TestSession mutator.
 type TestSessionFunc func(context.Context, *ent.TestSessionMutation) (ent.Value, error)

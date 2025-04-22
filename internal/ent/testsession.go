@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"time"
@@ -30,6 +31,8 @@ type TestSession struct {
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// CourseSectionID holds the value of the "course_section_id" field.
 	CourseSectionID *uuid.UUID `json:"course_section_id,omitempty"`
+	// TestID holds the value of the "test_id" field.
+	TestID uuid.UUID `json:"test_id,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt time.Time `json:"completed_at,omitempty"`
 	// TotalScore holds the value of the "total_score" field.
@@ -46,11 +49,13 @@ type TestSessionEdges struct {
 	User *User `json:"user,omitempty"`
 	// CourseSection holds the value of the course_section edge.
 	CourseSection *CourseSection `json:"course_section,omitempty"`
+	// Test holds the value of the test edge.
+	Test *Test `json:"test,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
 	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -75,10 +80,21 @@ func (e TestSessionEdges) CourseSectionOrErr() (*CourseSection, error) {
 	return nil, &NotLoadedError{edge: "course_section"}
 }
 
+// TestOrErr returns the Test value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e TestSessionEdges) TestOrErr() (*Test, error) {
+	if e.Test != nil {
+		return e.Test, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: test.Label}
+	}
+	return nil, &NotLoadedError{edge: "test"}
+}
+
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
 func (e TestSessionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.UserQuestionAnswers, nil
 	}
 	return nil, &NotLoadedError{edge: "user_question_answers"}
@@ -95,7 +111,7 @@ func (*TestSession) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case testsession.FieldCreatedAt, testsession.FieldUpdatedAt, testsession.FieldDeletedAt, testsession.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case testsession.FieldID, testsession.FieldUserID:
+		case testsession.FieldID, testsession.FieldUserID, testsession.FieldTestID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -150,6 +166,12 @@ func (ts *TestSession) assignValues(columns []string, values []any) error {
 				ts.CourseSectionID = new(uuid.UUID)
 				*ts.CourseSectionID = *value.S.(*uuid.UUID)
 			}
+		case testsession.FieldTestID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field test_id", values[i])
+			} else if value != nil {
+				ts.TestID = *value
+			}
 		case testsession.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
@@ -183,6 +205,11 @@ func (ts *TestSession) QueryUser() *UserQuery {
 // QueryCourseSection queries the "course_section" edge of the TestSession entity.
 func (ts *TestSession) QueryCourseSection() *CourseSectionQuery {
 	return NewTestSessionClient(ts.config).QueryCourseSection(ts)
+}
+
+// QueryTest queries the "test" edge of the TestSession entity.
+func (ts *TestSession) QueryTest() *TestQuery {
+	return NewTestSessionClient(ts.config).QueryTest(ts)
 }
 
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the TestSession entity.
@@ -231,6 +258,9 @@ func (ts *TestSession) String() string {
 		builder.WriteString("course_section_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("test_id=")
+	builder.WriteString(fmt.Sprintf("%v", ts.TestID))
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
 	builder.WriteString(ts.CompletedAt.Format(time.ANSIC))

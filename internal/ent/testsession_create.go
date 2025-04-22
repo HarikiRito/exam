@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -86,6 +87,12 @@ func (tsc *TestSessionCreate) SetNillableCourseSectionID(u *uuid.UUID) *TestSess
 	return tsc
 }
 
+// SetTestID sets the "test_id" field.
+func (tsc *TestSessionCreate) SetTestID(u uuid.UUID) *TestSessionCreate {
+	tsc.mutation.SetTestID(u)
+	return tsc
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tsc *TestSessionCreate) SetCompletedAt(t time.Time) *TestSessionCreate {
 	tsc.mutation.SetCompletedAt(t)
@@ -136,6 +143,11 @@ func (tsc *TestSessionCreate) SetUser(u *User) *TestSessionCreate {
 // SetCourseSection sets the "course_section" edge to the CourseSection entity.
 func (tsc *TestSessionCreate) SetCourseSection(c *CourseSection) *TestSessionCreate {
 	return tsc.SetCourseSectionID(c.ID)
+}
+
+// SetTest sets the "test" edge to the Test entity.
+func (tsc *TestSessionCreate) SetTest(t *Test) *TestSessionCreate {
+	return tsc.SetTestID(t.ID)
 }
 
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
@@ -229,11 +241,17 @@ func (tsc *TestSessionCreate) check() error {
 	if _, ok := tsc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "TestSession.user_id"`)}
 	}
+	if _, ok := tsc.mutation.TestID(); !ok {
+		return &ValidationError{Name: "test_id", err: errors.New(`ent: missing required field "TestSession.test_id"`)}
+	}
 	if _, ok := tsc.mutation.TotalScore(); !ok {
 		return &ValidationError{Name: "total_score", err: errors.New(`ent: missing required field "TestSession.total_score"`)}
 	}
 	if len(tsc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "TestSession.user"`)}
+	}
+	if len(tsc.mutation.TestIDs()) == 0 {
+		return &ValidationError{Name: "test", err: errors.New(`ent: missing required edge "TestSession.test"`)}
 	}
 	return nil
 }
@@ -322,6 +340,23 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.CourseSectionID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tsc.mutation.TestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   testsession.TestTable,
+			Columns: []string{testsession.TestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TestID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := tsc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {

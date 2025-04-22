@@ -26,6 +26,8 @@ type Tx struct {
 	QuestionOption *QuestionOptionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// Test is the client for interacting with the Test builders.
+	Test *TestClient
 	// TestSession is the client for interacting with the TestSession builders.
 	TestSession *TestSessionClient
 	// Todo is the client for interacting with the Todo builders.
@@ -178,6 +180,7 @@ func (tx *Tx) init() {
 	tx.Question = NewQuestionClient(tx.config)
 	tx.QuestionOption = NewQuestionOptionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.Test = NewTestClient(tx.config)
 	tx.TestSession = NewTestSessionClient(tx.config)
 	tx.Todo = NewTodoClient(tx.config)
 	tx.User = NewUserClient(tx.config)

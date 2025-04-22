@@ -27,6 +27,9 @@ type QuestionOption func(*sql.Selector)
 // Role is the predicate function for role builders.
 type Role func(*sql.Selector)
 
+// Test is the predicate function for test builders.
+type Test func(*sql.Selector)
+
 // TestSession is the predicate function for testsession builders.
 type TestSession func(*sql.Selector)
 

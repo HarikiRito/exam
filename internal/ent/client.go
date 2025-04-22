@@ -18,6 +18,7 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -52,6 +53,8 @@ type Client struct {
 	QuestionOption *QuestionOptionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// Test is the client for interacting with the Test builders.
+	Test *TestClient
 	// TestSession is the client for interacting with the TestSession builders.
 	TestSession *TestSessionClient
 	// Todo is the client for interacting with the Todo builders.
@@ -84,6 +87,7 @@ func (c *Client) init() {
 	c.Question = NewQuestionClient(c.config)
 	c.QuestionOption = NewQuestionOptionClient(c.config)
 	c.Role = NewRoleClient(c.config)
+	c.Test = NewTestClient(c.config)
 	c.TestSession = NewTestSessionClient(c.config)
 	c.Todo = NewTodoClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -190,6 +194,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Question:               NewQuestionClient(cfg),
 		QuestionOption:         NewQuestionOptionClient(cfg),
 		Role:                   NewRoleClient(cfg),
+		Test:                   NewTestClient(cfg),
 		TestSession:            NewTestSessionClient(cfg),
 		Todo:                   NewTodoClient(cfg),
 		User:                   NewUserClient(cfg),
@@ -223,6 +228,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Question:               NewQuestionClient(cfg),
 		QuestionOption:         NewQuestionOptionClient(cfg),
 		Role:                   NewRoleClient(cfg),
+		Test:                   NewTestClient(cfg),
 		TestSession:            NewTestSessionClient(cfg),
 		Todo:                   NewTodoClient(cfg),
 		User:                   NewUserClient(cfg),
@@ -260,8 +266,8 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Course, c.CourseSection, c.Media, c.Permission, c.Question, c.QuestionOption,
-		c.Role, c.TestSession, c.Todo, c.User, c.UserQuestionAnswer, c.UserRole,
-		c.Video, c.VideoQuestionTimestamp,
+		c.Role, c.Test, c.TestSession, c.Todo, c.User, c.UserQuestionAnswer,
+		c.UserRole, c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Use(hooks...)
 	}
@@ -272,8 +278,8 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Course, c.CourseSection, c.Media, c.Permission, c.Question, c.QuestionOption,
-		c.Role, c.TestSession, c.Todo, c.User, c.UserQuestionAnswer, c.UserRole,
-		c.Video, c.VideoQuestionTimestamp,
+		c.Role, c.Test, c.TestSession, c.Todo, c.User, c.UserQuestionAnswer,
+		c.UserRole, c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -296,6 +302,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.QuestionOption.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
+	case *TestMutation:
+		return c.Test.mutate(ctx, m)
 	case *TestSessionMutation:
 		return c.TestSession.mutate(ctx, m)
 	case *TodoMutation:
@@ -480,6 +488,22 @@ func (c *CourseClient) QueryCourseVideos(co *Course) *VideoQuery {
 			sqlgraph.From(course.Table, course.FieldID, id),
 			sqlgraph.To(video.Table, video.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, course.CourseVideosTable, course.CourseVideosColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTests queries the tests edge of a Course.
+func (c *CourseClient) QueryTests(co *Course) *TestQuery {
+	query := (&TestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(course.Table, course.FieldID, id),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, course.TestsTable, course.TestsColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -679,6 +703,22 @@ func (c *CourseSectionClient) QueryTestSessions(cs *CourseSection) *TestSessionQ
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
 			sqlgraph.To(testsession.Table, testsession.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.TestSessionsTable, coursesection.TestSessionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTests queries the tests edge of a CourseSection.
+func (c *CourseSectionClient) QueryTests(cs *CourseSection) *TestQuery {
+	query := (&TestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.TestsTable, coursesection.TestsColumn),
 		)
 		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
 		return fromV, nil
@@ -1235,6 +1275,22 @@ func (c *QuestionClient) QueryUserQuestionAnswers(q *Question) *UserQuestionAnsw
 	return query
 }
 
+// QueryTests queries the tests edge of a Question.
+func (c *QuestionClient) QueryTests(q *Question) *TestQuery {
+	query := (&TestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := q.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, id),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, question.TestsTable, question.TestsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *QuestionClient) Hooks() []Hook {
 	hooks := c.hooks.Question
@@ -1612,6 +1668,205 @@ func (c *RoleClient) mutate(ctx context.Context, m *RoleMutation) (Value, error)
 	}
 }
 
+// TestClient is a client for the Test schema.
+type TestClient struct {
+	config
+}
+
+// NewTestClient returns a client for the Test from the given config.
+func NewTestClient(c config) *TestClient {
+	return &TestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `test.Hooks(f(g(h())))`.
+func (c *TestClient) Use(hooks ...Hook) {
+	c.hooks.Test = append(c.hooks.Test, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `test.Intercept(f(g(h())))`.
+func (c *TestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Test = append(c.inters.Test, interceptors...)
+}
+
+// Create returns a builder for creating a Test entity.
+func (c *TestClient) Create() *TestCreate {
+	mutation := newTestMutation(c.config, OpCreate)
+	return &TestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Test entities.
+func (c *TestClient) CreateBulk(builders ...*TestCreate) *TestCreateBulk {
+	return &TestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestClient) MapCreateBulk(slice any, setFunc func(*TestCreate, int)) *TestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestCreateBulk{err: fmt.Errorf("calling to TestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Test.
+func (c *TestClient) Update() *TestUpdate {
+	mutation := newTestMutation(c.config, OpUpdate)
+	return &TestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestClient) UpdateOne(t *Test) *TestUpdateOne {
+	mutation := newTestMutation(c.config, OpUpdateOne, withTest(t))
+	return &TestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestClient) UpdateOneID(id uuid.UUID) *TestUpdateOne {
+	mutation := newTestMutation(c.config, OpUpdateOne, withTestID(id))
+	return &TestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Test.
+func (c *TestClient) Delete() *TestDelete {
+	mutation := newTestMutation(c.config, OpDelete)
+	return &TestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestClient) DeleteOne(t *Test) *TestDeleteOne {
+	return c.DeleteOneID(t.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestClient) DeleteOneID(id uuid.UUID) *TestDeleteOne {
+	builder := c.Delete().Where(test.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestDeleteOne{builder}
+}
+
+// Query returns a query builder for Test.
+func (c *TestClient) Query() *TestQuery {
+	return &TestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Test entity by its id.
+func (c *TestClient) Get(ctx context.Context, id uuid.UUID) (*Test, error) {
+	return c.Query().Where(test.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestClient) GetX(ctx context.Context, id uuid.UUID) *Test {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCourseSection queries the course_section edge of a Test.
+func (c *TestClient) QueryCourseSection(t *Test) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(test.Table, test.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, test.CourseSectionTable, test.CourseSectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourse queries the course edge of a Test.
+func (c *TestClient) QueryCourse(t *Test) *CourseQuery {
+	query := (&CourseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(test.Table, test.FieldID, id),
+			sqlgraph.To(course.Table, course.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, test.CourseTable, test.CourseColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTestSessions queries the test_sessions edge of a Test.
+func (c *TestClient) QueryTestSessions(t *Test) *TestSessionQuery {
+	query := (&TestSessionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(test.Table, test.FieldID, id),
+			sqlgraph.To(testsession.Table, testsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, test.TestSessionsTable, test.TestSessionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryQuestions queries the questions edge of a Test.
+func (c *TestClient) QueryQuestions(t *Test) *QuestionQuery {
+	query := (&QuestionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(test.Table, test.FieldID, id),
+			sqlgraph.To(question.Table, question.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, test.QuestionsTable, test.QuestionsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestClient) Hooks() []Hook {
+	hooks := c.hooks.Test
+	return append(hooks[:len(hooks):len(hooks)], test.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestClient) Interceptors() []Interceptor {
+	inters := c.inters.Test
+	return append(inters[:len(inters):len(inters)], test.Interceptors[:]...)
+}
+
+func (c *TestClient) mutate(ctx context.Context, m *TestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Test mutation op: %q", m.Op())
+	}
+}
+
 // TestSessionClient is a client for the TestSession schema.
 type TestSessionClient struct {
 	config
@@ -1745,6 +2000,22 @@ func (c *TestSessionClient) QueryCourseSection(ts *TestSession) *CourseSectionQu
 			sqlgraph.From(testsession.Table, testsession.FieldID, id),
 			sqlgraph.To(coursesection.Table, coursesection.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, testsession.CourseSectionTable, testsession.CourseSectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTest queries the test edge of a TestSession.
+func (c *TestSessionClient) QueryTest(ts *TestSession) *TestQuery {
+	query := (&TestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsession.Table, testsession.FieldID, id),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, testsession.TestTable, testsession.TestColumn),
 		)
 		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
 		return fromV, nil
@@ -2912,12 +3183,12 @@ func (c *VideoQuestionTimestampClient) mutate(ctx context.Context, m *VideoQuest
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
+		Course, CourseSection, Media, Permission, Question, QuestionOption, Role, Test,
 		TestSession, Todo, User, UserQuestionAnswer, UserRole, Video,
 		VideoQuestionTimestamp []ent.Hook
 	}
 	inters struct {
-		Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
+		Course, CourseSection, Media, Permission, Question, QuestionOption, Role, Test,
 		TestSession, Todo, User, UserQuestionAnswer, UserRole, Video,
 		VideoQuestionTimestamp []ent.Interceptor
 	}

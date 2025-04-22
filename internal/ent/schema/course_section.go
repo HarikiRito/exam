@@ -37,6 +37,8 @@ func (CourseSection) Edges() []ent.Edge {
 		edge.To("questions", Question.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("test_sessions", TestSession.Type),
+		edge.To("tests", Test.Type).
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

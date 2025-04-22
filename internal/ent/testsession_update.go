@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -106,6 +107,20 @@ func (tsu *TestSessionUpdate) ClearCourseSectionID() *TestSessionUpdate {
 	return tsu
 }
 
+// SetTestID sets the "test_id" field.
+func (tsu *TestSessionUpdate) SetTestID(u uuid.UUID) *TestSessionUpdate {
+	tsu.mutation.SetTestID(u)
+	return tsu
+}
+
+// SetNillableTestID sets the "test_id" field if the given value is not nil.
+func (tsu *TestSessionUpdate) SetNillableTestID(u *uuid.UUID) *TestSessionUpdate {
+	if u != nil {
+		tsu.SetTestID(*u)
+	}
+	return tsu
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tsu *TestSessionUpdate) SetCompletedAt(t time.Time) *TestSessionUpdate {
 	tsu.mutation.SetCompletedAt(t)
@@ -157,6 +172,11 @@ func (tsu *TestSessionUpdate) SetCourseSection(c *CourseSection) *TestSessionUpd
 	return tsu.SetCourseSectionID(c.ID)
 }
 
+// SetTest sets the "test" edge to the Test entity.
+func (tsu *TestSessionUpdate) SetTest(t *Test) *TestSessionUpdate {
+	return tsu.SetTestID(t.ID)
+}
+
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
 func (tsu *TestSessionUpdate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdate {
 	tsu.mutation.AddUserQuestionAnswerIDs(ids...)
@@ -186,6 +206,12 @@ func (tsu *TestSessionUpdate) ClearUser() *TestSessionUpdate {
 // ClearCourseSection clears the "course_section" edge to the CourseSection entity.
 func (tsu *TestSessionUpdate) ClearCourseSection() *TestSessionUpdate {
 	tsu.mutation.ClearCourseSection()
+	return tsu
+}
+
+// ClearTest clears the "test" edge to the Test entity.
+func (tsu *TestSessionUpdate) ClearTest() *TestSessionUpdate {
+	tsu.mutation.ClearTest()
 	return tsu
 }
 
@@ -256,6 +282,9 @@ func (tsu *TestSessionUpdate) defaults() error {
 func (tsu *TestSessionUpdate) check() error {
 	if tsu.mutation.UserCleared() && len(tsu.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSession.user"`)
+	}
+	if tsu.mutation.TestCleared() && len(tsu.mutation.TestIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "TestSession.test"`)
 	}
 	return nil
 }
@@ -347,6 +376,35 @@ func (tsu *TestSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tsu.mutation.TestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   testsession.TestTable,
+			Columns: []string{testsession.TestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tsu.mutation.TestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   testsession.TestTable,
+			Columns: []string{testsession.TestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -493,6 +551,20 @@ func (tsuo *TestSessionUpdateOne) ClearCourseSectionID() *TestSessionUpdateOne {
 	return tsuo
 }
 
+// SetTestID sets the "test_id" field.
+func (tsuo *TestSessionUpdateOne) SetTestID(u uuid.UUID) *TestSessionUpdateOne {
+	tsuo.mutation.SetTestID(u)
+	return tsuo
+}
+
+// SetNillableTestID sets the "test_id" field if the given value is not nil.
+func (tsuo *TestSessionUpdateOne) SetNillableTestID(u *uuid.UUID) *TestSessionUpdateOne {
+	if u != nil {
+		tsuo.SetTestID(*u)
+	}
+	return tsuo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tsuo *TestSessionUpdateOne) SetCompletedAt(t time.Time) *TestSessionUpdateOne {
 	tsuo.mutation.SetCompletedAt(t)
@@ -544,6 +616,11 @@ func (tsuo *TestSessionUpdateOne) SetCourseSection(c *CourseSection) *TestSessio
 	return tsuo.SetCourseSectionID(c.ID)
 }
 
+// SetTest sets the "test" edge to the Test entity.
+func (tsuo *TestSessionUpdateOne) SetTest(t *Test) *TestSessionUpdateOne {
+	return tsuo.SetTestID(t.ID)
+}
+
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
 func (tsuo *TestSessionUpdateOne) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdateOne {
 	tsuo.mutation.AddUserQuestionAnswerIDs(ids...)
@@ -573,6 +650,12 @@ func (tsuo *TestSessionUpdateOne) ClearUser() *TestSessionUpdateOne {
 // ClearCourseSection clears the "course_section" edge to the CourseSection entity.
 func (tsuo *TestSessionUpdateOne) ClearCourseSection() *TestSessionUpdateOne {
 	tsuo.mutation.ClearCourseSection()
+	return tsuo
+}
+
+// ClearTest clears the "test" edge to the Test entity.
+func (tsuo *TestSessionUpdateOne) ClearTest() *TestSessionUpdateOne {
+	tsuo.mutation.ClearTest()
 	return tsuo
 }
 
@@ -656,6 +739,9 @@ func (tsuo *TestSessionUpdateOne) defaults() error {
 func (tsuo *TestSessionUpdateOne) check() error {
 	if tsuo.mutation.UserCleared() && len(tsuo.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSession.user"`)
+	}
+	if tsuo.mutation.TestCleared() && len(tsuo.mutation.TestIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "TestSession.test"`)
 	}
 	return nil
 }
@@ -764,6 +850,35 @@ func (tsuo *TestSessionUpdateOne) sqlSave(ctx context.Context) (_node *TestSessi
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tsuo.mutation.TestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   testsession.TestTable,
+			Columns: []string{testsession.TestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tsuo.mutation.TestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   testsession.TestTable,
+			Columns: []string{testsession.TestColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

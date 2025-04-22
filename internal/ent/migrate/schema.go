@@ -167,6 +167,36 @@ var (
 		Columns:    RolesColumns,
 		PrimaryKey: []*schema.Column{RolesColumns[0]},
 	}
+	// TestsColumns holds the columns for the "tests" table.
+	TestsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "name", Type: field.TypeString},
+		{Name: "course_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
+	}
+	// TestsTable holds the schema information for the "tests" table.
+	TestsTable = &schema.Table{
+		Name:       "tests",
+		Columns:    TestsColumns,
+		PrimaryKey: []*schema.Column{TestsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tests_courses_tests",
+				Columns:    []*schema.Column{TestsColumns[5]},
+				RefColumns: []*schema.Column{CoursesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "tests_course_sections_tests",
+				Columns:    []*schema.Column{TestsColumns[6]},
+				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// TestSessionsColumns holds the columns for the "test_sessions" table.
 	TestSessionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -176,6 +206,7 @@ var (
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "total_score", Type: field.TypeInt, Default: 0},
 		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "test_id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
 	}
 	// TestSessionsTable holds the schema information for the "test_sessions" table.
@@ -191,8 +222,14 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 			{
-				Symbol:     "test_sessions_users_test_sessions",
+				Symbol:     "test_sessions_tests_test_sessions",
 				Columns:    []*schema.Column{TestSessionsColumns[7]},
+				RefColumns: []*schema.Column{TestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "test_sessions_users_test_sessions",
+				Columns:    []*schema.Column{TestSessionsColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -414,6 +451,31 @@ var (
 			},
 		},
 	}
+	// TestQuestionsColumns holds the columns for the "test_questions" table.
+	TestQuestionsColumns = []*schema.Column{
+		{Name: "test_id", Type: field.TypeUUID},
+		{Name: "question_id", Type: field.TypeUUID},
+	}
+	// TestQuestionsTable holds the schema information for the "test_questions" table.
+	TestQuestionsTable = &schema.Table{
+		Name:       "test_questions",
+		Columns:    TestQuestionsColumns,
+		PrimaryKey: []*schema.Column{TestQuestionsColumns[0], TestQuestionsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_questions_test_id",
+				Columns:    []*schema.Column{TestQuestionsColumns[0]},
+				RefColumns: []*schema.Column{TestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "test_questions_question_id",
+				Columns:    []*schema.Column{TestQuestionsColumns[1]},
+				RefColumns: []*schema.Column{QuestionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CoursesTable,
@@ -423,6 +485,7 @@ var (
 		QuestionsTable,
 		QuestionOptionsTable,
 		RolesTable,
+		TestsTable,
 		TestSessionsTable,
 		TodosTable,
 		UsersTable,
@@ -431,6 +494,7 @@ var (
 		VideosTable,
 		VideoQuestionTimestampsTable,
 		RolePermissionsTable,
+		TestQuestionsTable,
 	}
 )
 
@@ -441,8 +505,11 @@ func init() {
 	MediaTable.ForeignKeys[0].RefTable = UsersTable
 	QuestionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
 	QuestionOptionsTable.ForeignKeys[0].RefTable = QuestionsTable
+	TestsTable.ForeignKeys[0].RefTable = CoursesTable
+	TestsTable.ForeignKeys[1].RefTable = CourseSectionsTable
 	TestSessionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
-	TestSessionsTable.ForeignKeys[1].RefTable = UsersTable
+	TestSessionsTable.ForeignKeys[1].RefTable = TestsTable
+	TestSessionsTable.ForeignKeys[2].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = MediaTable
 	UserQuestionAnswersTable.ForeignKeys[0].RefTable = QuestionsTable
 	UserQuestionAnswersTable.ForeignKeys[1].RefTable = QuestionOptionsTable
@@ -457,4 +524,6 @@ func init() {
 	VideoQuestionTimestampsTable.ForeignKeys[1].RefTable = VideosTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
+	TestQuestionsTable.ForeignKeys[0].RefTable = TestsTable
+	TestQuestionsTable.ForeignKeys[1].RefTable = QuestionsTable
 }

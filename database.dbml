@@ -167,9 +167,26 @@ Table user_question_answers {
 Table test_sessions {
   id varchar [pk]
   user_id varchar [not null]
-  course_section_id varchar
+  test_id varchar [not null]
   completed_at timestamp
   total_score integer [default: 0]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Tests table definition
+Table tests {
+  id varchar [pk]
+  name varchar [not null]
+  course_section_id varchar
+  course_id varchar
+}
+
+// Join table to link tests to questions (each test has multiple questions)
+Table test_questions {
+  id varchar [pk]
+  test_id varchar [not null]
+  question_id varchar [not null]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
 }
@@ -196,6 +213,8 @@ Ref: questions.section_id > course_sections.id [delete: cascade]
 Ref: video_question_timestamps.video_id > videos.id [delete: cascade]
 Ref: video_question_timestamps.question_id > questions.id [delete: cascade]
 Ref: question_options.question_id > questions.id [delete: cascade]
+Ref: tests.course_section_id > course_sections.id [delete: cascade]
+Ref: tests.course_id > courses.id [delete: cascade]
 
 // User Progress Relationships
 Ref: user_course_enrollments.user_id > users.id [delete: cascade]
@@ -210,5 +229,9 @@ Ref: user_question_answers.selected_option_id > question_options.id [delete: cas
 
 // Course Session Relationships
 Ref: test_sessions.user_id > users.id [delete: cascade]
-Ref: test_sessions.course_section_id > course_sections.id [delete: cascade]
+Ref: test_sessions.test_id > tests.id [delete: cascade]
 Ref: user_question_answers.test_session_id > test_sessions.id [delete: cascade]
+
+// Relationships for test_questions
+Ref: test_questions.test_id > tests.id [delete: cascade]
+Ref: test_questions.question_id > questions.id [delete: cascade]

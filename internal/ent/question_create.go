@@ -9,6 +9,7 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/test"
 	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/videoquestiontimestamp"
 	"time"
@@ -149,6 +150,21 @@ func (qc *QuestionCreate) AddUserQuestionAnswers(u ...*UserQuestionAnswer) *Ques
 		ids[i] = u[i].ID
 	}
 	return qc.AddUserQuestionAnswerIDs(ids...)
+}
+
+// AddTestIDs adds the "tests" edge to the Test entity by IDs.
+func (qc *QuestionCreate) AddTestIDs(ids ...uuid.UUID) *QuestionCreate {
+	qc.mutation.AddTestIDs(ids...)
+	return qc
+}
+
+// AddTests adds the "tests" edges to the Test entity.
+func (qc *QuestionCreate) AddTests(t ...*Test) *QuestionCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return qc.AddTestIDs(ids...)
 }
 
 // Mutation returns the QuestionMutation object of the builder.
@@ -337,6 +353,22 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(userquestionanswer.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := qc.mutation.TestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   question.TestsTable,
+			Columns: question.TestsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

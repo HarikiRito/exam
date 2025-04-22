@@ -9,6 +9,7 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
+	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/video"
 	"time"
@@ -155,6 +156,21 @@ func (csc *CourseSectionCreate) AddTestSessions(t ...*TestSession) *CourseSectio
 		ids[i] = t[i].ID
 	}
 	return csc.AddTestSessionIDs(ids...)
+}
+
+// AddTestIDs adds the "tests" edge to the Test entity by IDs.
+func (csc *CourseSectionCreate) AddTestIDs(ids ...uuid.UUID) *CourseSectionCreate {
+	csc.mutation.AddTestIDs(ids...)
+	return csc
+}
+
+// AddTests adds the "tests" edges to the Test entity.
+func (csc *CourseSectionCreate) AddTests(t ...*Test) *CourseSectionCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return csc.AddTestIDs(ids...)
 }
 
 // Mutation returns the CourseSectionMutation object of the builder.
@@ -353,6 +369,22 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := csc.mutation.TestsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.TestsTable,
+			Columns: []string{coursesection.TestsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

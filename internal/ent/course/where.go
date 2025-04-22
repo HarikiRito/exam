@@ -518,6 +518,29 @@ func HasCourseVideosWith(preds ...predicate.Video) predicate.Course {
 	})
 }
 
+// HasTests applies the HasEdge predicate on the "tests" edge.
+func HasTests() predicate.Course {
+	return predicate.Course(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, TestsTable, TestsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTestsWith applies the HasEdge predicate on the "tests" edge with a given conditions (other predicates).
+func HasTestsWith(preds ...predicate.Test) predicate.Course {
+	return predicate.Course(func(s *sql.Selector) {
+		step := newTestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Course) predicate.Course {
 	return predicate.Course(sql.AndPredicates(predicates...))

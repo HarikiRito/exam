@@ -19,6 +19,7 @@ func (TestSession) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("course_section_id", uuid.UUID{}).Optional().Nillable(),
+		field.UUID("test_id", uuid.UUID{}),
 		field.Time("completed_at").Optional(),
 		field.Int("total_score").Default(0),
 	}
@@ -36,6 +37,11 @@ func (TestSession) Edges() []ent.Edge {
 			Ref("test_sessions").
 			Field("course_section_id").
 			Unique(),
+		edge.From("test", Test.Type).
+			Ref("test_sessions").
+			Field("test_id").
+			Unique().
+			Required(),
 		edge.To("user_question_answers", UserQuestionAnswer.Type),
 	}
 }
