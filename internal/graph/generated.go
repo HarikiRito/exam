@@ -12,6 +12,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"template/internal/graph/model"
+	"template/internal/graph/scalar"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -54,11 +56,13 @@ type ComplexityRoot struct {
 	}
 
 	Course struct {
+		CreatedAt   func(childComplexity int) int
 		Creator     func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Sections    func(childComplexity int) int
 		Title       func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	CourseSection struct {
@@ -236,6 +240,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Auth.RefreshToken(childComplexity), true
 
+	case "Course.createdAt":
+		if e.complexity.Course.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Course.CreatedAt(childComplexity), true
+
 	case "Course.creator":
 		if e.complexity.Course.Creator == nil {
 			break
@@ -270,6 +281,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Course.Title(childComplexity), true
+
+	case "Course.updatedAt":
+		if e.complexity.Course.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Course.UpdatedAt(childComplexity), true
 
 	case "CourseSection.courseId":
 		if e.complexity.CourseSection.CourseID == nil {
@@ -2135,6 +2153,94 @@ func (ec *executionContext) fieldContext_Course_sections(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Course_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Course_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Course_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Course",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Course_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Course_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Course_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Course",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CourseSection_id(ctx context.Context, field graphql.CollectedField, obj *model.CourseSection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CourseSection_id(ctx, field)
 	if err != nil {
@@ -2482,6 +2588,10 @@ func (ec *executionContext) fieldContext_Mutation_createCourse(ctx context.Conte
 				return ec.fieldContext_Course_creator(ctx, field)
 			case "sections":
 				return ec.fieldContext_Course_sections(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Course_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Course_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
@@ -2604,6 +2714,10 @@ func (ec *executionContext) fieldContext_Mutation_updateCourse(ctx context.Conte
 				return ec.fieldContext_Course_creator(ctx, field)
 			case "sections":
 				return ec.fieldContext_Course_sections(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Course_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Course_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
@@ -3528,6 +3642,10 @@ func (ec *executionContext) fieldContext_PaginatedCourse_items(_ context.Context
 				return ec.fieldContext_Course_creator(ctx, field)
 			case "sections":
 				return ec.fieldContext_Course_sections(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Course_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Course_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
@@ -4245,6 +4363,10 @@ func (ec *executionContext) fieldContext_Query_course(ctx context.Context, field
 				return ec.fieldContext_Course_creator(ctx, field)
 			case "sections":
 				return ec.fieldContext_Course_sections(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Course_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Course_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
@@ -5510,6 +5632,10 @@ func (ec *executionContext) fieldContext_Test_course(_ context.Context, field gr
 				return ec.fieldContext_Course_creator(ctx, field)
 			case "sections":
 				return ec.fieldContext_Course_sections(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Course_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Course_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
@@ -8148,6 +8274,16 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "createdAt":
+			out.Values[i] = ec._Course_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Course_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9677,6 +9813,21 @@ func (ec *executionContext) unmarshalNCreateQuestionOptionInput2templateᚋinter
 func (ec *executionContext) unmarshalNCreateTestInput2templateᚋinternalᚋgraphᚋmodelᚐCreateTestInput(ctx context.Context, v interface{}) (model.CreateTestInput, error) {
 	res, err := ec.unmarshalInputCreateTestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := scalar.UnmarshalDateTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := scalar.MarshalDateTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

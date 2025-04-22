@@ -11,7 +11,8 @@ import (
 var DbClient *ent.Client
 
 func InitDatabase() {
-	client, err := OpenClient()
+	client, err := OpenClientWithoutDebug()
+
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}

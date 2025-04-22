@@ -41,6 +41,8 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateC
 		ID:          createdCourse.ID.String(),
 		Title:       createdCourse.Title,
 		Description: createdCourse.Description,
+		CreatedAt:   createdCourse.CreatedAt,
+		UpdatedAt:   createdCourse.UpdatedAt,
 	}, nil
 }
 
@@ -81,6 +83,8 @@ func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, e
 		ID:          foundCourse.ID.String(),
 		Title:       foundCourse.Title,
 		Description: foundCourse.Description,
+		CreatedAt:   foundCourse.CreatedAt,
+		UpdatedAt:   foundCourse.UpdatedAt,
 	}, nil
 }
 
@@ -119,3 +123,18 @@ func (r *queryResolver) PaginatedCourses(ctx context.Context, paginationInput *m
 func (r *Resolver) Course() CourseResolver { return &courseResolver{r} }
 
 type courseResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *courseResolver) CreatedAt(ctx context.Context, obj *model.Course) (*time.Time, error) {
+	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
+}
+func (r *courseResolver) UpdatedAt(ctx context.Context, obj *model.Course) (*time.Time, error) {
+	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
+}
+*/
