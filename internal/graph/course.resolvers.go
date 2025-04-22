@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent"
 	"template/internal/features/course"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -37,13 +36,7 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateC
 		return nil, err
 	}
 
-	return &model.Course{
-		ID:          createdCourse.ID.String(),
-		Title:       createdCourse.Title,
-		Description: createdCourse.Description,
-		CreatedAt:   createdCourse.CreatedAt,
-		UpdatedAt:   createdCourse.UpdatedAt,
-	}, nil
+	return model.ConvertCourseToModel(createdCourse), nil
 }
 
 // RemoveCourse is the resolver for the removeCourse field.
@@ -65,11 +58,7 @@ func (r *mutationResolver) UpdateCourse(ctx context.Context, id string, input mo
 	if err != nil {
 		return nil, err
 	}
-	return &model.Course{
-		ID:          updatedCourse.ID.String(),
-		Title:       updatedCourse.Title,
-		Description: updatedCourse.Description,
-	}, nil
+	return model.ConvertCourseToModel(updatedCourse), nil
 }
 
 // Course is the resolver for the course field.
@@ -79,13 +68,7 @@ func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, e
 		return nil, errors.New("course not found")
 	}
 
-	return &model.Course{
-		ID:          foundCourse.ID.String(),
-		Title:       foundCourse.Title,
-		Description: foundCourse.Description,
-		CreatedAt:   foundCourse.CreatedAt,
-		UpdatedAt:   foundCourse.UpdatedAt,
-	}, nil
+	return model.ConvertCourseToModel(foundCourse), nil
 }
 
 // PaginatedCourses is the resolver for the paginatedCourses field.
@@ -98,14 +81,7 @@ func (r *queryResolver) PaginatedCourses(ctx context.Context, paginationInput *m
 	if err != nil {
 		return nil, err
 	}
-	items := slice.Map(paginatedCourse.Items, func(c *ent.Course) *model.Course {
-		return &model.Course{
-			ID:          c.ID.String(),
-			Title:       c.Title,
-			Description: c.Description,
-			CreatorID:   c.CreatorID.String(),
-		}
-	})
+	items := slice.Map(paginatedCourse.Items, model.ConvertCourseToModel)
 	pagination := &model.Pagination{
 		CurrentPage:     paginatedCourse.CurrentPage,
 		TotalPages:      paginatedCourse.TotalPages,
@@ -123,18 +99,3 @@ func (r *queryResolver) PaginatedCourses(ctx context.Context, paginationInput *m
 func (r *Resolver) Course() CourseResolver { return &courseResolver{r} }
 
 type courseResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *courseResolver) CreatedAt(ctx context.Context, obj *model.Course) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
-}
-func (r *courseResolver) UpdatedAt(ctx context.Context, obj *model.Course) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
-}
-*/

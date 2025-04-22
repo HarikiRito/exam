@@ -129,10 +129,10 @@ type ComplexityRoot struct {
 		PaginatedCourses         func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestionOptions func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestions       func(childComplexity int, paginationInput *model.PaginationInput) int
+		PaginatedTests           func(childComplexity int, paginationInput *model.PaginationInput) int
 		Question                 func(childComplexity int, id string) int
 		QuestionOption           func(childComplexity int, id string) int
 		Test                     func(childComplexity int, id string) int
-		Tests                    func(childComplexity int, paginationInput *model.PaginationInput) int
 		Todos                    func(childComplexity int) int
 	}
 
@@ -203,7 +203,7 @@ type QueryResolver interface {
 	QuestionOption(ctx context.Context, id string) (*model.QuestionOption, error)
 	PaginatedQuestionOptions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionOption, error)
 	Test(ctx context.Context, id string) (*model.Test, error)
-	Tests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
+	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
 }
 
@@ -703,6 +703,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.PaginatedQuestions(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
+	case "Query.paginatedTests":
+		if e.complexity.Query.PaginatedTests == nil {
+			break
+		}
+
+		args, err := ec.field_Query_paginatedTests_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.PaginatedTests(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
+
 	case "Query.question":
 		if e.complexity.Query.Question == nil {
 			break
@@ -738,18 +750,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Test(childComplexity, args["id"].(string)), true
-
-	case "Query.tests":
-		if e.complexity.Query.Tests == nil {
-			break
-		}
-
-		args, err := ec.field_Query_tests_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Tests(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -1683,6 +1683,29 @@ func (ec *executionContext) field_Query_paginatedQuestions_argsPaginationInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_paginatedTests_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_paginatedTests_argsPaginationInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["paginationInput"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_paginatedTests_argsPaginationInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*model.PaginationInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("paginationInput"))
+	if tmp, ok := rawArgs["paginationInput"]; ok {
+		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+	}
+
+	var zeroVal *model.PaginationInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_questionOption_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1749,29 +1772,6 @@ func (ec *executionContext) field_Query_test_argsID(
 	}
 
 	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_tests_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_tests_argsPaginationInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["paginationInput"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_tests_argsPaginationInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.PaginationInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("paginationInput"))
-	if tmp, ok := rawArgs["paginationInput"]; ok {
-		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
-	}
-
-	var zeroVal *model.PaginationInput
 	return zeroVal, nil
 }
 
@@ -4828,8 +4828,8 @@ func (ec *executionContext) fieldContext_Query_test(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_tests(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_tests(ctx, field)
+func (ec *executionContext) _Query_paginatedTests(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_paginatedTests(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -4842,7 +4842,7 @@ func (ec *executionContext) _Query_tests(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Tests(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
+		return ec.resolvers.Query().PaginatedTests(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4859,7 +4859,7 @@ func (ec *executionContext) _Query_tests(ctx context.Context, field graphql.Coll
 	return ec.marshalNPaginatedTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedTest(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_tests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_paginatedTests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4882,7 +4882,7 @@ func (ec *executionContext) fieldContext_Query_tests(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_tests_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_paginatedTests_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9003,7 +9003,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "tests":
+		case "paginatedTests":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9012,7 +9012,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_tests(ctx, field)
+				res = ec._Query_paginatedTests(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
