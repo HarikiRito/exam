@@ -6,10 +6,10 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
 
@@ -30,7 +30,7 @@ type UserQuestionAnswerQuery struct {
 	withUser           *UserQuery
 	withQuestion       *QuestionQuery
 	withSelectedOption *QuestionOptionQuery
-	withCourseSession  *CourseSessionQuery
+	withTestSession    *TestSessionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -133,9 +133,9 @@ func (uqaq *UserQuestionAnswerQuery) QuerySelectedOption() *QuestionOptionQuery 
 	return query
 }
 
-// QueryCourseSession chains the current query on the "course_session" edge.
-func (uqaq *UserQuestionAnswerQuery) QueryCourseSession() *CourseSessionQuery {
-	query := (&CourseSessionClient{config: uqaq.config}).Query()
+// QueryTestSession chains the current query on the "test_session" edge.
+func (uqaq *UserQuestionAnswerQuery) QueryTestSession() *TestSessionQuery {
+	query := (&TestSessionClient{config: uqaq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uqaq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -146,8 +146,8 @@ func (uqaq *UserQuestionAnswerQuery) QueryCourseSession() *CourseSessionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(userquestionanswer.Table, userquestionanswer.FieldID, selector),
-			sqlgraph.To(coursesession.Table, coursesession.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, userquestionanswer.CourseSessionTable, userquestionanswer.CourseSessionColumn),
+			sqlgraph.To(testsession.Table, testsession.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userquestionanswer.TestSessionTable, userquestionanswer.TestSessionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uqaq.driver.Dialect(), step)
 		return fromU, nil
@@ -350,7 +350,7 @@ func (uqaq *UserQuestionAnswerQuery) Clone() *UserQuestionAnswerQuery {
 		withUser:           uqaq.withUser.Clone(),
 		withQuestion:       uqaq.withQuestion.Clone(),
 		withSelectedOption: uqaq.withSelectedOption.Clone(),
-		withCourseSession:  uqaq.withCourseSession.Clone(),
+		withTestSession:    uqaq.withTestSession.Clone(),
 		// clone intermediate query.
 		sql:  uqaq.sql.Clone(),
 		path: uqaq.path,
@@ -390,14 +390,14 @@ func (uqaq *UserQuestionAnswerQuery) WithSelectedOption(opts ...func(*QuestionOp
 	return uqaq
 }
 
-// WithCourseSession tells the query-builder to eager-load the nodes that are connected to
-// the "course_session" edge. The optional arguments are used to configure the query builder of the edge.
-func (uqaq *UserQuestionAnswerQuery) WithCourseSession(opts ...func(*CourseSessionQuery)) *UserQuestionAnswerQuery {
-	query := (&CourseSessionClient{config: uqaq.config}).Query()
+// WithTestSession tells the query-builder to eager-load the nodes that are connected to
+// the "test_session" edge. The optional arguments are used to configure the query builder of the edge.
+func (uqaq *UserQuestionAnswerQuery) WithTestSession(opts ...func(*TestSessionQuery)) *UserQuestionAnswerQuery {
+	query := (&TestSessionClient{config: uqaq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uqaq.withCourseSession = query
+	uqaq.withTestSession = query
 	return uqaq
 }
 
@@ -483,7 +483,7 @@ func (uqaq *UserQuestionAnswerQuery) sqlAll(ctx context.Context, hooks ...queryH
 			uqaq.withUser != nil,
 			uqaq.withQuestion != nil,
 			uqaq.withSelectedOption != nil,
-			uqaq.withCourseSession != nil,
+			uqaq.withTestSession != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -522,9 +522,9 @@ func (uqaq *UserQuestionAnswerQuery) sqlAll(ctx context.Context, hooks ...queryH
 			return nil, err
 		}
 	}
-	if query := uqaq.withCourseSession; query != nil {
-		if err := uqaq.loadCourseSession(ctx, query, nodes, nil,
-			func(n *UserQuestionAnswer, e *CourseSession) { n.Edges.CourseSession = e }); err != nil {
+	if query := uqaq.withTestSession; query != nil {
+		if err := uqaq.loadTestSession(ctx, query, nodes, nil,
+			func(n *UserQuestionAnswer, e *TestSession) { n.Edges.TestSession = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -618,7 +618,7 @@ func (uqaq *UserQuestionAnswerQuery) loadSelectedOption(ctx context.Context, que
 	}
 	return nil
 }
-func (uqaq *UserQuestionAnswerQuery) loadCourseSession(ctx context.Context, query *CourseSessionQuery, nodes []*UserQuestionAnswer, init func(*UserQuestionAnswer), assign func(*UserQuestionAnswer, *CourseSession)) error {
+func (uqaq *UserQuestionAnswerQuery) loadTestSession(ctx context.Context, query *TestSessionQuery, nodes []*UserQuestionAnswer, init func(*UserQuestionAnswer), assign func(*UserQuestionAnswer, *TestSession)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*UserQuestionAnswer)
 	for i := range nodes {
@@ -631,7 +631,7 @@ func (uqaq *UserQuestionAnswerQuery) loadCourseSession(ctx context.Context, quer
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(coursesession.IDIn(ids...))
+	query.Where(testsession.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -682,7 +682,7 @@ func (uqaq *UserQuestionAnswerQuery) querySpec() *sqlgraph.QuerySpec {
 		if uqaq.withSelectedOption != nil {
 			_spec.Node.AddColumnOnce(userquestionanswer.FieldSelectedOptionID)
 		}
-		if uqaq.withCourseSession != nil {
+		if uqaq.withTestSession != nil {
 			_spec.Node.AddColumnOnce(userquestionanswer.FieldSessionID)
 		}
 	}

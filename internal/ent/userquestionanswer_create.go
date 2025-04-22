@@ -6,9 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
 	"time"
@@ -120,15 +120,15 @@ func (uqac *UserQuestionAnswerCreate) SetSelectedOption(q *QuestionOption) *User
 	return uqac.SetSelectedOptionID(q.ID)
 }
 
-// SetCourseSessionID sets the "course_session" edge to the CourseSession entity by ID.
-func (uqac *UserQuestionAnswerCreate) SetCourseSessionID(id uuid.UUID) *UserQuestionAnswerCreate {
-	uqac.mutation.SetCourseSessionID(id)
+// SetTestSessionID sets the "test_session" edge to the TestSession entity by ID.
+func (uqac *UserQuestionAnswerCreate) SetTestSessionID(id uuid.UUID) *UserQuestionAnswerCreate {
+	uqac.mutation.SetTestSessionID(id)
 	return uqac
 }
 
-// SetCourseSession sets the "course_session" edge to the CourseSession entity.
-func (uqac *UserQuestionAnswerCreate) SetCourseSession(c *CourseSession) *UserQuestionAnswerCreate {
-	return uqac.SetCourseSessionID(c.ID)
+// SetTestSession sets the "test_session" edge to the TestSession entity.
+func (uqac *UserQuestionAnswerCreate) SetTestSession(t *TestSession) *UserQuestionAnswerCreate {
+	return uqac.SetTestSessionID(t.ID)
 }
 
 // Mutation returns the UserQuestionAnswerMutation object of the builder.
@@ -221,8 +221,8 @@ func (uqac *UserQuestionAnswerCreate) check() error {
 	if len(uqac.mutation.SelectedOptionIDs()) == 0 {
 		return &ValidationError{Name: "selected_option", err: errors.New(`ent: missing required edge "UserQuestionAnswer.selected_option"`)}
 	}
-	if len(uqac.mutation.CourseSessionIDs()) == 0 {
-		return &ValidationError{Name: "course_session", err: errors.New(`ent: missing required edge "UserQuestionAnswer.course_session"`)}
+	if len(uqac.mutation.TestSessionIDs()) == 0 {
+		return &ValidationError{Name: "test_session", err: errors.New(`ent: missing required edge "UserQuestionAnswer.test_session"`)}
 	}
 	return nil
 }
@@ -322,15 +322,15 @@ func (uqac *UserQuestionAnswerCreate) createSpec() (*UserQuestionAnswer, *sqlgra
 		_node.SelectedOptionID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uqac.mutation.CourseSessionIDs(); len(nodes) > 0 {
+	if nodes := uqac.mutation.TestSessionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   userquestionanswer.CourseSessionTable,
-			Columns: []string{userquestionanswer.CourseSessionColumn},
+			Table:   userquestionanswer.TestSessionTable,
+			Columns: []string{userquestionanswer.TestSessionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

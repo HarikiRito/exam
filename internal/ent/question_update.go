@@ -87,6 +87,12 @@ func (qu *QuestionUpdate) SetNillableSectionID(u *uuid.UUID) *QuestionUpdate {
 	return qu
 }
 
+// ClearSectionID clears the value of the "section_id" field.
+func (qu *QuestionUpdate) ClearSectionID() *QuestionUpdate {
+	qu.mutation.ClearSectionID()
+	return qu
+}
+
 // SetQuestionText sets the "question_text" field.
 func (qu *QuestionUpdate) SetQuestionText(s string) *QuestionUpdate {
 	qu.mutation.SetQuestionText(s)
@@ -273,9 +279,6 @@ func (qu *QuestionUpdate) check() error {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
-	}
-	if qu.mutation.SectionCleared() && len(qu.mutation.SectionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Question.section"`)
 	}
 	return nil
 }
@@ -545,6 +548,12 @@ func (quo *QuestionUpdateOne) SetNillableSectionID(u *uuid.UUID) *QuestionUpdate
 	return quo
 }
 
+// ClearSectionID clears the value of the "section_id" field.
+func (quo *QuestionUpdateOne) ClearSectionID() *QuestionUpdateOne {
+	quo.mutation.ClearSectionID()
+	return quo
+}
+
 // SetQuestionText sets the "question_text" field.
 func (quo *QuestionUpdateOne) SetQuestionText(s string) *QuestionUpdateOne {
 	quo.mutation.SetQuestionText(s)
@@ -744,9 +753,6 @@ func (quo *QuestionUpdateOne) check() error {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
-	}
-	if quo.mutation.SectionCleared() && len(quo.mutation.SectionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Question.section"`)
 	}
 	return nil
 }

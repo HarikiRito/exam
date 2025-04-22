@@ -42,7 +42,7 @@ func (UserQuestionAnswer) Edges() []ent.Edge {
 			Field("selected_option_id").
 			Unique().
 			Required(),
-		edge.From("course_session", CourseSession.Type).
+		edge.From("test_session", TestSession.Type).
 			Ref("user_question_answers").
 			Field("session_id").
 			Unique().

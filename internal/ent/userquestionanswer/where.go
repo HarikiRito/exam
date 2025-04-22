@@ -370,21 +370,21 @@ func HasSelectedOptionWith(preds ...predicate.QuestionOption) predicate.UserQues
 	})
 }
 
-// HasCourseSession applies the HasEdge predicate on the "course_session" edge.
-func HasCourseSession() predicate.UserQuestionAnswer {
+// HasTestSession applies the HasEdge predicate on the "test_session" edge.
+func HasTestSession() predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, CourseSessionTable, CourseSessionColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, TestSessionTable, TestSessionColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasCourseSessionWith applies the HasEdge predicate on the "course_session" edge with a given conditions (other predicates).
-func HasCourseSessionWith(preds ...predicate.CourseSession) predicate.UserQuestionAnswer {
+// HasTestSessionWith applies the HasEdge predicate on the "test_session" edge with a given conditions (other predicates).
+func HasTestSessionWith(preds ...predicate.TestSession) predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(func(s *sql.Selector) {
-		step := newCourseSessionStep()
+		step := newTestSessionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

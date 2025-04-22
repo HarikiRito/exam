@@ -5,13 +5,13 @@ package runtime
 import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/schema"
+	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -85,33 +85,6 @@ func init() {
 	coursesectionDescID := coursesectionMixinFields0[0].Descriptor()
 	// coursesection.DefaultID holds the default value on creation for the id field.
 	coursesection.DefaultID = coursesectionDescID.Default.(func() uuid.UUID)
-	coursesessionMixin := schema.CourseSession{}.Mixin()
-	coursesessionMixinHooks1 := coursesessionMixin[1].Hooks()
-	coursesession.Hooks[0] = coursesessionMixinHooks1[0]
-	coursesessionMixinInters1 := coursesessionMixin[1].Interceptors()
-	coursesession.Interceptors[0] = coursesessionMixinInters1[0]
-	coursesessionMixinFields0 := coursesessionMixin[0].Fields()
-	_ = coursesessionMixinFields0
-	coursesessionFields := schema.CourseSession{}.Fields()
-	_ = coursesessionFields
-	// coursesessionDescCreatedAt is the schema descriptor for created_at field.
-	coursesessionDescCreatedAt := coursesessionMixinFields0[1].Descriptor()
-	// coursesession.DefaultCreatedAt holds the default value on creation for the created_at field.
-	coursesession.DefaultCreatedAt = coursesessionDescCreatedAt.Default.(func() time.Time)
-	// coursesessionDescUpdatedAt is the schema descriptor for updated_at field.
-	coursesessionDescUpdatedAt := coursesessionMixinFields0[2].Descriptor()
-	// coursesession.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	coursesession.DefaultUpdatedAt = coursesessionDescUpdatedAt.Default.(func() time.Time)
-	// coursesession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	coursesession.UpdateDefaultUpdatedAt = coursesessionDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// coursesessionDescTotalScore is the schema descriptor for total_score field.
-	coursesessionDescTotalScore := coursesessionFields[3].Descriptor()
-	// coursesession.DefaultTotalScore holds the default value on creation for the total_score field.
-	coursesession.DefaultTotalScore = coursesessionDescTotalScore.Default.(int)
-	// coursesessionDescID is the schema descriptor for id field.
-	coursesessionDescID := coursesessionMixinFields0[0].Descriptor()
-	// coursesession.DefaultID holds the default value on creation for the id field.
-	coursesession.DefaultID = coursesessionDescID.Default.(func() uuid.UUID)
 	mediaMixin := schema.Media{}.Mixin()
 	mediaMixinHooks1 := mediaMixin[1].Hooks()
 	media.Hooks[0] = mediaMixinHooks1[0]
@@ -259,6 +232,33 @@ func init() {
 	roleDescID := roleMixinFields0[0].Descriptor()
 	// role.DefaultID holds the default value on creation for the id field.
 	role.DefaultID = roleDescID.Default.(func() uuid.UUID)
+	testsessionMixin := schema.TestSession{}.Mixin()
+	testsessionMixinHooks1 := testsessionMixin[1].Hooks()
+	testsession.Hooks[0] = testsessionMixinHooks1[0]
+	testsessionMixinInters1 := testsessionMixin[1].Interceptors()
+	testsession.Interceptors[0] = testsessionMixinInters1[0]
+	testsessionMixinFields0 := testsessionMixin[0].Fields()
+	_ = testsessionMixinFields0
+	testsessionFields := schema.TestSession{}.Fields()
+	_ = testsessionFields
+	// testsessionDescCreatedAt is the schema descriptor for created_at field.
+	testsessionDescCreatedAt := testsessionMixinFields0[1].Descriptor()
+	// testsession.DefaultCreatedAt holds the default value on creation for the created_at field.
+	testsession.DefaultCreatedAt = testsessionDescCreatedAt.Default.(func() time.Time)
+	// testsessionDescUpdatedAt is the schema descriptor for updated_at field.
+	testsessionDescUpdatedAt := testsessionMixinFields0[2].Descriptor()
+	// testsession.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	testsession.DefaultUpdatedAt = testsessionDescUpdatedAt.Default.(func() time.Time)
+	// testsession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	testsession.UpdateDefaultUpdatedAt = testsessionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// testsessionDescTotalScore is the schema descriptor for total_score field.
+	testsessionDescTotalScore := testsessionFields[3].Descriptor()
+	// testsession.DefaultTotalScore holds the default value on creation for the total_score field.
+	testsession.DefaultTotalScore = testsessionDescTotalScore.Default.(int)
+	// testsessionDescID is the schema descriptor for id field.
+	testsessionDescID := testsessionMixinFields0[0].Descriptor()
+	// testsession.DefaultID holds the default value on creation for the id field.
+	testsession.DefaultID = testsessionDescID.Default.(func() uuid.UUID)
 	todoMixin := schema.Todo{}.Mixin()
 	todoMixinHooks1 := todoMixin[1].Hooks()
 	todo.Hooks[0] = todoMixinHooks1[0]

@@ -36,8 +36,8 @@ const (
 	EdgeQuestion = "question"
 	// EdgeSelectedOption holds the string denoting the selected_option edge name in mutations.
 	EdgeSelectedOption = "selected_option"
-	// EdgeCourseSession holds the string denoting the course_session edge name in mutations.
-	EdgeCourseSession = "course_session"
+	// EdgeTestSession holds the string denoting the test_session edge name in mutations.
+	EdgeTestSession = "test_session"
 	// Table holds the table name of the userquestionanswer in the database.
 	Table = "user_question_answers"
 	// UserTable is the table that holds the user relation/edge.
@@ -61,13 +61,13 @@ const (
 	SelectedOptionInverseTable = "question_options"
 	// SelectedOptionColumn is the table column denoting the selected_option relation/edge.
 	SelectedOptionColumn = "selected_option_id"
-	// CourseSessionTable is the table that holds the course_session relation/edge.
-	CourseSessionTable = "user_question_answers"
-	// CourseSessionInverseTable is the table name for the CourseSession entity.
-	// It exists in this package in order to avoid circular dependency with the "coursesession" package.
-	CourseSessionInverseTable = "course_sessions"
-	// CourseSessionColumn is the table column denoting the course_session relation/edge.
-	CourseSessionColumn = "session_id"
+	// TestSessionTable is the table that holds the test_session relation/edge.
+	TestSessionTable = "user_question_answers"
+	// TestSessionInverseTable is the table name for the TestSession entity.
+	// It exists in this package in order to avoid circular dependency with the "testsession" package.
+	TestSessionInverseTable = "test_sessions"
+	// TestSessionColumn is the table column denoting the test_session relation/edge.
+	TestSessionColumn = "session_id"
 )
 
 // Columns holds all SQL columns for userquestionanswer fields.
@@ -174,10 +174,10 @@ func BySelectedOptionField(field string, opts ...sql.OrderTermOption) OrderOptio
 	}
 }
 
-// ByCourseSessionField orders the results by course_session field.
-func ByCourseSessionField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByTestSessionField orders the results by test_session field.
+func ByTestSessionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCourseSessionStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newTestSessionStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newUserStep() *sqlgraph.Step {
@@ -201,10 +201,10 @@ func newSelectedOptionStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, SelectedOptionTable, SelectedOptionColumn),
 	)
 }
-func newCourseSessionStep() *sqlgraph.Step {
+func newTestSessionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CourseSessionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, CourseSessionTable, CourseSessionColumn),
+		sqlgraph.To(TestSessionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TestSessionTable, TestSessionColumn),
 	)
 }

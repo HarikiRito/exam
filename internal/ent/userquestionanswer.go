@@ -5,9 +5,9 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
 	"time"
@@ -50,8 +50,8 @@ type UserQuestionAnswerEdges struct {
 	Question *Question `json:"question,omitempty"`
 	// SelectedOption holds the value of the selected_option edge.
 	SelectedOption *QuestionOption `json:"selected_option,omitempty"`
-	// CourseSession holds the value of the course_session edge.
-	CourseSession *CourseSession `json:"course_session,omitempty"`
+	// TestSession holds the value of the test_session edge.
+	TestSession *TestSession `json:"test_session,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -90,15 +90,15 @@ func (e UserQuestionAnswerEdges) SelectedOptionOrErr() (*QuestionOption, error) 
 	return nil, &NotLoadedError{edge: "selected_option"}
 }
 
-// CourseSessionOrErr returns the CourseSession value or an error if the edge
+// TestSessionOrErr returns the TestSession value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e UserQuestionAnswerEdges) CourseSessionOrErr() (*CourseSession, error) {
-	if e.CourseSession != nil {
-		return e.CourseSession, nil
+func (e UserQuestionAnswerEdges) TestSessionOrErr() (*TestSession, error) {
+	if e.TestSession != nil {
+		return e.TestSession, nil
 	} else if e.loadedTypes[3] {
-		return nil, &NotFoundError{label: coursesession.Label}
+		return nil, &NotFoundError{label: testsession.Label}
 	}
-	return nil, &NotLoadedError{edge: "course_session"}
+	return nil, &NotLoadedError{edge: "test_session"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -202,9 +202,9 @@ func (uqa *UserQuestionAnswer) QuerySelectedOption() *QuestionOptionQuery {
 	return NewUserQuestionAnswerClient(uqa.config).QuerySelectedOption(uqa)
 }
 
-// QueryCourseSession queries the "course_session" edge of the UserQuestionAnswer entity.
-func (uqa *UserQuestionAnswer) QueryCourseSession() *CourseSessionQuery {
-	return NewUserQuestionAnswerClient(uqa.config).QueryCourseSession(uqa)
+// QueryTestSession queries the "test_session" edge of the UserQuestionAnswer entity.
+func (uqa *UserQuestionAnswer) QueryTestSession() *TestSessionQuery {
+	return NewUserQuestionAnswerClient(uqa.config).QueryTestSession(uqa)
 }
 
 // Update returns a builder for updating this UserQuestionAnswer.

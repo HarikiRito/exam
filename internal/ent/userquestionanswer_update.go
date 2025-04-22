@@ -6,10 +6,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
+	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
 	"time"
@@ -144,15 +144,15 @@ func (uqau *UserQuestionAnswerUpdate) SetSelectedOption(q *QuestionOption) *User
 	return uqau.SetSelectedOptionID(q.ID)
 }
 
-// SetCourseSessionID sets the "course_session" edge to the CourseSession entity by ID.
-func (uqau *UserQuestionAnswerUpdate) SetCourseSessionID(id uuid.UUID) *UserQuestionAnswerUpdate {
-	uqau.mutation.SetCourseSessionID(id)
+// SetTestSessionID sets the "test_session" edge to the TestSession entity by ID.
+func (uqau *UserQuestionAnswerUpdate) SetTestSessionID(id uuid.UUID) *UserQuestionAnswerUpdate {
+	uqau.mutation.SetTestSessionID(id)
 	return uqau
 }
 
-// SetCourseSession sets the "course_session" edge to the CourseSession entity.
-func (uqau *UserQuestionAnswerUpdate) SetCourseSession(c *CourseSession) *UserQuestionAnswerUpdate {
-	return uqau.SetCourseSessionID(c.ID)
+// SetTestSession sets the "test_session" edge to the TestSession entity.
+func (uqau *UserQuestionAnswerUpdate) SetTestSession(t *TestSession) *UserQuestionAnswerUpdate {
+	return uqau.SetTestSessionID(t.ID)
 }
 
 // Mutation returns the UserQuestionAnswerMutation object of the builder.
@@ -178,9 +178,9 @@ func (uqau *UserQuestionAnswerUpdate) ClearSelectedOption() *UserQuestionAnswerU
 	return uqau
 }
 
-// ClearCourseSession clears the "course_session" edge to the CourseSession entity.
-func (uqau *UserQuestionAnswerUpdate) ClearCourseSession() *UserQuestionAnswerUpdate {
-	uqau.mutation.ClearCourseSession()
+// ClearTestSession clears the "test_session" edge to the TestSession entity.
+func (uqau *UserQuestionAnswerUpdate) ClearTestSession() *UserQuestionAnswerUpdate {
+	uqau.mutation.ClearTestSession()
 	return uqau
 }
 
@@ -237,8 +237,8 @@ func (uqau *UserQuestionAnswerUpdate) check() error {
 	if uqau.mutation.SelectedOptionCleared() && len(uqau.mutation.SelectedOptionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.selected_option"`)
 	}
-	if uqau.mutation.CourseSessionCleared() && len(uqau.mutation.CourseSessionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.course_session"`)
+	if uqau.mutation.TestSessionCleared() && len(uqau.mutation.TestSessionIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.test_session"`)
 	}
 	return nil
 }
@@ -354,28 +354,28 @@ func (uqau *UserQuestionAnswerUpdate) sqlSave(ctx context.Context) (n int, err e
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uqau.mutation.CourseSessionCleared() {
+	if uqau.mutation.TestSessionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   userquestionanswer.CourseSessionTable,
-			Columns: []string{userquestionanswer.CourseSessionColumn},
+			Table:   userquestionanswer.TestSessionTable,
+			Columns: []string{userquestionanswer.TestSessionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uqau.mutation.CourseSessionIDs(); len(nodes) > 0 {
+	if nodes := uqau.mutation.TestSessionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   userquestionanswer.CourseSessionTable,
-			Columns: []string{userquestionanswer.CourseSessionColumn},
+			Table:   userquestionanswer.TestSessionTable,
+			Columns: []string{userquestionanswer.TestSessionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -514,15 +514,15 @@ func (uqauo *UserQuestionAnswerUpdateOne) SetSelectedOption(q *QuestionOption) *
 	return uqauo.SetSelectedOptionID(q.ID)
 }
 
-// SetCourseSessionID sets the "course_session" edge to the CourseSession entity by ID.
-func (uqauo *UserQuestionAnswerUpdateOne) SetCourseSessionID(id uuid.UUID) *UserQuestionAnswerUpdateOne {
-	uqauo.mutation.SetCourseSessionID(id)
+// SetTestSessionID sets the "test_session" edge to the TestSession entity by ID.
+func (uqauo *UserQuestionAnswerUpdateOne) SetTestSessionID(id uuid.UUID) *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.SetTestSessionID(id)
 	return uqauo
 }
 
-// SetCourseSession sets the "course_session" edge to the CourseSession entity.
-func (uqauo *UserQuestionAnswerUpdateOne) SetCourseSession(c *CourseSession) *UserQuestionAnswerUpdateOne {
-	return uqauo.SetCourseSessionID(c.ID)
+// SetTestSession sets the "test_session" edge to the TestSession entity.
+func (uqauo *UserQuestionAnswerUpdateOne) SetTestSession(t *TestSession) *UserQuestionAnswerUpdateOne {
+	return uqauo.SetTestSessionID(t.ID)
 }
 
 // Mutation returns the UserQuestionAnswerMutation object of the builder.
@@ -548,9 +548,9 @@ func (uqauo *UserQuestionAnswerUpdateOne) ClearSelectedOption() *UserQuestionAns
 	return uqauo
 }
 
-// ClearCourseSession clears the "course_session" edge to the CourseSession entity.
-func (uqauo *UserQuestionAnswerUpdateOne) ClearCourseSession() *UserQuestionAnswerUpdateOne {
-	uqauo.mutation.ClearCourseSession()
+// ClearTestSession clears the "test_session" edge to the TestSession entity.
+func (uqauo *UserQuestionAnswerUpdateOne) ClearTestSession() *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.ClearTestSession()
 	return uqauo
 }
 
@@ -620,8 +620,8 @@ func (uqauo *UserQuestionAnswerUpdateOne) check() error {
 	if uqauo.mutation.SelectedOptionCleared() && len(uqauo.mutation.SelectedOptionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.selected_option"`)
 	}
-	if uqauo.mutation.CourseSessionCleared() && len(uqauo.mutation.CourseSessionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.course_session"`)
+	if uqauo.mutation.TestSessionCleared() && len(uqauo.mutation.TestSessionIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.test_session"`)
 	}
 	return nil
 }
@@ -754,28 +754,28 @@ func (uqauo *UserQuestionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *U
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uqauo.mutation.CourseSessionCleared() {
+	if uqauo.mutation.TestSessionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   userquestionanswer.CourseSessionTable,
-			Columns: []string{userquestionanswer.CourseSessionColumn},
+			Table:   userquestionanswer.TestSessionTable,
+			Columns: []string{userquestionanswer.TestSessionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uqauo.mutation.CourseSessionIDs(); len(nodes) > 0 {
+	if nodes := uqauo.mutation.TestSessionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   userquestionanswer.CourseSessionTable,
-			Columns: []string{userquestionanswer.CourseSessionColumn},
+			Table:   userquestionanswer.TestSessionTable,
+			Columns: []string{userquestionanswer.TestSessionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesession.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

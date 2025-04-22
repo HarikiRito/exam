@@ -10,12 +10,12 @@ import (
 	"sync"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
+	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -88,12 +88,12 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			course.Table:                 course.ValidColumn,
 			coursesection.Table:          coursesection.ValidColumn,
-			coursesession.Table:          coursesession.ValidColumn,
 			media.Table:                  media.ValidColumn,
 			permission.Table:             permission.ValidColumn,
 			question.Table:               question.ValidColumn,
 			questionoption.Table:         questionoption.ValidColumn,
 			role.Table:                   role.ValidColumn,
+			testsession.Table:            testsession.ValidColumn,
 			todo.Table:                   todo.ValidColumn,
 			user.Table:                   user.ValidColumn,
 			userquestionanswer.Table:     userquestionanswer.ValidColumn,

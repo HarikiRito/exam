@@ -9,9 +9,9 @@ import (
 	"math"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/testsession"
 	"template/internal/ent/video"
 
 	"entgo.io/ent"
@@ -31,7 +31,7 @@ type CourseSectionQuery struct {
 	withCourse              *CourseQuery
 	withCourseSectionVideos *VideoQuery
 	withQuestions           *QuestionQuery
-	withCourseSessions      *CourseSessionQuery
+	withTestSessions        *TestSessionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -134,9 +134,9 @@ func (csq *CourseSectionQuery) QueryQuestions() *QuestionQuery {
 	return query
 }
 
-// QueryCourseSessions chains the current query on the "course_sessions" edge.
-func (csq *CourseSectionQuery) QueryCourseSessions() *CourseSessionQuery {
-	query := (&CourseSessionClient{config: csq.config}).Query()
+// QueryTestSessions chains the current query on the "test_sessions" edge.
+func (csq *CourseSectionQuery) QueryTestSessions() *TestSessionQuery {
+	query := (&TestSessionClient{config: csq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := csq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -147,8 +147,8 @@ func (csq *CourseSectionQuery) QueryCourseSessions() *CourseSessionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
-			sqlgraph.To(coursesession.Table, coursesession.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseSessionsTable, coursesection.CourseSessionsColumn),
+			sqlgraph.To(testsession.Table, testsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.TestSessionsTable, coursesection.TestSessionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
 		return fromU, nil
@@ -351,7 +351,7 @@ func (csq *CourseSectionQuery) Clone() *CourseSectionQuery {
 		withCourse:              csq.withCourse.Clone(),
 		withCourseSectionVideos: csq.withCourseSectionVideos.Clone(),
 		withQuestions:           csq.withQuestions.Clone(),
-		withCourseSessions:      csq.withCourseSessions.Clone(),
+		withTestSessions:        csq.withTestSessions.Clone(),
 		// clone intermediate query.
 		sql:  csq.sql.Clone(),
 		path: csq.path,
@@ -391,14 +391,14 @@ func (csq *CourseSectionQuery) WithQuestions(opts ...func(*QuestionQuery)) *Cour
 	return csq
 }
 
-// WithCourseSessions tells the query-builder to eager-load the nodes that are connected to
-// the "course_sessions" edge. The optional arguments are used to configure the query builder of the edge.
-func (csq *CourseSectionQuery) WithCourseSessions(opts ...func(*CourseSessionQuery)) *CourseSectionQuery {
-	query := (&CourseSessionClient{config: csq.config}).Query()
+// WithTestSessions tells the query-builder to eager-load the nodes that are connected to
+// the "test_sessions" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CourseSectionQuery) WithTestSessions(opts ...func(*TestSessionQuery)) *CourseSectionQuery {
+	query := (&TestSessionClient{config: csq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	csq.withCourseSessions = query
+	csq.withTestSessions = query
 	return csq
 }
 
@@ -484,7 +484,7 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			csq.withCourse != nil,
 			csq.withCourseSectionVideos != nil,
 			csq.withQuestions != nil,
-			csq.withCourseSessions != nil,
+			csq.withTestSessions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -525,10 +525,10 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			return nil, err
 		}
 	}
-	if query := csq.withCourseSessions; query != nil {
-		if err := csq.loadCourseSessions(ctx, query, nodes,
-			func(n *CourseSection) { n.Edges.CourseSessions = []*CourseSession{} },
-			func(n *CourseSection, e *CourseSession) { n.Edges.CourseSessions = append(n.Edges.CourseSessions, e) }); err != nil {
+	if query := csq.withTestSessions; query != nil {
+		if err := csq.loadTestSessions(ctx, query, nodes,
+			func(n *CourseSection) { n.Edges.TestSessions = []*TestSession{} },
+			func(n *CourseSection, e *TestSession) { n.Edges.TestSessions = append(n.Edges.TestSessions, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -624,7 +624,7 @@ func (csq *CourseSectionQuery) loadQuestions(ctx context.Context, query *Questio
 	}
 	return nil
 }
-func (csq *CourseSectionQuery) loadCourseSessions(ctx context.Context, query *CourseSessionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *CourseSession)) error {
+func (csq *CourseSectionQuery) loadTestSessions(ctx context.Context, query *TestSessionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *TestSession)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*CourseSection)
 	for i := range nodes {
@@ -635,10 +635,10 @@ func (csq *CourseSectionQuery) loadCourseSessions(ctx context.Context, query *Co
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(coursesession.FieldCourseSectionID)
+		query.ctx.AppendFieldOnce(testsession.FieldCourseSectionID)
 	}
-	query.Where(predicate.CourseSession(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(coursesection.CourseSessionsColumn), fks...))
+	query.Where(predicate.TestSession(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(coursesection.TestSessionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

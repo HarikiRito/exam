@@ -231,6 +231,16 @@ func SectionIDNotIn(vs ...uuid.UUID) predicate.Question {
 	return predicate.Question(sql.FieldNotIn(FieldSectionID, vs...))
 }
 
+// SectionIDIsNil applies the IsNil predicate on the "section_id" field.
+func SectionIDIsNil() predicate.Question {
+	return predicate.Question(sql.FieldIsNull(FieldSectionID))
+}
+
+// SectionIDNotNil applies the NotNil predicate on the "section_id" field.
+func SectionIDNotNil() predicate.Question {
+	return predicate.Question(sql.FieldNotNull(FieldSectionID))
+}
+
 // QuestionTextEQ applies the EQ predicate on the "question_text" field.
 func QuestionTextEQ(v string) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldQuestionText, v))

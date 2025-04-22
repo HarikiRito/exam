@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// CourseSession holds the schema definition for the CourseSession entity.
-type CourseSession struct {
+// TestSession holds the schema definition for the TestSession entity.
+type TestSession struct {
 	ent.Schema
 }
 
 // Fields of the CourseSession.
-func (CourseSession) Fields() []ent.Field {
+func (TestSession) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("course_section_id", uuid.UUID{}).Optional().Nillable(),
@@ -25,21 +25,21 @@ func (CourseSession) Fields() []ent.Field {
 }
 
 // Edges of the CourseSession.
-func (CourseSession) Edges() []ent.Edge {
+func (TestSession) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).
-			Ref("course_sessions").
+			Ref("test_sessions").
 			Field("user_id").
 			Unique().
 			Required(),
 		edge.From("course_section", CourseSection.Type).
-			Ref("course_sessions").
+			Ref("test_sessions").
 			Field("course_section_id").
 			Unique(),
 		edge.To("user_question_answers", UserQuestionAnswer.Type),
 	}
 }
 
-func (CourseSession) Mixin() []ent.Mixin {
+func (TestSession) Mixin() []ent.Mixin {
 	return mixin.DefaultMixins()
 }

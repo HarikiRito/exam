@@ -13,12 +13,12 @@ import (
 
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
+	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -42,8 +42,6 @@ type Client struct {
 	Course *CourseClient
 	// CourseSection is the client for interacting with the CourseSection builders.
 	CourseSection *CourseSectionClient
-	// CourseSession is the client for interacting with the CourseSession builders.
-	CourseSession *CourseSessionClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
 	// Permission is the client for interacting with the Permission builders.
@@ -54,6 +52,8 @@ type Client struct {
 	QuestionOption *QuestionOptionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// TestSession is the client for interacting with the TestSession builders.
+	TestSession *TestSessionClient
 	// Todo is the client for interacting with the Todo builders.
 	Todo *TodoClient
 	// User is the client for interacting with the User builders.
@@ -79,12 +79,12 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Course = NewCourseClient(c.config)
 	c.CourseSection = NewCourseSectionClient(c.config)
-	c.CourseSession = NewCourseSessionClient(c.config)
 	c.Media = NewMediaClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.Question = NewQuestionClient(c.config)
 	c.QuestionOption = NewQuestionOptionClient(c.config)
 	c.Role = NewRoleClient(c.config)
+	c.TestSession = NewTestSessionClient(c.config)
 	c.Todo = NewTodoClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.UserQuestionAnswer = NewUserQuestionAnswerClient(c.config)
@@ -185,12 +185,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:                 cfg,
 		Course:                 NewCourseClient(cfg),
 		CourseSection:          NewCourseSectionClient(cfg),
-		CourseSession:          NewCourseSessionClient(cfg),
 		Media:                  NewMediaClient(cfg),
 		Permission:             NewPermissionClient(cfg),
 		Question:               NewQuestionClient(cfg),
 		QuestionOption:         NewQuestionOptionClient(cfg),
 		Role:                   NewRoleClient(cfg),
+		TestSession:            NewTestSessionClient(cfg),
 		Todo:                   NewTodoClient(cfg),
 		User:                   NewUserClient(cfg),
 		UserQuestionAnswer:     NewUserQuestionAnswerClient(cfg),
@@ -218,12 +218,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:                 cfg,
 		Course:                 NewCourseClient(cfg),
 		CourseSection:          NewCourseSectionClient(cfg),
-		CourseSession:          NewCourseSessionClient(cfg),
 		Media:                  NewMediaClient(cfg),
 		Permission:             NewPermissionClient(cfg),
 		Question:               NewQuestionClient(cfg),
 		QuestionOption:         NewQuestionOptionClient(cfg),
 		Role:                   NewRoleClient(cfg),
+		TestSession:            NewTestSessionClient(cfg),
 		Todo:                   NewTodoClient(cfg),
 		User:                   NewUserClient(cfg),
 		UserQuestionAnswer:     NewUserQuestionAnswerClient(cfg),
@@ -259,8 +259,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Course, c.CourseSection, c.CourseSession, c.Media, c.Permission, c.Question,
-		c.QuestionOption, c.Role, c.Todo, c.User, c.UserQuestionAnswer, c.UserRole,
+		c.Course, c.CourseSection, c.Media, c.Permission, c.Question, c.QuestionOption,
+		c.Role, c.TestSession, c.Todo, c.User, c.UserQuestionAnswer, c.UserRole,
 		c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Use(hooks...)
@@ -271,8 +271,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Course, c.CourseSection, c.CourseSession, c.Media, c.Permission, c.Question,
-		c.QuestionOption, c.Role, c.Todo, c.User, c.UserQuestionAnswer, c.UserRole,
+		c.Course, c.CourseSection, c.Media, c.Permission, c.Question, c.QuestionOption,
+		c.Role, c.TestSession, c.Todo, c.User, c.UserQuestionAnswer, c.UserRole,
 		c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Intercept(interceptors...)
@@ -286,8 +286,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Course.mutate(ctx, m)
 	case *CourseSectionMutation:
 		return c.CourseSection.mutate(ctx, m)
-	case *CourseSessionMutation:
-		return c.CourseSession.mutate(ctx, m)
 	case *MediaMutation:
 		return c.Media.mutate(ctx, m)
 	case *PermissionMutation:
@@ -298,6 +296,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.QuestionOption.mutate(ctx, m)
 	case *RoleMutation:
 		return c.Role.mutate(ctx, m)
+	case *TestSessionMutation:
+		return c.TestSession.mutate(ctx, m)
 	case *TodoMutation:
 		return c.Todo.mutate(ctx, m)
 	case *UserMutation:
@@ -670,15 +670,15 @@ func (c *CourseSectionClient) QueryQuestions(cs *CourseSection) *QuestionQuery {
 	return query
 }
 
-// QueryCourseSessions queries the course_sessions edge of a CourseSection.
-func (c *CourseSectionClient) QueryCourseSessions(cs *CourseSection) *CourseSessionQuery {
-	query := (&CourseSessionClient{config: c.config}).Query()
+// QueryTestSessions queries the test_sessions edge of a CourseSection.
+func (c *CourseSectionClient) QueryTestSessions(cs *CourseSection) *TestSessionQuery {
+	query := (&TestSessionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := cs.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
-			sqlgraph.To(coursesession.Table, coursesession.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.CourseSessionsTable, coursesection.CourseSessionsColumn),
+			sqlgraph.To(testsession.Table, testsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.TestSessionsTable, coursesection.TestSessionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
 		return fromV, nil
@@ -710,189 +710,6 @@ func (c *CourseSectionClient) mutate(ctx context.Context, m *CourseSectionMutati
 		return (&CourseSectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown CourseSection mutation op: %q", m.Op())
-	}
-}
-
-// CourseSessionClient is a client for the CourseSession schema.
-type CourseSessionClient struct {
-	config
-}
-
-// NewCourseSessionClient returns a client for the CourseSession from the given config.
-func NewCourseSessionClient(c config) *CourseSessionClient {
-	return &CourseSessionClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `coursesession.Hooks(f(g(h())))`.
-func (c *CourseSessionClient) Use(hooks ...Hook) {
-	c.hooks.CourseSession = append(c.hooks.CourseSession, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `coursesession.Intercept(f(g(h())))`.
-func (c *CourseSessionClient) Intercept(interceptors ...Interceptor) {
-	c.inters.CourseSession = append(c.inters.CourseSession, interceptors...)
-}
-
-// Create returns a builder for creating a CourseSession entity.
-func (c *CourseSessionClient) Create() *CourseSessionCreate {
-	mutation := newCourseSessionMutation(c.config, OpCreate)
-	return &CourseSessionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of CourseSession entities.
-func (c *CourseSessionClient) CreateBulk(builders ...*CourseSessionCreate) *CourseSessionCreateBulk {
-	return &CourseSessionCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *CourseSessionClient) MapCreateBulk(slice any, setFunc func(*CourseSessionCreate, int)) *CourseSessionCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &CourseSessionCreateBulk{err: fmt.Errorf("calling to CourseSessionClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*CourseSessionCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &CourseSessionCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for CourseSession.
-func (c *CourseSessionClient) Update() *CourseSessionUpdate {
-	mutation := newCourseSessionMutation(c.config, OpUpdate)
-	return &CourseSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *CourseSessionClient) UpdateOne(cs *CourseSession) *CourseSessionUpdateOne {
-	mutation := newCourseSessionMutation(c.config, OpUpdateOne, withCourseSession(cs))
-	return &CourseSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *CourseSessionClient) UpdateOneID(id uuid.UUID) *CourseSessionUpdateOne {
-	mutation := newCourseSessionMutation(c.config, OpUpdateOne, withCourseSessionID(id))
-	return &CourseSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for CourseSession.
-func (c *CourseSessionClient) Delete() *CourseSessionDelete {
-	mutation := newCourseSessionMutation(c.config, OpDelete)
-	return &CourseSessionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *CourseSessionClient) DeleteOne(cs *CourseSession) *CourseSessionDeleteOne {
-	return c.DeleteOneID(cs.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CourseSessionClient) DeleteOneID(id uuid.UUID) *CourseSessionDeleteOne {
-	builder := c.Delete().Where(coursesession.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &CourseSessionDeleteOne{builder}
-}
-
-// Query returns a query builder for CourseSession.
-func (c *CourseSessionClient) Query() *CourseSessionQuery {
-	return &CourseSessionQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeCourseSession},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a CourseSession entity by its id.
-func (c *CourseSessionClient) Get(ctx context.Context, id uuid.UUID) (*CourseSession, error) {
-	return c.Query().Where(coursesession.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *CourseSessionClient) GetX(ctx context.Context, id uuid.UUID) *CourseSession {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a CourseSession.
-func (c *CourseSessionClient) QueryUser(cs *CourseSession) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := cs.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(coursesession.Table, coursesession.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, coursesession.UserTable, coursesession.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCourseSection queries the course_section edge of a CourseSession.
-func (c *CourseSessionClient) QueryCourseSection(cs *CourseSession) *CourseSectionQuery {
-	query := (&CourseSectionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := cs.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(coursesession.Table, coursesession.FieldID, id),
-			sqlgraph.To(coursesection.Table, coursesection.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, coursesession.CourseSectionTable, coursesession.CourseSectionColumn),
-		)
-		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUserQuestionAnswers queries the user_question_answers edge of a CourseSession.
-func (c *CourseSessionClient) QueryUserQuestionAnswers(cs *CourseSession) *UserQuestionAnswerQuery {
-	query := (&UserQuestionAnswerClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := cs.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(coursesession.Table, coursesession.FieldID, id),
-			sqlgraph.To(userquestionanswer.Table, userquestionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, coursesession.UserQuestionAnswersTable, coursesession.UserQuestionAnswersColumn),
-		)
-		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *CourseSessionClient) Hooks() []Hook {
-	hooks := c.hooks.CourseSession
-	return append(hooks[:len(hooks):len(hooks)], coursesession.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *CourseSessionClient) Interceptors() []Interceptor {
-	inters := c.inters.CourseSession
-	return append(inters[:len(inters):len(inters)], coursesession.Interceptors[:]...)
-}
-
-func (c *CourseSessionClient) mutate(ctx context.Context, m *CourseSessionMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&CourseSessionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&CourseSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&CourseSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&CourseSessionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown CourseSession mutation op: %q", m.Op())
 	}
 }
 
@@ -1795,6 +1612,189 @@ func (c *RoleClient) mutate(ctx context.Context, m *RoleMutation) (Value, error)
 	}
 }
 
+// TestSessionClient is a client for the TestSession schema.
+type TestSessionClient struct {
+	config
+}
+
+// NewTestSessionClient returns a client for the TestSession from the given config.
+func NewTestSessionClient(c config) *TestSessionClient {
+	return &TestSessionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `testsession.Hooks(f(g(h())))`.
+func (c *TestSessionClient) Use(hooks ...Hook) {
+	c.hooks.TestSession = append(c.hooks.TestSession, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `testsession.Intercept(f(g(h())))`.
+func (c *TestSessionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TestSession = append(c.inters.TestSession, interceptors...)
+}
+
+// Create returns a builder for creating a TestSession entity.
+func (c *TestSessionClient) Create() *TestSessionCreate {
+	mutation := newTestSessionMutation(c.config, OpCreate)
+	return &TestSessionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TestSession entities.
+func (c *TestSessionClient) CreateBulk(builders ...*TestSessionCreate) *TestSessionCreateBulk {
+	return &TestSessionCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TestSessionClient) MapCreateBulk(slice any, setFunc func(*TestSessionCreate, int)) *TestSessionCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TestSessionCreateBulk{err: fmt.Errorf("calling to TestSessionClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TestSessionCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TestSessionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TestSession.
+func (c *TestSessionClient) Update() *TestSessionUpdate {
+	mutation := newTestSessionMutation(c.config, OpUpdate)
+	return &TestSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TestSessionClient) UpdateOne(ts *TestSession) *TestSessionUpdateOne {
+	mutation := newTestSessionMutation(c.config, OpUpdateOne, withTestSession(ts))
+	return &TestSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TestSessionClient) UpdateOneID(id uuid.UUID) *TestSessionUpdateOne {
+	mutation := newTestSessionMutation(c.config, OpUpdateOne, withTestSessionID(id))
+	return &TestSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TestSession.
+func (c *TestSessionClient) Delete() *TestSessionDelete {
+	mutation := newTestSessionMutation(c.config, OpDelete)
+	return &TestSessionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TestSessionClient) DeleteOne(ts *TestSession) *TestSessionDeleteOne {
+	return c.DeleteOneID(ts.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TestSessionClient) DeleteOneID(id uuid.UUID) *TestSessionDeleteOne {
+	builder := c.Delete().Where(testsession.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TestSessionDeleteOne{builder}
+}
+
+// Query returns a query builder for TestSession.
+func (c *TestSessionClient) Query() *TestSessionQuery {
+	return &TestSessionQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTestSession},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TestSession entity by its id.
+func (c *TestSessionClient) Get(ctx context.Context, id uuid.UUID) (*TestSession, error) {
+	return c.Query().Where(testsession.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TestSessionClient) GetX(ctx context.Context, id uuid.UUID) *TestSession {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a TestSession.
+func (c *TestSessionClient) QueryUser(ts *TestSession) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsession.Table, testsession.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, testsession.UserTable, testsession.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCourseSection queries the course_section edge of a TestSession.
+func (c *TestSessionClient) QueryCourseSection(ts *TestSession) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsession.Table, testsession.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, testsession.CourseSectionTable, testsession.CourseSectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUserQuestionAnswers queries the user_question_answers edge of a TestSession.
+func (c *TestSessionClient) QueryUserQuestionAnswers(ts *TestSession) *UserQuestionAnswerQuery {
+	query := (&UserQuestionAnswerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(testsession.Table, testsession.FieldID, id),
+			sqlgraph.To(userquestionanswer.Table, userquestionanswer.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, testsession.UserQuestionAnswersTable, testsession.UserQuestionAnswersColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TestSessionClient) Hooks() []Hook {
+	hooks := c.hooks.TestSession
+	return append(hooks[:len(hooks):len(hooks)], testsession.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *TestSessionClient) Interceptors() []Interceptor {
+	inters := c.inters.TestSession
+	return append(inters[:len(inters):len(inters)], testsession.Interceptors[:]...)
+}
+
+func (c *TestSessionClient) mutate(ctx context.Context, m *TestSessionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TestSessionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TestSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TestSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TestSessionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TestSession mutation op: %q", m.Op())
+	}
+}
+
 // TodoClient is a client for the Todo schema.
 type TodoClient struct {
 	config
@@ -2118,15 +2118,15 @@ func (c *UserClient) QueryUserQuestionAnswers(u *User) *UserQuestionAnswerQuery 
 	return query
 }
 
-// QueryCourseSessions queries the course_sessions edge of a User.
-func (c *UserClient) QueryCourseSessions(u *User) *CourseSessionQuery {
-	query := (&CourseSessionClient{config: c.config}).Query()
+// QueryTestSessions queries the test_sessions edge of a User.
+func (c *UserClient) QueryTestSessions(u *User) *TestSessionQuery {
+	query := (&TestSessionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(coursesession.Table, coursesession.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.CourseSessionsTable, user.CourseSessionsColumn),
+			sqlgraph.To(testsession.Table, testsession.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.TestSessionsTable, user.TestSessionsColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil
@@ -2333,15 +2333,15 @@ func (c *UserQuestionAnswerClient) QuerySelectedOption(uqa *UserQuestionAnswer) 
 	return query
 }
 
-// QueryCourseSession queries the course_session edge of a UserQuestionAnswer.
-func (c *UserQuestionAnswerClient) QueryCourseSession(uqa *UserQuestionAnswer) *CourseSessionQuery {
-	query := (&CourseSessionClient{config: c.config}).Query()
+// QueryTestSession queries the test_session edge of a UserQuestionAnswer.
+func (c *UserQuestionAnswerClient) QueryTestSession(uqa *UserQuestionAnswer) *TestSessionQuery {
+	query := (&TestSessionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := uqa.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(userquestionanswer.Table, userquestionanswer.FieldID, id),
-			sqlgraph.To(coursesession.Table, coursesession.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, userquestionanswer.CourseSessionTable, userquestionanswer.CourseSessionColumn),
+			sqlgraph.To(testsession.Table, testsession.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, userquestionanswer.TestSessionTable, userquestionanswer.TestSessionColumn),
 		)
 		fromV = sqlgraph.Neighbors(uqa.driver.Dialect(), step)
 		return fromV, nil
@@ -2912,13 +2912,13 @@ func (c *VideoQuestionTimestampClient) mutate(ctx context.Context, m *VideoQuest
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Course, CourseSection, CourseSession, Media, Permission, Question,
-		QuestionOption, Role, Todo, User, UserQuestionAnswer, UserRole, Video,
+		Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
+		TestSession, Todo, User, UserQuestionAnswer, UserRole, Video,
 		VideoQuestionTimestamp []ent.Hook
 	}
 	inters struct {
-		Course, CourseSection, CourseSession, Media, Permission, Question,
-		QuestionOption, Role, Todo, User, UserQuestionAnswer, UserRole, Video,
+		Course, CourseSection, Media, Permission, Question, QuestionOption, Role,
+		TestSession, Todo, User, UserQuestionAnswer, UserRole, Video,
 		VideoQuestionTimestamp []ent.Interceptor
 	}
 )

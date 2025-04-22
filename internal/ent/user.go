@@ -57,8 +57,8 @@ type UserEdges struct {
 	CourseCreator []*Course `json:"course_creator,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
 	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
-	// CourseSessions holds the value of the course_sessions edge.
-	CourseSessions []*CourseSession `json:"course_sessions,omitempty"`
+	// TestSessions holds the value of the test_sessions edge.
+	TestSessions []*TestSession `json:"test_sessions,omitempty"`
 	// UserRoles holds the value of the user_roles edge.
 	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -113,13 +113,13 @@ func (e UserEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
 	return nil, &NotLoadedError{edge: "user_question_answers"}
 }
 
-// CourseSessionsOrErr returns the CourseSessions value or an error if the edge
+// TestSessionsOrErr returns the TestSessions value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) CourseSessionsOrErr() ([]*CourseSession, error) {
+func (e UserEdges) TestSessionsOrErr() ([]*TestSession, error) {
 	if e.loadedTypes[5] {
-		return e.CourseSessions, nil
+		return e.TestSessions, nil
 	}
-	return nil, &NotLoadedError{edge: "course_sessions"}
+	return nil, &NotLoadedError{edge: "test_sessions"}
 }
 
 // UserRolesOrErr returns the UserRoles value or an error if the edge
@@ -264,9 +264,9 @@ func (u *User) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
 	return NewUserClient(u.config).QueryUserQuestionAnswers(u)
 }
 
-// QueryCourseSessions queries the "course_sessions" edge of the User entity.
-func (u *User) QueryCourseSessions() *CourseSessionQuery {
-	return NewUserClient(u.config).QueryCourseSessions(u)
+// QueryTestSessions queries the "test_sessions" edge of the User entity.
+func (u *User) QueryTestSessions() *TestSessionQuery {
+	return NewUserClient(u.config).QueryTestSessions(u)
 }
 
 // QueryUserRoles queries the "user_roles" edge of the User entity.

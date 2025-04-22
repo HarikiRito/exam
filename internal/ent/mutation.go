@@ -9,13 +9,13 @@ import (
 	"sync"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
+	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
@@ -40,12 +40,12 @@ const (
 	// Node types.
 	TypeCourse                 = "Course"
 	TypeCourseSection          = "CourseSection"
-	TypeCourseSession          = "CourseSession"
 	TypeMedia                  = "Media"
 	TypePermission             = "Permission"
 	TypeQuestion               = "Question"
 	TypeQuestionOption         = "QuestionOption"
 	TypeRole                   = "Role"
+	TypeTestSession            = "TestSession"
 	TypeTodo                   = "Todo"
 	TypeUser                   = "User"
 	TypeUserQuestionAnswer     = "UserQuestionAnswer"
@@ -1112,9 +1112,9 @@ type CourseSectionMutation struct {
 	questions                    map[uuid.UUID]struct{}
 	removedquestions             map[uuid.UUID]struct{}
 	clearedquestions             bool
-	course_sessions              map[uuid.UUID]struct{}
-	removedcourse_sessions       map[uuid.UUID]struct{}
-	clearedcourse_sessions       bool
+	test_sessions                map[uuid.UUID]struct{}
+	removedtest_sessions         map[uuid.UUID]struct{}
+	clearedtest_sessions         bool
 	done                         bool
 	oldValue                     func(context.Context) (*CourseSection, error)
 	predicates                   []predicate.CourseSection
@@ -1601,58 +1601,58 @@ func (m *CourseSectionMutation) ResetQuestions() {
 	m.removedquestions = nil
 }
 
-// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by ids.
-func (m *CourseSectionMutation) AddCourseSessionIDs(ids ...uuid.UUID) {
-	if m.course_sessions == nil {
-		m.course_sessions = make(map[uuid.UUID]struct{})
+// AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by ids.
+func (m *CourseSectionMutation) AddTestSessionIDs(ids ...uuid.UUID) {
+	if m.test_sessions == nil {
+		m.test_sessions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.course_sessions[ids[i]] = struct{}{}
+		m.test_sessions[ids[i]] = struct{}{}
 	}
 }
 
-// ClearCourseSessions clears the "course_sessions" edge to the CourseSession entity.
-func (m *CourseSectionMutation) ClearCourseSessions() {
-	m.clearedcourse_sessions = true
+// ClearTestSessions clears the "test_sessions" edge to the TestSession entity.
+func (m *CourseSectionMutation) ClearTestSessions() {
+	m.clearedtest_sessions = true
 }
 
-// CourseSessionsCleared reports if the "course_sessions" edge to the CourseSession entity was cleared.
-func (m *CourseSectionMutation) CourseSessionsCleared() bool {
-	return m.clearedcourse_sessions
+// TestSessionsCleared reports if the "test_sessions" edge to the TestSession entity was cleared.
+func (m *CourseSectionMutation) TestSessionsCleared() bool {
+	return m.clearedtest_sessions
 }
 
-// RemoveCourseSessionIDs removes the "course_sessions" edge to the CourseSession entity by IDs.
-func (m *CourseSectionMutation) RemoveCourseSessionIDs(ids ...uuid.UUID) {
-	if m.removedcourse_sessions == nil {
-		m.removedcourse_sessions = make(map[uuid.UUID]struct{})
+// RemoveTestSessionIDs removes the "test_sessions" edge to the TestSession entity by IDs.
+func (m *CourseSectionMutation) RemoveTestSessionIDs(ids ...uuid.UUID) {
+	if m.removedtest_sessions == nil {
+		m.removedtest_sessions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.course_sessions, ids[i])
-		m.removedcourse_sessions[ids[i]] = struct{}{}
+		delete(m.test_sessions, ids[i])
+		m.removedtest_sessions[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedCourseSessions returns the removed IDs of the "course_sessions" edge to the CourseSession entity.
-func (m *CourseSectionMutation) RemovedCourseSessionsIDs() (ids []uuid.UUID) {
-	for id := range m.removedcourse_sessions {
+// RemovedTestSessions returns the removed IDs of the "test_sessions" edge to the TestSession entity.
+func (m *CourseSectionMutation) RemovedTestSessionsIDs() (ids []uuid.UUID) {
+	for id := range m.removedtest_sessions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// CourseSessionsIDs returns the "course_sessions" edge IDs in the mutation.
-func (m *CourseSectionMutation) CourseSessionsIDs() (ids []uuid.UUID) {
-	for id := range m.course_sessions {
+// TestSessionsIDs returns the "test_sessions" edge IDs in the mutation.
+func (m *CourseSectionMutation) TestSessionsIDs() (ids []uuid.UUID) {
+	for id := range m.test_sessions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetCourseSessions resets all changes to the "course_sessions" edge.
-func (m *CourseSectionMutation) ResetCourseSessions() {
-	m.course_sessions = nil
-	m.clearedcourse_sessions = false
-	m.removedcourse_sessions = nil
+// ResetTestSessions resets all changes to the "test_sessions" edge.
+func (m *CourseSectionMutation) ResetTestSessions() {
+	m.test_sessions = nil
+	m.clearedtest_sessions = false
+	m.removedtest_sessions = nil
 }
 
 // Where appends a list predicates to the CourseSectionMutation builder.
@@ -1898,8 +1898,8 @@ func (m *CourseSectionMutation) AddedEdges() []string {
 	if m.questions != nil {
 		edges = append(edges, coursesection.EdgeQuestions)
 	}
-	if m.course_sessions != nil {
-		edges = append(edges, coursesection.EdgeCourseSessions)
+	if m.test_sessions != nil {
+		edges = append(edges, coursesection.EdgeTestSessions)
 	}
 	return edges
 }
@@ -1924,9 +1924,9 @@ func (m *CourseSectionMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case coursesection.EdgeCourseSessions:
-		ids := make([]ent.Value, 0, len(m.course_sessions))
-		for id := range m.course_sessions {
+	case coursesection.EdgeTestSessions:
+		ids := make([]ent.Value, 0, len(m.test_sessions))
+		for id := range m.test_sessions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1943,8 +1943,8 @@ func (m *CourseSectionMutation) RemovedEdges() []string {
 	if m.removedquestions != nil {
 		edges = append(edges, coursesection.EdgeQuestions)
 	}
-	if m.removedcourse_sessions != nil {
-		edges = append(edges, coursesection.EdgeCourseSessions)
+	if m.removedtest_sessions != nil {
+		edges = append(edges, coursesection.EdgeTestSessions)
 	}
 	return edges
 }
@@ -1965,9 +1965,9 @@ func (m *CourseSectionMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case coursesection.EdgeCourseSessions:
-		ids := make([]ent.Value, 0, len(m.removedcourse_sessions))
-		for id := range m.removedcourse_sessions {
+	case coursesection.EdgeTestSessions:
+		ids := make([]ent.Value, 0, len(m.removedtest_sessions))
+		for id := range m.removedtest_sessions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1987,8 +1987,8 @@ func (m *CourseSectionMutation) ClearedEdges() []string {
 	if m.clearedquestions {
 		edges = append(edges, coursesection.EdgeQuestions)
 	}
-	if m.clearedcourse_sessions {
-		edges = append(edges, coursesection.EdgeCourseSessions)
+	if m.clearedtest_sessions {
+		edges = append(edges, coursesection.EdgeTestSessions)
 	}
 	return edges
 }
@@ -2003,8 +2003,8 @@ func (m *CourseSectionMutation) EdgeCleared(name string) bool {
 		return m.clearedcourse_section_videos
 	case coursesection.EdgeQuestions:
 		return m.clearedquestions
-	case coursesection.EdgeCourseSessions:
-		return m.clearedcourse_sessions
+	case coursesection.EdgeTestSessions:
+		return m.clearedtest_sessions
 	}
 	return false
 }
@@ -2033,948 +2033,11 @@ func (m *CourseSectionMutation) ResetEdge(name string) error {
 	case coursesection.EdgeQuestions:
 		m.ResetQuestions()
 		return nil
-	case coursesection.EdgeCourseSessions:
-		m.ResetCourseSessions()
+	case coursesection.EdgeTestSessions:
+		m.ResetTestSessions()
 		return nil
 	}
 	return fmt.Errorf("unknown CourseSection edge %s", name)
-}
-
-// CourseSessionMutation represents an operation that mutates the CourseSession nodes in the graph.
-type CourseSessionMutation struct {
-	config
-	op                           Op
-	typ                          string
-	id                           *uuid.UUID
-	created_at                   *time.Time
-	updated_at                   *time.Time
-	deleted_at                   *time.Time
-	completed_at                 *time.Time
-	total_score                  *int
-	addtotal_score               *int
-	clearedFields                map[string]struct{}
-	user                         *uuid.UUID
-	cleareduser                  bool
-	course_section               *uuid.UUID
-	clearedcourse_section        bool
-	user_question_answers        map[uuid.UUID]struct{}
-	removeduser_question_answers map[uuid.UUID]struct{}
-	cleareduser_question_answers bool
-	done                         bool
-	oldValue                     func(context.Context) (*CourseSession, error)
-	predicates                   []predicate.CourseSession
-}
-
-var _ ent.Mutation = (*CourseSessionMutation)(nil)
-
-// coursesessionOption allows management of the mutation configuration using functional options.
-type coursesessionOption func(*CourseSessionMutation)
-
-// newCourseSessionMutation creates new mutation for the CourseSession entity.
-func newCourseSessionMutation(c config, op Op, opts ...coursesessionOption) *CourseSessionMutation {
-	m := &CourseSessionMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeCourseSession,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withCourseSessionID sets the ID field of the mutation.
-func withCourseSessionID(id uuid.UUID) coursesessionOption {
-	return func(m *CourseSessionMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *CourseSession
-		)
-		m.oldValue = func(ctx context.Context) (*CourseSession, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().CourseSession.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withCourseSession sets the old CourseSession of the mutation.
-func withCourseSession(node *CourseSession) coursesessionOption {
-	return func(m *CourseSessionMutation) {
-		m.oldValue = func(context.Context) (*CourseSession, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m CourseSessionMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m CourseSessionMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of CourseSession entities.
-func (m *CourseSessionMutation) SetID(id uuid.UUID) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *CourseSessionMutation) ID() (id uuid.UUID, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *CourseSessionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []uuid.UUID{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().CourseSession.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *CourseSessionMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *CourseSessionMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *CourseSessionMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *CourseSessionMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *CourseSessionMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *CourseSessionMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *CourseSessionMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *CourseSessionMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *CourseSessionMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[coursesession.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *CourseSessionMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[coursesession.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *CourseSessionMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, coursesession.FieldDeletedAt)
-}
-
-// SetUserID sets the "user_id" field.
-func (m *CourseSessionMutation) SetUserID(u uuid.UUID) {
-	m.user = &u
-}
-
-// UserID returns the value of the "user_id" field in the mutation.
-func (m *CourseSessionMutation) UserID() (r uuid.UUID, exists bool) {
-	v := m.user
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUserID returns the old "user_id" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUserID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
-	}
-	return oldValue.UserID, nil
-}
-
-// ResetUserID resets all changes to the "user_id" field.
-func (m *CourseSessionMutation) ResetUserID() {
-	m.user = nil
-}
-
-// SetCourseSectionID sets the "course_section_id" field.
-func (m *CourseSessionMutation) SetCourseSectionID(u uuid.UUID) {
-	m.course_section = &u
-}
-
-// CourseSectionID returns the value of the "course_section_id" field in the mutation.
-func (m *CourseSessionMutation) CourseSectionID() (r uuid.UUID, exists bool) {
-	v := m.course_section
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCourseSectionID returns the old "course_section_id" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldCourseSectionID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCourseSectionID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCourseSectionID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCourseSectionID: %w", err)
-	}
-	return oldValue.CourseSectionID, nil
-}
-
-// ClearCourseSectionID clears the value of the "course_section_id" field.
-func (m *CourseSessionMutation) ClearCourseSectionID() {
-	m.course_section = nil
-	m.clearedFields[coursesession.FieldCourseSectionID] = struct{}{}
-}
-
-// CourseSectionIDCleared returns if the "course_section_id" field was cleared in this mutation.
-func (m *CourseSessionMutation) CourseSectionIDCleared() bool {
-	_, ok := m.clearedFields[coursesession.FieldCourseSectionID]
-	return ok
-}
-
-// ResetCourseSectionID resets all changes to the "course_section_id" field.
-func (m *CourseSessionMutation) ResetCourseSectionID() {
-	m.course_section = nil
-	delete(m.clearedFields, coursesession.FieldCourseSectionID)
-}
-
-// SetCompletedAt sets the "completed_at" field.
-func (m *CourseSessionMutation) SetCompletedAt(t time.Time) {
-	m.completed_at = &t
-}
-
-// CompletedAt returns the value of the "completed_at" field in the mutation.
-func (m *CourseSessionMutation) CompletedAt() (r time.Time, exists bool) {
-	v := m.completed_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCompletedAt returns the old "completed_at" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldCompletedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
-	}
-	return oldValue.CompletedAt, nil
-}
-
-// ClearCompletedAt clears the value of the "completed_at" field.
-func (m *CourseSessionMutation) ClearCompletedAt() {
-	m.completed_at = nil
-	m.clearedFields[coursesession.FieldCompletedAt] = struct{}{}
-}
-
-// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
-func (m *CourseSessionMutation) CompletedAtCleared() bool {
-	_, ok := m.clearedFields[coursesession.FieldCompletedAt]
-	return ok
-}
-
-// ResetCompletedAt resets all changes to the "completed_at" field.
-func (m *CourseSessionMutation) ResetCompletedAt() {
-	m.completed_at = nil
-	delete(m.clearedFields, coursesession.FieldCompletedAt)
-}
-
-// SetTotalScore sets the "total_score" field.
-func (m *CourseSessionMutation) SetTotalScore(i int) {
-	m.total_score = &i
-	m.addtotal_score = nil
-}
-
-// TotalScore returns the value of the "total_score" field in the mutation.
-func (m *CourseSessionMutation) TotalScore() (r int, exists bool) {
-	v := m.total_score
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldTotalScore returns the old "total_score" field's value of the CourseSession entity.
-// If the CourseSession object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSessionMutation) OldTotalScore(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTotalScore is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTotalScore requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTotalScore: %w", err)
-	}
-	return oldValue.TotalScore, nil
-}
-
-// AddTotalScore adds i to the "total_score" field.
-func (m *CourseSessionMutation) AddTotalScore(i int) {
-	if m.addtotal_score != nil {
-		*m.addtotal_score += i
-	} else {
-		m.addtotal_score = &i
-	}
-}
-
-// AddedTotalScore returns the value that was added to the "total_score" field in this mutation.
-func (m *CourseSessionMutation) AddedTotalScore() (r int, exists bool) {
-	v := m.addtotal_score
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetTotalScore resets all changes to the "total_score" field.
-func (m *CourseSessionMutation) ResetTotalScore() {
-	m.total_score = nil
-	m.addtotal_score = nil
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (m *CourseSessionMutation) ClearUser() {
-	m.cleareduser = true
-	m.clearedFields[coursesession.FieldUserID] = struct{}{}
-}
-
-// UserCleared reports if the "user" edge to the User entity was cleared.
-func (m *CourseSessionMutation) UserCleared() bool {
-	return m.cleareduser
-}
-
-// UserIDs returns the "user" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *CourseSessionMutation) UserIDs() (ids []uuid.UUID) {
-	if id := m.user; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetUser resets all changes to the "user" edge.
-func (m *CourseSessionMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
-}
-
-// ClearCourseSection clears the "course_section" edge to the CourseSection entity.
-func (m *CourseSessionMutation) ClearCourseSection() {
-	m.clearedcourse_section = true
-	m.clearedFields[coursesession.FieldCourseSectionID] = struct{}{}
-}
-
-// CourseSectionCleared reports if the "course_section" edge to the CourseSection entity was cleared.
-func (m *CourseSessionMutation) CourseSectionCleared() bool {
-	return m.CourseSectionIDCleared() || m.clearedcourse_section
-}
-
-// CourseSectionIDs returns the "course_section" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// CourseSectionID instead. It exists only for internal usage by the builders.
-func (m *CourseSessionMutation) CourseSectionIDs() (ids []uuid.UUID) {
-	if id := m.course_section; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetCourseSection resets all changes to the "course_section" edge.
-func (m *CourseSessionMutation) ResetCourseSection() {
-	m.course_section = nil
-	m.clearedcourse_section = false
-}
-
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by ids.
-func (m *CourseSessionMutation) AddUserQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.user_question_answers == nil {
-		m.user_question_answers = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.user_question_answers[ids[i]] = struct{}{}
-	}
-}
-
-// ClearUserQuestionAnswers clears the "user_question_answers" edge to the UserQuestionAnswer entity.
-func (m *CourseSessionMutation) ClearUserQuestionAnswers() {
-	m.cleareduser_question_answers = true
-}
-
-// UserQuestionAnswersCleared reports if the "user_question_answers" edge to the UserQuestionAnswer entity was cleared.
-func (m *CourseSessionMutation) UserQuestionAnswersCleared() bool {
-	return m.cleareduser_question_answers
-}
-
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
-func (m *CourseSessionMutation) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.removeduser_question_answers == nil {
-		m.removeduser_question_answers = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.user_question_answers, ids[i])
-		m.removeduser_question_answers[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedUserQuestionAnswers returns the removed IDs of the "user_question_answers" edge to the UserQuestionAnswer entity.
-func (m *CourseSessionMutation) RemovedUserQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.removeduser_question_answers {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// UserQuestionAnswersIDs returns the "user_question_answers" edge IDs in the mutation.
-func (m *CourseSessionMutation) UserQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.user_question_answers {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetUserQuestionAnswers resets all changes to the "user_question_answers" edge.
-func (m *CourseSessionMutation) ResetUserQuestionAnswers() {
-	m.user_question_answers = nil
-	m.cleareduser_question_answers = false
-	m.removeduser_question_answers = nil
-}
-
-// Where appends a list predicates to the CourseSessionMutation builder.
-func (m *CourseSessionMutation) Where(ps ...predicate.CourseSession) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the CourseSessionMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *CourseSessionMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.CourseSession, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *CourseSessionMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *CourseSessionMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (CourseSession).
-func (m *CourseSessionMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *CourseSessionMutation) Fields() []string {
-	fields := make([]string, 0, 7)
-	if m.created_at != nil {
-		fields = append(fields, coursesession.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, coursesession.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, coursesession.FieldDeletedAt)
-	}
-	if m.user != nil {
-		fields = append(fields, coursesession.FieldUserID)
-	}
-	if m.course_section != nil {
-		fields = append(fields, coursesession.FieldCourseSectionID)
-	}
-	if m.completed_at != nil {
-		fields = append(fields, coursesession.FieldCompletedAt)
-	}
-	if m.total_score != nil {
-		fields = append(fields, coursesession.FieldTotalScore)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *CourseSessionMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case coursesession.FieldCreatedAt:
-		return m.CreatedAt()
-	case coursesession.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case coursesession.FieldDeletedAt:
-		return m.DeletedAt()
-	case coursesession.FieldUserID:
-		return m.UserID()
-	case coursesession.FieldCourseSectionID:
-		return m.CourseSectionID()
-	case coursesession.FieldCompletedAt:
-		return m.CompletedAt()
-	case coursesession.FieldTotalScore:
-		return m.TotalScore()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *CourseSessionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case coursesession.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case coursesession.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case coursesession.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
-	case coursesession.FieldUserID:
-		return m.OldUserID(ctx)
-	case coursesession.FieldCourseSectionID:
-		return m.OldCourseSectionID(ctx)
-	case coursesession.FieldCompletedAt:
-		return m.OldCompletedAt(ctx)
-	case coursesession.FieldTotalScore:
-		return m.OldTotalScore(ctx)
-	}
-	return nil, fmt.Errorf("unknown CourseSession field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *CourseSessionMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case coursesession.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case coursesession.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case coursesession.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
-		return nil
-	case coursesession.FieldUserID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUserID(v)
-		return nil
-	case coursesession.FieldCourseSectionID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCourseSectionID(v)
-		return nil
-	case coursesession.FieldCompletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCompletedAt(v)
-		return nil
-	case coursesession.FieldTotalScore:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTotalScore(v)
-		return nil
-	}
-	return fmt.Errorf("unknown CourseSession field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *CourseSessionMutation) AddedFields() []string {
-	var fields []string
-	if m.addtotal_score != nil {
-		fields = append(fields, coursesession.FieldTotalScore)
-	}
-	return fields
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *CourseSessionMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case coursesession.FieldTotalScore:
-		return m.AddedTotalScore()
-	}
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *CourseSessionMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	case coursesession.FieldTotalScore:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddTotalScore(v)
-		return nil
-	}
-	return fmt.Errorf("unknown CourseSession numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *CourseSessionMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(coursesession.FieldDeletedAt) {
-		fields = append(fields, coursesession.FieldDeletedAt)
-	}
-	if m.FieldCleared(coursesession.FieldCourseSectionID) {
-		fields = append(fields, coursesession.FieldCourseSectionID)
-	}
-	if m.FieldCleared(coursesession.FieldCompletedAt) {
-		fields = append(fields, coursesession.FieldCompletedAt)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *CourseSessionMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *CourseSessionMutation) ClearField(name string) error {
-	switch name {
-	case coursesession.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	case coursesession.FieldCourseSectionID:
-		m.ClearCourseSectionID()
-		return nil
-	case coursesession.FieldCompletedAt:
-		m.ClearCompletedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown CourseSession nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *CourseSessionMutation) ResetField(name string) error {
-	switch name {
-	case coursesession.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case coursesession.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case coursesession.FieldDeletedAt:
-		m.ResetDeletedAt()
-		return nil
-	case coursesession.FieldUserID:
-		m.ResetUserID()
-		return nil
-	case coursesession.FieldCourseSectionID:
-		m.ResetCourseSectionID()
-		return nil
-	case coursesession.FieldCompletedAt:
-		m.ResetCompletedAt()
-		return nil
-	case coursesession.FieldTotalScore:
-		m.ResetTotalScore()
-		return nil
-	}
-	return fmt.Errorf("unknown CourseSession field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *CourseSessionMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.user != nil {
-		edges = append(edges, coursesession.EdgeUser)
-	}
-	if m.course_section != nil {
-		edges = append(edges, coursesession.EdgeCourseSection)
-	}
-	if m.user_question_answers != nil {
-		edges = append(edges, coursesession.EdgeUserQuestionAnswers)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *CourseSessionMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case coursesession.EdgeUser:
-		if id := m.user; id != nil {
-			return []ent.Value{*id}
-		}
-	case coursesession.EdgeCourseSection:
-		if id := m.course_section; id != nil {
-			return []ent.Value{*id}
-		}
-	case coursesession.EdgeUserQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.user_question_answers))
-		for id := range m.user_question_answers {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *CourseSessionMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.removeduser_question_answers != nil {
-		edges = append(edges, coursesession.EdgeUserQuestionAnswers)
-	}
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *CourseSessionMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case coursesession.EdgeUserQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.removeduser_question_answers))
-		for id := range m.removeduser_question_answers {
-			ids = append(ids, id)
-		}
-		return ids
-	}
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *CourseSessionMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
-	if m.cleareduser {
-		edges = append(edges, coursesession.EdgeUser)
-	}
-	if m.clearedcourse_section {
-		edges = append(edges, coursesession.EdgeCourseSection)
-	}
-	if m.cleareduser_question_answers {
-		edges = append(edges, coursesession.EdgeUserQuestionAnswers)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *CourseSessionMutation) EdgeCleared(name string) bool {
-	switch name {
-	case coursesession.EdgeUser:
-		return m.cleareduser
-	case coursesession.EdgeCourseSection:
-		return m.clearedcourse_section
-	case coursesession.EdgeUserQuestionAnswers:
-		return m.cleareduser_question_answers
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *CourseSessionMutation) ClearEdge(name string) error {
-	switch name {
-	case coursesession.EdgeUser:
-		m.ClearUser()
-		return nil
-	case coursesession.EdgeCourseSection:
-		m.ClearCourseSection()
-		return nil
-	}
-	return fmt.Errorf("unknown CourseSession unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *CourseSessionMutation) ResetEdge(name string) error {
-	switch name {
-	case coursesession.EdgeUser:
-		m.ResetUser()
-		return nil
-	case coursesession.EdgeCourseSection:
-		m.ResetCourseSection()
-		return nil
-	case coursesession.EdgeUserQuestionAnswers:
-		m.ResetUserQuestionAnswers()
-		return nil
-	}
-	return fmt.Errorf("unknown CourseSession edge %s", name)
 }
 
 // MediaMutation represents an operation that mutates the Media nodes in the graph.
@@ -5030,9 +4093,22 @@ func (m *QuestionMutation) OldSectionID(ctx context.Context) (v uuid.UUID, err e
 	return oldValue.SectionID, nil
 }
 
+// ClearSectionID clears the value of the "section_id" field.
+func (m *QuestionMutation) ClearSectionID() {
+	m.section = nil
+	m.clearedFields[question.FieldSectionID] = struct{}{}
+}
+
+// SectionIDCleared returns if the "section_id" field was cleared in this mutation.
+func (m *QuestionMutation) SectionIDCleared() bool {
+	_, ok := m.clearedFields[question.FieldSectionID]
+	return ok
+}
+
 // ResetSectionID resets all changes to the "section_id" field.
 func (m *QuestionMutation) ResetSectionID() {
 	m.section = nil
+	delete(m.clearedFields, question.FieldSectionID)
 }
 
 // SetQuestionText sets the "question_text" field.
@@ -5079,7 +4155,7 @@ func (m *QuestionMutation) ClearSection() {
 
 // SectionCleared reports if the "section" edge to the CourseSection entity was cleared.
 func (m *QuestionMutation) SectionCleared() bool {
-	return m.clearedsection
+	return m.SectionIDCleared() || m.clearedsection
 }
 
 // SectionIDs returns the "section" edge IDs in the mutation.
@@ -5424,6 +4500,9 @@ func (m *QuestionMutation) ClearedFields() []string {
 	if m.FieldCleared(question.FieldDeletedAt) {
 		fields = append(fields, question.FieldDeletedAt)
 	}
+	if m.FieldCleared(question.FieldSectionID) {
+		fields = append(fields, question.FieldSectionID)
+	}
 	return fields
 }
 
@@ -5440,6 +4519,9 @@ func (m *QuestionMutation) ClearField(name string) error {
 	switch name {
 	case question.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case question.FieldSectionID:
+		m.ClearSectionID()
 		return nil
 	}
 	return fmt.Errorf("unknown Question nullable field %s", name)
@@ -7233,6 +6315,943 @@ func (m *RoleMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Role edge %s", name)
 }
 
+// TestSessionMutation represents an operation that mutates the TestSession nodes in the graph.
+type TestSessionMutation struct {
+	config
+	op                           Op
+	typ                          string
+	id                           *uuid.UUID
+	created_at                   *time.Time
+	updated_at                   *time.Time
+	deleted_at                   *time.Time
+	completed_at                 *time.Time
+	total_score                  *int
+	addtotal_score               *int
+	clearedFields                map[string]struct{}
+	user                         *uuid.UUID
+	cleareduser                  bool
+	course_section               *uuid.UUID
+	clearedcourse_section        bool
+	user_question_answers        map[uuid.UUID]struct{}
+	removeduser_question_answers map[uuid.UUID]struct{}
+	cleareduser_question_answers bool
+	done                         bool
+	oldValue                     func(context.Context) (*TestSession, error)
+	predicates                   []predicate.TestSession
+}
+
+var _ ent.Mutation = (*TestSessionMutation)(nil)
+
+// testsessionOption allows management of the mutation configuration using functional options.
+type testsessionOption func(*TestSessionMutation)
+
+// newTestSessionMutation creates new mutation for the TestSession entity.
+func newTestSessionMutation(c config, op Op, opts ...testsessionOption) *TestSessionMutation {
+	m := &TestSessionMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeTestSession,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withTestSessionID sets the ID field of the mutation.
+func withTestSessionID(id uuid.UUID) testsessionOption {
+	return func(m *TestSessionMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *TestSession
+		)
+		m.oldValue = func(ctx context.Context) (*TestSession, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().TestSession.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withTestSession sets the old TestSession of the mutation.
+func withTestSession(node *TestSession) testsessionOption {
+	return func(m *TestSessionMutation) {
+		m.oldValue = func(context.Context) (*TestSession, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m TestSessionMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m TestSessionMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of TestSession entities.
+func (m *TestSessionMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *TestSessionMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *TestSessionMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().TestSession.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *TestSessionMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TestSessionMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TestSessionMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TestSessionMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TestSessionMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TestSessionMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *TestSessionMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *TestSessionMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *TestSessionMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[testsession.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *TestSessionMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[testsession.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *TestSessionMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, testsession.FieldDeletedAt)
+}
+
+// SetUserID sets the "user_id" field.
+func (m *TestSessionMutation) SetUserID(u uuid.UUID) {
+	m.user = &u
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *TestSessionMutation) UserID() (r uuid.UUID, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldUserID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *TestSessionMutation) ResetUserID() {
+	m.user = nil
+}
+
+// SetCourseSectionID sets the "course_section_id" field.
+func (m *TestSessionMutation) SetCourseSectionID(u uuid.UUID) {
+	m.course_section = &u
+}
+
+// CourseSectionID returns the value of the "course_section_id" field in the mutation.
+func (m *TestSessionMutation) CourseSectionID() (r uuid.UUID, exists bool) {
+	v := m.course_section
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCourseSectionID returns the old "course_section_id" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldCourseSectionID(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCourseSectionID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCourseSectionID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCourseSectionID: %w", err)
+	}
+	return oldValue.CourseSectionID, nil
+}
+
+// ClearCourseSectionID clears the value of the "course_section_id" field.
+func (m *TestSessionMutation) ClearCourseSectionID() {
+	m.course_section = nil
+	m.clearedFields[testsession.FieldCourseSectionID] = struct{}{}
+}
+
+// CourseSectionIDCleared returns if the "course_section_id" field was cleared in this mutation.
+func (m *TestSessionMutation) CourseSectionIDCleared() bool {
+	_, ok := m.clearedFields[testsession.FieldCourseSectionID]
+	return ok
+}
+
+// ResetCourseSectionID resets all changes to the "course_section_id" field.
+func (m *TestSessionMutation) ResetCourseSectionID() {
+	m.course_section = nil
+	delete(m.clearedFields, testsession.FieldCourseSectionID)
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (m *TestSessionMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *TestSessionMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldCompletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *TestSessionMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[testsession.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *TestSessionMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[testsession.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *TestSessionMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, testsession.FieldCompletedAt)
+}
+
+// SetTotalScore sets the "total_score" field.
+func (m *TestSessionMutation) SetTotalScore(i int) {
+	m.total_score = &i
+	m.addtotal_score = nil
+}
+
+// TotalScore returns the value of the "total_score" field in the mutation.
+func (m *TestSessionMutation) TotalScore() (r int, exists bool) {
+	v := m.total_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTotalScore returns the old "total_score" field's value of the TestSession entity.
+// If the TestSession object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionMutation) OldTotalScore(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTotalScore is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTotalScore requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTotalScore: %w", err)
+	}
+	return oldValue.TotalScore, nil
+}
+
+// AddTotalScore adds i to the "total_score" field.
+func (m *TestSessionMutation) AddTotalScore(i int) {
+	if m.addtotal_score != nil {
+		*m.addtotal_score += i
+	} else {
+		m.addtotal_score = &i
+	}
+}
+
+// AddedTotalScore returns the value that was added to the "total_score" field in this mutation.
+func (m *TestSessionMutation) AddedTotalScore() (r int, exists bool) {
+	v := m.addtotal_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTotalScore resets all changes to the "total_score" field.
+func (m *TestSessionMutation) ResetTotalScore() {
+	m.total_score = nil
+	m.addtotal_score = nil
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *TestSessionMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[testsession.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *TestSessionMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *TestSessionMutation) UserIDs() (ids []uuid.UUID) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *TestSessionMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// ClearCourseSection clears the "course_section" edge to the CourseSection entity.
+func (m *TestSessionMutation) ClearCourseSection() {
+	m.clearedcourse_section = true
+	m.clearedFields[testsession.FieldCourseSectionID] = struct{}{}
+}
+
+// CourseSectionCleared reports if the "course_section" edge to the CourseSection entity was cleared.
+func (m *TestSessionMutation) CourseSectionCleared() bool {
+	return m.CourseSectionIDCleared() || m.clearedcourse_section
+}
+
+// CourseSectionIDs returns the "course_section" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CourseSectionID instead. It exists only for internal usage by the builders.
+func (m *TestSessionMutation) CourseSectionIDs() (ids []uuid.UUID) {
+	if id := m.course_section; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCourseSection resets all changes to the "course_section" edge.
+func (m *TestSessionMutation) ResetCourseSection() {
+	m.course_section = nil
+	m.clearedcourse_section = false
+}
+
+// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by ids.
+func (m *TestSessionMutation) AddUserQuestionAnswerIDs(ids ...uuid.UUID) {
+	if m.user_question_answers == nil {
+		m.user_question_answers = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.user_question_answers[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUserQuestionAnswers clears the "user_question_answers" edge to the UserQuestionAnswer entity.
+func (m *TestSessionMutation) ClearUserQuestionAnswers() {
+	m.cleareduser_question_answers = true
+}
+
+// UserQuestionAnswersCleared reports if the "user_question_answers" edge to the UserQuestionAnswer entity was cleared.
+func (m *TestSessionMutation) UserQuestionAnswersCleared() bool {
+	return m.cleareduser_question_answers
+}
+
+// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
+func (m *TestSessionMutation) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) {
+	if m.removeduser_question_answers == nil {
+		m.removeduser_question_answers = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.user_question_answers, ids[i])
+		m.removeduser_question_answers[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUserQuestionAnswers returns the removed IDs of the "user_question_answers" edge to the UserQuestionAnswer entity.
+func (m *TestSessionMutation) RemovedUserQuestionAnswersIDs() (ids []uuid.UUID) {
+	for id := range m.removeduser_question_answers {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UserQuestionAnswersIDs returns the "user_question_answers" edge IDs in the mutation.
+func (m *TestSessionMutation) UserQuestionAnswersIDs() (ids []uuid.UUID) {
+	for id := range m.user_question_answers {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUserQuestionAnswers resets all changes to the "user_question_answers" edge.
+func (m *TestSessionMutation) ResetUserQuestionAnswers() {
+	m.user_question_answers = nil
+	m.cleareduser_question_answers = false
+	m.removeduser_question_answers = nil
+}
+
+// Where appends a list predicates to the TestSessionMutation builder.
+func (m *TestSessionMutation) Where(ps ...predicate.TestSession) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the TestSessionMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *TestSessionMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.TestSession, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *TestSessionMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *TestSessionMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (TestSession).
+func (m *TestSessionMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *TestSessionMutation) Fields() []string {
+	fields := make([]string, 0, 7)
+	if m.created_at != nil {
+		fields = append(fields, testsession.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, testsession.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, testsession.FieldDeletedAt)
+	}
+	if m.user != nil {
+		fields = append(fields, testsession.FieldUserID)
+	}
+	if m.course_section != nil {
+		fields = append(fields, testsession.FieldCourseSectionID)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, testsession.FieldCompletedAt)
+	}
+	if m.total_score != nil {
+		fields = append(fields, testsession.FieldTotalScore)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *TestSessionMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case testsession.FieldCreatedAt:
+		return m.CreatedAt()
+	case testsession.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case testsession.FieldDeletedAt:
+		return m.DeletedAt()
+	case testsession.FieldUserID:
+		return m.UserID()
+	case testsession.FieldCourseSectionID:
+		return m.CourseSectionID()
+	case testsession.FieldCompletedAt:
+		return m.CompletedAt()
+	case testsession.FieldTotalScore:
+		return m.TotalScore()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *TestSessionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case testsession.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case testsession.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case testsession.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case testsession.FieldUserID:
+		return m.OldUserID(ctx)
+	case testsession.FieldCourseSectionID:
+		return m.OldCourseSectionID(ctx)
+	case testsession.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
+	case testsession.FieldTotalScore:
+		return m.OldTotalScore(ctx)
+	}
+	return nil, fmt.Errorf("unknown TestSession field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TestSessionMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case testsession.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case testsession.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case testsession.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case testsession.FieldUserID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case testsession.FieldCourseSectionID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCourseSectionID(v)
+		return nil
+	case testsession.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
+	case testsession.FieldTotalScore:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTotalScore(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TestSession field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *TestSessionMutation) AddedFields() []string {
+	var fields []string
+	if m.addtotal_score != nil {
+		fields = append(fields, testsession.FieldTotalScore)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *TestSessionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case testsession.FieldTotalScore:
+		return m.AddedTotalScore()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *TestSessionMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case testsession.FieldTotalScore:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalScore(v)
+		return nil
+	}
+	return fmt.Errorf("unknown TestSession numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *TestSessionMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(testsession.FieldDeletedAt) {
+		fields = append(fields, testsession.FieldDeletedAt)
+	}
+	if m.FieldCleared(testsession.FieldCourseSectionID) {
+		fields = append(fields, testsession.FieldCourseSectionID)
+	}
+	if m.FieldCleared(testsession.FieldCompletedAt) {
+		fields = append(fields, testsession.FieldCompletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *TestSessionMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *TestSessionMutation) ClearField(name string) error {
+	switch name {
+	case testsession.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case testsession.FieldCourseSectionID:
+		m.ClearCourseSectionID()
+		return nil
+	case testsession.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown TestSession nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *TestSessionMutation) ResetField(name string) error {
+	switch name {
+	case testsession.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case testsession.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case testsession.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case testsession.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case testsession.FieldCourseSectionID:
+		m.ResetCourseSectionID()
+		return nil
+	case testsession.FieldCompletedAt:
+		m.ResetCompletedAt()
+		return nil
+	case testsession.FieldTotalScore:
+		m.ResetTotalScore()
+		return nil
+	}
+	return fmt.Errorf("unknown TestSession field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *TestSessionMutation) AddedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.user != nil {
+		edges = append(edges, testsession.EdgeUser)
+	}
+	if m.course_section != nil {
+		edges = append(edges, testsession.EdgeCourseSection)
+	}
+	if m.user_question_answers != nil {
+		edges = append(edges, testsession.EdgeUserQuestionAnswers)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *TestSessionMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case testsession.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	case testsession.EdgeCourseSection:
+		if id := m.course_section; id != nil {
+			return []ent.Value{*id}
+		}
+	case testsession.EdgeUserQuestionAnswers:
+		ids := make([]ent.Value, 0, len(m.user_question_answers))
+		for id := range m.user_question_answers {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *TestSessionMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.removeduser_question_answers != nil {
+		edges = append(edges, testsession.EdgeUserQuestionAnswers)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *TestSessionMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case testsession.EdgeUserQuestionAnswers:
+		ids := make([]ent.Value, 0, len(m.removeduser_question_answers))
+		for id := range m.removeduser_question_answers {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *TestSessionMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.cleareduser {
+		edges = append(edges, testsession.EdgeUser)
+	}
+	if m.clearedcourse_section {
+		edges = append(edges, testsession.EdgeCourseSection)
+	}
+	if m.cleareduser_question_answers {
+		edges = append(edges, testsession.EdgeUserQuestionAnswers)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *TestSessionMutation) EdgeCleared(name string) bool {
+	switch name {
+	case testsession.EdgeUser:
+		return m.cleareduser
+	case testsession.EdgeCourseSection:
+		return m.clearedcourse_section
+	case testsession.EdgeUserQuestionAnswers:
+		return m.cleareduser_question_answers
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *TestSessionMutation) ClearEdge(name string) error {
+	switch name {
+	case testsession.EdgeUser:
+		m.ClearUser()
+		return nil
+	case testsession.EdgeCourseSection:
+		m.ClearCourseSection()
+		return nil
+	}
+	return fmt.Errorf("unknown TestSession unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *TestSessionMutation) ResetEdge(name string) error {
+	switch name {
+	case testsession.EdgeUser:
+		m.ResetUser()
+		return nil
+	case testsession.EdgeCourseSection:
+		m.ResetCourseSection()
+		return nil
+	case testsession.EdgeUserQuestionAnswers:
+		m.ResetUserQuestionAnswers()
+		return nil
+	}
+	return fmt.Errorf("unknown TestSession edge %s", name)
+}
+
 // TodoMutation represents an operation that mutates the Todo nodes in the graph.
 type TodoMutation struct {
 	config
@@ -7852,9 +7871,9 @@ type UserMutation struct {
 	user_question_answers        map[uuid.UUID]struct{}
 	removeduser_question_answers map[uuid.UUID]struct{}
 	cleareduser_question_answers bool
-	course_sessions              map[uuid.UUID]struct{}
-	removedcourse_sessions       map[uuid.UUID]struct{}
-	clearedcourse_sessions       bool
+	test_sessions                map[uuid.UUID]struct{}
+	removedtest_sessions         map[uuid.UUID]struct{}
+	clearedtest_sessions         bool
 	user_roles                   map[uuid.UUID]struct{}
 	removeduser_roles            map[uuid.UUID]struct{}
 	cleareduser_roles            bool
@@ -8635,58 +8654,58 @@ func (m *UserMutation) ResetUserQuestionAnswers() {
 	m.removeduser_question_answers = nil
 }
 
-// AddCourseSessionIDs adds the "course_sessions" edge to the CourseSession entity by ids.
-func (m *UserMutation) AddCourseSessionIDs(ids ...uuid.UUID) {
-	if m.course_sessions == nil {
-		m.course_sessions = make(map[uuid.UUID]struct{})
+// AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by ids.
+func (m *UserMutation) AddTestSessionIDs(ids ...uuid.UUID) {
+	if m.test_sessions == nil {
+		m.test_sessions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.course_sessions[ids[i]] = struct{}{}
+		m.test_sessions[ids[i]] = struct{}{}
 	}
 }
 
-// ClearCourseSessions clears the "course_sessions" edge to the CourseSession entity.
-func (m *UserMutation) ClearCourseSessions() {
-	m.clearedcourse_sessions = true
+// ClearTestSessions clears the "test_sessions" edge to the TestSession entity.
+func (m *UserMutation) ClearTestSessions() {
+	m.clearedtest_sessions = true
 }
 
-// CourseSessionsCleared reports if the "course_sessions" edge to the CourseSession entity was cleared.
-func (m *UserMutation) CourseSessionsCleared() bool {
-	return m.clearedcourse_sessions
+// TestSessionsCleared reports if the "test_sessions" edge to the TestSession entity was cleared.
+func (m *UserMutation) TestSessionsCleared() bool {
+	return m.clearedtest_sessions
 }
 
-// RemoveCourseSessionIDs removes the "course_sessions" edge to the CourseSession entity by IDs.
-func (m *UserMutation) RemoveCourseSessionIDs(ids ...uuid.UUID) {
-	if m.removedcourse_sessions == nil {
-		m.removedcourse_sessions = make(map[uuid.UUID]struct{})
+// RemoveTestSessionIDs removes the "test_sessions" edge to the TestSession entity by IDs.
+func (m *UserMutation) RemoveTestSessionIDs(ids ...uuid.UUID) {
+	if m.removedtest_sessions == nil {
+		m.removedtest_sessions = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.course_sessions, ids[i])
-		m.removedcourse_sessions[ids[i]] = struct{}{}
+		delete(m.test_sessions, ids[i])
+		m.removedtest_sessions[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedCourseSessions returns the removed IDs of the "course_sessions" edge to the CourseSession entity.
-func (m *UserMutation) RemovedCourseSessionsIDs() (ids []uuid.UUID) {
-	for id := range m.removedcourse_sessions {
+// RemovedTestSessions returns the removed IDs of the "test_sessions" edge to the TestSession entity.
+func (m *UserMutation) RemovedTestSessionsIDs() (ids []uuid.UUID) {
+	for id := range m.removedtest_sessions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// CourseSessionsIDs returns the "course_sessions" edge IDs in the mutation.
-func (m *UserMutation) CourseSessionsIDs() (ids []uuid.UUID) {
-	for id := range m.course_sessions {
+// TestSessionsIDs returns the "test_sessions" edge IDs in the mutation.
+func (m *UserMutation) TestSessionsIDs() (ids []uuid.UUID) {
+	for id := range m.test_sessions {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetCourseSessions resets all changes to the "course_sessions" edge.
-func (m *UserMutation) ResetCourseSessions() {
-	m.course_sessions = nil
-	m.clearedcourse_sessions = false
-	m.removedcourse_sessions = nil
+// ResetTestSessions resets all changes to the "test_sessions" edge.
+func (m *UserMutation) ResetTestSessions() {
+	m.test_sessions = nil
+	m.clearedtest_sessions = false
+	m.removedtest_sessions = nil
 }
 
 // AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by ids.
@@ -9072,8 +9091,8 @@ func (m *UserMutation) AddedEdges() []string {
 	if m.user_question_answers != nil {
 		edges = append(edges, user.EdgeUserQuestionAnswers)
 	}
-	if m.course_sessions != nil {
-		edges = append(edges, user.EdgeCourseSessions)
+	if m.test_sessions != nil {
+		edges = append(edges, user.EdgeTestSessions)
 	}
 	if m.user_roles != nil {
 		edges = append(edges, user.EdgeUserRoles)
@@ -9113,9 +9132,9 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeCourseSessions:
-		ids := make([]ent.Value, 0, len(m.course_sessions))
-		for id := range m.course_sessions {
+	case user.EdgeTestSessions:
+		ids := make([]ent.Value, 0, len(m.test_sessions))
+		for id := range m.test_sessions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -9144,8 +9163,8 @@ func (m *UserMutation) RemovedEdges() []string {
 	if m.removeduser_question_answers != nil {
 		edges = append(edges, user.EdgeUserQuestionAnswers)
 	}
-	if m.removedcourse_sessions != nil {
-		edges = append(edges, user.EdgeCourseSessions)
+	if m.removedtest_sessions != nil {
+		edges = append(edges, user.EdgeTestSessions)
 	}
 	if m.removeduser_roles != nil {
 		edges = append(edges, user.EdgeUserRoles)
@@ -9181,9 +9200,9 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeCourseSessions:
-		ids := make([]ent.Value, 0, len(m.removedcourse_sessions))
-		for id := range m.removedcourse_sessions {
+	case user.EdgeTestSessions:
+		ids := make([]ent.Value, 0, len(m.removedtest_sessions))
+		for id := range m.removedtest_sessions {
 			ids = append(ids, id)
 		}
 		return ids
@@ -9215,8 +9234,8 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.cleareduser_question_answers {
 		edges = append(edges, user.EdgeUserQuestionAnswers)
 	}
-	if m.clearedcourse_sessions {
-		edges = append(edges, user.EdgeCourseSessions)
+	if m.clearedtest_sessions {
+		edges = append(edges, user.EdgeTestSessions)
 	}
 	if m.cleareduser_roles {
 		edges = append(edges, user.EdgeUserRoles)
@@ -9238,8 +9257,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedcourse_creator
 	case user.EdgeUserQuestionAnswers:
 		return m.cleareduser_question_answers
-	case user.EdgeCourseSessions:
-		return m.clearedcourse_sessions
+	case user.EdgeTestSessions:
+		return m.clearedtest_sessions
 	case user.EdgeUserRoles:
 		return m.cleareduser_roles
 	}
@@ -9276,8 +9295,8 @@ func (m *UserMutation) ResetEdge(name string) error {
 	case user.EdgeUserQuestionAnswers:
 		m.ResetUserQuestionAnswers()
 		return nil
-	case user.EdgeCourseSessions:
-		m.ResetCourseSessions()
+	case user.EdgeTestSessions:
+		m.ResetTestSessions()
 		return nil
 	case user.EdgeUserRoles:
 		m.ResetUserRoles()
@@ -9302,8 +9321,8 @@ type UserQuestionAnswerMutation struct {
 	clearedquestion        bool
 	selected_option        *uuid.UUID
 	clearedselected_option bool
-	course_session         *uuid.UUID
-	clearedcourse_session  bool
+	test_session           *uuid.UUID
+	clearedtest_session    bool
 	done                   bool
 	oldValue               func(context.Context) (*UserQuestionAnswer, error)
 	predicates             []predicate.UserQuestionAnswer
@@ -9644,12 +9663,12 @@ func (m *UserQuestionAnswerMutation) ResetSelectedOptionID() {
 
 // SetSessionID sets the "session_id" field.
 func (m *UserQuestionAnswerMutation) SetSessionID(u uuid.UUID) {
-	m.course_session = &u
+	m.test_session = &u
 }
 
 // SessionID returns the value of the "session_id" field in the mutation.
 func (m *UserQuestionAnswerMutation) SessionID() (r uuid.UUID, exists bool) {
-	v := m.course_session
+	v := m.test_session
 	if v == nil {
 		return
 	}
@@ -9675,7 +9694,7 @@ func (m *UserQuestionAnswerMutation) OldSessionID(ctx context.Context) (v uuid.U
 
 // ResetSessionID resets all changes to the "session_id" field.
 func (m *UserQuestionAnswerMutation) ResetSessionID() {
-	m.course_session = nil
+	m.test_session = nil
 }
 
 // ClearUser clears the "user" edge to the User entity.
@@ -9759,44 +9778,44 @@ func (m *UserQuestionAnswerMutation) ResetSelectedOption() {
 	m.clearedselected_option = false
 }
 
-// SetCourseSessionID sets the "course_session" edge to the CourseSession entity by id.
-func (m *UserQuestionAnswerMutation) SetCourseSessionID(id uuid.UUID) {
-	m.course_session = &id
+// SetTestSessionID sets the "test_session" edge to the TestSession entity by id.
+func (m *UserQuestionAnswerMutation) SetTestSessionID(id uuid.UUID) {
+	m.test_session = &id
 }
 
-// ClearCourseSession clears the "course_session" edge to the CourseSession entity.
-func (m *UserQuestionAnswerMutation) ClearCourseSession() {
-	m.clearedcourse_session = true
+// ClearTestSession clears the "test_session" edge to the TestSession entity.
+func (m *UserQuestionAnswerMutation) ClearTestSession() {
+	m.clearedtest_session = true
 	m.clearedFields[userquestionanswer.FieldSessionID] = struct{}{}
 }
 
-// CourseSessionCleared reports if the "course_session" edge to the CourseSession entity was cleared.
-func (m *UserQuestionAnswerMutation) CourseSessionCleared() bool {
-	return m.clearedcourse_session
+// TestSessionCleared reports if the "test_session" edge to the TestSession entity was cleared.
+func (m *UserQuestionAnswerMutation) TestSessionCleared() bool {
+	return m.clearedtest_session
 }
 
-// CourseSessionID returns the "course_session" edge ID in the mutation.
-func (m *UserQuestionAnswerMutation) CourseSessionID() (id uuid.UUID, exists bool) {
-	if m.course_session != nil {
-		return *m.course_session, true
+// TestSessionID returns the "test_session" edge ID in the mutation.
+func (m *UserQuestionAnswerMutation) TestSessionID() (id uuid.UUID, exists bool) {
+	if m.test_session != nil {
+		return *m.test_session, true
 	}
 	return
 }
 
-// CourseSessionIDs returns the "course_session" edge IDs in the mutation.
+// TestSessionIDs returns the "test_session" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// CourseSessionID instead. It exists only for internal usage by the builders.
-func (m *UserQuestionAnswerMutation) CourseSessionIDs() (ids []uuid.UUID) {
-	if id := m.course_session; id != nil {
+// TestSessionID instead. It exists only for internal usage by the builders.
+func (m *UserQuestionAnswerMutation) TestSessionIDs() (ids []uuid.UUID) {
+	if id := m.test_session; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetCourseSession resets all changes to the "course_session" edge.
-func (m *UserQuestionAnswerMutation) ResetCourseSession() {
-	m.course_session = nil
-	m.clearedcourse_session = false
+// ResetTestSession resets all changes to the "test_session" edge.
+func (m *UserQuestionAnswerMutation) ResetTestSession() {
+	m.test_session = nil
+	m.clearedtest_session = false
 }
 
 // Where appends a list predicates to the UserQuestionAnswerMutation builder.
@@ -9852,7 +9871,7 @@ func (m *UserQuestionAnswerMutation) Fields() []string {
 	if m.selected_option != nil {
 		fields = append(fields, userquestionanswer.FieldSelectedOptionID)
 	}
-	if m.course_session != nil {
+	if m.test_session != nil {
 		fields = append(fields, userquestionanswer.FieldSessionID)
 	}
 	return fields
@@ -10053,8 +10072,8 @@ func (m *UserQuestionAnswerMutation) AddedEdges() []string {
 	if m.selected_option != nil {
 		edges = append(edges, userquestionanswer.EdgeSelectedOption)
 	}
-	if m.course_session != nil {
-		edges = append(edges, userquestionanswer.EdgeCourseSession)
+	if m.test_session != nil {
+		edges = append(edges, userquestionanswer.EdgeTestSession)
 	}
 	return edges
 }
@@ -10075,8 +10094,8 @@ func (m *UserQuestionAnswerMutation) AddedIDs(name string) []ent.Value {
 		if id := m.selected_option; id != nil {
 			return []ent.Value{*id}
 		}
-	case userquestionanswer.EdgeCourseSession:
-		if id := m.course_session; id != nil {
+	case userquestionanswer.EdgeTestSession:
+		if id := m.test_session; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -10107,8 +10126,8 @@ func (m *UserQuestionAnswerMutation) ClearedEdges() []string {
 	if m.clearedselected_option {
 		edges = append(edges, userquestionanswer.EdgeSelectedOption)
 	}
-	if m.clearedcourse_session {
-		edges = append(edges, userquestionanswer.EdgeCourseSession)
+	if m.clearedtest_session {
+		edges = append(edges, userquestionanswer.EdgeTestSession)
 	}
 	return edges
 }
@@ -10123,8 +10142,8 @@ func (m *UserQuestionAnswerMutation) EdgeCleared(name string) bool {
 		return m.clearedquestion
 	case userquestionanswer.EdgeSelectedOption:
 		return m.clearedselected_option
-	case userquestionanswer.EdgeCourseSession:
-		return m.clearedcourse_session
+	case userquestionanswer.EdgeTestSession:
+		return m.clearedtest_session
 	}
 	return false
 }
@@ -10142,8 +10161,8 @@ func (m *UserQuestionAnswerMutation) ClearEdge(name string) error {
 	case userquestionanswer.EdgeSelectedOption:
 		m.ClearSelectedOption()
 		return nil
-	case userquestionanswer.EdgeCourseSession:
-		m.ClearCourseSession()
+	case userquestionanswer.EdgeTestSession:
+		m.ClearTestSession()
 		return nil
 	}
 	return fmt.Errorf("unknown UserQuestionAnswer unique edge %s", name)
@@ -10162,8 +10181,8 @@ func (m *UserQuestionAnswerMutation) ResetEdge(name string) error {
 	case userquestionanswer.EdgeSelectedOption:
 		m.ResetSelectedOption()
 		return nil
-	case userquestionanswer.EdgeCourseSession:
-		m.ResetCourseSession()
+	case userquestionanswer.EdgeTestSession:
+		m.ResetTestSession()
 		return nil
 	}
 	return fmt.Errorf("unknown UserQuestionAnswer edge %s", name)

@@ -73,6 +73,14 @@ func (qc *QuestionCreate) SetSectionID(u uuid.UUID) *QuestionCreate {
 	return qc
 }
 
+// SetNillableSectionID sets the "section_id" field if the given value is not nil.
+func (qc *QuestionCreate) SetNillableSectionID(u *uuid.UUID) *QuestionCreate {
+	if u != nil {
+		qc.SetSectionID(*u)
+	}
+	return qc
+}
+
 // SetQuestionText sets the "question_text" field.
 func (qc *QuestionCreate) SetQuestionText(s string) *QuestionCreate {
 	qc.mutation.SetQuestionText(s)
@@ -212,9 +220,6 @@ func (qc *QuestionCreate) check() error {
 	if _, ok := qc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Question.updated_at"`)}
 	}
-	if _, ok := qc.mutation.SectionID(); !ok {
-		return &ValidationError{Name: "section_id", err: errors.New(`ent: missing required field "Question.section_id"`)}
-	}
 	if _, ok := qc.mutation.QuestionText(); !ok {
 		return &ValidationError{Name: "question_text", err: errors.New(`ent: missing required field "Question.question_text"`)}
 	}
@@ -222,9 +227,6 @@ func (qc *QuestionCreate) check() error {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
-	}
-	if len(qc.mutation.SectionIDs()) == 0 {
-		return &ValidationError{Name: "section", err: errors.New(`ent: missing required edge "Question.section"`)}
 	}
 	return nil
 }

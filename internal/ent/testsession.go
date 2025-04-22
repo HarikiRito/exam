@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/coursesession"
+	"template/internal/ent/testsession"
 	"template/internal/ent/user"
 	"time"
 
@@ -15,8 +15,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// CourseSession is the model entity for the CourseSession schema.
-type CourseSession struct {
+// TestSession is the model entity for the TestSession schema.
+type TestSession struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
@@ -35,13 +35,13 @@ type CourseSession struct {
 	// TotalScore holds the value of the "total_score" field.
 	TotalScore int `json:"total_score,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the CourseSessionQuery when eager-loading is set.
-	Edges        CourseSessionEdges `json:"edges"`
+	// The values are being populated by the TestSessionQuery when eager-loading is set.
+	Edges        TestSessionEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// CourseSessionEdges holds the relations/edges for other nodes in the graph.
-type CourseSessionEdges struct {
+// TestSessionEdges holds the relations/edges for other nodes in the graph.
+type TestSessionEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
 	// CourseSection holds the value of the course_section edge.
@@ -55,7 +55,7 @@ type CourseSessionEdges struct {
 
 // UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e CourseSessionEdges) UserOrErr() (*User, error) {
+func (e TestSessionEdges) UserOrErr() (*User, error) {
 	if e.User != nil {
 		return e.User, nil
 	} else if e.loadedTypes[0] {
@@ -66,7 +66,7 @@ func (e CourseSessionEdges) UserOrErr() (*User, error) {
 
 // CourseSectionOrErr returns the CourseSection value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e CourseSessionEdges) CourseSectionOrErr() (*CourseSection, error) {
+func (e TestSessionEdges) CourseSectionOrErr() (*CourseSection, error) {
 	if e.CourseSection != nil {
 		return e.CourseSection, nil
 	} else if e.loadedTypes[1] {
@@ -77,7 +77,7 @@ func (e CourseSessionEdges) CourseSectionOrErr() (*CourseSection, error) {
 
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e CourseSessionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
+func (e TestSessionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
 	if e.loadedTypes[2] {
 		return e.UserQuestionAnswers, nil
 	}
@@ -85,17 +85,17 @@ func (e CourseSessionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, e
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*CourseSession) scanValues(columns []string) ([]any, error) {
+func (*TestSession) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case coursesession.FieldCourseSectionID:
+		case testsession.FieldCourseSectionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case coursesession.FieldTotalScore:
+		case testsession.FieldTotalScore:
 			values[i] = new(sql.NullInt64)
-		case coursesession.FieldCreatedAt, coursesession.FieldUpdatedAt, coursesession.FieldDeletedAt, coursesession.FieldCompletedAt:
+		case testsession.FieldCreatedAt, testsession.FieldUpdatedAt, testsession.FieldDeletedAt, testsession.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case coursesession.FieldID, coursesession.FieldUserID:
+		case testsession.FieldID, testsession.FieldUserID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -105,141 +105,141 @@ func (*CourseSession) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the CourseSession fields.
-func (cs *CourseSession) assignValues(columns []string, values []any) error {
+// to the TestSession fields.
+func (ts *TestSession) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case coursesession.FieldID:
+		case testsession.FieldID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				cs.ID = *value
+				ts.ID = *value
 			}
-		case coursesession.FieldCreatedAt:
+		case testsession.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				cs.CreatedAt = value.Time
+				ts.CreatedAt = value.Time
 			}
-		case coursesession.FieldUpdatedAt:
+		case testsession.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				cs.UpdatedAt = value.Time
+				ts.UpdatedAt = value.Time
 			}
-		case coursesession.FieldDeletedAt:
+		case testsession.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				cs.DeletedAt = new(time.Time)
-				*cs.DeletedAt = value.Time
+				ts.DeletedAt = new(time.Time)
+				*ts.DeletedAt = value.Time
 			}
-		case coursesession.FieldUserID:
+		case testsession.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				cs.UserID = *value
+				ts.UserID = *value
 			}
-		case coursesession.FieldCourseSectionID:
+		case testsession.FieldCourseSectionID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field course_section_id", values[i])
 			} else if value.Valid {
-				cs.CourseSectionID = new(uuid.UUID)
-				*cs.CourseSectionID = *value.S.(*uuid.UUID)
+				ts.CourseSectionID = new(uuid.UUID)
+				*ts.CourseSectionID = *value.S.(*uuid.UUID)
 			}
-		case coursesession.FieldCompletedAt:
+		case testsession.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				cs.CompletedAt = value.Time
+				ts.CompletedAt = value.Time
 			}
-		case coursesession.FieldTotalScore:
+		case testsession.FieldTotalScore:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field total_score", values[i])
 			} else if value.Valid {
-				cs.TotalScore = int(value.Int64)
+				ts.TotalScore = int(value.Int64)
 			}
 		default:
-			cs.selectValues.Set(columns[i], values[i])
+			ts.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the CourseSession.
+// Value returns the ent.Value that was dynamically selected and assigned to the TestSession.
 // This includes values selected through modifiers, order, etc.
-func (cs *CourseSession) Value(name string) (ent.Value, error) {
-	return cs.selectValues.Get(name)
+func (ts *TestSession) Value(name string) (ent.Value, error) {
+	return ts.selectValues.Get(name)
 }
 
-// QueryUser queries the "user" edge of the CourseSession entity.
-func (cs *CourseSession) QueryUser() *UserQuery {
-	return NewCourseSessionClient(cs.config).QueryUser(cs)
+// QueryUser queries the "user" edge of the TestSession entity.
+func (ts *TestSession) QueryUser() *UserQuery {
+	return NewTestSessionClient(ts.config).QueryUser(ts)
 }
 
-// QueryCourseSection queries the "course_section" edge of the CourseSession entity.
-func (cs *CourseSession) QueryCourseSection() *CourseSectionQuery {
-	return NewCourseSessionClient(cs.config).QueryCourseSection(cs)
+// QueryCourseSection queries the "course_section" edge of the TestSession entity.
+func (ts *TestSession) QueryCourseSection() *CourseSectionQuery {
+	return NewTestSessionClient(ts.config).QueryCourseSection(ts)
 }
 
-// QueryUserQuestionAnswers queries the "user_question_answers" edge of the CourseSession entity.
-func (cs *CourseSession) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
-	return NewCourseSessionClient(cs.config).QueryUserQuestionAnswers(cs)
+// QueryUserQuestionAnswers queries the "user_question_answers" edge of the TestSession entity.
+func (ts *TestSession) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+	return NewTestSessionClient(ts.config).QueryUserQuestionAnswers(ts)
 }
 
-// Update returns a builder for updating this CourseSession.
-// Note that you need to call CourseSession.Unwrap() before calling this method if this CourseSession
+// Update returns a builder for updating this TestSession.
+// Note that you need to call TestSession.Unwrap() before calling this method if this TestSession
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (cs *CourseSession) Update() *CourseSessionUpdateOne {
-	return NewCourseSessionClient(cs.config).UpdateOne(cs)
+func (ts *TestSession) Update() *TestSessionUpdateOne {
+	return NewTestSessionClient(ts.config).UpdateOne(ts)
 }
 
-// Unwrap unwraps the CourseSession entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the TestSession entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (cs *CourseSession) Unwrap() *CourseSession {
-	_tx, ok := cs.config.driver.(*txDriver)
+func (ts *TestSession) Unwrap() *TestSession {
+	_tx, ok := ts.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: CourseSession is not a transactional entity")
+		panic("ent: TestSession is not a transactional entity")
 	}
-	cs.config.driver = _tx.drv
-	return cs
+	ts.config.driver = _tx.drv
+	return ts
 }
 
 // String implements the fmt.Stringer.
-func (cs *CourseSession) String() string {
+func (ts *TestSession) String() string {
 	var builder strings.Builder
-	builder.WriteString("CourseSession(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", cs.ID))
+	builder.WriteString("TestSession(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", ts.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(cs.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(ts.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(cs.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(ts.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := cs.DeletedAt; v != nil {
+	if v := ts.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", cs.UserID))
+	builder.WriteString(fmt.Sprintf("%v", ts.UserID))
 	builder.WriteString(", ")
-	if v := cs.CourseSectionID; v != nil {
+	if v := ts.CourseSectionID; v != nil {
 		builder.WriteString("course_section_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
-	builder.WriteString(cs.CompletedAt.Format(time.ANSIC))
+	builder.WriteString(ts.CompletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("total_score=")
-	builder.WriteString(fmt.Sprintf("%v", cs.TotalScore))
+	builder.WriteString(fmt.Sprintf("%v", ts.TotalScore))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// CourseSessions is a parsable slice of CourseSession.
-type CourseSessions []*CourseSession
+// TestSessions is a parsable slice of TestSession.
+type TestSessions []*TestSession
