@@ -15,7 +15,7 @@ type LoaderUtils[OriginalType any, ReturnType any] struct {
 	ItemMap map[string]*OriginalType
 }
 
-func NewLoaderByIds[OriginalType any, ReturnType any](ids []string) *LoaderUtils[OriginalType, ReturnType] {
+func NewLoaderByIds[OriginalType any, ReturnType any](ids []uuid.UUID) *LoaderUtils[OriginalType, ReturnType] {
 	lu := &LoaderUtils[OriginalType, ReturnType]{
 		Items:   make([]*ReturnType, len(ids)),
 		Errors:  make([]error, len(ids)),
@@ -24,25 +24,17 @@ func NewLoaderByIds[OriginalType any, ReturnType any](ids []string) *LoaderUtils
 		ItemMap: make(map[string]*OriginalType),
 	}
 
-	lu.parseUUIDs(ids)
+	lu.mapUUIDs(ids)
 
 	return lu
 }
 
-// parseUUIDs converts a slice of strings into a slice of uuid.UUID.
-// It returns an error if any of the strings cannot be parsed as a uuid.
-func (lu *LoaderUtils[OriginalType, ReturnType]) parseUUIDs(ids []string) error {
+// mapUUIDs initializes the UUIDs, Errors, and IdMap fields based on the provided slice of uuid.UUID.
+func (lu *LoaderUtils[OriginalType, ReturnType]) mapUUIDs(ids []uuid.UUID) error {
 	for i, s := range ids {
-		u, err := uuid.Parse(s)
-		if err != nil {
-			lu.Errors[i] = fmt.Errorf("invalid uuid at index %d: %q: %w", i, s, err)
-			lu.UUIDs[i] = uuid.Nil
-		} else {
-			lu.Errors[i] = nil
-			lu.UUIDs[i] = u
-		}
-
-		lu.IdMap[s] = i
+		lu.Errors[i] = nil
+		lu.UUIDs[i] = s
+		lu.IdMap[s.String()] = i
 	}
 	return nil
 }

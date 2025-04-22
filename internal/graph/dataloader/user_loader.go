@@ -5,9 +5,11 @@ import (
 	"template/internal/ent"
 	"template/internal/features/user"
 	"template/internal/graph/model"
+
+	"github.com/google/uuid"
 )
 
-func getUsers(ctx context.Context, userIDs []string) ([]*model.User, []error) {
+func getUsers(ctx context.Context, userIDs []uuid.UUID) ([]*model.User, []error) {
 	lu := NewLoaderByIds[ent.User, model.User](userIDs)
 
 	lu.LoadItems(ctx, user.GetUsersByIDs, func(entUser *ent.User) string {
@@ -23,7 +25,7 @@ func getUsers(ctx context.Context, userIDs []string) ([]*model.User, []error) {
 }
 
 // GetUser returns a single user by ID using the dataloader.
-func GetUser(ctx context.Context, userID string) (*model.User, error) {
+func GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
 	loaders := For(ctx)
 	return loaders.UserLoader.Load(ctx, userID)
 }

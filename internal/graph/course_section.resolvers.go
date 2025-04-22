@@ -6,22 +6,11 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"template/internal/features/course_section"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
 )
-
-// ID is the resolver for the id field.
-func (r *courseSectionResolver) ID(ctx context.Context, obj *model.CourseSection) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}
-
-// CourseID is the resolver for the courseId field.
-func (r *courseSectionResolver) CourseID(ctx context.Context, obj *model.CourseSection) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: CourseID - courseId"))
-}
 
 // CreateCourseSection is the resolver for the createCourseSection field.
 func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.CreateCourseSectionInput) (*model.CourseSection, error) {
@@ -71,8 +60,3 @@ func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model
 	}
 	return model.ConvertCourseSectionToModel(cs), nil
 }
-
-// CourseSection returns CourseSectionResolver implementation.
-func (r *Resolver) CourseSection() CourseSectionResolver { return &courseSectionResolver{r} }
-
-type courseSectionResolver struct{ *Resolver }

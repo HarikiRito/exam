@@ -6,6 +6,7 @@ import (
 
 	"template/internal/graph/model"
 
+	"github.com/google/uuid"
 	"github.com/vikstrous/dataloadgen"
 )
 
@@ -15,7 +16,7 @@ const loadersKey = ctxKey("dataloaders")
 
 // Loaders wraps the dataloader instances.
 type Loaders struct {
-	UserLoader *dataloadgen.Loader[string, *model.User]
+	UserLoader *dataloadgen.Loader[uuid.UUID, *model.User]
 }
 
 // NewLoaders instantiates and returns a new Loaders struct with a UserLoader.

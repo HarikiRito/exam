@@ -16,11 +16,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// ID is the resolver for the id field.
-func (r *courseResolver) ID(ctx context.Context, obj *model.Course) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}
-
 // Creator is the resolver for the creator field.
 func (r *courseResolver) Creator(ctx context.Context, obj *model.Course) (*model.User, error) {
 	return dataloader.GetUser(ctx, obj.CreatorID)
