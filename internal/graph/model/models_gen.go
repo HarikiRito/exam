@@ -7,12 +7,6 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-type CourseSession struct {
-	ID         string `json:"id"`
-	CourseID   string `json:"courseId"`
-	TotalScore int    `json:"totalScore"`
-}
-
 type CreateCourseInput struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
@@ -24,8 +18,11 @@ type CreateCourseSectionInput struct {
 	CourseID    string `json:"courseId"`
 }
 
-type CreateCourseSessionInput struct {
-	CourseID string `json:"courseId"`
+type CreateTestInput struct {
+	Name            string   `json:"name"`
+	CourseSectionID *string  `json:"courseSectionId,omitempty"`
+	CourseID        *string  `json:"courseId,omitempty"`
+	QuestionIds     []string `json:"questionIds"`
 }
 
 type LoginInput struct {
@@ -45,9 +42,9 @@ type PaginatedCourse struct {
 	Items      []*Course   `json:"items"`
 }
 
-type PaginatedCourseSession struct {
-	Pagination *Pagination      `json:"pagination"`
-	Items      []*CourseSession `json:"items"`
+type PaginatedTest struct {
+	Pagination *Pagination `json:"pagination"`
+	Items      []*Test     `json:"items"`
 }
 
 type Pagination struct {
@@ -72,6 +69,13 @@ type RegisterInput struct {
 	Password string `json:"password"`
 }
 
+type Test struct {
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	CourseSection *CourseSection `json:"courseSection,omitempty"`
+	Course        *Course        `json:"course,omitempty"`
+}
+
 type Todo struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
@@ -87,8 +91,11 @@ type UpdateCourseSectionInput struct {
 	Description *string `json:"description,omitempty"`
 }
 
-type UpdateCourseSessionInput struct {
-	TotalScore *int `json:"totalScore,omitempty"`
+type UpdateTestInput struct {
+	Name            *string  `json:"name,omitempty"`
+	CourseSectionID *string  `json:"courseSectionId,omitempty"`
+	CourseID        *string  `json:"courseId,omitempty"`
+	QuestionIds     []string `json:"questionIds"`
 }
 
 type User struct {

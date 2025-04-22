@@ -1,0 +1,37 @@
+extend type Mutation {
+  createTest(input: CreateTestInput!): Test!
+  updateTest(id: ID!, input: UpdateTestInput!): Test!
+  deleteTest(id: ID!): Boolean!
+}
+
+extend type Query {
+  test(id: ID!): Test!
+  tests(pagination: PaginationInput): PaginatedTest!
+}
+
+
+type PaginatedTest {
+  pagination: Pagination!
+  items: [Test!]!
+}
+type Test {
+  id: ID!
+  name: String!
+  courseSection: CourseSection
+  course: Course
+  # questions: [Question!]!
+}
+
+input CreateTestInput {
+  name: String!
+  courseSectionId: ID
+  courseId: ID
+  questionIds: [ID!]!
+}
+
+input UpdateTestInput {
+  name: String
+  courseSectionId: ID
+  courseId: ID
+  questionIds: [ID!]!
+}

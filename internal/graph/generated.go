@@ -68,25 +68,19 @@ type ComplexityRoot struct {
 		Title       func(childComplexity int) int
 	}
 
-	CourseSession struct {
-		CourseID   func(childComplexity int) int
-		ID         func(childComplexity int) int
-		TotalScore func(childComplexity int) int
-	}
-
 	Mutation struct {
 		CreateCourse        func(childComplexity int, input model.CreateCourseInput) int
 		CreateCourseSection func(childComplexity int, input model.CreateCourseSectionInput) int
-		CreateCourseSession func(childComplexity int, input model.CreateCourseSessionInput) int
+		CreateTest          func(childComplexity int, input model.CreateTestInput) int
 		CreateTodo          func(childComplexity int, input model.NewTodo) int
+		DeleteTest          func(childComplexity int, id string) int
 		Register            func(childComplexity int, input model.RegisterInput) int
 		RemoveCourse        func(childComplexity int, id string) int
 		RemoveCourseSection func(childComplexity int, id string) int
-		RemoveCourseSession func(childComplexity int, id string) int
 		RenewToken          func(childComplexity int, refreshToken string) int
 		UpdateCourse        func(childComplexity int, id string, input model.UpdateCourseInput) int
 		UpdateCourseSection func(childComplexity int, id string, input model.UpdateCourseSectionInput) int
-		UpdateCourseSession func(childComplexity int, id string, input model.UpdateCourseSessionInput) int
+		UpdateTest          func(childComplexity int, id string, input model.UpdateTestInput) int
 	}
 
 	PaginatedCourse struct {
@@ -94,7 +88,7 @@ type ComplexityRoot struct {
 		Pagination func(childComplexity int) int
 	}
 
-	PaginatedCourseSession struct {
+	PaginatedTest struct {
 		Items      func(childComplexity int) int
 		Pagination func(childComplexity int) int
 	}
@@ -108,14 +102,21 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Course                  func(childComplexity int, id string) int
-		CourseSection           func(childComplexity int, id string) int
-		CourseSession           func(childComplexity int, id string) int
-		Login                   func(childComplexity int, input model.LoginInput) int
-		Me                      func(childComplexity int) int
-		PaginatedCourseSessions func(childComplexity int, input *model.PaginationInput) int
-		PaginatedCourses        func(childComplexity int, input *model.PaginationInput) int
-		Todos                   func(childComplexity int) int
+		Course           func(childComplexity int, id string) int
+		CourseSection    func(childComplexity int, id string) int
+		Login            func(childComplexity int, input model.LoginInput) int
+		Me               func(childComplexity int) int
+		PaginatedCourses func(childComplexity int, input *model.PaginationInput) int
+		Test             func(childComplexity int, id string) int
+		Tests            func(childComplexity int, pagination *model.PaginationInput) int
+		Todos            func(childComplexity int) int
+	}
+
+	Test struct {
+		Course        func(childComplexity int) int
+		CourseSection func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Name          func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -142,9 +143,9 @@ type MutationResolver interface {
 	CreateCourseSection(ctx context.Context, input model.CreateCourseSectionInput) (*model.CourseSection, error)
 	UpdateCourseSection(ctx context.Context, id string, input model.UpdateCourseSectionInput) (*model.CourseSection, error)
 	RemoveCourseSection(ctx context.Context, id string) (bool, error)
-	CreateCourseSession(ctx context.Context, input model.CreateCourseSessionInput) (*model.CourseSession, error)
-	UpdateCourseSession(ctx context.Context, id string, input model.UpdateCourseSessionInput) (*model.CourseSession, error)
-	RemoveCourseSession(ctx context.Context, id string) (bool, error)
+	CreateTest(ctx context.Context, input model.CreateTestInput) (*model.Test, error)
+	UpdateTest(ctx context.Context, id string, input model.UpdateTestInput) (*model.Test, error)
+	DeleteTest(ctx context.Context, id string) (bool, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 }
 type QueryResolver interface {
@@ -153,8 +154,8 @@ type QueryResolver interface {
 	Course(ctx context.Context, id string) (*model.Course, error)
 	PaginatedCourses(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourse, error)
 	CourseSection(ctx context.Context, id string) (*model.CourseSection, error)
-	CourseSession(ctx context.Context, id string) (*model.CourseSession, error)
-	PaginatedCourseSessions(ctx context.Context, input *model.PaginationInput) (*model.PaginatedCourseSession, error)
+	Test(ctx context.Context, id string) (*model.Test, error)
+	Tests(ctx context.Context, pagination *model.PaginationInput) (*model.PaginatedTest, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
 }
 
@@ -254,27 +255,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CourseSection.Title(childComplexity), true
 
-	case "CourseSession.courseId":
-		if e.complexity.CourseSession.CourseID == nil {
-			break
-		}
-
-		return e.complexity.CourseSession.CourseID(childComplexity), true
-
-	case "CourseSession.id":
-		if e.complexity.CourseSession.ID == nil {
-			break
-		}
-
-		return e.complexity.CourseSession.ID(childComplexity), true
-
-	case "CourseSession.totalScore":
-		if e.complexity.CourseSession.TotalScore == nil {
-			break
-		}
-
-		return e.complexity.CourseSession.TotalScore(childComplexity), true
-
 	case "Mutation.createCourse":
 		if e.complexity.Mutation.CreateCourse == nil {
 			break
@@ -299,17 +279,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateCourseSection(childComplexity, args["input"].(model.CreateCourseSectionInput)), true
 
-	case "Mutation.createCourseSession":
-		if e.complexity.Mutation.CreateCourseSession == nil {
+	case "Mutation.createTest":
+		if e.complexity.Mutation.CreateTest == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createCourseSession_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createTest_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCourseSession(childComplexity, args["input"].(model.CreateCourseSessionInput)), true
+		return e.complexity.Mutation.CreateTest(childComplexity, args["input"].(model.CreateTestInput)), true
 
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
@@ -322,6 +302,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(model.NewTodo)), true
+
+	case "Mutation.deleteTest":
+		if e.complexity.Mutation.DeleteTest == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteTest_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteTest(childComplexity, args["id"].(string)), true
 
 	case "Mutation.register":
 		if e.complexity.Mutation.Register == nil {
@@ -359,18 +351,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RemoveCourseSection(childComplexity, args["id"].(string)), true
 
-	case "Mutation.removeCourseSession":
-		if e.complexity.Mutation.RemoveCourseSession == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_removeCourseSession_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.RemoveCourseSession(childComplexity, args["id"].(string)), true
-
 	case "Mutation.renewToken":
 		if e.complexity.Mutation.RenewToken == nil {
 			break
@@ -407,17 +387,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateCourseSection(childComplexity, args["id"].(string), args["input"].(model.UpdateCourseSectionInput)), true
 
-	case "Mutation.updateCourseSession":
-		if e.complexity.Mutation.UpdateCourseSession == nil {
+	case "Mutation.updateTest":
+		if e.complexity.Mutation.UpdateTest == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateCourseSession_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateTest_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateCourseSession(childComplexity, args["id"].(string), args["input"].(model.UpdateCourseSessionInput)), true
+		return e.complexity.Mutation.UpdateTest(childComplexity, args["id"].(string), args["input"].(model.UpdateTestInput)), true
 
 	case "PaginatedCourse.items":
 		if e.complexity.PaginatedCourse.Items == nil {
@@ -433,19 +413,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PaginatedCourse.Pagination(childComplexity), true
 
-	case "PaginatedCourseSession.items":
-		if e.complexity.PaginatedCourseSession.Items == nil {
+	case "PaginatedTest.items":
+		if e.complexity.PaginatedTest.Items == nil {
 			break
 		}
 
-		return e.complexity.PaginatedCourseSession.Items(childComplexity), true
+		return e.complexity.PaginatedTest.Items(childComplexity), true
 
-	case "PaginatedCourseSession.pagination":
-		if e.complexity.PaginatedCourseSession.Pagination == nil {
+	case "PaginatedTest.pagination":
+		if e.complexity.PaginatedTest.Pagination == nil {
 			break
 		}
 
-		return e.complexity.PaginatedCourseSession.Pagination(childComplexity), true
+		return e.complexity.PaginatedTest.Pagination(childComplexity), true
 
 	case "Pagination.currentPage":
 		if e.complexity.Pagination.CurrentPage == nil {
@@ -506,18 +486,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.CourseSection(childComplexity, args["id"].(string)), true
 
-	case "Query.courseSession":
-		if e.complexity.Query.CourseSession == nil {
-			break
-		}
-
-		args, err := ec.field_Query_courseSession_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.CourseSession(childComplexity, args["id"].(string)), true
-
 	case "Query.login":
 		if e.complexity.Query.Login == nil {
 			break
@@ -537,18 +505,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Me(childComplexity), true
 
-	case "Query.paginatedCourseSessions":
-		if e.complexity.Query.PaginatedCourseSessions == nil {
-			break
-		}
-
-		args, err := ec.field_Query_paginatedCourseSessions_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.PaginatedCourseSessions(childComplexity, args["input"].(*model.PaginationInput)), true
-
 	case "Query.paginatedCourses":
 		if e.complexity.Query.PaginatedCourses == nil {
 			break
@@ -561,12 +517,64 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.PaginatedCourses(childComplexity, args["input"].(*model.PaginationInput)), true
 
+	case "Query.test":
+		if e.complexity.Query.Test == nil {
+			break
+		}
+
+		args, err := ec.field_Query_test_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Test(childComplexity, args["id"].(string)), true
+
+	case "Query.tests":
+		if e.complexity.Query.Tests == nil {
+			break
+		}
+
+		args, err := ec.field_Query_tests_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Tests(childComplexity, args["pagination"].(*model.PaginationInput)), true
+
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
 			break
 		}
 
 		return e.complexity.Query.Todos(childComplexity), true
+
+	case "Test.course":
+		if e.complexity.Test.Course == nil {
+			break
+		}
+
+		return e.complexity.Test.Course(childComplexity), true
+
+	case "Test.courseSection":
+		if e.complexity.Test.CourseSection == nil {
+			break
+		}
+
+		return e.complexity.Test.CourseSection(childComplexity), true
+
+	case "Test.id":
+		if e.complexity.Test.ID == nil {
+			break
+		}
+
+		return e.complexity.Test.ID(childComplexity), true
+
+	case "Test.name":
+		if e.complexity.Test.Name == nil {
+			break
+		}
+
+		return e.complexity.Test.Name(childComplexity), true
 
 	case "Todo.id":
 		if e.complexity.Todo.ID == nil {
@@ -606,14 +614,14 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateCourseInput,
 		ec.unmarshalInputCreateCourseSectionInput,
-		ec.unmarshalInputCreateCourseSessionInput,
+		ec.unmarshalInputCreateTestInput,
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputNewTodo,
 		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputRegisterInput,
 		ec.unmarshalInputUpdateCourseInput,
 		ec.unmarshalInputUpdateCourseSectionInput,
-		ec.unmarshalInputUpdateCourseSessionInput,
+		ec.unmarshalInputUpdateTestInput,
 	)
 	first := true
 
@@ -710,7 +718,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/course_session.gql" "schema/schema.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql"
+//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/schema.gql" "schema/test.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -726,8 +734,8 @@ var sources = []*ast.Source{
 	{Name: "schema/common/pagination.gql", Input: sourceData("schema/common/pagination.gql"), BuiltIn: false},
 	{Name: "schema/course.gql", Input: sourceData("schema/course.gql"), BuiltIn: false},
 	{Name: "schema/course_section.gql", Input: sourceData("schema/course_section.gql"), BuiltIn: false},
-	{Name: "schema/course_session.gql", Input: sourceData("schema/course_session.gql"), BuiltIn: false},
 	{Name: "schema/schema.gql", Input: sourceData("schema/schema.gql"), BuiltIn: false},
+	{Name: "schema/test.gql", Input: sourceData("schema/test.gql"), BuiltIn: false},
 	{Name: "schema/todo/models.gql", Input: sourceData("schema/todo/models.gql"), BuiltIn: false},
 	{Name: "schema/todo/todo.gql", Input: sourceData("schema/todo/todo.gql"), BuiltIn: false},
 	{Name: "schema/user.gql", Input: sourceData("schema/user.gql"), BuiltIn: false},
@@ -761,29 +769,6 @@ func (ec *executionContext) field_Mutation_createCourseSection_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createCourseSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_createCourseSession_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_createCourseSession_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.CreateCourseSessionInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateCourseSessionInput2templateᚋinternalᚋgraphᚋmodelᚐCreateCourseSessionInput(ctx, tmp)
-	}
-
-	var zeroVal model.CreateCourseSessionInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_createCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -807,6 +792,29 @@ func (ec *executionContext) field_Mutation_createCourse_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_createTest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_createTest_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createTest_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateTestInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateTestInput2templateᚋinternalᚋgraphᚋmodelᚐCreateTestInput(ctx, tmp)
+	}
+
+	var zeroVal model.CreateTestInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -827,6 +835,29 @@ func (ec *executionContext) field_Mutation_createTodo_argsInput(
 	}
 
 	var zeroVal model.NewTodo
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteTest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_deleteTest_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteTest_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
+	}
+
+	var zeroVal string
 	return zeroVal, nil
 }
 
@@ -864,29 +895,6 @@ func (ec *executionContext) field_Mutation_removeCourseSection_args(ctx context.
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_removeCourseSection_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_removeCourseSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_removeCourseSession_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_removeCourseSession_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (string, error) {
@@ -986,47 +994,6 @@ func (ec *executionContext) field_Mutation_updateCourseSection_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateCourseSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateCourseSession_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	arg1, err := ec.field_Mutation_updateCourseSession_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateCourseSession_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateCourseSession_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateCourseSessionInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateCourseSessionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateCourseSessionInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateCourseSessionInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_updateCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1068,6 +1035,47 @@ func (ec *executionContext) field_Mutation_updateCourse_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_updateTest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateTest_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := ec.field_Mutation_updateTest_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateTest_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTest_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateTestInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateTestInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestInput(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateTestInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1102,29 +1110,6 @@ func (ec *executionContext) field_Query_courseSection_args(ctx context.Context, 
 	return args, nil
 }
 func (ec *executionContext) field_Query_courseSection_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_courseSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_courseSession_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_courseSession_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (string, error) {
@@ -1183,29 +1168,6 @@ func (ec *executionContext) field_Query_login_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_paginatedCourseSessions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_paginatedCourseSessions_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_paginatedCourseSessions_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.PaginationInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
-	}
-
-	var zeroVal *model.PaginationInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Query_paginatedCourses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -1222,6 +1184,52 @@ func (ec *executionContext) field_Query_paginatedCourses_argsInput(
 ) (*model.PaginationInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+	}
+
+	var zeroVal *model.PaginationInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_test_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_test_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_test_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tests_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_tests_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_tests_argsPagination(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*model.PaginationInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+	if tmp, ok := rawArgs["pagination"]; ok {
 		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
 	}
 
@@ -1783,138 +1791,6 @@ func (ec *executionContext) fieldContext_CourseSection_courseId(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CourseSession_id(ctx context.Context, field graphql.CollectedField, obj *model.CourseSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseSession_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CourseSession_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CourseSession",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CourseSession_courseId(ctx context.Context, field graphql.CollectedField, obj *model.CourseSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseSession_courseId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CourseID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CourseSession_courseId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CourseSession",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _CourseSession_totalScore(ctx context.Context, field graphql.CollectedField, obj *model.CourseSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_CourseSession_totalScore(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TotalScore, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_CourseSession_totalScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "CourseSession",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_register(ctx, field)
 	if err != nil {
@@ -2411,8 +2287,8 @@ func (ec *executionContext) fieldContext_Mutation_removeCourseSection(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createCourseSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createCourseSession(ctx, field)
+func (ec *executionContext) _Mutation_createTest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTest(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2425,7 +2301,7 @@ func (ec *executionContext) _Mutation_createCourseSession(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCourseSession(rctx, fc.Args["input"].(model.CreateCourseSessionInput))
+		return ec.resolvers.Mutation().CreateTest(rctx, fc.Args["input"].(model.CreateTestInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2437,12 +2313,12 @@ func (ec *executionContext) _Mutation_createCourseSession(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CourseSession)
+	res := resTmp.(*model.Test)
 	fc.Result = res
-	return ec.marshalNCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSession(ctx, field.Selections, res)
+	return ec.marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createCourseSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createTest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2451,13 +2327,15 @@ func (ec *executionContext) fieldContext_Mutation_createCourseSession(ctx contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CourseSession_id(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSession_courseId(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_CourseSession_totalScore(ctx, field)
+				return ec.fieldContext_Test_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Test_name(ctx, field)
+			case "courseSection":
+				return ec.fieldContext_Test_courseSection(ctx, field)
+			case "course":
+				return ec.fieldContext_Test_course(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSession", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Test", field.Name)
 		},
 	}
 	defer func() {
@@ -2467,15 +2345,15 @@ func (ec *executionContext) fieldContext_Mutation_createCourseSession(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createCourseSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createTest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateCourseSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateCourseSession(ctx, field)
+func (ec *executionContext) _Mutation_updateTest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTest(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2488,7 +2366,7 @@ func (ec *executionContext) _Mutation_updateCourseSession(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateCourseSession(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateCourseSessionInput))
+		return ec.resolvers.Mutation().UpdateTest(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateTestInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2500,12 +2378,12 @@ func (ec *executionContext) _Mutation_updateCourseSession(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CourseSession)
+	res := resTmp.(*model.Test)
 	fc.Result = res
-	return ec.marshalNCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSession(ctx, field.Selections, res)
+	return ec.marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateCourseSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateTest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2514,13 +2392,15 @@ func (ec *executionContext) fieldContext_Mutation_updateCourseSession(ctx contex
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CourseSession_id(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSession_courseId(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_CourseSession_totalScore(ctx, field)
+				return ec.fieldContext_Test_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Test_name(ctx, field)
+			case "courseSection":
+				return ec.fieldContext_Test_courseSection(ctx, field)
+			case "course":
+				return ec.fieldContext_Test_course(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSession", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Test", field.Name)
 		},
 	}
 	defer func() {
@@ -2530,15 +2410,15 @@ func (ec *executionContext) fieldContext_Mutation_updateCourseSession(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateCourseSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateTest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_removeCourseSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_removeCourseSession(ctx, field)
+func (ec *executionContext) _Mutation_deleteTest(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteTest(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2551,7 +2431,7 @@ func (ec *executionContext) _Mutation_removeCourseSession(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveCourseSession(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().DeleteTest(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2568,7 +2448,7 @@ func (ec *executionContext) _Mutation_removeCourseSession(ctx context.Context, f
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_removeCourseSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_deleteTest(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2585,7 +2465,7 @@ func (ec *executionContext) fieldContext_Mutation_removeCourseSession(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_removeCourseSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_deleteTest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2765,8 +2645,8 @@ func (ec *executionContext) fieldContext_PaginatedCourse_items(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _PaginatedCourseSession_pagination(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedCourseSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PaginatedCourseSession_pagination(ctx, field)
+func (ec *executionContext) _PaginatedTest_pagination(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTest) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedTest_pagination(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2796,9 +2676,9 @@ func (ec *executionContext) _PaginatedCourseSession_pagination(ctx context.Conte
 	return ec.marshalNPagination2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPagination(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PaginatedCourseSession_pagination(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PaginatedTest_pagination(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PaginatedCourseSession",
+		Object:     "PaginatedTest",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -2821,8 +2701,8 @@ func (ec *executionContext) fieldContext_PaginatedCourseSession_pagination(_ con
 	return fc, nil
 }
 
-func (ec *executionContext) _PaginatedCourseSession_items(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedCourseSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PaginatedCourseSession_items(ctx, field)
+func (ec *executionContext) _PaginatedTest_items(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedTest) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedTest_items(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2847,27 +2727,29 @@ func (ec *executionContext) _PaginatedCourseSession_items(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.CourseSession)
+	res := resTmp.([]*model.Test)
 	fc.Result = res
-	return ec.marshalNCourseSession2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSessionᚄ(ctx, field.Selections, res)
+	return ec.marshalNTest2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PaginatedCourseSession_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PaginatedTest_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PaginatedCourseSession",
+		Object:     "PaginatedTest",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CourseSession_id(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSession_courseId(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_CourseSession_totalScore(ctx, field)
+				return ec.fieldContext_Test_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Test_name(ctx, field)
+			case "courseSection":
+				return ec.fieldContext_Test_courseSection(ctx, field)
+			case "course":
+				return ec.fieldContext_Test_course(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSession", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Test", field.Name)
 		},
 	}
 	return fc, nil
@@ -3397,8 +3279,8 @@ func (ec *executionContext) fieldContext_Query_courseSection(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_courseSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_courseSession(ctx, field)
+func (ec *executionContext) _Query_test(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_test(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3411,7 +3293,7 @@ func (ec *executionContext) _Query_courseSession(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CourseSession(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Test(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3423,12 +3305,12 @@ func (ec *executionContext) _Query_courseSession(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.CourseSession)
+	res := resTmp.(*model.Test)
 	fc.Result = res
-	return ec.marshalNCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSession(ctx, field.Selections, res)
+	return ec.marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_courseSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_test(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3437,13 +3319,15 @@ func (ec *executionContext) fieldContext_Query_courseSession(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CourseSession_id(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSession_courseId(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_CourseSession_totalScore(ctx, field)
+				return ec.fieldContext_Test_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Test_name(ctx, field)
+			case "courseSection":
+				return ec.fieldContext_Test_courseSection(ctx, field)
+			case "course":
+				return ec.fieldContext_Test_course(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSession", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Test", field.Name)
 		},
 	}
 	defer func() {
@@ -3453,15 +3337,15 @@ func (ec *executionContext) fieldContext_Query_courseSession(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_courseSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_test_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_paginatedCourseSessions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_paginatedCourseSessions(ctx, field)
+func (ec *executionContext) _Query_tests(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_tests(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3474,7 +3358,7 @@ func (ec *executionContext) _Query_paginatedCourseSessions(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaginatedCourseSessions(rctx, fc.Args["input"].(*model.PaginationInput))
+		return ec.resolvers.Query().Tests(rctx, fc.Args["pagination"].(*model.PaginationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3486,12 +3370,12 @@ func (ec *executionContext) _Query_paginatedCourseSessions(ctx context.Context, 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.PaginatedCourseSession)
+	res := resTmp.(*model.PaginatedTest)
 	fc.Result = res
-	return ec.marshalNPaginatedCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedCourseSession(ctx, field.Selections, res)
+	return ec.marshalNPaginatedTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedTest(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_paginatedCourseSessions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_tests(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3500,11 +3384,11 @@ func (ec *executionContext) fieldContext_Query_paginatedCourseSessions(ctx conte
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pagination":
-				return ec.fieldContext_PaginatedCourseSession_pagination(ctx, field)
+				return ec.fieldContext_PaginatedTest_pagination(ctx, field)
 			case "items":
-				return ec.fieldContext_PaginatedCourseSession_items(ctx, field)
+				return ec.fieldContext_PaginatedTest_items(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PaginatedCourseSession", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedTest", field.Name)
 		},
 	}
 	defer func() {
@@ -3514,7 +3398,7 @@ func (ec *executionContext) fieldContext_Query_paginatedCourseSessions(ctx conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_paginatedCourseSessions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_tests_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3695,6 +3579,198 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Test_id(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Test_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Test_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Test",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Test_name(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Test_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Test_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Test",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Test_courseSection(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Test_courseSection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CourseSection, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CourseSection)
+	fc.Result = res
+	return ec.marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Test_courseSection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Test",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_CourseSection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_CourseSection_title(ctx, field)
+			case "description":
+				return ec.fieldContext_CourseSection_description(ctx, field)
+			case "courseId":
+				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Test_course(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Test_course(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Course, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Course)
+	fc.Result = res
+	return ec.marshalOCourse2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Test_course(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Test",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Course_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Course_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Course_description(ctx, field)
+			case "creator":
+				return ec.fieldContext_Course_creator(ctx, field)
+			case "sections":
+				return ec.fieldContext_Course_sections(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
 		},
 	}
 	return fc, nil
@@ -5724,27 +5800,48 @@ func (ec *executionContext) unmarshalInputCreateCourseSectionInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateCourseSessionInput(ctx context.Context, obj interface{}) (model.CreateCourseSessionInput, error) {
-	var it model.CreateCourseSessionInput
+func (ec *executionContext) unmarshalInputCreateTestInput(ctx context.Context, obj interface{}) (model.CreateTestInput, error) {
+	var it model.CreateTestInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"courseId"}
+	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId", "questionIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "courseSectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CourseSectionID = data
 		case "courseId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseID = data
+		case "questionIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionIds = data
 		}
 	}
 
@@ -5955,27 +6052,48 @@ func (ec *executionContext) unmarshalInputUpdateCourseSectionInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateCourseSessionInput(ctx context.Context, obj interface{}) (model.UpdateCourseSessionInput, error) {
-	var it model.UpdateCourseSessionInput
+func (ec *executionContext) unmarshalInputUpdateTestInput(ctx context.Context, obj interface{}) (model.UpdateTestInput, error) {
+	var it model.UpdateTestInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"totalScore"}
+	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId", "questionIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "totalScore":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalScore"))
-			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TotalScore = data
+			it.Name = data
+		case "courseSectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CourseSectionID = data
+		case "courseId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CourseID = data
+		case "questionIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
+			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionIds = data
 		}
 	}
 
@@ -6209,55 +6327,6 @@ func (ec *executionContext) _CourseSection(ctx context.Context, sel ast.Selectio
 	return out
 }
 
-var courseSessionImplementors = []string{"CourseSession"}
-
-func (ec *executionContext) _CourseSession(ctx context.Context, sel ast.SelectionSet, obj *model.CourseSession) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, courseSessionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("CourseSession")
-		case "id":
-			out.Values[i] = ec._CourseSession_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "courseId":
-			out.Values[i] = ec._CourseSession_courseId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "totalScore":
-			out.Values[i] = ec._CourseSession_totalScore(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -6333,23 +6402,23 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createCourseSession":
+		case "createTest":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createCourseSession(ctx, field)
+				return ec._Mutation_createTest(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateCourseSession":
+		case "updateTest":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateCourseSession(ctx, field)
+				return ec._Mutation_updateTest(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "removeCourseSession":
+		case "deleteTest":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_removeCourseSession(ctx, field)
+				return ec._Mutation_deleteTest(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6428,24 +6497,24 @@ func (ec *executionContext) _PaginatedCourse(ctx context.Context, sel ast.Select
 	return out
 }
 
-var paginatedCourseSessionImplementors = []string{"PaginatedCourseSession"}
+var paginatedTestImplementors = []string{"PaginatedTest"}
 
-func (ec *executionContext) _PaginatedCourseSession(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedCourseSession) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedCourseSessionImplementors)
+func (ec *executionContext) _PaginatedTest(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedTest) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedTestImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PaginatedCourseSession")
+			out.Values[i] = graphql.MarshalString("PaginatedTest")
 		case "pagination":
-			out.Values[i] = ec._PaginatedCourseSession_pagination(ctx, field, obj)
+			out.Values[i] = ec._PaginatedTest_pagination(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "items":
-			out.Values[i] = ec._PaginatedCourseSession_items(ctx, field, obj)
+			out.Values[i] = ec._PaginatedTest_items(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6660,7 +6729,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "courseSession":
+		case "test":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -6669,7 +6738,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_courseSession(ctx, field)
+				res = ec._Query_test(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6682,7 +6751,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "paginatedCourseSessions":
+		case "tests":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -6691,7 +6760,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_paginatedCourseSessions(ctx, field)
+				res = ec._Query_tests(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6734,6 +6803,54 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var testImplementors = []string{"Test"}
+
+func (ec *executionContext) _Test(ctx context.Context, sel ast.SelectionSet, obj *model.Test) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, testImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Test")
+		case "id":
+			out.Values[i] = ec._Test_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Test_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "courseSection":
+			out.Values[i] = ec._Test_courseSection(ctx, field, obj)
+		case "course":
+			out.Values[i] = ec._Test_course(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7316,64 +7433,6 @@ func (ec *executionContext) marshalNCourseSection2ᚖtemplateᚋinternalᚋgraph
 	return ec._CourseSection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCourseSession2templateᚋinternalᚋgraphᚋmodelᚐCourseSession(ctx context.Context, sel ast.SelectionSet, v model.CourseSession) graphql.Marshaler {
-	return ec._CourseSession(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCourseSession2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSessionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CourseSession) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSession(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSession(ctx context.Context, sel ast.SelectionSet, v *model.CourseSession) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._CourseSession(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNCreateCourseInput2templateᚋinternalᚋgraphᚋmodelᚐCreateCourseInput(ctx context.Context, v interface{}) (model.CreateCourseInput, error) {
 	res, err := ec.unmarshalInputCreateCourseInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -7384,8 +7443,8 @@ func (ec *executionContext) unmarshalNCreateCourseSectionInput2templateᚋintern
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateCourseSessionInput2templateᚋinternalᚋgraphᚋmodelᚐCreateCourseSessionInput(ctx context.Context, v interface{}) (model.CreateCourseSessionInput, error) {
-	res, err := ec.unmarshalInputCreateCourseSessionInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateTestInput2templateᚋinternalᚋgraphᚋmodelᚐCreateTestInput(ctx context.Context, v interface{}) (model.CreateTestInput, error) {
+	res, err := ec.unmarshalInputCreateTestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -7402,6 +7461,38 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -7443,18 +7534,18 @@ func (ec *executionContext) marshalNPaginatedCourse2ᚖtemplateᚋinternalᚋgra
 	return ec._PaginatedCourse(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPaginatedCourseSession2templateᚋinternalᚋgraphᚋmodelᚐPaginatedCourseSession(ctx context.Context, sel ast.SelectionSet, v model.PaginatedCourseSession) graphql.Marshaler {
-	return ec._PaginatedCourseSession(ctx, sel, &v)
+func (ec *executionContext) marshalNPaginatedTest2templateᚋinternalᚋgraphᚋmodelᚐPaginatedTest(ctx context.Context, sel ast.SelectionSet, v model.PaginatedTest) graphql.Marshaler {
+	return ec._PaginatedTest(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPaginatedCourseSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedCourseSession(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedCourseSession) graphql.Marshaler {
+func (ec *executionContext) marshalNPaginatedTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedTest(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedTest) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PaginatedCourseSession(ctx, sel, v)
+	return ec._PaginatedTest(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPagination2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPagination(ctx context.Context, sel ast.SelectionSet, v *model.Pagination) graphql.Marshaler {
@@ -7485,6 +7576,64 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNTest2templateᚋinternalᚋgraphᚋmodelᚐTest(ctx context.Context, sel ast.SelectionSet, v model.Test) graphql.Marshaler {
+	return ec._Test(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTest2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Test) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx context.Context, sel ast.SelectionSet, v *model.Test) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Test(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNTodo2templateᚋinternalᚋgraphᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v model.Todo) graphql.Marshaler {
@@ -7555,8 +7704,8 @@ func (ec *executionContext) unmarshalNUpdateCourseSectionInput2templateᚋintern
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateCourseSessionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateCourseSessionInput(ctx context.Context, v interface{}) (model.UpdateCourseSessionInput, error) {
-	res, err := ec.unmarshalInputUpdateCourseSessionInput(ctx, v)
+func (ec *executionContext) unmarshalNUpdateTestInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestInput(ctx context.Context, v interface{}) (model.UpdateTestInput, error) {
+	res, err := ec.unmarshalInputUpdateTestInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -7853,19 +8002,33 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+func (ec *executionContext) marshalOCourse2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourse(ctx context.Context, sel ast.SelectionSet, v *model.Course) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalInt(*v)
+	return ec._Course(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx context.Context, sel ast.SelectionSet, v *model.CourseSection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CourseSection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalID(*v)
 	return res
 }
 
