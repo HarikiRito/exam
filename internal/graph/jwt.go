@@ -8,7 +8,6 @@ import (
 	"template/internal/features/jwt"
 	"template/internal/features/user"
 	"template/internal/graph/model"
-	"template/internal/shared/utilities/id"
 
 	"github.com/google/uuid"
 )
@@ -48,7 +47,7 @@ func GetUserIdFromRequestContext(ctx context.Context) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	uuidValue, err := id.StringToUUID(userID)
+	uuidValue, err := uuid.Parse(userID)
 	if err != nil {
 		return uuid.Nil, errors.New("invalid user ID format")
 	}
@@ -68,7 +67,7 @@ func GetUserFromRequestContext(ctx context.Context) (*model.User, error) {
 	}
 
 	return &model.User{
-		ID:    user.ID.String(),
+		ID:    user.ID,
 		Email: user.Email,
 	}, nil
 }

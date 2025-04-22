@@ -30,11 +30,7 @@ func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.
 		return nil, err
 	}
 
-	cid, err := uuid.Parse(input.CourseID)
-	if err != nil {
-		return nil, err
-	}
-	cs, err := course_section.CreateCourseSection(ctx, userId, cid, input)
+	cs, err := course_section.CreateCourseSection(ctx, userId, input.CourseID, input)
 	if err != nil {
 		return nil, err
 	}
@@ -47,11 +43,7 @@ func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id uuid.UUID
 	if err != nil {
 		return nil, err
 	}
-	sectionUUID, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-	courseSection, err := course_section.UpdateCourseSection(ctx, userId, sectionUUID, input)
+	courseSection, err := course_section.UpdateCourseSection(ctx, userId, id, input)
 	if err != nil {
 		return nil, err
 	}
@@ -64,11 +56,7 @@ func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id uuid.UUID
 	if err != nil {
 		return false, err
 	}
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return false, err
-	}
-	return course_section.RemoveCourseSection(ctx, userId, uid)
+	return course_section.RemoveCourseSection(ctx, userId, id)
 }
 
 // CourseSection is the resolver for the courseSection field.
@@ -77,11 +65,7 @@ func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model
 	if err != nil {
 		return nil, err
 	}
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, err
-	}
-	cs, err := course_section.GetCourseSectionByID(ctx, userId, uid)
+	cs, err := course_section.GetCourseSectionByID(ctx, userId, id)
 	if err != nil {
 		return nil, err
 	}

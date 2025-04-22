@@ -14,7 +14,7 @@ func getUsers(ctx context.Context, userIDs []string) ([]*model.User, []error) {
 		return entUser.ID.String()
 	}, func(entUser *ent.User) (*model.User, error) {
 		return &model.User{
-			ID:    entUser.ID.String(),
+			ID:    entUser.ID,
 			Email: entUser.Email,
 		}, nil
 	})

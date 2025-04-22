@@ -33,35 +33,25 @@ func CreateCourse(ctx context.Context, userId uuid.UUID, input model.CreateCours
 }
 
 // GetCourseByID fetches a course by its ID.
-func GetCourseByID(ctx context.Context, courseID string) (*ent.Course, error) {
-	id, err := uuid.Parse(courseID)
-	if err != nil {
-		return nil, err
-	}
-
+func GetCourseByID(ctx context.Context, courseID uuid.UUID) (*ent.Course, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 
-	return client.Course.Get(ctx, id)
+	return client.Course.Get(ctx, courseID)
 }
 
 // UpdateCourse updates a course by its ID with the provided input, only if the user is the creator.
-func UpdateCourse(ctx context.Context, userId uuid.UUID, courseID string, input model.UpdateCourseInput) (*ent.Course, error) {
-	id, err := uuid.Parse(courseID)
-	if err != nil {
-		return nil, err
-	}
-
+func UpdateCourse(ctx context.Context, userId uuid.UUID, courseID uuid.UUID, input model.UpdateCourseInput) (*ent.Course, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 
-	course, err := client.Course.Get(ctx, id)
+	course, err := client.Course.Get(ctx, courseID)
 	if err != nil {
 		return nil, err
 	}
@@ -69,26 +59,21 @@ func UpdateCourse(ctx context.Context, userId uuid.UUID, courseID string, input 
 		return nil, errors.New("unauthorized: only the creator can update this course")
 	}
 
-	update := client.Course.UpdateOneID(id)
+	update := client.Course.UpdateOneID(courseID)
 	update.SetNillableTitle(input.Title)
 	update.SetNillableDescription(input.Description)
 	return update.Save(ctx)
 }
 
 // RemoveCourse deletes a course by its ID, only if the user is the creator.
-func RemoveCourse(ctx context.Context, userId uuid.UUID, courseID string) (bool, error) {
-	id, err := uuid.Parse(courseID)
-	if err != nil {
-		return false, err
-	}
-
+func RemoveCourse(ctx context.Context, userId uuid.UUID, courseID uuid.UUID) (bool, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return false, err
 	}
 	defer client.Close()
 
-	crs, err := client.Course.Get(ctx, id)
+	crs, err := client.Course.Get(ctx, courseID)
 	if err != nil {
 		return false, err
 	}
@@ -96,7 +81,7 @@ func RemoveCourse(ctx context.Context, userId uuid.UUID, courseID string) (bool,
 		return false, errors.New("unauthorized: only the creator can delete this course")
 	}
 
-	err = client.Course.DeleteOneID(id).Exec(ctx)
+	err = client.Course.DeleteOneID(courseID).Exec(ctx)
 	if err != nil {
 		return false, err
 	}
