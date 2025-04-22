@@ -3,4 +3,4 @@
 # https://gqlgen.com/getting-started/
 
 scalar DateTime
-
+scalar UUID

@@ -89,12 +89,15 @@ models:
   DateTime:
     model:
       - template/internal/graph/scalar.DateTime
+  # ID:
+  #   model:
+  #     - github.com/99designs/gqlgen/graphql.ID
+  #     - github.com/99designs/gqlgen/graphql.Int
+  #     - github.com/99designs/gqlgen/graphql.Int64
+  #     - github.com/99designs/gqlgen/graphql.Int32
   ID:
     model:
-      - github.com/99designs/gqlgen/graphql.ID
-      - github.com/99designs/gqlgen/graphql.Int
-      - github.com/99designs/gqlgen/graphql.Int64
-      - github.com/99designs/gqlgen/graphql.Int32
+      - github.com/99designs/gqlgen/graphql.UUID
   Int:
     model:
       - github.com/99designs/gqlgen/graphql.Int

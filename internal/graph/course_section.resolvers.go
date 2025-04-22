@@ -6,11 +6,22 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/course_section"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
 )
+
+// ID is the resolver for the id field.
+func (r *courseSectionResolver) ID(ctx context.Context, obj *model.CourseSection) (uuid.UUID, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// CourseID is the resolver for the courseId field.
+func (r *courseSectionResolver) CourseID(ctx context.Context, obj *model.CourseSection) (uuid.UUID, error) {
+	panic(fmt.Errorf("not implemented: CourseID - courseId"))
+}
 
 // CreateCourseSection is the resolver for the createCourseSection field.
 func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.CreateCourseSectionInput) (*model.CourseSection, error) {
@@ -31,7 +42,7 @@ func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.
 }
 
 // UpdateCourseSection is the resolver for the updateCourseSection field.
-func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id string, input model.UpdateCourseSectionInput) (*model.CourseSection, error) {
+func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id uuid.UUID, input model.UpdateCourseSectionInput) (*model.CourseSection, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return nil, err
@@ -48,7 +59,7 @@ func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id string, i
 }
 
 // RemoveCourseSection is the resolver for the removeCourseSection field.
-func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id uuid.UUID) (bool, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return false, err
@@ -61,7 +72,7 @@ func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id string) (
 }
 
 // CourseSection is the resolver for the courseSection field.
-func (r *queryResolver) CourseSection(ctx context.Context, id string) (*model.CourseSection, error) {
+func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return nil, err
@@ -76,3 +87,8 @@ func (r *queryResolver) CourseSection(ctx context.Context, id string) (*model.Co
 	}
 	return model.ConvertCourseSectionToModel(cs), nil
 }
+
+// CourseSection returns CourseSectionResolver implementation.
+func (r *Resolver) CourseSection() CourseSectionResolver { return &courseSectionResolver{r} }
+
+type courseSectionResolver struct{ *Resolver }

@@ -12,7 +12,14 @@ import (
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
+
+	"github.com/google/uuid"
 )
+
+// ID is the resolver for the id field.
+func (r *courseResolver) ID(ctx context.Context, obj *model.Course) (uuid.UUID, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
 
 // Creator is the resolver for the creator field.
 func (r *courseResolver) Creator(ctx context.Context, obj *model.Course) (*model.User, error) {
@@ -40,7 +47,7 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateC
 }
 
 // RemoveCourse is the resolver for the removeCourse field.
-func (r *mutationResolver) RemoveCourse(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) RemoveCourse(ctx context.Context, id uuid.UUID) (bool, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return false, err
@@ -49,7 +56,7 @@ func (r *mutationResolver) RemoveCourse(ctx context.Context, id string) (bool, e
 }
 
 // UpdateCourse is the resolver for the updateCourse field.
-func (r *mutationResolver) UpdateCourse(ctx context.Context, id string, input model.UpdateCourseInput) (*model.Course, error) {
+func (r *mutationResolver) UpdateCourse(ctx context.Context, id uuid.UUID, input model.UpdateCourseInput) (*model.Course, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return nil, err
@@ -62,7 +69,7 @@ func (r *mutationResolver) UpdateCourse(ctx context.Context, id string, input mo
 }
 
 // Course is the resolver for the course field.
-func (r *queryResolver) Course(ctx context.Context, id string) (*model.Course, error) {
+func (r *queryResolver) Course(ctx context.Context, id uuid.UUID) (*model.Course, error) {
 	foundCourse, err := course.GetCourseByID(ctx, id)
 	if err != nil {
 		return nil, errors.New("course not found")

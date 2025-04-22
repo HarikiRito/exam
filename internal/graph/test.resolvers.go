@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 	"template/internal/graph/model"
+
+	"github.com/google/uuid"
 )
 
 // CreateTest is the resolver for the createTest field.
@@ -16,17 +18,17 @@ func (r *mutationResolver) CreateTest(ctx context.Context, input model.CreateTes
 }
 
 // UpdateTest is the resolver for the updateTest field.
-func (r *mutationResolver) UpdateTest(ctx context.Context, id string, input model.UpdateTestInput) (*model.Test, error) {
+func (r *mutationResolver) UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error) {
 	panic(fmt.Errorf("not implemented: UpdateTest - updateTest"))
 }
 
 // DeleteTest is the resolver for the deleteTest field.
-func (r *mutationResolver) DeleteTest(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) DeleteTest(ctx context.Context, id uuid.UUID) (bool, error) {
 	panic(fmt.Errorf("not implemented: DeleteTest - deleteTest"))
 }
 
 // Test is the resolver for the test field.
-func (r *queryResolver) Test(ctx context.Context, id string) (*model.Test, error) {
+func (r *queryResolver) Test(ctx context.Context, id uuid.UUID) (*model.Test, error) {
 	panic(fmt.Errorf("not implemented: Test - test"))
 }
 

@@ -17,6 +17,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/google/uuid"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -42,6 +43,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Course() CourseResolver
+	CourseSection() CourseSectionResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -79,18 +81,18 @@ type ComplexityRoot struct {
 		CreateQuestionOption func(childComplexity int, input model.CreateQuestionOptionInput) int
 		CreateTest           func(childComplexity int, input model.CreateTestInput) int
 		CreateTodo           func(childComplexity int, input model.NewTodo) int
-		DeleteQuestion       func(childComplexity int, id string) int
-		DeleteQuestionOption func(childComplexity int, id string) int
-		DeleteTest           func(childComplexity int, id string) int
+		DeleteQuestion       func(childComplexity int, id uuid.UUID) int
+		DeleteQuestionOption func(childComplexity int, id uuid.UUID) int
+		DeleteTest           func(childComplexity int, id uuid.UUID) int
 		Register             func(childComplexity int, input model.RegisterInput) int
-		RemoveCourse         func(childComplexity int, id string) int
-		RemoveCourseSection  func(childComplexity int, id string) int
+		RemoveCourse         func(childComplexity int, id uuid.UUID) int
+		RemoveCourseSection  func(childComplexity int, id uuid.UUID) int
 		RenewToken           func(childComplexity int, refreshToken string) int
-		UpdateCourse         func(childComplexity int, id string, input model.UpdateCourseInput) int
-		UpdateCourseSection  func(childComplexity int, id string, input model.UpdateCourseSectionInput) int
-		UpdateQuestion       func(childComplexity int, id string, input model.UpdateQuestionInput) int
-		UpdateQuestionOption func(childComplexity int, id string, input model.UpdateQuestionOptionInput) int
-		UpdateTest           func(childComplexity int, id string, input model.UpdateTestInput) int
+		UpdateCourse         func(childComplexity int, id uuid.UUID, input model.UpdateCourseInput) int
+		UpdateCourseSection  func(childComplexity int, id uuid.UUID, input model.UpdateCourseSectionInput) int
+		UpdateQuestion       func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
+		UpdateQuestionOption func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
+		UpdateTest           func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
 	}
 
 	PaginatedCourse struct {
@@ -122,17 +124,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Course                   func(childComplexity int, id string) int
-		CourseSection            func(childComplexity int, id string) int
+		Course                   func(childComplexity int, id uuid.UUID) int
+		CourseSection            func(childComplexity int, id uuid.UUID) int
 		Login                    func(childComplexity int, input model.LoginInput) int
 		Me                       func(childComplexity int) int
 		PaginatedCourses         func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestionOptions func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestions       func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedTests           func(childComplexity int, paginationInput *model.PaginationInput) int
-		Question                 func(childComplexity int, id string) int
-		QuestionOption           func(childComplexity int, id string) int
-		Test                     func(childComplexity int, id string) int
+		Question                 func(childComplexity int, id uuid.UUID) int
+		QuestionOption           func(childComplexity int, id uuid.UUID) int
+		Test                     func(childComplexity int, id uuid.UUID) int
 		Todos                    func(childComplexity int) int
 	}
 
@@ -169,40 +171,47 @@ type ComplexityRoot struct {
 }
 
 type CourseResolver interface {
+	ID(ctx context.Context, obj *model.Course) (uuid.UUID, error)
+
 	Creator(ctx context.Context, obj *model.Course) (*model.User, error)
 	Sections(ctx context.Context, obj *model.Course) ([]*model.CourseSection, error)
+}
+type CourseSectionResolver interface {
+	ID(ctx context.Context, obj *model.CourseSection) (uuid.UUID, error)
+
+	CourseID(ctx context.Context, obj *model.CourseSection) (uuid.UUID, error)
 }
 type MutationResolver interface {
 	Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error)
 	RenewToken(ctx context.Context, refreshToken string) (*model.Auth, error)
 	CreateCourse(ctx context.Context, input model.CreateCourseInput) (*model.Course, error)
-	RemoveCourse(ctx context.Context, id string) (bool, error)
-	UpdateCourse(ctx context.Context, id string, input model.UpdateCourseInput) (*model.Course, error)
+	RemoveCourse(ctx context.Context, id uuid.UUID) (bool, error)
+	UpdateCourse(ctx context.Context, id uuid.UUID, input model.UpdateCourseInput) (*model.Course, error)
 	CreateCourseSection(ctx context.Context, input model.CreateCourseSectionInput) (*model.CourseSection, error)
-	UpdateCourseSection(ctx context.Context, id string, input model.UpdateCourseSectionInput) (*model.CourseSection, error)
-	RemoveCourseSection(ctx context.Context, id string) (bool, error)
+	UpdateCourseSection(ctx context.Context, id uuid.UUID, input model.UpdateCourseSectionInput) (*model.CourseSection, error)
+	RemoveCourseSection(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateQuestion(ctx context.Context, input model.CreateQuestionInput) (*model.Question, error)
-	UpdateQuestion(ctx context.Context, id string, input model.UpdateQuestionInput) (*model.Question, error)
-	DeleteQuestion(ctx context.Context, id string) (bool, error)
+	UpdateQuestion(ctx context.Context, id uuid.UUID, input model.UpdateQuestionInput) (*model.Question, error)
+	DeleteQuestion(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateQuestionOption(ctx context.Context, input model.CreateQuestionOptionInput) (*model.QuestionOption, error)
-	UpdateQuestionOption(ctx context.Context, id string, input model.UpdateQuestionOptionInput) (*model.QuestionOption, error)
-	DeleteQuestionOption(ctx context.Context, id string) (bool, error)
+	UpdateQuestionOption(ctx context.Context, id uuid.UUID, input model.UpdateQuestionOptionInput) (*model.QuestionOption, error)
+	DeleteQuestionOption(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateTest(ctx context.Context, input model.CreateTestInput) (*model.Test, error)
-	UpdateTest(ctx context.Context, id string, input model.UpdateTestInput) (*model.Test, error)
-	DeleteTest(ctx context.Context, id string) (bool, error)
+	UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error)
+	DeleteTest(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.User, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.Auth, error)
-	Course(ctx context.Context, id string) (*model.Course, error)
+	Course(ctx context.Context, id uuid.UUID) (*model.Course, error)
 	PaginatedCourses(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedCourse, error)
-	CourseSection(ctx context.Context, id string) (*model.CourseSection, error)
-	Question(ctx context.Context, id string) (*model.Question, error)
+	CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error)
+	Question(ctx context.Context, id uuid.UUID) (*model.Question, error)
 	PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error)
-	QuestionOption(ctx context.Context, id string) (*model.QuestionOption, error)
+	QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error)
 	PaginatedQuestionOptions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionOption, error)
-	Test(ctx context.Context, id string) (*model.Test, error)
+	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
 	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
 }
@@ -399,7 +408,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteQuestion(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteQuestion(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.deleteQuestionOption":
 		if e.complexity.Mutation.DeleteQuestionOption == nil {
@@ -411,7 +420,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteQuestionOption(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteQuestionOption(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.deleteTest":
 		if e.complexity.Mutation.DeleteTest == nil {
@@ -423,7 +432,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteTest(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.DeleteTest(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.register":
 		if e.complexity.Mutation.Register == nil {
@@ -447,7 +456,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveCourse(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.RemoveCourse(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.removeCourseSection":
 		if e.complexity.Mutation.RemoveCourseSection == nil {
@@ -459,7 +468,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveCourseSection(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.RemoveCourseSection(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.renewToken":
 		if e.complexity.Mutation.RenewToken == nil {
@@ -483,7 +492,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateCourse(childComplexity, args["id"].(string), args["input"].(model.UpdateCourseInput)), true
+		return e.complexity.Mutation.UpdateCourse(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateCourseInput)), true
 
 	case "Mutation.updateCourseSection":
 		if e.complexity.Mutation.UpdateCourseSection == nil {
@@ -495,7 +504,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateCourseSection(childComplexity, args["id"].(string), args["input"].(model.UpdateCourseSectionInput)), true
+		return e.complexity.Mutation.UpdateCourseSection(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateCourseSectionInput)), true
 
 	case "Mutation.updateQuestion":
 		if e.complexity.Mutation.UpdateQuestion == nil {
@@ -507,7 +516,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateQuestion(childComplexity, args["id"].(string), args["input"].(model.UpdateQuestionInput)), true
+		return e.complexity.Mutation.UpdateQuestion(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateQuestionInput)), true
 
 	case "Mutation.updateQuestionOption":
 		if e.complexity.Mutation.UpdateQuestionOption == nil {
@@ -519,7 +528,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateQuestionOption(childComplexity, args["id"].(string), args["input"].(model.UpdateQuestionOptionInput)), true
+		return e.complexity.Mutation.UpdateQuestionOption(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateQuestionOptionInput)), true
 
 	case "Mutation.updateTest":
 		if e.complexity.Mutation.UpdateTest == nil {
@@ -531,7 +540,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTest(childComplexity, args["id"].(string), args["input"].(model.UpdateTestInput)), true
+		return e.complexity.Mutation.UpdateTest(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateTestInput)), true
 
 	case "PaginatedCourse.items":
 		if e.complexity.PaginatedCourse.Items == nil {
@@ -634,7 +643,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Course(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Course(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.courseSection":
 		if e.complexity.Query.CourseSection == nil {
@@ -646,7 +655,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.CourseSection(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.CourseSection(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.login":
 		if e.complexity.Query.Login == nil {
@@ -725,7 +734,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Question(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Question(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.questionOption":
 		if e.complexity.Query.QuestionOption == nil {
@@ -737,7 +746,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.QuestionOption(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.QuestionOption(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.test":
 		if e.complexity.Query.Test == nil {
@@ -749,7 +758,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Test(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Test(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Query.todos":
 		if e.complexity.Query.Todos == nil {
@@ -1169,13 +1178,13 @@ func (ec *executionContext) field_Mutation_deleteQuestionOption_args(ctx context
 func (ec *executionContext) field_Mutation_deleteQuestionOption_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1192,13 +1201,13 @@ func (ec *executionContext) field_Mutation_deleteQuestion_args(ctx context.Conte
 func (ec *executionContext) field_Mutation_deleteQuestion_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1215,13 +1224,13 @@ func (ec *executionContext) field_Mutation_deleteTest_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_deleteTest_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1261,13 +1270,13 @@ func (ec *executionContext) field_Mutation_removeCourseSection_args(ctx context.
 func (ec *executionContext) field_Mutation_removeCourseSection_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1284,13 +1293,13 @@ func (ec *executionContext) field_Mutation_removeCourse_args(ctx context.Context
 func (ec *executionContext) field_Mutation_removeCourse_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1335,13 +1344,13 @@ func (ec *executionContext) field_Mutation_updateCourseSection_args(ctx context.
 func (ec *executionContext) field_Mutation_updateCourseSection_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1376,13 +1385,13 @@ func (ec *executionContext) field_Mutation_updateCourse_args(ctx context.Context
 func (ec *executionContext) field_Mutation_updateCourse_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1417,13 +1426,13 @@ func (ec *executionContext) field_Mutation_updateQuestionOption_args(ctx context
 func (ec *executionContext) field_Mutation_updateQuestionOption_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1458,13 +1467,13 @@ func (ec *executionContext) field_Mutation_updateQuestion_args(ctx context.Conte
 func (ec *executionContext) field_Mutation_updateQuestion_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1499,13 +1508,13 @@ func (ec *executionContext) field_Mutation_updateTest_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_updateTest_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1558,13 +1567,13 @@ func (ec *executionContext) field_Query_courseSection_args(ctx context.Context, 
 func (ec *executionContext) field_Query_courseSection_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1581,13 +1590,13 @@ func (ec *executionContext) field_Query_course_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_course_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1719,13 +1728,13 @@ func (ec *executionContext) field_Query_questionOption_args(ctx context.Context,
 func (ec *executionContext) field_Query_questionOption_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1742,13 +1751,13 @@ func (ec *executionContext) field_Query_question_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_question_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1765,13 +1774,13 @@ func (ec *executionContext) field_Query_test_args(ctx context.Context, rawArgs m
 func (ec *executionContext) field_Query_test_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (string, error) {
+) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
-	var zeroVal string
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1931,7 +1940,7 @@ func (ec *executionContext) _Course_id(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.Course().ID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1943,17 +1952,17 @@ func (ec *executionContext) _Course_id(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Course_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Course",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2255,7 +2264,7 @@ func (ec *executionContext) _CourseSection_id(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.CourseSection().ID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2267,17 +2276,17 @@ func (ec *executionContext) _CourseSection_id(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CourseSection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseSection",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2387,7 +2396,7 @@ func (ec *executionContext) _CourseSection_courseId(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CourseID, nil
+		return ec.resolvers.CourseSection().CourseID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2399,17 +2408,17 @@ func (ec *executionContext) _CourseSection_courseId(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_CourseSection_courseId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CourseSection",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2624,7 +2633,7 @@ func (ec *executionContext) _Mutation_removeCourse(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveCourse(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().RemoveCourse(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2679,7 +2688,7 @@ func (ec *executionContext) _Mutation_updateCourse(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateCourse(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateCourseInput))
+		return ec.resolvers.Mutation().UpdateCourse(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateCourseInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2815,7 +2824,7 @@ func (ec *executionContext) _Mutation_updateCourseSection(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateCourseSection(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateCourseSectionInput))
+		return ec.resolvers.Mutation().UpdateCourseSection(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateCourseSectionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2880,7 +2889,7 @@ func (ec *executionContext) _Mutation_removeCourseSection(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RemoveCourseSection(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().RemoveCourseSection(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3000,7 +3009,7 @@ func (ec *executionContext) _Mutation_updateQuestion(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateQuestion(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateQuestionInput))
+		return ec.resolvers.Mutation().UpdateQuestion(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateQuestionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3065,7 +3074,7 @@ func (ec *executionContext) _Mutation_deleteQuestion(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteQuestion(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().DeleteQuestion(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3185,7 +3194,7 @@ func (ec *executionContext) _Mutation_updateQuestionOption(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateQuestionOption(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateQuestionOptionInput))
+		return ec.resolvers.Mutation().UpdateQuestionOption(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateQuestionOptionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3250,7 +3259,7 @@ func (ec *executionContext) _Mutation_deleteQuestionOption(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteQuestionOption(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().DeleteQuestionOption(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3370,7 +3379,7 @@ func (ec *executionContext) _Mutation_updateTest(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTest(rctx, fc.Args["id"].(string), fc.Args["input"].(model.UpdateTestInput))
+		return ec.resolvers.Mutation().UpdateTest(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateTestInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3435,7 +3444,7 @@ func (ec *executionContext) _Mutation_deleteTest(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteTest(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().DeleteTest(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4328,7 +4337,7 @@ func (ec *executionContext) _Query_course(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Course(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Course(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4460,7 +4469,7 @@ func (ec *executionContext) _Query_courseSection(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CourseSection(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().CourseSection(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4525,7 +4534,7 @@ func (ec *executionContext) _Query_question(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Question(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Question(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4651,7 +4660,7 @@ func (ec *executionContext) _Query_questionOption(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().QuestionOption(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().QuestionOption(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4777,7 +4786,7 @@ func (ec *executionContext) _Query_test(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Test(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Test(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5094,9 +5103,9 @@ func (ec *executionContext) _Question_id(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Question_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5287,9 +5296,9 @@ func (ec *executionContext) _QuestionOption_id(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_QuestionOption_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5473,9 +5482,9 @@ func (ec *executionContext) _Test_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Test_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5669,9 +5678,9 @@ func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Todo_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5757,9 +5766,9 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7656,7 +7665,7 @@ func (ec *executionContext) unmarshalInputCreateCourseSectionInput(ctx context.C
 			it.Description = data
 		case "courseId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7690,14 +7699,14 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 			it.QuestionText = data
 		case "courseSectionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseSectionID = data
 		case "optionIds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("optionIds"))
-			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7724,7 +7733,7 @@ func (ec *executionContext) unmarshalInputCreateQuestionOptionInput(ctx context.
 		switch k {
 		case "questionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
-			data, err := ec.unmarshalNID2string(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -7772,21 +7781,21 @@ func (ec *executionContext) unmarshalInputCreateTestInput(ctx context.Context, o
 			it.Name = data
 		case "courseSectionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseSectionID = data
 		case "courseId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseID = data
 		case "questionIds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
-			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8024,14 +8033,14 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 			it.QuestionText = data
 		case "courseSectionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseSectionID = data
 		case "optionIds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("optionIds"))
-			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8099,21 +8108,21 @@ func (ec *executionContext) unmarshalInputUpdateTestInput(ctx context.Context, o
 			it.Name = data
 		case "courseSectionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseSectionID = data
 		case "courseId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
-			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.CourseID = data
 		case "questionIds":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
-			data, err := ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -8188,10 +8197,41 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Course")
 		case "id":
-			out.Values[i] = ec._Course_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Course_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			out.Values[i] = ec._Course_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -8319,25 +8359,87 @@ func (ec *executionContext) _CourseSection(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CourseSection")
 		case "id":
-			out.Values[i] = ec._CourseSection_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CourseSection_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			out.Values[i] = ec._CourseSection_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._CourseSection_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "courseId":
-			out.Values[i] = ec._CourseSection_courseId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._CourseSection_courseId(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9830,13 +9932,13 @@ func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, se
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (uuid.UUID, error) {
+	res, err := graphql.UnmarshalUUID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
+	res := graphql.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -9845,16 +9947,16 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, v interface{}) ([]uuid.UUID, error) {
 	var vSlice []interface{}
 	if v != nil {
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]uuid.UUID, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -9862,10 +9964,10 @@ func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v int
 	return res, nil
 }
 
-func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, sel ast.SelectionSet, v []uuid.UUID) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+		ret[i] = ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -10552,7 +10654,7 @@ func (ec *executionContext) marshalOCourseSection2ᚖtemplateᚋinternalᚋgraph
 	return ec._CourseSection(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, v interface{}) ([]uuid.UUID, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -10561,10 +10663,10 @@ func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v int
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]string, len(vSlice))
+	res := make([]uuid.UUID, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -10572,13 +10674,13 @@ func (ec *executionContext) unmarshalOID2ᚕstringᚄ(ctx context.Context, v int
 	return res, nil
 }
 
-func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, sel ast.SelectionSet, v []uuid.UUID) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
+		ret[i] = ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -10590,19 +10692,19 @@ func (ec *executionContext) marshalOID2ᚕstringᚄ(ctx context.Context, sel ast
 	return ret
 }
 
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalID(v)
+	res, err := graphql.UnmarshalUUID(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v *uuid.UUID) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalID(*v)
+	res := graphql.MarshalUUID(*v)
 	return res
 }
 

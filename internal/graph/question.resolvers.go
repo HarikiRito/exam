@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 	"template/internal/graph/model"
+
+	"github.com/google/uuid"
 )
 
 // CreateQuestion is the resolver for the createQuestion field.
@@ -16,17 +18,17 @@ func (r *mutationResolver) CreateQuestion(ctx context.Context, input model.Creat
 }
 
 // UpdateQuestion is the resolver for the updateQuestion field.
-func (r *mutationResolver) UpdateQuestion(ctx context.Context, id string, input model.UpdateQuestionInput) (*model.Question, error) {
+func (r *mutationResolver) UpdateQuestion(ctx context.Context, id uuid.UUID, input model.UpdateQuestionInput) (*model.Question, error) {
 	panic(fmt.Errorf("not implemented: UpdateQuestion - updateQuestion"))
 }
 
 // DeleteQuestion is the resolver for the deleteQuestion field.
-func (r *mutationResolver) DeleteQuestion(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) DeleteQuestion(ctx context.Context, id uuid.UUID) (bool, error) {
 	panic(fmt.Errorf("not implemented: DeleteQuestion - deleteQuestion"))
 }
 
 // Question is the resolver for the question field.
-func (r *queryResolver) Question(ctx context.Context, id string) (*model.Question, error) {
+func (r *queryResolver) Question(ctx context.Context, id uuid.UUID) (*model.Question, error) {
 	panic(fmt.Errorf("not implemented: Question - question"))
 }
 

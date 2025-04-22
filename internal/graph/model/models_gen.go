@@ -2,6 +2,10 @@
 
 package model
 
+import (
+	"github.com/google/uuid"
+)
+
 type Auth struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -13,28 +17,28 @@ type CreateCourseInput struct {
 }
 
 type CreateCourseSectionInput struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CourseID    string `json:"courseId"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CourseID    uuid.UUID `json:"courseId"`
 }
 
 type CreateQuestionInput struct {
-	QuestionText    string   `json:"questionText"`
-	CourseSectionID *string  `json:"courseSectionId,omitempty"`
-	OptionIds       []string `json:"optionIds,omitempty"`
+	QuestionText    string      `json:"questionText"`
+	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
+	OptionIds       []uuid.UUID `json:"optionIds,omitempty"`
 }
 
 type CreateQuestionOptionInput struct {
-	QuestionID string `json:"questionId"`
-	OptionText string `json:"optionText"`
-	IsCorrect  bool   `json:"isCorrect"`
+	QuestionID uuid.UUID `json:"questionId"`
+	OptionText string    `json:"optionText"`
+	IsCorrect  bool      `json:"isCorrect"`
 }
 
 type CreateTestInput struct {
-	Name            string   `json:"name"`
-	CourseSectionID *string  `json:"courseSectionId,omitempty"`
-	CourseID        *string  `json:"courseId,omitempty"`
-	QuestionIds     []string `json:"questionIds"`
+	Name            string      `json:"name"`
+	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
+	CourseID        *uuid.UUID  `json:"courseId,omitempty"`
+	QuestionIds     []uuid.UUID `json:"questionIds"`
 }
 
 type LoginInput struct {
@@ -87,14 +91,14 @@ type Query struct {
 }
 
 type Question struct {
-	ID           string            `json:"id"`
+	ID           uuid.UUID         `json:"id"`
 	QuestionText string            `json:"questionText"`
 	Section      *CourseSection    `json:"section,omitempty"`
 	Options      []*QuestionOption `json:"options"`
 }
 
 type QuestionOption struct {
-	ID         string    `json:"id"`
+	ID         uuid.UUID `json:"id"`
 	Question   *Question `json:"question"`
 	OptionText string    `json:"optionText"`
 	IsCorrect  bool      `json:"isCorrect"`
@@ -106,15 +110,15 @@ type RegisterInput struct {
 }
 
 type Test struct {
-	ID            string         `json:"id"`
+	ID            uuid.UUID      `json:"id"`
 	Name          string         `json:"name"`
 	CourseSection *CourseSection `json:"courseSection,omitempty"`
 	Course        *Course        `json:"course,omitempty"`
 }
 
 type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
+	ID   uuid.UUID `json:"id"`
+	Text string    `json:"text"`
 }
 
 type UpdateCourseInput struct {
@@ -128,9 +132,9 @@ type UpdateCourseSectionInput struct {
 }
 
 type UpdateQuestionInput struct {
-	QuestionText    *string  `json:"questionText,omitempty"`
-	CourseSectionID *string  `json:"courseSectionId,omitempty"`
-	OptionIds       []string `json:"optionIds,omitempty"`
+	QuestionText    *string     `json:"questionText,omitempty"`
+	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
+	OptionIds       []uuid.UUID `json:"optionIds,omitempty"`
 }
 
 type UpdateQuestionOptionInput struct {
@@ -139,13 +143,13 @@ type UpdateQuestionOptionInput struct {
 }
 
 type UpdateTestInput struct {
-	Name            *string  `json:"name,omitempty"`
-	CourseSectionID *string  `json:"courseSectionId,omitempty"`
-	CourseID        *string  `json:"courseId,omitempty"`
-	QuestionIds     []string `json:"questionIds"`
+	Name            *string     `json:"name,omitempty"`
+	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
+	CourseID        *uuid.UUID  `json:"courseId,omitempty"`
+	QuestionIds     []uuid.UUID `json:"questionIds"`
 }
 
 type User struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
+	ID    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
 }
