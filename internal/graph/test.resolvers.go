@@ -6,7 +6,7 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"template/internal/features/test"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
@@ -14,25 +14,59 @@ import (
 
 // CreateTest is the resolver for the createTest field.
 func (r *mutationResolver) CreateTest(ctx context.Context, input model.CreateTestInput) (*model.Test, error) {
-	panic(fmt.Errorf("not implemented: CreateTest - createTest"))
+	entTest, err := test.CreateTest(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	return model.ConvertTestToModel(entTest), nil
 }
 
 // UpdateTest is the resolver for the updateTest field.
 func (r *mutationResolver) UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error) {
-	panic(fmt.Errorf("not implemented: UpdateTest - updateTest"))
+	entTest, err := test.UpdateTest(ctx, id, input)
+	if err != nil {
+		return nil, err
+	}
+	return model.ConvertTestToModel(entTest), nil
 }
 
 // DeleteTest is the resolver for the deleteTest field.
 func (r *mutationResolver) DeleteTest(ctx context.Context, id uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteTest - deleteTest"))
+	return test.DeleteTest(ctx, id)
 }
 
 // Test is the resolver for the test field.
 func (r *queryResolver) Test(ctx context.Context, id uuid.UUID) (*model.Test, error) {
-	panic(fmt.Errorf("not implemented: Test - test"))
+	entTest, err := test.GetTestByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return model.ConvertTestToModel(entTest), nil
 }
 
 // PaginatedTests is the resolver for the paginatedTests field.
 func (r *queryResolver) PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error) {
-	panic(fmt.Errorf("not implemented: PaginatedTests - paginatedTests"))
+	paginated, err := test.PaginatedTests(ctx, paginationInput)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]*model.Test, len(paginated.Items))
+	for i, entTest := range paginated.Items {
+		items[i] = model.ConvertTestToModel(entTest)
+	}
+
+	// Construct the pagination info manually using the fields from common.PaginatedResult and mapping HasPrevPage to HasPreviousPage
+	pagination := &model.Pagination{
+		CurrentPage:     paginated.CurrentPage,
+		TotalPages:      paginated.TotalPages,
+		TotalItems:      paginated.TotalItems,
+		HasNextPage:     paginated.HasNextPage,
+		HasPreviousPage: paginated.HasPrevPage,
+	}
+
+	return &model.PaginatedTest{
+		Pagination: pagination,
+		Items:      items,
+	}, nil
 }
