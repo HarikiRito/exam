@@ -27,6 +27,8 @@ type CourseSection struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// CourseID holds the value of the "course_id" field.
 	CourseID uuid.UUID `json:"course_id,omitempty"`
+	// SectionID holds the value of the "section_id" field.
+	SectionID *uuid.UUID `json:"section_id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
@@ -41,6 +43,10 @@ type CourseSection struct {
 type CourseSectionEdges struct {
 	// Course holds the value of the course edge.
 	Course *Course `json:"course,omitempty"`
+	// Parent holds the value of the parent edge.
+	Parent *CourseSection `json:"parent,omitempty"`
+	// Children holds the value of the children edge.
+	Children []*CourseSection `json:"children,omitempty"`
 	// CourseSectionVideos holds the value of the course_section_videos edge.
 	CourseSectionVideos []*Video `json:"course_section_videos,omitempty"`
 	// Questions holds the value of the questions edge.
@@ -51,7 +57,7 @@ type CourseSectionEdges struct {
 	Tests []*Test `json:"tests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [7]bool
 }
 
 // CourseOrErr returns the Course value or an error if the edge
@@ -65,10 +71,30 @@ func (e CourseSectionEdges) CourseOrErr() (*Course, error) {
 	return nil, &NotLoadedError{edge: "course"}
 }
 
+// ParentOrErr returns the Parent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CourseSectionEdges) ParentOrErr() (*CourseSection, error) {
+	if e.Parent != nil {
+		return e.Parent, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: coursesection.Label}
+	}
+	return nil, &NotLoadedError{edge: "parent"}
+}
+
+// ChildrenOrErr returns the Children value or an error if the edge
+// was not loaded in eager-loading.
+func (e CourseSectionEdges) ChildrenOrErr() ([]*CourseSection, error) {
+	if e.loadedTypes[2] {
+		return e.Children, nil
+	}
+	return nil, &NotLoadedError{edge: "children"}
+}
+
 // CourseSectionVideosOrErr returns the CourseSectionVideos value or an error if the edge
 // was not loaded in eager-loading.
 func (e CourseSectionEdges) CourseSectionVideosOrErr() ([]*Video, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[3] {
 		return e.CourseSectionVideos, nil
 	}
 	return nil, &NotLoadedError{edge: "course_section_videos"}
@@ -77,7 +103,7 @@ func (e CourseSectionEdges) CourseSectionVideosOrErr() ([]*Video, error) {
 // QuestionsOrErr returns the Questions value or an error if the edge
 // was not loaded in eager-loading.
 func (e CourseSectionEdges) QuestionsOrErr() ([]*Question, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[4] {
 		return e.Questions, nil
 	}
 	return nil, &NotLoadedError{edge: "questions"}
@@ -86,7 +112,7 @@ func (e CourseSectionEdges) QuestionsOrErr() ([]*Question, error) {
 // TestSessionsOrErr returns the TestSessions value or an error if the edge
 // was not loaded in eager-loading.
 func (e CourseSectionEdges) TestSessionsOrErr() ([]*TestSession, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[5] {
 		return e.TestSessions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_sessions"}
@@ -95,7 +121,7 @@ func (e CourseSectionEdges) TestSessionsOrErr() ([]*TestSession, error) {
 // TestsOrErr returns the Tests value or an error if the edge
 // was not loaded in eager-loading.
 func (e CourseSectionEdges) TestsOrErr() ([]*Test, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[6] {
 		return e.Tests, nil
 	}
 	return nil, &NotLoadedError{edge: "tests"}
@@ -106,6 +132,8 @@ func (*CourseSection) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case coursesection.FieldSectionID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case coursesection.FieldTitle, coursesection.FieldDescription:
 			values[i] = new(sql.NullString)
 		case coursesection.FieldCreatedAt, coursesection.FieldUpdatedAt, coursesection.FieldDeletedAt:
@@ -158,6 +186,13 @@ func (cs *CourseSection) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				cs.CourseID = *value
 			}
+		case coursesection.FieldSectionID:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field section_id", values[i])
+			} else if value.Valid {
+				cs.SectionID = new(uuid.UUID)
+				*cs.SectionID = *value.S.(*uuid.UUID)
+			}
 		case coursesection.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
@@ -186,6 +221,16 @@ func (cs *CourseSection) Value(name string) (ent.Value, error) {
 // QueryCourse queries the "course" edge of the CourseSection entity.
 func (cs *CourseSection) QueryCourse() *CourseQuery {
 	return NewCourseSectionClient(cs.config).QueryCourse(cs)
+}
+
+// QueryParent queries the "parent" edge of the CourseSection entity.
+func (cs *CourseSection) QueryParent() *CourseSectionQuery {
+	return NewCourseSectionClient(cs.config).QueryParent(cs)
+}
+
+// QueryChildren queries the "children" edge of the CourseSection entity.
+func (cs *CourseSection) QueryChildren() *CourseSectionQuery {
+	return NewCourseSectionClient(cs.config).QueryChildren(cs)
 }
 
 // QueryCourseSectionVideos queries the "course_section_videos" edge of the CourseSection entity.
@@ -244,6 +289,11 @@ func (cs *CourseSection) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("course_id=")
 	builder.WriteString(fmt.Sprintf("%v", cs.CourseID))
+	builder.WriteString(", ")
+	if v := cs.SectionID; v != nil {
+		builder.WriteString("section_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(cs.Title)

@@ -74,6 +74,20 @@ func (csc *CourseSectionCreate) SetCourseID(u uuid.UUID) *CourseSectionCreate {
 	return csc
 }
 
+// SetSectionID sets the "section_id" field.
+func (csc *CourseSectionCreate) SetSectionID(u uuid.UUID) *CourseSectionCreate {
+	csc.mutation.SetSectionID(u)
+	return csc
+}
+
+// SetNillableSectionID sets the "section_id" field if the given value is not nil.
+func (csc *CourseSectionCreate) SetNillableSectionID(u *uuid.UUID) *CourseSectionCreate {
+	if u != nil {
+		csc.SetSectionID(*u)
+	}
+	return csc
+}
+
 // SetTitle sets the "title" field.
 func (csc *CourseSectionCreate) SetTitle(s string) *CourseSectionCreate {
 	csc.mutation.SetTitle(s)
@@ -111,6 +125,40 @@ func (csc *CourseSectionCreate) SetNillableID(u *uuid.UUID) *CourseSectionCreate
 // SetCourse sets the "course" edge to the Course entity.
 func (csc *CourseSectionCreate) SetCourse(c *Course) *CourseSectionCreate {
 	return csc.SetCourseID(c.ID)
+}
+
+// SetParentID sets the "parent" edge to the CourseSection entity by ID.
+func (csc *CourseSectionCreate) SetParentID(id uuid.UUID) *CourseSectionCreate {
+	csc.mutation.SetParentID(id)
+	return csc
+}
+
+// SetNillableParentID sets the "parent" edge to the CourseSection entity by ID if the given value is not nil.
+func (csc *CourseSectionCreate) SetNillableParentID(id *uuid.UUID) *CourseSectionCreate {
+	if id != nil {
+		csc = csc.SetParentID(*id)
+	}
+	return csc
+}
+
+// SetParent sets the "parent" edge to the CourseSection entity.
+func (csc *CourseSectionCreate) SetParent(c *CourseSection) *CourseSectionCreate {
+	return csc.SetParentID(c.ID)
+}
+
+// AddChildIDs adds the "children" edge to the CourseSection entity by IDs.
+func (csc *CourseSectionCreate) AddChildIDs(ids ...uuid.UUID) *CourseSectionCreate {
+	csc.mutation.AddChildIDs(ids...)
+	return csc
+}
+
+// AddChildren adds the "children" edges to the CourseSection entity.
+func (csc *CourseSectionCreate) AddChildren(c ...*CourseSection) *CourseSectionCreate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csc.AddChildIDs(ids...)
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
@@ -326,6 +374,39 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.CourseID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := csc.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   coursesection.ParentTable,
+			Columns: []string{coursesection.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.SectionID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := csc.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := csc.mutation.CourseSectionVideosIDs(); len(nodes) > 0 {

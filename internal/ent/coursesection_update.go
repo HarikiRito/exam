@@ -88,6 +88,26 @@ func (csu *CourseSectionUpdate) SetNillableCourseID(u *uuid.UUID) *CourseSection
 	return csu
 }
 
+// SetSectionID sets the "section_id" field.
+func (csu *CourseSectionUpdate) SetSectionID(u uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.SetSectionID(u)
+	return csu
+}
+
+// SetNillableSectionID sets the "section_id" field if the given value is not nil.
+func (csu *CourseSectionUpdate) SetNillableSectionID(u *uuid.UUID) *CourseSectionUpdate {
+	if u != nil {
+		csu.SetSectionID(*u)
+	}
+	return csu
+}
+
+// ClearSectionID clears the value of the "section_id" field.
+func (csu *CourseSectionUpdate) ClearSectionID() *CourseSectionUpdate {
+	csu.mutation.ClearSectionID()
+	return csu
+}
+
 // SetTitle sets the "title" field.
 func (csu *CourseSectionUpdate) SetTitle(s string) *CourseSectionUpdate {
 	csu.mutation.SetTitle(s)
@@ -125,6 +145,40 @@ func (csu *CourseSectionUpdate) ClearDescription() *CourseSectionUpdate {
 // SetCourse sets the "course" edge to the Course entity.
 func (csu *CourseSectionUpdate) SetCourse(c *Course) *CourseSectionUpdate {
 	return csu.SetCourseID(c.ID)
+}
+
+// SetParentID sets the "parent" edge to the CourseSection entity by ID.
+func (csu *CourseSectionUpdate) SetParentID(id uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.SetParentID(id)
+	return csu
+}
+
+// SetNillableParentID sets the "parent" edge to the CourseSection entity by ID if the given value is not nil.
+func (csu *CourseSectionUpdate) SetNillableParentID(id *uuid.UUID) *CourseSectionUpdate {
+	if id != nil {
+		csu = csu.SetParentID(*id)
+	}
+	return csu
+}
+
+// SetParent sets the "parent" edge to the CourseSection entity.
+func (csu *CourseSectionUpdate) SetParent(c *CourseSection) *CourseSectionUpdate {
+	return csu.SetParentID(c.ID)
+}
+
+// AddChildIDs adds the "children" edge to the CourseSection entity by IDs.
+func (csu *CourseSectionUpdate) AddChildIDs(ids ...uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.AddChildIDs(ids...)
+	return csu
+}
+
+// AddChildren adds the "children" edges to the CourseSection entity.
+func (csu *CourseSectionUpdate) AddChildren(c ...*CourseSection) *CourseSectionUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csu.AddChildIDs(ids...)
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
@@ -196,6 +250,33 @@ func (csu *CourseSectionUpdate) Mutation() *CourseSectionMutation {
 func (csu *CourseSectionUpdate) ClearCourse() *CourseSectionUpdate {
 	csu.mutation.ClearCourse()
 	return csu
+}
+
+// ClearParent clears the "parent" edge to the CourseSection entity.
+func (csu *CourseSectionUpdate) ClearParent() *CourseSectionUpdate {
+	csu.mutation.ClearParent()
+	return csu
+}
+
+// ClearChildren clears all "children" edges to the CourseSection entity.
+func (csu *CourseSectionUpdate) ClearChildren() *CourseSectionUpdate {
+	csu.mutation.ClearChildren()
+	return csu
+}
+
+// RemoveChildIDs removes the "children" edge to CourseSection entities by IDs.
+func (csu *CourseSectionUpdate) RemoveChildIDs(ids ...uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.RemoveChildIDs(ids...)
+	return csu
+}
+
+// RemoveChildren removes "children" edges to CourseSection entities.
+func (csu *CourseSectionUpdate) RemoveChildren(c ...*CourseSection) *CourseSectionUpdate {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csu.RemoveChildIDs(ids...)
 }
 
 // ClearCourseSectionVideos clears all "course_section_videos" edges to the Video entity.
@@ -392,6 +473,80 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if csu.mutation.ParentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   coursesection.ParentTable,
+			Columns: []string{coursesection.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   coursesection.ParentTable,
+			Columns: []string{coursesection.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if csu.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !csu.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csu.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -653,6 +808,26 @@ func (csuo *CourseSectionUpdateOne) SetNillableCourseID(u *uuid.UUID) *CourseSec
 	return csuo
 }
 
+// SetSectionID sets the "section_id" field.
+func (csuo *CourseSectionUpdateOne) SetSectionID(u uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.SetSectionID(u)
+	return csuo
+}
+
+// SetNillableSectionID sets the "section_id" field if the given value is not nil.
+func (csuo *CourseSectionUpdateOne) SetNillableSectionID(u *uuid.UUID) *CourseSectionUpdateOne {
+	if u != nil {
+		csuo.SetSectionID(*u)
+	}
+	return csuo
+}
+
+// ClearSectionID clears the value of the "section_id" field.
+func (csuo *CourseSectionUpdateOne) ClearSectionID() *CourseSectionUpdateOne {
+	csuo.mutation.ClearSectionID()
+	return csuo
+}
+
 // SetTitle sets the "title" field.
 func (csuo *CourseSectionUpdateOne) SetTitle(s string) *CourseSectionUpdateOne {
 	csuo.mutation.SetTitle(s)
@@ -690,6 +865,40 @@ func (csuo *CourseSectionUpdateOne) ClearDescription() *CourseSectionUpdateOne {
 // SetCourse sets the "course" edge to the Course entity.
 func (csuo *CourseSectionUpdateOne) SetCourse(c *Course) *CourseSectionUpdateOne {
 	return csuo.SetCourseID(c.ID)
+}
+
+// SetParentID sets the "parent" edge to the CourseSection entity by ID.
+func (csuo *CourseSectionUpdateOne) SetParentID(id uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.SetParentID(id)
+	return csuo
+}
+
+// SetNillableParentID sets the "parent" edge to the CourseSection entity by ID if the given value is not nil.
+func (csuo *CourseSectionUpdateOne) SetNillableParentID(id *uuid.UUID) *CourseSectionUpdateOne {
+	if id != nil {
+		csuo = csuo.SetParentID(*id)
+	}
+	return csuo
+}
+
+// SetParent sets the "parent" edge to the CourseSection entity.
+func (csuo *CourseSectionUpdateOne) SetParent(c *CourseSection) *CourseSectionUpdateOne {
+	return csuo.SetParentID(c.ID)
+}
+
+// AddChildIDs adds the "children" edge to the CourseSection entity by IDs.
+func (csuo *CourseSectionUpdateOne) AddChildIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.AddChildIDs(ids...)
+	return csuo
+}
+
+// AddChildren adds the "children" edges to the CourseSection entity.
+func (csuo *CourseSectionUpdateOne) AddChildren(c ...*CourseSection) *CourseSectionUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csuo.AddChildIDs(ids...)
 }
 
 // AddCourseSectionVideoIDs adds the "course_section_videos" edge to the Video entity by IDs.
@@ -761,6 +970,33 @@ func (csuo *CourseSectionUpdateOne) Mutation() *CourseSectionMutation {
 func (csuo *CourseSectionUpdateOne) ClearCourse() *CourseSectionUpdateOne {
 	csuo.mutation.ClearCourse()
 	return csuo
+}
+
+// ClearParent clears the "parent" edge to the CourseSection entity.
+func (csuo *CourseSectionUpdateOne) ClearParent() *CourseSectionUpdateOne {
+	csuo.mutation.ClearParent()
+	return csuo
+}
+
+// ClearChildren clears all "children" edges to the CourseSection entity.
+func (csuo *CourseSectionUpdateOne) ClearChildren() *CourseSectionUpdateOne {
+	csuo.mutation.ClearChildren()
+	return csuo
+}
+
+// RemoveChildIDs removes the "children" edge to CourseSection entities by IDs.
+func (csuo *CourseSectionUpdateOne) RemoveChildIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.RemoveChildIDs(ids...)
+	return csuo
+}
+
+// RemoveChildren removes "children" edges to CourseSection entities.
+func (csuo *CourseSectionUpdateOne) RemoveChildren(c ...*CourseSection) *CourseSectionUpdateOne {
+	ids := make([]uuid.UUID, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return csuo.RemoveChildIDs(ids...)
 }
 
 // ClearCourseSectionVideos clears all "course_section_videos" edges to the Video entity.
@@ -987,6 +1223,80 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if csuo.mutation.ParentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   coursesection.ParentTable,
+			Columns: []string{coursesection.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   coursesection.ParentTable,
+			Columns: []string{coursesection.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if csuo.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !csuo.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := csuo.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   coursesection.ChildrenTable,
+			Columns: []string{coursesection.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

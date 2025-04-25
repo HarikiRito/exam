@@ -19,6 +19,7 @@ type CourseSection struct {
 func (CourseSection) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("course_id", uuid.UUID{}),
+		field.UUID("section_id", uuid.UUID{}).Optional().Nillable(),
 		field.String("title").NotEmpty(),
 		field.Text("description").Optional(),
 	}
@@ -32,6 +33,11 @@ func (CourseSection) Edges() []ent.Edge {
 			Field("course_id").
 			Unique().
 			Required(),
+		edge.From("parent", CourseSection.Type).
+			Ref("children").
+			Field("section_id").
+			Unique(),
+		edge.To("children", CourseSection.Type),
 		edge.To("course_section_videos", Video.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("questions", Question.Type).

@@ -30,6 +30,8 @@ type CourseSectionQuery struct {
 	inters                  []Interceptor
 	predicates              []predicate.CourseSection
 	withCourse              *CourseQuery
+	withParent              *CourseSectionQuery
+	withChildren            *CourseSectionQuery
 	withCourseSectionVideos *VideoQuery
 	withQuestions           *QuestionQuery
 	withTestSessions        *TestSessionQuery
@@ -85,6 +87,50 @@ func (csq *CourseSectionQuery) QueryCourse() *CourseQuery {
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
 			sqlgraph.To(course.Table, course.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, coursesection.CourseTable, coursesection.CourseColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryParent chains the current query on the "parent" edge.
+func (csq *CourseSectionQuery) QueryParent() *CourseSectionQuery {
+	query := (&CourseSectionClient{config: csq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := csq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := csq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, coursesection.ParentTable, coursesection.ParentColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryChildren chains the current query on the "children" edge.
+func (csq *CourseSectionQuery) QueryChildren() *CourseSectionQuery {
+	query := (&CourseSectionClient{config: csq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := csq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := csq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.ChildrenTable, coursesection.ChildrenColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
 		return fromU, nil
@@ -373,6 +419,8 @@ func (csq *CourseSectionQuery) Clone() *CourseSectionQuery {
 		inters:                  append([]Interceptor{}, csq.inters...),
 		predicates:              append([]predicate.CourseSection{}, csq.predicates...),
 		withCourse:              csq.withCourse.Clone(),
+		withParent:              csq.withParent.Clone(),
+		withChildren:            csq.withChildren.Clone(),
 		withCourseSectionVideos: csq.withCourseSectionVideos.Clone(),
 		withQuestions:           csq.withQuestions.Clone(),
 		withTestSessions:        csq.withTestSessions.Clone(),
@@ -391,6 +439,28 @@ func (csq *CourseSectionQuery) WithCourse(opts ...func(*CourseQuery)) *CourseSec
 		opt(query)
 	}
 	csq.withCourse = query
+	return csq
+}
+
+// WithParent tells the query-builder to eager-load the nodes that are connected to
+// the "parent" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CourseSectionQuery) WithParent(opts ...func(*CourseSectionQuery)) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: csq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	csq.withParent = query
+	return csq
+}
+
+// WithChildren tells the query-builder to eager-load the nodes that are connected to
+// the "children" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CourseSectionQuery) WithChildren(opts ...func(*CourseSectionQuery)) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: csq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	csq.withChildren = query
 	return csq
 }
 
@@ -516,8 +586,10 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	var (
 		nodes       = []*CourseSection{}
 		_spec       = csq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [7]bool{
 			csq.withCourse != nil,
+			csq.withParent != nil,
+			csq.withChildren != nil,
 			csq.withCourseSectionVideos != nil,
 			csq.withQuestions != nil,
 			csq.withTestSessions != nil,
@@ -545,6 +617,19 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	if query := csq.withCourse; query != nil {
 		if err := csq.loadCourse(ctx, query, nodes, nil,
 			func(n *CourseSection, e *Course) { n.Edges.Course = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := csq.withParent; query != nil {
+		if err := csq.loadParent(ctx, query, nodes, nil,
+			func(n *CourseSection, e *CourseSection) { n.Edges.Parent = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := csq.withChildren; query != nil {
+		if err := csq.loadChildren(ctx, query, nodes,
+			func(n *CourseSection) { n.Edges.Children = []*CourseSection{} },
+			func(n *CourseSection, e *CourseSection) { n.Edges.Children = append(n.Edges.Children, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -605,6 +690,71 @@ func (csq *CourseSectionQuery) loadCourse(ctx context.Context, query *CourseQuer
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (csq *CourseSectionQuery) loadParent(ctx context.Context, query *CourseSectionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *CourseSection)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*CourseSection)
+	for i := range nodes {
+		if nodes[i].SectionID == nil {
+			continue
+		}
+		fk := *nodes[i].SectionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(coursesection.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "section_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (csq *CourseSectionQuery) loadChildren(ctx context.Context, query *CourseSectionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *CourseSection)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*CourseSection)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(coursesection.FieldSectionID)
+	}
+	query.Where(predicate.CourseSection(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(coursesection.ChildrenColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.SectionID
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "section_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "section_id" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -762,6 +912,9 @@ func (csq *CourseSectionQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if csq.withCourse != nil {
 			_spec.Node.AddColumnOnce(coursesection.FieldCourseID)
+		}
+		if csq.withParent != nil {
+			_spec.Node.AddColumnOnce(coursesection.FieldSectionID)
 		}
 	}
 	if ps := csq.predicates; len(ps) > 0 {

@@ -49,6 +49,7 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "course_id", Type: field.TypeUUID},
+		{Name: "section_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// CourseSectionsTable holds the schema information for the "course_sections" table.
 	CourseSectionsTable = &schema.Table{
@@ -61,6 +62,12 @@ var (
 				Columns:    []*schema.Column{CourseSectionsColumns[6]},
 				RefColumns: []*schema.Column{CoursesColumns[0]},
 				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "course_sections_course_sections_children",
+				Columns:    []*schema.Column{CourseSectionsColumns[7]},
+				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -502,6 +509,7 @@ func init() {
 	CoursesTable.ForeignKeys[0].RefTable = MediaTable
 	CoursesTable.ForeignKeys[1].RefTable = UsersTable
 	CourseSectionsTable.ForeignKeys[0].RefTable = CoursesTable
+	CourseSectionsTable.ForeignKeys[1].RefTable = CourseSectionsTable
 	MediaTable.ForeignKeys[0].RefTable = UsersTable
 	QuestionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
 	QuestionOptionsTable.ForeignKeys[0].RefTable = QuestionsTable

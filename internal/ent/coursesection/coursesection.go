@@ -24,12 +24,18 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldCourseID holds the string denoting the course_id field in the database.
 	FieldCourseID = "course_id"
+	// FieldSectionID holds the string denoting the section_id field in the database.
+	FieldSectionID = "section_id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
 	// EdgeCourse holds the string denoting the course edge name in mutations.
 	EdgeCourse = "course"
+	// EdgeParent holds the string denoting the parent edge name in mutations.
+	EdgeParent = "parent"
+	// EdgeChildren holds the string denoting the children edge name in mutations.
+	EdgeChildren = "children"
 	// EdgeCourseSectionVideos holds the string denoting the course_section_videos edge name in mutations.
 	EdgeCourseSectionVideos = "course_section_videos"
 	// EdgeQuestions holds the string denoting the questions edge name in mutations.
@@ -47,6 +53,14 @@ const (
 	CourseInverseTable = "courses"
 	// CourseColumn is the table column denoting the course relation/edge.
 	CourseColumn = "course_id"
+	// ParentTable is the table that holds the parent relation/edge.
+	ParentTable = "course_sections"
+	// ParentColumn is the table column denoting the parent relation/edge.
+	ParentColumn = "section_id"
+	// ChildrenTable is the table that holds the children relation/edge.
+	ChildrenTable = "course_sections"
+	// ChildrenColumn is the table column denoting the children relation/edge.
+	ChildrenColumn = "section_id"
 	// CourseSectionVideosTable is the table that holds the course_section_videos relation/edge.
 	CourseSectionVideosTable = "videos"
 	// CourseSectionVideosInverseTable is the table name for the Video entity.
@@ -84,6 +98,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldCourseID,
+	FieldSectionID,
 	FieldTitle,
 	FieldDescription,
 }
@@ -146,6 +161,11 @@ func ByCourseID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCourseID, opts...).ToFunc()
 }
 
+// BySectionID orders the results by the section_id field.
+func BySectionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSectionID, opts...).ToFunc()
+}
+
 // ByTitle orders the results by the title field.
 func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
@@ -160,6 +180,27 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 func ByCourseField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newCourseStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByParentField orders the results by parent field.
+func ByParentField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParentStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByChildrenCount orders the results by children count.
+func ByChildrenCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newChildrenStep(), opts...)
+	}
+}
+
+// ByChildren orders the results by children terms.
+func ByChildren(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChildrenStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -223,6 +264,20 @@ func newCourseStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CourseInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, CourseTable, CourseColumn),
+	)
+}
+func newParentStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(Table, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
+	)
+}
+func newChildrenStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(Table, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
 	)
 }
 func newCourseSectionVideosStep() *sqlgraph.Step {

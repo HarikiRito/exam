@@ -79,7 +79,7 @@ func init() {
 	// coursesection.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	coursesection.UpdateDefaultUpdatedAt = coursesectionDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// coursesectionDescTitle is the schema descriptor for title field.
-	coursesectionDescTitle := coursesectionFields[1].Descriptor()
+	coursesectionDescTitle := coursesectionFields[2].Descriptor()
 	// coursesection.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	coursesection.TitleValidator = coursesectionDescTitle.Validators[0].(func(string) error)
 	// coursesectionDescID is the schema descriptor for id field.

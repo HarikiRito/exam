@@ -662,6 +662,38 @@ func (c *CourseSectionClient) QueryCourse(cs *CourseSection) *CourseQuery {
 	return query
 }
 
+// QueryParent queries the parent edge of a CourseSection.
+func (c *CourseSectionClient) QueryParent(cs *CourseSection) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, coursesection.ParentTable, coursesection.ParentColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChildren queries the children edge of a CourseSection.
+func (c *CourseSectionClient) QueryChildren(cs *CourseSection) *CourseSectionQuery {
+	query := (&CourseSectionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(coursesection.Table, coursesection.FieldID, id),
+			sqlgraph.To(coursesection.Table, coursesection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.ChildrenTable, coursesection.ChildrenColumn),
+		)
+		fromV = sqlgraph.Neighbors(cs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryCourseSectionVideos queries the course_section_videos edge of a CourseSection.
 func (c *CourseSectionClient) QueryCourseSectionVideos(cs *CourseSection) *VideoQuery {
 	query := (&VideoClient{config: c.config}).Query()

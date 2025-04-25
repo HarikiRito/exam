@@ -76,6 +76,11 @@ func CourseID(v uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldCourseID, v))
 }
 
+// SectionID applies equality check predicate on the "section_id" field. It's identical to SectionIDEQ.
+func SectionID(v uuid.UUID) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldEQ(FieldSectionID, v))
+}
+
 // Title applies equality check predicate on the "title" field. It's identical to TitleEQ.
 func Title(v string) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldTitle, v))
@@ -236,6 +241,36 @@ func CourseIDNotIn(vs ...uuid.UUID) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldNotIn(FieldCourseID, vs...))
 }
 
+// SectionIDEQ applies the EQ predicate on the "section_id" field.
+func SectionIDEQ(v uuid.UUID) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldEQ(FieldSectionID, v))
+}
+
+// SectionIDNEQ applies the NEQ predicate on the "section_id" field.
+func SectionIDNEQ(v uuid.UUID) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldNEQ(FieldSectionID, v))
+}
+
+// SectionIDIn applies the In predicate on the "section_id" field.
+func SectionIDIn(vs ...uuid.UUID) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldIn(FieldSectionID, vs...))
+}
+
+// SectionIDNotIn applies the NotIn predicate on the "section_id" field.
+func SectionIDNotIn(vs ...uuid.UUID) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldNotIn(FieldSectionID, vs...))
+}
+
+// SectionIDIsNil applies the IsNil predicate on the "section_id" field.
+func SectionIDIsNil() predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldIsNull(FieldSectionID))
+}
+
+// SectionIDNotNil applies the NotNil predicate on the "section_id" field.
+func SectionIDNotNil() predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldNotNull(FieldSectionID))
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldTitle, v))
@@ -391,6 +426,52 @@ func HasCourse() predicate.CourseSection {
 func HasCourseWith(preds ...predicate.Course) predicate.CourseSection {
 	return predicate.CourseSection(func(s *sql.Selector) {
 		step := newCourseStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasParent applies the HasEdge predicate on the "parent" edge.
+func HasParent() predicate.CourseSection {
+	return predicate.CourseSection(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParentWith applies the HasEdge predicate on the "parent" edge with a given conditions (other predicates).
+func HasParentWith(preds ...predicate.CourseSection) predicate.CourseSection {
+	return predicate.CourseSection(func(s *sql.Selector) {
+		step := newParentStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasChildren applies the HasEdge predicate on the "children" edge.
+func HasChildren() predicate.CourseSection {
+	return predicate.CourseSection(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasChildrenWith applies the HasEdge predicate on the "children" edge with a given conditions (other predicates).
+func HasChildrenWith(preds ...predicate.CourseSection) predicate.CourseSection {
+	return predicate.CourseSection(func(s *sql.Selector) {
+		step := newChildrenStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
