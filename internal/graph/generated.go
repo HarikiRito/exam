@@ -45,6 +45,8 @@ type ResolverRoot interface {
 	Course() CourseResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Question() QuestionResolver
+	QuestionOption() QuestionOptionResolver
 }
 
 type DirectiveRoot struct {
@@ -206,6 +208,13 @@ type QueryResolver interface {
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
 	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
+}
+type QuestionResolver interface {
+	Section(ctx context.Context, obj *model.Question) (*model.CourseSection, error)
+	Options(ctx context.Context, obj *model.Question) ([]*model.QuestionOption, error)
+}
+type QuestionOptionResolver interface {
+	Question(ctx context.Context, obj *model.QuestionOption) (*model.Question, error)
 }
 
 type executableSchema struct {
@@ -887,6 +896,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputNewTodo,
 		ec.unmarshalInputPaginationInput,
+		ec.unmarshalInputQuestionOptionInput,
 		ec.unmarshalInputRegisterInput,
 		ec.unmarshalInputUpdateCourseInput,
 		ec.unmarshalInputUpdateCourseSectionInput,
@@ -5171,7 +5181,7 @@ func (ec *executionContext) _Question_section(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Section, nil
+		return ec.resolvers.Question().Section(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5189,8 +5199,8 @@ func (ec *executionContext) fieldContext_Question_section(_ context.Context, fie
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -5222,7 +5232,7 @@ func (ec *executionContext) _Question_options(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Options, nil
+		return ec.resolvers.Question().Options(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5243,8 +5253,8 @@ func (ec *executionContext) fieldContext_Question_options(_ context.Context, fie
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -5320,7 +5330,7 @@ func (ec *executionContext) _QuestionOption_question(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Question, nil
+		return ec.resolvers.QuestionOption().Question(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5341,8 +5351,8 @@ func (ec *executionContext) fieldContext_QuestionOption_question(_ context.Conte
 	fc = &graphql.FieldContext{
 		Object:     "QuestionOption",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -7675,7 +7685,7 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionText", "courseSectionId", "optionIds"}
+	fieldsInOrder := [...]string{"questionText", "courseSectionId", "options"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7696,13 +7706,13 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 				return it, err
 			}
 			it.CourseSectionID = data
-		case "optionIds":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("optionIds"))
-			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+		case "options":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+			data, err := ec.unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.OptionIds = data
+			it.Options = data
 		}
 	}
 
@@ -7900,6 +7910,40 @@ func (ec *executionContext) unmarshalInputPaginationInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputQuestionOptionInput(ctx context.Context, obj interface{}) (model.QuestionOptionInput, error) {
+	var it model.QuestionOptionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"optionText", "isCorrect"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "optionText":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("optionText"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OptionText = data
+		case "isCorrect":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isCorrect"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsCorrect = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj interface{}) (model.RegisterInput, error) {
 	var it model.RegisterInput
 	asMap := map[string]interface{}{}
@@ -8009,7 +8053,7 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionText", "courseSectionId", "optionIds"}
+	fieldsInOrder := [...]string{"questionText", "courseSectionId", "options"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8030,13 +8074,13 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 				return it, err
 			}
 			it.CourseSectionID = data
-		case "optionIds":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("optionIds"))
-			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+		case "options":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+			data, err := ec.unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.OptionIds = data
+			it.Options = data
 		}
 	}
 
@@ -9093,20 +9137,82 @@ func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._Question_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "questionText":
 			out.Values[i] = ec._Question_questionText(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "section":
-			out.Values[i] = ec._Question_section(ctx, field, obj)
-		case "options":
-			out.Values[i] = ec._Question_options(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Question_section(ctx, field, obj)
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "options":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Question_options(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9144,22 +9250,53 @@ func (ec *executionContext) _QuestionOption(ctx context.Context, sel ast.Selecti
 		case "id":
 			out.Values[i] = ec._QuestionOption_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "question":
-			out.Values[i] = ec._QuestionOption_question(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QuestionOption_question(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "optionText":
 			out.Values[i] = ec._QuestionOption_optionText(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isCorrect":
 			out.Values[i] = ec._QuestionOption_isCorrect(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -10085,6 +10222,11 @@ func (ec *executionContext) marshalNQuestionOption2ᚖtemplateᚋinternalᚋgrap
 	return ec._QuestionOption(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInput(ctx context.Context, v interface{}) (*model.QuestionOptionInput, error) {
+	res, err := ec.unmarshalInputQuestionOptionInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRegisterInput2templateᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (model.RegisterInput, error) {
 	res, err := ec.unmarshalInputRegisterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10553,44 +10695,6 @@ func (ec *executionContext) marshalOCourseSection2ᚖtemplateᚋinternalᚋgraph
 	return ec._CourseSection(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, v interface{}) ([]uuid.UUID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]uuid.UUID, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, sel ast.SelectionSet, v []uuid.UUID) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
 func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {
 	if v == nil {
 		return nil, nil
@@ -10613,6 +10717,26 @@ func (ec *executionContext) unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋg
 	}
 	res, err := ec.unmarshalInputPaginationInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx context.Context, v interface{}) ([]*model.QuestionOptionInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.QuestionOptionInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

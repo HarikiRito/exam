@@ -23,9 +23,9 @@ type CreateCourseSectionInput struct {
 }
 
 type CreateQuestionInput struct {
-	QuestionText    string      `json:"questionText"`
-	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
-	OptionIds       []uuid.UUID `json:"optionIds,omitempty"`
+	QuestionText    string                 `json:"questionText"`
+	CourseSectionID *uuid.UUID             `json:"courseSectionId,omitempty"`
+	Options         []*QuestionOptionInput `json:"options,omitempty"`
 }
 
 type CreateQuestionOptionInput struct {
@@ -90,18 +90,9 @@ type PaginationInput struct {
 type Query struct {
 }
 
-type Question struct {
-	ID           uuid.UUID         `json:"id"`
-	QuestionText string            `json:"questionText"`
-	Section      *CourseSection    `json:"section,omitempty"`
-	Options      []*QuestionOption `json:"options"`
-}
-
-type QuestionOption struct {
-	ID         uuid.UUID `json:"id"`
-	Question   *Question `json:"question"`
-	OptionText string    `json:"optionText"`
-	IsCorrect  bool      `json:"isCorrect"`
+type QuestionOptionInput struct {
+	OptionText string `json:"optionText"`
+	IsCorrect  bool   `json:"isCorrect"`
 }
 
 type RegisterInput struct {
@@ -132,9 +123,9 @@ type UpdateCourseSectionInput struct {
 }
 
 type UpdateQuestionInput struct {
-	QuestionText    *string     `json:"questionText,omitempty"`
-	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
-	OptionIds       []uuid.UUID `json:"optionIds,omitempty"`
+	QuestionText    *string                `json:"questionText,omitempty"`
+	CourseSectionID *uuid.UUID             `json:"courseSectionId,omitempty"`
+	Options         []*QuestionOptionInput `json:"options,omitempty"`
 }
 
 type UpdateQuestionOptionInput struct {

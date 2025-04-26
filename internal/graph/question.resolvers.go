@@ -7,32 +7,117 @@ package graph
 import (
 	"context"
 	"fmt"
+	"template/internal/features/question"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
 
 // CreateQuestion is the resolver for the createQuestion field.
 func (r *mutationResolver) CreateQuestion(ctx context.Context, input model.CreateQuestionInput) (*model.Question, error) {
-	panic(fmt.Errorf("not implemented: CreateQuestion - createQuestion"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the question
+	q, err := question.CreateQuestion(ctx, userId, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertQuestionToModel(q), nil
 }
 
 // UpdateQuestion is the resolver for the updateQuestion field.
 func (r *mutationResolver) UpdateQuestion(ctx context.Context, id uuid.UUID, input model.UpdateQuestionInput) (*model.Question, error) {
-	panic(fmt.Errorf("not implemented: UpdateQuestion - updateQuestion"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the question
+	q, err := question.UpdateQuestion(ctx, userId, id, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model using the model package conversion function
+	return model.ConvertQuestionToModel(q), nil
 }
 
 // DeleteQuestion is the resolver for the deleteQuestion field.
 func (r *mutationResolver) DeleteQuestion(ctx context.Context, id uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteQuestion - deleteQuestion"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	// Delete the question
+	return question.DeleteQuestion(ctx, userId, id)
 }
 
 // Question is the resolver for the question field.
 func (r *queryResolver) Question(ctx context.Context, id uuid.UUID) (*model.Question, error) {
-	panic(fmt.Errorf("not implemented: Question - question"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the question
+	q, err := question.GetQuestionByID(ctx, userId, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model using the model package conversion function
+	return model.ConvertQuestionToModel(q), nil
 }
 
 // PaginatedQuestions is the resolver for the paginatedQuestions field.
 func (r *queryResolver) PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error) {
-	panic(fmt.Errorf("not implemented: PaginatedQuestions - paginatedQuestions"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get paginated questions
+	result, err := question.PaginatedQuestions(ctx, userId, paginationInput)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model using the model package conversion functions
+	return &model.PaginatedQuestion{
+		Pagination: &model.Pagination{
+			CurrentPage:     result.CurrentPage,
+			TotalPages:      result.TotalPages,
+			TotalItems:      result.TotalItems,
+			HasNextPage:     result.HasNextPage,
+			HasPreviousPage: result.HasPrevPage,
+		},
+		Items: slice.Map(result.Items, model.ConvertQuestionToModel),
+	}, nil
 }
+
+// Section is the resolver for the section field.
+func (r *questionResolver) Section(ctx context.Context, obj *model.Question) (*model.CourseSection, error) {
+	panic(fmt.Errorf("not implemented: Section - section"))
+}
+
+// Options is the resolver for the options field.
+func (r *questionResolver) Options(ctx context.Context, obj *model.Question) ([]*model.QuestionOption, error) {
+	panic(fmt.Errorf("not implemented: Options - options"))
+}
+
+// Question returns QuestionResolver implementation.
+func (r *Resolver) Question() QuestionResolver { return &questionResolver{r} }
+
+type questionResolver struct{ *Resolver }

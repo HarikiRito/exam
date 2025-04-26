@@ -109,3 +109,9 @@ models:
   CourseSection:
     model:
       - template/internal/graph/model.CourseSection
+  QuestionOption:
+    model:
+      - template/internal/graph/model.QuestionOption
+  Question:
+    model:
+      - template/internal/graph/model.Question

@@ -24,11 +24,16 @@ type PaginatedQuestion {
 input CreateQuestionInput {
   questionText: String!
   courseSectionId: ID
-  optionIds: [ID!]
+  options: [QuestionOptionInput!]
+}
+
+input QuestionOptionInput {
+  optionText: String!
+  isCorrect: Boolean!
 }
 
 input UpdateQuestionInput {
-  questionText: String
+  questionText: String  
   courseSectionId: ID
-  optionIds: [ID!]
-} 
+  options: [QuestionOptionInput!]
+}

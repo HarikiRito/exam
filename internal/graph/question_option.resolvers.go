@@ -7,32 +7,112 @@ package graph
 import (
 	"context"
 	"fmt"
+	"template/internal/features/question_option"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
 
 // CreateQuestionOption is the resolver for the createQuestionOption field.
 func (r *mutationResolver) CreateQuestionOption(ctx context.Context, input model.CreateQuestionOptionInput) (*model.QuestionOption, error) {
-	panic(fmt.Errorf("not implemented: CreateQuestionOption - createQuestionOption"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the question option
+	option, err := question_option.CreateQuestionOption(ctx, userId, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertQuestionOptionToModel(option), nil
 }
 
 // UpdateQuestionOption is the resolver for the updateQuestionOption field.
 func (r *mutationResolver) UpdateQuestionOption(ctx context.Context, id uuid.UUID, input model.UpdateQuestionOptionInput) (*model.QuestionOption, error) {
-	panic(fmt.Errorf("not implemented: UpdateQuestionOption - updateQuestionOption"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the question option
+	option, err := question_option.UpdateQuestionOption(ctx, userId, id, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertQuestionOptionToModel(option), nil
 }
 
 // DeleteQuestionOption is the resolver for the deleteQuestionOption field.
 func (r *mutationResolver) DeleteQuestionOption(ctx context.Context, id uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteQuestionOption - deleteQuestionOption"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	// Delete the question option
+	return question_option.DeleteQuestionOption(ctx, userId, id)
 }
 
 // QuestionOption is the resolver for the questionOption field.
 func (r *queryResolver) QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error) {
-	panic(fmt.Errorf("not implemented: QuestionOption - questionOption"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the question option
+	option, err := question_option.GetQuestionOptionByID(ctx, userId, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertQuestionOptionToModel(option), nil
 }
 
 // PaginatedQuestionOptions is the resolver for the paginatedQuestionOptions field.
 func (r *queryResolver) PaginatedQuestionOptions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionOption, error) {
-	panic(fmt.Errorf("not implemented: PaginatedQuestionOptions - paginatedQuestionOptions"))
+	// Get the authenticated user
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get paginated question options
+	result, err := question_option.PaginatedQuestionOptions(ctx, userId, nil, paginationInput)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return &model.PaginatedQuestionOption{
+		Pagination: &model.Pagination{
+			CurrentPage:     result.CurrentPage,
+			TotalPages:      result.TotalPages,
+			TotalItems:      result.TotalItems,
+			HasNextPage:     result.HasNextPage,
+			HasPreviousPage: result.HasPrevPage,
+		},
+		Items: slice.Map(result.Items, model.ConvertQuestionOptionToModel),
+	}, nil
 }
+
+// Question is the resolver for the question field.
+func (r *questionOptionResolver) Question(ctx context.Context, obj *model.QuestionOption) (*model.Question, error) {
+	panic(fmt.Errorf("not implemented: Question - question"))
+}
+
+// QuestionOption returns QuestionOptionResolver implementation.
+func (r *Resolver) QuestionOption() QuestionOptionResolver { return &questionOptionResolver{r} }
+
+type questionOptionResolver struct{ *Resolver }
