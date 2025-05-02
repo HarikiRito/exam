@@ -14,7 +14,6 @@ type Course {
   title: String!
   description: String!
   creator: User!
-  sections: [CourseSection!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

@@ -3,6 +3,7 @@ package question_option
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	"template/internal/ent"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
@@ -11,8 +12,6 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/features/common"
 	"template/internal/graph/model"
-
-	"github.com/google/uuid"
 )
 
 // CreateQuestionOption creates a new question option with the given input.
@@ -24,7 +23,7 @@ func CreateQuestionOption(ctx context.Context, userId uuid.UUID, input model.Cre
 	defer client.Close()
 
 	// First verify that the user has access to the question
-	q, err := client.Question.Query().
+	query, err := client.Question.Query().
 		Where(question.ID(input.QuestionID)).
 		WithSection().
 		Only(ctx)
@@ -33,10 +32,10 @@ func CreateQuestionOption(ctx context.Context, userId uuid.UUID, input model.Cre
 	}
 
 	// If the question is linked to a section, verify the user has access
-	if q.Edges.Section != nil {
+	if query.Edges.Section != nil {
 		hasAccess, err := client.Course.Query().
 			Where(
-				course.ID(q.Edges.Section.CourseID),
+				course.ID(query.Edges.Section.CourseID),
 				course.CreatorID(userId),
 			).
 			Exist(ctx)

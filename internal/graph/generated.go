@@ -63,7 +63,6 @@ type ComplexityRoot struct {
 		Creator     func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Sections    func(childComplexity int) int
 		Title       func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
 	}
@@ -173,7 +172,6 @@ type ComplexityRoot struct {
 
 type CourseResolver interface {
 	Creator(ctx context.Context, obj *model.Course) (*model.User, error)
-	Sections(ctx context.Context, obj *model.Course) ([]*model.CourseSection, error)
 }
 type MutationResolver interface {
 	Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error)
@@ -277,13 +275,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Course.ID(childComplexity), true
-
-	case "Course.sections":
-		if e.complexity.Course.Sections == nil {
-			break
-		}
-
-		return e.complexity.Course.Sections(childComplexity), true
 
 	case "Course.title":
 		if e.complexity.Course.Title == nil {
@@ -2110,60 +2101,6 @@ func (ec *executionContext) fieldContext_Course_creator(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Course_sections(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Course_sections(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Course().Sections(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.CourseSection)
-	fc.Result = res
-	return ec.marshalNCourseSection2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSectionᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Course_sections(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Course",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CourseSection_id(ctx, field)
-			case "title":
-				return ec.fieldContext_CourseSection_title(ctx, field)
-			case "description":
-				return ec.fieldContext_CourseSection_description(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSection_courseId(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Course_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Course_createdAt(ctx, field)
 	if err != nil {
@@ -2597,8 +2534,6 @@ func (ec *executionContext) fieldContext_Mutation_createCourse(ctx context.Conte
 				return ec.fieldContext_Course_description(ctx, field)
 			case "creator":
 				return ec.fieldContext_Course_creator(ctx, field)
-			case "sections":
-				return ec.fieldContext_Course_sections(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Course_createdAt(ctx, field)
 			case "updatedAt":
@@ -2723,8 +2658,6 @@ func (ec *executionContext) fieldContext_Mutation_updateCourse(ctx context.Conte
 				return ec.fieldContext_Course_description(ctx, field)
 			case "creator":
 				return ec.fieldContext_Course_creator(ctx, field)
-			case "sections":
-				return ec.fieldContext_Course_sections(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Course_createdAt(ctx, field)
 			case "updatedAt":
@@ -3651,8 +3584,6 @@ func (ec *executionContext) fieldContext_PaginatedCourse_items(_ context.Context
 				return ec.fieldContext_Course_description(ctx, field)
 			case "creator":
 				return ec.fieldContext_Course_creator(ctx, field)
-			case "sections":
-				return ec.fieldContext_Course_sections(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Course_createdAt(ctx, field)
 			case "updatedAt":
@@ -4372,8 +4303,6 @@ func (ec *executionContext) fieldContext_Query_course(ctx context.Context, field
 				return ec.fieldContext_Course_description(ctx, field)
 			case "creator":
 				return ec.fieldContext_Course_creator(ctx, field)
-			case "sections":
-				return ec.fieldContext_Course_sections(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Course_createdAt(ctx, field)
 			case "updatedAt":
@@ -5641,8 +5570,6 @@ func (ec *executionContext) fieldContext_Test_course(_ context.Context, field gr
 				return ec.fieldContext_Course_description(ctx, field)
 			case "creator":
 				return ec.fieldContext_Course_creator(ctx, field)
-			case "sections":
-				return ec.fieldContext_Course_sections(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Course_createdAt(ctx, field)
 			case "updatedAt":
@@ -8283,42 +8210,6 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "sections":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Course_sections(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._Course_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -9872,50 +9763,6 @@ func (ec *executionContext) marshalNCourse2ᚖtemplateᚋinternalᚋgraphᚋmode
 
 func (ec *executionContext) marshalNCourseSection2templateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx context.Context, sel ast.SelectionSet, v model.CourseSection) graphql.Marshaler {
 	return ec._CourseSection(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNCourseSection2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CourseSection) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalNCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx context.Context, sel ast.SelectionSet, v *model.CourseSection) graphql.Marshaler {
