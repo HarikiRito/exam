@@ -7,7 +7,6 @@ import (
 	"template/internal/ent/testsession"
 	"template/internal/ent/userquestionanswer"
 	"template/internal/graph/model"
-	graphqlFields "template/internal/shared/utilities/graphql"
 	"time"
 
 	"github.com/google/uuid"
@@ -46,29 +45,7 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 	query := client.TestSession.Query().
 		Where(testsession.ID(sessionID))
 
-	preloads := graphqlFields.GetPreloadsAsMap(ctx)
-
-	selectFields := []string{}
-
-	if preloads["id"] {
-		selectFields = append(selectFields, testsession.FieldID)
-	}
-
-	if preloads["totalScore"] {
-		selectFields = append(selectFields, testsession.FieldTotalScore)
-	}
-
-	if preloads["completedAt"] {
-		selectFields = append(selectFields, testsession.FieldCompletedAt)
-	}
-
-	if preloads["createdAt"] {
-		selectFields = append(selectFields, testsession.FieldCreatedAt)
-	}
-
-	if preloads["updatedAt"] {
-		selectFields = append(selectFields, testsession.FieldUpdatedAt)
-	}
+	selectFields := TestSessionSelectFields(ctx)
 
 	return query.Select(selectFields...).Only(ctx)
 }
@@ -93,8 +70,6 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 		Where(
 			userquestionanswer.SessionID(sessionID),
 		).
-		WithQuestion().
-		WithSelectedOption().
 		All(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
@@ -108,11 +83,14 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 		}
 	}
 
+	selectFields := TestSessionSelectFields(ctx)
+
 	// Update the session within the transaction
 	now := time.Now()
-	_, err = tx.TestSession.UpdateOneID(sessionID).
+	updatedSession, err := tx.TestSession.UpdateOneID(sessionID).
 		SetCompletedAt(now).
 		SetTotalScore(totalScore).
+		Select(testsession.FieldID, selectFields...).
 		Save(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
@@ -123,8 +101,7 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 		return nil, err
 	}
 
-	// Open a new client to fetch the updated test session with requested fields
-	return GetTestSessionByID(ctx, sessionID)
+	return updatedSession, nil
 }
 
 // DeleteTestSession deletes a test session by its ID.
