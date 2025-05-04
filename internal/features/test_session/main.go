@@ -7,6 +7,7 @@ import (
 	"template/internal/ent/testsession"
 	"template/internal/ent/userquestionanswer"
 	"template/internal/graph/model"
+	graphqlFields "template/internal/shared/utilities/graphql"
 	"time"
 
 	"github.com/google/uuid"
@@ -41,9 +42,35 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 	}
 	defer client.Close()
 
-	return client.TestSession.Query().
-		Where(testsession.ID(sessionID)).
-		Only(ctx)
+	// Start with the base query
+	query := client.TestSession.Query().
+		Where(testsession.ID(sessionID))
+
+	preloads := graphqlFields.GetPreloadsAsMap(ctx)
+
+	selectFields := []string{}
+
+	if preloads["id"] {
+		selectFields = append(selectFields, testsession.FieldID)
+	}
+
+	if preloads["totalScore"] {
+		selectFields = append(selectFields, testsession.FieldTotalScore)
+	}
+
+	if preloads["completedAt"] {
+		selectFields = append(selectFields, testsession.FieldCompletedAt)
+	}
+
+	if preloads["createdAt"] {
+		selectFields = append(selectFields, testsession.FieldCreatedAt)
+	}
+
+	if preloads["updatedAt"] {
+		selectFields = append(selectFields, testsession.FieldUpdatedAt)
+	}
+
+	return query.Select(selectFields...).Only(ctx)
 }
 
 // CompleteTestSession marks a test session as completed and calculates the total score.
@@ -96,16 +123,8 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 		return nil, err
 	}
 
-	// Open a new client to fetch the updated test session
-	client, err := db.OpenClient()
-	if err != nil {
-		return nil, err
-	}
-	defer client.Close()
-
-	return client.TestSession.Query().
-		Where(testsession.ID(sessionID)).
-		Only(ctx)
+	// Open a new client to fetch the updated test session with requested fields
+	return GetTestSessionByID(ctx, sessionID)
 }
 
 // DeleteTestSession deletes a test session by its ID.
