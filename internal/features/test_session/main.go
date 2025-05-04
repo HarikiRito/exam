@@ -6,7 +6,6 @@ import (
 	"template/internal/ent/db"
 	"template/internal/ent/testsession"
 	"template/internal/ent/userquestionanswer"
-	"template/internal/features/common"
 	"template/internal/graph/model"
 	"time"
 
@@ -45,22 +44,6 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 	return client.TestSession.Query().
 		Where(testsession.ID(sessionID)).
 		Only(ctx)
-}
-
-// UpdateTestSession updates a test session by its ID with the provided input.
-func UpdateTestSession(ctx context.Context, sessionID uuid.UUID, input model.UpdateTestSessionInput) (*ent.TestSession, error) {
-	client, err := db.OpenClient()
-	if err != nil {
-		return nil, err
-	}
-	defer client.Close()
-
-	update := client.TestSession.UpdateOneID(sessionID)
-
-	update.SetNillableTotalScore(input.TotalScore)
-	update.SetNillableCompletedAt(input.CompletedAt)
-
-	return update.Save(ctx)
 }
 
 // CompleteTestSession marks a test session as completed and calculates the total score.
@@ -146,32 +129,4 @@ func DeleteTestSession(ctx context.Context, sessionID uuid.UUID) (bool, error) {
 	}
 
 	return true, nil
-}
-
-// PaginatedTestSessions returns a paginated list of test sessions.
-func PaginatedTestSessions(ctx context.Context, input *model.PaginationInput) (*common.PaginatedResult[*ent.TestSession], error) {
-	client, err := db.OpenClient()
-	if err != nil {
-		return nil, err
-	}
-	defer client.Close()
-
-	query := client.TestSession.Query()
-
-	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
-
-	return common.EntQueryPaginated(ctx, query, newInput.Page, newInput.Limit)
-}
-
-// GetUserTestSessions returns all test sessions for a specific user.
-func GetUserTestSessions(ctx context.Context, userId uuid.UUID) ([]*ent.TestSession, error) {
-	client, err := db.OpenClient()
-	if err != nil {
-		return nil, err
-	}
-	defer client.Close()
-
-	return client.TestSession.Query().
-		Where(testsession.UserID(userId)).
-		All(ctx)
 }

@@ -99,7 +99,6 @@ type ComplexityRoot struct {
 		UpdateQuestion           func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
 		UpdateQuestionOption     func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
 		UpdateTest               func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
-		UpdateTestSession        func(childComplexity int, id uuid.UUID, input model.UpdateTestSessionInput) int
 		UpdateUserQuestionAnswer func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
 	}
 
@@ -149,7 +148,6 @@ type ComplexityRoot struct {
 		PaginatedCourses             func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestionOptions     func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestions           func(childComplexity int, paginationInput *model.PaginationInput) int
-		PaginatedTestSessions        func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedTests               func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedUserQuestionAnswers func(childComplexity int, paginationInput *model.PaginationInput) int
 		Question                     func(childComplexity int, id uuid.UUID) int
@@ -158,7 +156,6 @@ type ComplexityRoot struct {
 		TestSession                  func(childComplexity int, id uuid.UUID) int
 		Todos                        func(childComplexity int) int
 		UserQuestionAnswer           func(childComplexity int, id uuid.UUID) int
-		UserTestSessions             func(childComplexity int, userID uuid.UUID) int
 	}
 
 	Question struct {
@@ -237,7 +234,6 @@ type MutationResolver interface {
 	UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error)
 	DeleteTest(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error)
-	UpdateTestSession(ctx context.Context, id uuid.UUID, input model.UpdateTestSessionInput) (*model.TestSession, error)
 	DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error)
 	CompleteTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
@@ -258,8 +254,6 @@ type QueryResolver interface {
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
 	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
-	PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error)
-	UserTestSessions(ctx context.Context, userID uuid.UUID) ([]*model.TestSession, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
 	UserQuestionAnswer(ctx context.Context, id uuid.UUID) (*model.UserQuestionAnswer, error)
 	PaginatedUserQuestionAnswers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUserQuestionAnswer, error)
@@ -658,18 +652,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateTest(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateTestInput)), true
 
-	case "Mutation.updateTestSession":
-		if e.complexity.Mutation.UpdateTestSession == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateTestSession_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateTestSession(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateTestSessionInput)), true
-
 	case "Mutation.updateUserQuestionAnswer":
 		if e.complexity.Mutation.UpdateUserQuestionAnswer == nil {
 			break
@@ -880,18 +862,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.PaginatedQuestions(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
-	case "Query.paginatedTestSessions":
-		if e.complexity.Query.PaginatedTestSessions == nil {
-			break
-		}
-
-		args, err := ec.field_Query_paginatedTestSessions_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.PaginatedTestSessions(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
-
 	case "Query.paginatedTests":
 		if e.complexity.Query.PaginatedTests == nil {
 			break
@@ -982,18 +952,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.UserQuestionAnswer(childComplexity, args["id"].(uuid.UUID)), true
-
-	case "Query.userTestSessions":
-		if e.complexity.Query.UserTestSessions == nil {
-			break
-		}
-
-		args, err := ec.field_Query_userTestSessions_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.UserTestSessions(childComplexity, args["userId"].(uuid.UUID)), true
 
 	case "Question.id":
 		if e.complexity.Question.ID == nil {
@@ -1952,47 +1910,6 @@ func (ec *executionContext) field_Mutation_updateQuestion_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateTestSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateTestSession_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	arg1, err := ec.field_Mutation_updateTestSession_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateTestSession_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal uuid.UUID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateTestSession_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateTestSessionInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateTestSessionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestSessionInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateTestSessionInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_updateTest_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2236,29 +2153,6 @@ func (ec *executionContext) field_Query_paginatedQuestions_argsPaginationInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_paginatedTestSessions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_paginatedTestSessions_argsPaginationInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["paginationInput"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_paginatedTestSessions_argsPaginationInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.PaginationInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("paginationInput"))
-	if tmp, ok := rawArgs["paginationInput"]; ok {
-		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
-	}
-
-	var zeroVal *model.PaginationInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Query_paginatedTests_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2413,29 +2307,6 @@ func (ec *executionContext) field_Query_userQuestionAnswer_argsID(
 ) (uuid.UUID, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
 	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal uuid.UUID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_userTestSessions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_userTestSessions_argsUserID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["userId"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_userTestSessions_argsUserID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-	if tmp, ok := rawArgs["userId"]; ok {
 		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
 	}
 
@@ -4155,81 +4026,6 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createTestSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateTestSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateTestSession(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTestSession(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateTestSessionInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TestSession)
-	fc.Result = res
-	return ec.marshalNTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSession(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateTestSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
-			case "completedAt":
-				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_TestSession_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_TestSession_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTestSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6277,142 +6073,6 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_testSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_paginatedTestSessions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_paginatedTestSessions(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaginatedTestSessions(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.PaginatedTestSession)
-	fc.Result = res
-	return ec.marshalNPaginatedTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedTestSession(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_paginatedTestSessions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pagination":
-				return ec.fieldContext_PaginatedTestSession_pagination(ctx, field)
-			case "items":
-				return ec.fieldContext_PaginatedTestSession_items(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PaginatedTestSession", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_paginatedTestSessions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_userTestSessions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_userTestSessions(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserTestSessions(rctx, fc.Args["userId"].(uuid.UUID))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.TestSession)
-	fc.Result = res
-	return ec.marshalNTestSession2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_userTestSessions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
-			case "completedAt":
-				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_TestSession_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_TestSession_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_userTestSessions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11093,13 +10753,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateTestSession":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTestSession(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "deleteTestSession":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteTestSession(ctx, field)
@@ -11759,50 +11412,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_testSession(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "paginatedTestSessions":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_paginatedTestSessions(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "userTestSessions":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_userTestSessions(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -13117,20 +12726,6 @@ func (ec *executionContext) marshalNPaginatedTest2ᚖtemplateᚋinternalᚋgraph
 	return ec._PaginatedTest(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPaginatedTestSession2templateᚋinternalᚋgraphᚋmodelᚐPaginatedTestSession(ctx context.Context, sel ast.SelectionSet, v model.PaginatedTestSession) graphql.Marshaler {
-	return ec._PaginatedTestSession(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPaginatedTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedTestSession(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedTestSession) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PaginatedTestSession(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNPaginatedUserQuestionAnswer2templateᚋinternalᚋgraphᚋmodelᚐPaginatedUserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, v model.PaginatedUserQuestionAnswer) graphql.Marshaler {
 	return ec._PaginatedUserQuestionAnswer(ctx, sel, &v)
 }
@@ -13492,11 +13087,6 @@ func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2templateᚋinter
 
 func (ec *executionContext) unmarshalNUpdateTestInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestInput(ctx context.Context, v interface{}) (model.UpdateTestInput, error) {
 	res, err := ec.unmarshalInputUpdateTestInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateTestSessionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestSessionInput(ctx context.Context, v interface{}) (model.UpdateTestSessionInput, error) {
-	res, err := ec.unmarshalInputUpdateTestSessionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"template/internal/features/test_session"
 	"template/internal/graph/model"
-	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -23,15 +22,6 @@ func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.Cr
 	}
 
 	session, err := test_session.CreateTestSession(ctx, userID, input)
-	if err != nil {
-		return nil, err
-	}
-	return model.ConvertTestSessionToModel(session), nil
-}
-
-// UpdateTestSession is the resolver for the updateTestSession field.
-func (r *mutationResolver) UpdateTestSession(ctx context.Context, id uuid.UUID, input model.UpdateTestSessionInput) (*model.TestSession, error) {
-	session, err := test_session.UpdateTestSession(ctx, id, input)
 	if err != nil {
 		return nil, err
 	}
@@ -59,37 +49,6 @@ func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.T
 		return nil, err
 	}
 	return model.ConvertTestSessionToModel(session), nil
-}
-
-// PaginatedTestSessions is the resolver for the paginatedTestSessions field.
-func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error) {
-	paginated, err := test_session.PaginatedTestSessions(ctx, paginationInput)
-	if err != nil {
-		return nil, err
-	}
-	items := slice.Map(paginated.Items, model.ConvertTestSessionToModel)
-
-	pagination := &model.Pagination{
-		CurrentPage:     paginated.CurrentPage,
-		TotalPages:      paginated.TotalPages,
-		TotalItems:      paginated.TotalItems,
-		HasNextPage:     paginated.HasNextPage,
-		HasPreviousPage: paginated.HasPrevPage,
-	}
-
-	return &model.PaginatedTestSession{
-		Pagination: pagination,
-		Items:      items,
-	}, nil
-}
-
-// UserTestSessions is the resolver for the userTestSessions field.
-func (r *queryResolver) UserTestSessions(ctx context.Context, userID uuid.UUID) ([]*model.TestSession, error) {
-	sessions, err := test_session.GetUserTestSessions(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-	return slice.Map(sessions, model.ConvertTestSessionToModel), nil
 }
 
 // User is the resolver for the user field.

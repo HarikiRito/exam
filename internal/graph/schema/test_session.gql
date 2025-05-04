@@ -1,14 +1,11 @@
 extend type Mutation {
   createTestSession(input: CreateTestSessionInput!): TestSession!
-  updateTestSession(id: ID!, input: UpdateTestSessionInput!): TestSession!
   deleteTestSession(id: ID!): Boolean!
   completeTestSession(id: ID!): TestSession!
 }
 
 extend type Query {
   testSession(id: ID!): TestSession!
-  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
-  userTestSessions(userId: ID!): [TestSession!]!
 }
 
 type TestSession {
