@@ -21,7 +21,7 @@ func Login(ctx context.Context, input model.LoginInput) (*ent.User, error) {
 	defer client.Close()
 
 	// Find user by email or username
-	user, err := client.User.Query().
+	userQuery, err := client.User.Query().
 		Where(
 			user.EmailEQ(input.Email),
 		).
@@ -31,12 +31,12 @@ func Login(ctx context.Context, input model.LoginInput) (*ent.User, error) {
 	}
 
 	// Compare passwords
-	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(userQuery.PasswordHash), []byte(input.Password))
 	if err != nil {
 		return nil, fmt.Errorf("invalid credentials")
 	}
 
-	return user, nil
+	return userQuery, nil
 }
 
 func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, error) {
@@ -47,14 +47,14 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 	defer db.CloseTransaction(tx)
 
 	// Check if email already exists
-	existingUser, err := tx.User.Query().
+	existingUserQuery, err := tx.User.Query().
 		Where(
 			user.EmailEQ(
 				input.Email,
 			),
 		).
 		First(ctx)
-	if existingUser != nil {
+	if existingUserQuery != nil {
 		return nil, db.Rollback(tx, fmt.Errorf("email or username already exists"))
 	}
 	// If the error is not a "not found" error, return it
@@ -69,7 +69,7 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 	}
 
 	// Create the user with the hashed password
-	user, err := tx.User.Create().
+	userQuery, err := tx.User.Create().
 		SetEmail(input.Email).
 		SetUsername(input.Email). // Use email as username if not provided
 		SetPasswordHash(string(hashedPassword)).
@@ -78,9 +78,9 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 		return nil, db.Rollback(tx, err)
 	}
 
-	tokenPair, err := jwt.GenerateTokenPair(user.ID.String(), map[string]interface{}{
-		"email":    user.Email,
-		"username": user.Username,
+	tokenPair, err := jwt.GenerateTokenPair(userQuery.ID.String(), map[string]interface{}{
+		"email":    userQuery.Email,
+		"username": userQuery.Username,
 	})
 	if err != nil {
 		return nil, db.Rollback(tx, err)

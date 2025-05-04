@@ -3,6 +3,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -41,6 +43,18 @@ type CreateTestInput struct {
 	QuestionIds     []uuid.UUID `json:"questionIds"`
 }
 
+type CreateTestSessionInput struct {
+	TestID          uuid.UUID  `json:"testId"`
+	CourseSectionID *uuid.UUID `json:"courseSectionId,omitempty"`
+}
+
+type CreateUserQuestionAnswerInput struct {
+	UserID           uuid.UUID `json:"userId"`
+	QuestionID       uuid.UUID `json:"questionId"`
+	SelectedOptionID uuid.UUID `json:"selectedOptionId"`
+	TestSessionID    uuid.UUID `json:"testSessionId"`
+}
+
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -71,6 +85,16 @@ type PaginatedQuestionOption struct {
 type PaginatedTest struct {
 	Pagination *Pagination `json:"pagination"`
 	Items      []*Test     `json:"items"`
+}
+
+type PaginatedTestSession struct {
+	Pagination *Pagination    `json:"pagination"`
+	Items      []*TestSession `json:"items"`
+}
+
+type PaginatedUserQuestionAnswer struct {
+	Pagination *Pagination           `json:"pagination"`
+	Items      []*UserQuestionAnswer `json:"items"`
 }
 
 type Pagination struct {
@@ -107,6 +131,18 @@ type Test struct {
 	Course        *Course        `json:"course,omitempty"`
 }
 
+type TestSession struct {
+	ID                  uuid.UUID             `json:"id"`
+	User                *User                 `json:"user"`
+	Test                *Test                 `json:"test"`
+	CourseSection       *CourseSection        `json:"courseSection,omitempty"`
+	CompletedAt         *time.Time            `json:"completedAt,omitempty"`
+	TotalScore          int                   `json:"totalScore"`
+	UserQuestionAnswers []*UserQuestionAnswer `json:"userQuestionAnswers"`
+	CreatedAt           time.Time             `json:"createdAt"`
+	UpdatedAt           time.Time             `json:"updatedAt"`
+}
+
 type Todo struct {
 	ID   uuid.UUID `json:"id"`
 	Text string    `json:"text"`
@@ -140,7 +176,26 @@ type UpdateTestInput struct {
 	QuestionIds     []uuid.UUID `json:"questionIds"`
 }
 
+type UpdateTestSessionInput struct {
+	CompletedAt *time.Time `json:"completedAt,omitempty"`
+	TotalScore  *int       `json:"totalScore,omitempty"`
+}
+
+type UpdateUserQuestionAnswerInput struct {
+	SelectedOptionID *uuid.UUID `json:"selectedOptionId,omitempty"`
+}
+
 type User struct {
 	ID    uuid.UUID `json:"id"`
 	Email string    `json:"email"`
+}
+
+type UserQuestionAnswer struct {
+	ID             uuid.UUID       `json:"id"`
+	User           *User           `json:"user"`
+	Question       *Question       `json:"question"`
+	SelectedOption *QuestionOption `json:"selectedOption"`
+	TestSession    *TestSession    `json:"testSession"`
+	CreatedAt      time.Time       `json:"createdAt"`
+	UpdatedAt      time.Time       `json:"updatedAt"`
 }

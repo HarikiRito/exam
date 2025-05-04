@@ -1,0 +1,39 @@
+extend type Mutation {
+  createTestSession(input: CreateTestSessionInput!): TestSession!
+  updateTestSession(id: ID!, input: UpdateTestSessionInput!): TestSession!
+  deleteTestSession(id: ID!): Boolean!
+  completeTestSession(id: ID!): TestSession!
+}
+
+extend type Query {
+  testSession(id: ID!): TestSession!
+  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
+  userTestSessions(userId: ID!): [TestSession!]!
+}
+
+type TestSession {
+  id: ID!
+  user: User!
+  test: Test!
+  courseSection: CourseSection
+  completedAt: DateTime
+  totalScore: Int!
+  userQuestionAnswers: [UserQuestionAnswer!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaginatedTestSession {
+  pagination: Pagination!
+  items: [TestSession!]!
+}
+
+input CreateTestSessionInput {
+  testId: ID!
+  courseSectionId: ID
+}
+
+input UpdateTestSessionInput {
+  completedAt: DateTime
+  totalScore: Int
+} 
