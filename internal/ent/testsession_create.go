@@ -302,7 +302,7 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 	}
 	if value, ok := tsc.mutation.CompletedAt(); ok {
 		_spec.SetField(testsession.FieldCompletedAt, field.TypeTime, value)
-		_node.CompletedAt = value
+		_node.CompletedAt = &value
 	}
 	if value, ok := tsc.mutation.TotalScore(); ok {
 		_spec.SetField(testsession.FieldTotalScore, field.TypeInt, value)

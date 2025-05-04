@@ -34,7 +34,7 @@ type TestSession struct {
 	// TestID holds the value of the "test_id" field.
 	TestID uuid.UUID `json:"test_id,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
-	CompletedAt time.Time `json:"completed_at,omitempty"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
 	// TotalScore holds the value of the "total_score" field.
 	TotalScore int `json:"total_score,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -176,7 +176,8 @@ func (ts *TestSession) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				ts.CompletedAt = value.Time
+				ts.CompletedAt = new(time.Time)
+				*ts.CompletedAt = value.Time
 			}
 		case testsession.FieldTotalScore:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -262,8 +263,10 @@ func (ts *TestSession) String() string {
 	builder.WriteString("test_id=")
 	builder.WriteString(fmt.Sprintf("%v", ts.TestID))
 	builder.WriteString(", ")
-	builder.WriteString("completed_at=")
-	builder.WriteString(ts.CompletedAt.Format(time.ANSIC))
+	if v := ts.CompletedAt; v != nil {
+		builder.WriteString("completed_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("total_score=")
 	builder.WriteString(fmt.Sprintf("%v", ts.TotalScore))

@@ -20,7 +20,7 @@ func (TestSession) Fields() []ent.Field {
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("course_section_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("test_id", uuid.UUID{}),
-		field.Time("completed_at").Optional(),
+		field.Time("completed_at").Optional().Nillable(),
 		field.Int("total_score").Default(0),
 	}
 }

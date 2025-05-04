@@ -131,18 +131,6 @@ type Test struct {
 	Course        *Course        `json:"course,omitempty"`
 }
 
-type TestSession struct {
-	ID                  uuid.UUID             `json:"id"`
-	User                *User                 `json:"user"`
-	Test                *Test                 `json:"test"`
-	CourseSection       *CourseSection        `json:"courseSection,omitempty"`
-	CompletedAt         *time.Time            `json:"completedAt,omitempty"`
-	TotalScore          int                   `json:"totalScore"`
-	UserQuestionAnswers []*UserQuestionAnswer `json:"userQuestionAnswers"`
-	CreatedAt           time.Time             `json:"createdAt"`
-	UpdatedAt           time.Time             `json:"updatedAt"`
-}
-
 type Todo struct {
 	ID   uuid.UUID `json:"id"`
 	Text string    `json:"text"`

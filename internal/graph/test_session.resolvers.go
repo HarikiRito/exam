@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/test_session"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
@@ -90,3 +91,28 @@ func (r *queryResolver) UserTestSessions(ctx context.Context, userID uuid.UUID) 
 	}
 	return slice.Map(sessions, model.ConvertTestSessionToModel), nil
 }
+
+// User is the resolver for the user field.
+func (r *testSessionResolver) User(ctx context.Context, obj *model.TestSession) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: User - user"))
+}
+
+// Test is the resolver for the test field.
+func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) (*model.Test, error) {
+	panic(fmt.Errorf("not implemented: Test - test"))
+}
+
+// CourseSection is the resolver for the courseSection field.
+func (r *testSessionResolver) CourseSection(ctx context.Context, obj *model.TestSession) (*model.CourseSection, error) {
+	panic(fmt.Errorf("not implemented: CourseSection - courseSection"))
+}
+
+// UserQuestionAnswers is the resolver for the userQuestionAnswers field.
+func (r *testSessionResolver) UserQuestionAnswers(ctx context.Context, obj *model.TestSession) ([]*model.UserQuestionAnswer, error) {
+	panic(fmt.Errorf("not implemented: UserQuestionAnswers - userQuestionAnswers"))
+}
+
+// TestSession returns TestSessionResolver implementation.
+func (r *Resolver) TestSession() TestSessionResolver { return &testSessionResolver{r} }
+
+type testSessionResolver struct{ *Resolver }
