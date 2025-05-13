@@ -26,12 +26,6 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	// Extract the HTTP request from the context
-	_, err := GetUserIdFromRequestContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	// Rest of your resolver logic
 	return []*model.Todo{
 		{

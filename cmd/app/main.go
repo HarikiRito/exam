@@ -8,6 +8,7 @@ import (
 	"template/internal/shared/environment"
 
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +20,15 @@ func main() {
 
 	db.InitDatabase()
 	router := gin.Default()
+
+	// Configure CORS to allow all origins
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// Setup other routes
 	route.GenerateRoute(router)
