@@ -3,7 +3,7 @@ import { HorizontalCourseCardProps } from 'app/shared/components/custom/card/Hor
 import { Link } from '@remix-run/react';
 
 // Mock course data
-const COURSES: Record<string, HorizontalCourseCardProps[]> = {
+const COURSES = {
   recommended: [
     {
       id: 1,
@@ -157,7 +157,7 @@ const COURSES: Record<string, HorizontalCourseCardProps[]> = {
       progress: 0,
     },
   ],
-};
+} satisfies Record<string, HorizontalCourseCardProps[]>;
 
 export default function CourseRoute() {
   return (
@@ -169,7 +169,7 @@ export default function CourseRoute() {
         title='Recommended'
         courses={COURSES.recommended.map((course) => ({
           ...course,
-          renderItem: (courseItem) => (
+          renderItem: (courseItem: HorizontalCourseCardProps) => (
             <Link to={`/courses/${courseItem.id}`} className='transition-colors hover:bg-gray-100'>
               {/* Existing horizontal course card content */}
             </Link>
@@ -180,7 +180,7 @@ export default function CourseRoute() {
         title='Featured'
         courses={COURSES.featured.map((course) => ({
           ...course,
-          renderItem: (courseItem) => (
+          renderItem: (courseItem: HorizontalCourseCardProps) => (
             <Link to={`/courses/${courseItem.id}`} className='transition-colors hover:bg-gray-100'>
               {/* Existing horizontal course card content */}
             </Link>
@@ -191,7 +191,7 @@ export default function CourseRoute() {
         title='Learn'
         courses={COURSES.learn.map((course) => ({
           ...course,
-          renderItem: (courseItem) => (
+          renderItem: (courseItem: HorizontalCourseCardProps) => (
             <Link to={`/courses/${courseItem.id}`} className='transition-colors hover:bg-gray-100'>
               {/* Existing horizontal course card content */}
             </Link>

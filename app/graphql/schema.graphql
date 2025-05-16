@@ -1,0 +1,274 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"""
+The @defer directive may be specified on a fragment spread to imply de-prioritization, that causes the fragment to be omitted in the initial response, and delivered as a subsequent response afterward. A query with @defer directive will cause the request to potentially return multiple responses, where non-deferred data is delivered in the initial response and data deferred delivered in a subsequent response. @include and @skip take precedence over @defer.
+"""
+directive @defer(if: Boolean = true, label: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+type Auth {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type Course {
+  createdAt: DateTime!
+  creator: User!
+  description: String!
+  id: ID!
+  title: String!
+  updatedAt: DateTime!
+}
+
+type CourseSection {
+  courseId: ID!
+  description: String!
+  id: ID!
+  title: String!
+}
+
+input CreateCourseInput {
+  description: String!
+  title: String!
+}
+
+input CreateCourseSectionInput {
+  courseId: ID!
+  description: String!
+  title: String!
+}
+
+input CreateQuestionInput {
+  courseSectionId: ID
+  options: [QuestionOptionInput!]
+  questionText: String!
+}
+
+input CreateQuestionOptionInput {
+  isCorrect: Boolean!
+  optionText: String!
+  questionId: ID!
+}
+
+input CreateTestInput {
+  courseId: ID
+  courseSectionId: ID
+  name: String!
+  questionIds: [ID!]!
+}
+
+input CreateTestSessionInput {
+  courseSectionId: ID
+  testId: ID!
+}
+
+input CreateUserQuestionAnswerInput {
+  questionId: ID!
+  selectedOptionId: ID!
+  testSessionId: ID!
+  userId: ID!
+}
+
+scalar DateTime
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  completeTestSession(id: ID!): TestSession!
+  createCourse(input: CreateCourseInput!): Course!
+  createCourseSection(input: CreateCourseSectionInput!): CourseSection!
+  createQuestion(input: CreateQuestionInput!): Question!
+  createQuestionOption(input: CreateQuestionOptionInput!): QuestionOption!
+  createTest(input: CreateTestInput!): Test!
+  createTestSession(input: CreateTestSessionInput!): TestSession!
+  createTodo(input: NewTodo!): Todo!
+  createUserQuestionAnswer(input: CreateUserQuestionAnswerInput!): UserQuestionAnswer!
+  deleteQuestion(id: ID!): Boolean!
+  deleteQuestionOption(id: ID!): Boolean!
+  deleteTest(id: ID!): Boolean!
+  deleteTestSession(id: ID!): Boolean!
+  deleteUserQuestionAnswer(id: ID!): Boolean!
+  register(input: RegisterInput!): Auth!
+  removeCourse(id: ID!): Boolean!
+  removeCourseSection(id: ID!): Boolean!
+  renewToken(refreshToken: String!): Auth!
+  updateCourse(id: ID!, input: UpdateCourseInput!): Course!
+  updateCourseSection(id: ID!, input: UpdateCourseSectionInput!): CourseSection!
+  updateQuestion(id: ID!, input: UpdateQuestionInput!): Question!
+  updateQuestionOption(id: ID!, input: UpdateQuestionOptionInput!): QuestionOption!
+  updateTest(id: ID!, input: UpdateTestInput!): Test!
+  updateUserQuestionAnswer(id: ID!, input: UpdateUserQuestionAnswerInput!): UserQuestionAnswer!
+}
+
+input NewTodo {
+  text: String!
+}
+
+type PaginatedCourse {
+  items: [Course!]!
+  pagination: Pagination!
+}
+
+type PaginatedQuestion {
+  items: [Question!]!
+  pagination: Pagination!
+}
+
+type PaginatedQuestionOption {
+  items: [QuestionOption!]!
+  pagination: Pagination!
+}
+
+type PaginatedTest {
+  items: [Test!]!
+  pagination: Pagination!
+}
+
+type PaginatedTestSession {
+  items: [TestSession!]!
+  pagination: Pagination!
+}
+
+type PaginatedUserQuestionAnswer {
+  items: [UserQuestionAnswer!]!
+  pagination: Pagination!
+}
+
+type Pagination {
+  currentPage: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  totalItems: Int!
+  totalPages: Int!
+}
+
+input PaginationInput {
+  limit: Int!
+  page: Int!
+  search: String
+}
+
+type Query {
+  course(id: ID!): Course!
+  courseSection(id: ID!): CourseSection!
+  login(input: LoginInput!): Auth!
+  me: User!
+  paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!
+  paginatedQuestionOptions(paginationInput: PaginationInput): PaginatedQuestionOption!
+  paginatedQuestions(paginationInput: PaginationInput): PaginatedQuestion!
+  paginatedTests(paginationInput: PaginationInput): PaginatedTest!
+  paginatedUserQuestionAnswers(paginationInput: PaginationInput): PaginatedUserQuestionAnswer!
+  question(id: ID!): Question!
+  questionOption(id: ID!): QuestionOption!
+  test(id: ID!): Test!
+  testSession(id: ID!): TestSession!
+  todos: [Todo!]!
+  userQuestionAnswer(id: ID!): UserQuestionAnswer!
+}
+
+type Question {
+  id: ID!
+  options: [QuestionOption!]!
+  questionText: String!
+  section: CourseSection
+}
+
+type QuestionOption {
+  id: ID!
+  isCorrect: Boolean!
+  optionText: String!
+  question: Question!
+}
+
+input QuestionOptionInput {
+  isCorrect: Boolean!
+  optionText: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+}
+
+type Test {
+  course: Course
+  courseSection: CourseSection
+  id: ID!
+  name: String!
+}
+
+type TestSession {
+  completedAt: DateTime
+  courseSection: CourseSection
+  createdAt: DateTime!
+  id: ID!
+  test: Test!
+  totalScore: Int!
+  updatedAt: DateTime!
+  user: User!
+  userQuestionAnswers: [UserQuestionAnswer!]!
+}
+
+type Todo {
+  id: ID!
+  text: String!
+}
+
+scalar UUID
+
+input UpdateCourseInput {
+  description: String
+  title: String
+}
+
+input UpdateCourseSectionInput {
+  description: String
+  title: String
+}
+
+input UpdateQuestionInput {
+  courseSectionId: ID
+  options: [QuestionOptionInput!]
+  questionText: String
+}
+
+input UpdateQuestionOptionInput {
+  isCorrect: Boolean
+  optionText: String
+}
+
+input UpdateTestInput {
+  courseId: ID
+  courseSectionId: ID
+  name: String
+  questionIds: [ID!]!
+}
+
+input UpdateTestSessionInput {
+  completedAt: DateTime
+  totalScore: Int
+}
+
+input UpdateUserQuestionAnswerInput {
+  selectedOptionId: ID
+}
+
+type User {
+  email: String!
+  id: ID!
+}
+
+type UserQuestionAnswer {
+  createdAt: DateTime!
+  id: ID!
+  question: Question!
+  selectedOption: QuestionOption!
+  testSession: TestSession!
+  updatedAt: DateTime!
+  user: User!
+}

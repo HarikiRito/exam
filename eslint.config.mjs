@@ -63,6 +63,10 @@ export default [
     ignores: ['!**/.server', '!**/.client', 'postcss.config.js'],
   },
   {
+    // Ignore generated files in the app/graphql directory
+    ignores: ['app/graphql/**/*.generated.{ts,tsx}', 'app/graphql/graphqlTypes.ts'],
+  },
+  {
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {

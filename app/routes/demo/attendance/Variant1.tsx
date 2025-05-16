@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppDialog } from 'app/shared/components/dialog/AppDialog';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 // Zod schema for attendance
 const attendanceSchema = z.object({

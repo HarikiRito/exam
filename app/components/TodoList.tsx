@@ -1,23 +1,8 @@
-import { useQuery, gql } from '@apollo/client/index.js';
-
-const GET_TODOS = gql`
-  query {
-    todos {
-      id
-      text
-    }
-  }
-`;
-
-// Define the Todo type
-interface Todo {
-  id: string;
-  text: string;
-}
+import { useTodoListQuery } from 'app/graphql/operations/todo.generated';
 
 export default function TodoList() {
   // Execute the query using the useQuery hook
-  const { loading, error, data } = useQuery(GET_TODOS);
+  const { loading, error, data } = useTodoListQuery();
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -25,11 +10,7 @@ export default function TodoList() {
   return (
     <div>
       <h2>Todo List</h2>
-      <ul>
-        {data.todos.map((todo: Todo) => (
-          <li key={todo.id}>{todo.text}</li>
-        ))}
-      </ul>
+      <ul>{data?.todos.map((todo) => <li key={todo.id}>{todo.text}</li>)}</ul>
     </div>
   );
-} 
+}
