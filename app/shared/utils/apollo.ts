@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { clientEnvironment } from 'app/shared/constants/environment';
+import { CookieService, CookieKey } from 'app/shared/services/cookie.service';
 
 // Create an HTTP link for queries and mutations
 const httpLink = createHttpLink({
@@ -9,7 +10,7 @@ const httpLink = createHttpLink({
 
 // Authentication link to add token to requests
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('token');
+  const token = CookieService.getValue(CookieKey.AccessToken);
 
   return {
     headers: {
