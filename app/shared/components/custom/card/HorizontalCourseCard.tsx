@@ -1,40 +1,24 @@
 'use client';
 
+import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
 import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppHoverCard } from 'app/shared/components/hover-card/AppHoverCard';
 import { cn } from 'app/shared/utils/className';
 
-export interface HorizontalCourseCardProps {
-  readonly id: number;
-  readonly title: string;
-  readonly description: string;
-  readonly image: string;
-  readonly progress: number;
-  readonly chapters: number;
-  readonly items: number;
+export interface HorizontalCourseCardProps extends CourseItemFragment {
   readonly className?: string;
-  readonly onContinue?: (id: number) => void;
 }
 
-export function HorizontalCourseCard({
-  id,
-  title,
-  description,
-  image,
-  progress,
-  chapters,
-  items,
-  className,
-  onContinue,
-}: HorizontalCourseCardProps) {
+export function HorizontalCourseCard({ title, description, className }: HorizontalCourseCardProps) {
   function handleContinueClick() {
-    if (onContinue) {
-      onContinue(id);
-    }
+    // TODO: Implement continue learning
   }
 
-  // Determine level based on id (matching the logic from the original route file)
-  const level = id % 3 === 0 ? 'Advanced' : id % 2 === 0 ? 'Intermediate' : 'Beginner';
+  const level = 'Advanced';
+  const image = 'https://picsum.photos/200/300'; // Mock image URL
+  const chapters = 5; // Mock chapters count
+  const items = 20; // Mock items count
+  const progress = 75; // Mock progress percentage
 
   return (
     <AppHoverCard.Root>
@@ -91,7 +75,7 @@ export function HorizontalCourseCard({
 
           <div className='flex justify-end'>
             <button className='text-sm text-blue-600 hover:underline' onClick={handleContinueClick}>
-              {progress === 0 ? 'Start Course' : 'Continue Learning'}
+              {'Start Course'}
             </button>
           </div>
         </div>

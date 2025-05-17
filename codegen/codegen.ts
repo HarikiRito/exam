@@ -29,6 +29,7 @@ const config: CodegenConfig = {
     './app/graphql/__generated__/': {
       preset: 'near-operation-file',
       presetConfig: {
+        inlineFragmentTypes: 'mask',
         extension: '.generated.ts',
         baseTypesPath: '../graphqlTypes.ts',
       },
@@ -37,6 +38,11 @@ const config: CodegenConfig = {
         withHooks: true,
         importWithTypeImport: true,
         apolloClientVersion: 3,
+        // These options fix the fragment type generation
+        inlineFragmentTypes: 'combine',
+        dedupeFragments: true,
+        // exportFragmentSpreadSubTypes: true,
+        // fragmentSuffix: 'Fragment',
       },
     },
   },

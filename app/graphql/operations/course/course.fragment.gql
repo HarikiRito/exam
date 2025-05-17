@@ -1,0 +1,7 @@
+fragment CourseItem on Course {
+  id
+  title
+  description
+  createdAt
+  updatedAt
+}

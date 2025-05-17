@@ -6,6 +6,7 @@ import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppLink } from 'app/shared/components/link/AppLink';
+import { APP_ROUTES } from 'app/shared/constants/routes';
 import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
 import { cn } from 'app/shared/utils/className';
 import { useForm } from 'react-hook-form';
