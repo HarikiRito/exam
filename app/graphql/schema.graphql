@@ -156,6 +156,7 @@ input PaginationInput {
 type Query {
   course(id: ID!): Course!
   courseSection(id: ID!): CourseSection!
+  isAuthenticated: Boolean!
   login(input: LoginInput!): Auth!
   me: User!
   paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!

@@ -1,4 +1,4 @@
-import { Outlet } from '@remix-run/react';
+import { Navigate, Outlet } from '@remix-run/react';
 import { AppBreadcrumb } from 'app/shared/components/breadcrumb/AppBreadcrumb';
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
@@ -6,8 +6,15 @@ import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { themeStore } from 'app/shared/stores/theme.store';
 import { MainSidebar } from './MainSidebar';
 import { useSnapshot } from 'valtio';
-
+import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
+import { APP_ROUTES } from 'app/shared/constants/routes';
 export default function Page() {
+  const { data } = useIsAuthenticatedQuery();
+
+  if (data && !data.isAuthenticated) {
+    return <Navigate to={APP_ROUTES.login} />;
+  }
+
   return (
     <AppSidebar.Provider className='max-h-screen max-w-screen overflow-x-hidden'>
       <MainSidebar />

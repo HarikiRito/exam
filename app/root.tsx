@@ -3,6 +3,10 @@ import type { LinksFunction } from '@remix-run/node';
 
 import './tailwind.css';
 import { Toaster } from 'app/shared/components/sonner/AppSonner';
+import { useNavigate } from '@remix-run/react';
+import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useEffect } from 'react';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -37,5 +41,16 @@ export function Layout({ children }: { readonly children: React.ReactNode }) {
 }
 
 export default function App() {
+  const navigate = useNavigate();
+  const { data, loading } = useIsAuthenticatedQuery();
+
+  useEffect(() => {
+    if (!data?.isAuthenticated) {
+      navigate(APP_ROUTES.login);
+    }
+  }, [data?.isAuthenticated, navigate]);
+
+  if (loading) return <div>Loading...</div>;
+
   return <Outlet />;
 }

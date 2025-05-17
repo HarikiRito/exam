@@ -300,6 +300,7 @@ export type Query = {
   __typename?: 'Query';
   course: Course;
   courseSection: CourseSection;
+  isAuthenticated: Scalars['Boolean']['output'];
   login: Auth;
   me: User;
   paginatedCourses: PaginatedCourse;
