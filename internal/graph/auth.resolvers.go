@@ -68,6 +68,15 @@ func (r *queryResolver) Login(ctx context.Context, input model.LoginInput) (*mod
 	}, nil
 }
 
+// IsAuthenticated is the resolver for the isAuthenticated field.
+func (r *queryResolver) IsAuthenticated(ctx context.Context) (bool, error) {
+	_, err := GetUserFromRequestContext(ctx)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 

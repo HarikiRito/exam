@@ -6,6 +6,7 @@ extend type Mutation {
 extend type Query {
   me: User!
   login(input: LoginInput!): Auth!
+  isAuthenticated: Boolean!
 }
 
 

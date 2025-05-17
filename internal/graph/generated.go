@@ -143,6 +143,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Course                       func(childComplexity int, id uuid.UUID) int
 		CourseSection                func(childComplexity int, id uuid.UUID) int
+		IsAuthenticated              func(childComplexity int) int
 		Login                        func(childComplexity int, input model.LoginInput) int
 		Me                           func(childComplexity int) int
 		PaginatedCourses             func(childComplexity int, paginationInput *model.PaginationInput) int
@@ -244,6 +245,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.User, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.Auth, error)
+	IsAuthenticated(ctx context.Context) (bool, error)
 	Course(ctx context.Context, id uuid.UUID) (*model.Course, error)
 	PaginatedCourses(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedCourse, error)
 	CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error)
@@ -806,6 +808,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.CourseSection(childComplexity, args["id"].(uuid.UUID)), true
+
+	case "Query.isAuthenticated":
+		if e.complexity.Query.IsAuthenticated == nil {
+			break
+		}
+
+		return e.complexity.Query.IsAuthenticated(childComplexity), true
 
 	case "Query.login":
 		if e.complexity.Query.Login == nil {
@@ -5427,6 +5436,50 @@ func (ec *executionContext) fieldContext_Query_login(ctx context.Context, field 
 	if fc.Args, err = ec.field_Query_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_isAuthenticated(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_isAuthenticated(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().IsAuthenticated(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_isAuthenticated(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -11192,6 +11245,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_login(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "isAuthenticated":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_isAuthenticated(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
