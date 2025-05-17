@@ -294,7 +294,7 @@ function UserManagement() {
 - Use React Hook Form with Zod resolver for form management
 
 #### Example Comprehensive Form Implementation
-```typescript
+```tsx
 // Validation Schema
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -439,14 +439,6 @@ updated code
 - Utilize pnpm's built-in performance optimizations
 - Use `pnpm store prune` to clean unused packages
 - Enable content-addressable storage for efficient package management
-
-#### Example Workspace Configuration
-```yaml
-# pnpm-workspace.yaml
-packages:
-  - 'app/*'
-  - 'packages/*'
-```
 
 #### Example Package Scripts
 ```json

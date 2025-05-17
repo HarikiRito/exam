@@ -4,10 +4,10 @@
  * For more information, see https://remix.run/file-conventions/entry.client
  */
 
+import { ApolloProvider } from '@apollo/client';
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { ApolloProvider } from '@apollo/client';
 import client from './shared/utils/apollo';
 
 startTransition(() => {

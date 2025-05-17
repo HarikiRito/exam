@@ -2,6 +2,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/reac
 import type { LinksFunction } from '@remix-run/node';
 
 import './tailwind.css';
+import { Toaster } from 'app/shared/components/sonner/AppSonner';
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -29,6 +30,7 @@ export function Layout({ children }: { readonly children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
       </body>
     </html>
   );
