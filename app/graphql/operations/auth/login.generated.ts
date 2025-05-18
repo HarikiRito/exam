@@ -1,6 +1,6 @@
-import * as Types from '../../graphqlTypes';
+import type * as Types from '../../graphqlTypes';
 
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/index.js';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type LoginQueryVariables = Types.Exact<{
@@ -52,3 +52,6 @@ export type LoginQueryHookResult = ReturnType<typeof useLoginQuery>;
 export type LoginLazyQueryHookResult = ReturnType<typeof useLoginLazyQuery>;
 export type LoginSuspenseQueryHookResult = ReturnType<typeof useLoginSuspenseQuery>;
 export type LoginQueryResult = Apollo.QueryResult<LoginQuery, LoginQueryVariables>;
+export function refetchLoginQuery(variables: LoginQueryVariables) {
+      return { query: LoginDocument, variables: variables }
+    }

@@ -1,6 +1,6 @@
-import * as Types from '../../graphqlTypes';
+import type * as Types from '../../graphqlTypes';
 
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/index.js';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type IsAuthenticatedQueryVariables = Types.Exact<{ [key: string]: never; }>;
@@ -46,3 +46,6 @@ export type IsAuthenticatedQueryHookResult = ReturnType<typeof useIsAuthenticate
 export type IsAuthenticatedLazyQueryHookResult = ReturnType<typeof useIsAuthenticatedLazyQuery>;
 export type IsAuthenticatedSuspenseQueryHookResult = ReturnType<typeof useIsAuthenticatedSuspenseQuery>;
 export type IsAuthenticatedQueryResult = Apollo.QueryResult<IsAuthenticatedQuery, IsAuthenticatedQueryVariables>;
+export function refetchIsAuthenticatedQuery(variables?: IsAuthenticatedQueryVariables) {
+      return { query: IsAuthenticatedDocument, variables: variables }
+    }

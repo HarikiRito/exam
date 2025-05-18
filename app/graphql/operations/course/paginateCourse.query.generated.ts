@@ -1,8 +1,8 @@
-import * as Types from '../../graphqlTypes';
+import type * as Types from '../../graphqlTypes';
 
-import { PaginationFragment } from '../pagination.fragment.generated';
-import { CourseItemFragment } from './course.fragment.generated';
-import { gql } from '@apollo/client';
+import type { PaginationFragment } from '../pagination.fragment.generated';
+import type { CourseItemFragment } from './course.fragment.generated';
+import { gql } from '@apollo/client/index.js';
 import { PaginationFragmentDoc } from '../pagination.fragment.generated';
 import { CourseItemFragmentDoc } from './course.fragment.generated';
 import * as Apollo from '@apollo/client';
@@ -67,3 +67,6 @@ export type PaginateCoursesQueryHookResult = ReturnType<typeof usePaginateCourse
 export type PaginateCoursesLazyQueryHookResult = ReturnType<typeof usePaginateCoursesLazyQuery>;
 export type PaginateCoursesSuspenseQueryHookResult = ReturnType<typeof usePaginateCoursesSuspenseQuery>;
 export type PaginateCoursesQueryResult = Apollo.QueryResult<PaginateCoursesQuery, PaginateCoursesQueryVariables>;
+export function refetchPaginateCoursesQuery(variables?: PaginateCoursesQueryVariables) {
+      return { query: PaginateCoursesDocument, variables: variables }
+    }

@@ -1,6 +1,6 @@
-import * as Types from '../graphqlTypes';
+import type * as Types from '../graphqlTypes';
 
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/index.js';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type TodoListQueryVariables = Types.Exact<{ [key: string]: never; }>;
@@ -49,3 +49,6 @@ export type TodoListQueryHookResult = ReturnType<typeof useTodoListQuery>;
 export type TodoListLazyQueryHookResult = ReturnType<typeof useTodoListLazyQuery>;
 export type TodoListSuspenseQueryHookResult = ReturnType<typeof useTodoListSuspenseQuery>;
 export type TodoListQueryResult = Apollo.QueryResult<TodoListQuery, TodoListQueryVariables>;
+export function refetchTodoListQuery(variables?: TodoListQueryVariables) {
+      return { query: TodoListDocument, variables: variables }
+    }

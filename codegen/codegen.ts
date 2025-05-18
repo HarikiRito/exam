@@ -46,15 +46,18 @@ const config: CodegenConfig = {
         withHooks: true,
         importWithTypeImport: true,
         apolloClientVersion: 3,
+        withRefetchFn: true,
         // These options fix the fragment type generation
         inlineFragmentTypes: 'combine',
         dedupeFragments: true,
+        gqlImport: '@apollo/client/index.js#gql',
         scalars: {
           DateTime: {
             input: 'string',
             output: 'string',
           },
         },
+        useTypeImports: true,
         // exportFragmentSpreadSubTypes: true,
         // fragmentSuffix: 'Fragment',
       },
