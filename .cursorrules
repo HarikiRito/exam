@@ -211,44 +211,6 @@ function UserForm() {
 }
 ```
 
-### Tanstack Query (React Query) Guidelines
-- Use Tanstack Query for all data fetching and server state management
-- Create query hooks in `app/shared/hooks/queries/`
-- Follow these data fetching best practices:
-  - Use `useQuery` for read operations
-  - Use `useMutation` for write operations
-  - Implement error and loading states
-  - Use query keys for caching and invalidation
-  - Leverage `staleTime` and `cacheTime` for performance
-
-#### Tanstack Query Example
-```typescript
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchUsers, createUser } from 'app/services/userService';
-
-// Read Query
-function useUsers() {
-  return useQuery({
-    queryKey: ['users'],
-    queryFn: fetchUsers,
-    staleTime: 5 * 60 * 1000 // 5 minutes
-  });
-}
-
-// Mutation Query
-function useCreateUser() {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: createUser,
-    onSuccess: () => {
-      // Invalidate and refetch users query
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-    }
-  });
-}
-```
-
 ### Integration Best Practices
 - Combine Zod, React Hook Form, and Tanstack Query for robust form handling
 - Use type inference to maintain type safety across the stack
@@ -377,12 +339,6 @@ function LoginForm() {
 - Use `defaultValues` to set initial form state
 - Leverage `watch` and `trigger` methods for advanced form interactions
 
-#### Accessibility
-- Ensure all form fields have associated labels
-- Use `AppForm.Label` and `AppForm.Item` for proper accessibility
-- Provide clear error messages and visual feedback
-- Implement keyboard navigation support
-
 ### Commit Message Guidelines
 - Commit messages must be concise and descriptive
 - Maximum length: 100 characters
@@ -420,46 +376,9 @@ updated code
 - Use `pnpm add -D` for adding development dependencies
 - Use `pnpm remove` for removing packages
 
-#### Workspace Management
-- Leverage pnpm workspaces for monorepo management
-- Use `pnpm -F` for running commands in specific workspaces
-- Configure `pnpm-workspace.yaml` for defining workspace structure
-
-#### Dependency Management Best Practices
-- Use `pnpm-lock.yaml` for precise dependency locking
-- Commit `pnpm-lock.yaml` to version control
-- Regularly update dependencies using `pnpm update`
-- Use `pnpm audit` to check for security vulnerabilities
-
 #### Script Execution
 - Use `pnpm run` or `pnpm` to execute scripts defined in `package.json`
 - Prefix workspace-specific scripts with workspace name
-
-#### Performance Optimization
-- Utilize pnpm's built-in performance optimizations
-- Use `pnpm store prune` to clean unused packages
-- Enable content-addressable storage for efficient package management
-
-#### Example Package Scripts
-```json
-{
-  "scripts": {
-    "build": "pnpm run build -F web",
-    "test": "pnpm run test -r",
-    "lint": "pnpm run lint -r"
-  }
-}
-```
-
-#### Continuous Integration
-- Configure CI/CD pipelines to use `pnpm`
-- Use `pnpm ci` for clean, reproducible installations in CI environments
-- Cache `pnpm` store in CI to improve build times
-
-#### Version Management
-- Use `pnpm version` for managing package versions
-- Follow semantic versioning principles
-- Use `pnpm publish` for publishing packages to registries
 
 #### Troubleshooting
 - Use `pnpm why` to understand dependency trees
@@ -468,3 +387,23 @@ updated code
 
 - Always look at the components folder first to see if there is anything you can reuse before creating a new one
 - Use icons from the existing package instead of generating the SVG inline (lucide-icons)
+
+## GraphQL and Remix Specific Guidelines
+
+- Save operations GraphQL queries or mutations as `.query.gql` or `.mutation.gql` files. The file extension must end with `.gql`. After creation, run the `graphql:codegen` command specified in the `package.json`.
+  Example: Create a file named `user.query.gql` and then run `pnpm run graphql:codegen`.
+
+- Do not run the `cd` command if you are already in the destination folder.
+  Example: If your current directory is `remix-react`, avoid using `cd remix-react`.
+
+- Use Apollo's generated `useQuery` hook (from the codegen) for data operations.
+  Example: `const { loading, data, error } = useUserQuery();` where `useUserQuery` is auto-generated from your GraphQL query.
+
+- Prefer defining GraphQL fragments for commonly used types in a `.fragment.gql` file.
+  Example: Define a fragment in a file like `UserFragment.fragment.gql` to reuse common user fields.
+
+- Run your Remix application in SPA mode, without any server involvement. Do not use the `loader` function or any SSR-related functions as described in the Remix documentation.
+  Example: Use hooks like `useQuery` in your components for data fetching instead of server-side `loader` functions.
+
+- Fix all lint problems before proceeding with any other tasks.
+  Example: Run `pnpm run lint:fix` to automatically address any lint issues.

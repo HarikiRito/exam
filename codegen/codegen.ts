@@ -25,6 +25,14 @@ const config: CodegenConfig = {
     },
     './app/graphql/graphqlTypes.ts': {
       plugins: ['typescript'],
+      config: {
+        scalars: {
+          DateTime: {
+            input: 'string',
+            output: 'string',
+          },
+        },
+      },
     },
     './app/graphql/__generated__/': {
       preset: 'near-operation-file',
@@ -41,6 +49,12 @@ const config: CodegenConfig = {
         // These options fix the fragment type generation
         inlineFragmentTypes: 'combine',
         dedupeFragments: true,
+        scalars: {
+          DateTime: {
+            input: 'string',
+            output: 'string',
+          },
+        },
         // exportFragmentSpreadSubTypes: true,
         // fragmentSuffix: 'Fragment',
       },

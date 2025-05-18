@@ -1,7 +1,7 @@
 import * as Types from '../../graphqlTypes';
 
 import { gql } from '@apollo/client';
-export type CourseItemFragment = { __typename?: 'Course', id: string, title: string, description: string, createdAt: any, updatedAt: any };
+export type CourseItemFragment = { __typename?: 'Course', id: string, title: string, description: string, createdAt: string, updatedAt: string };
 
 export const CourseItemFragmentDoc = gql`
     fragment CourseItem on Course {
