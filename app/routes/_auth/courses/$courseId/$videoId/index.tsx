@@ -1,8 +1,7 @@
-import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { CourseVideoPlayer } from '../components/CourseVideoPlayer';
 import { CourseVideoList } from '../components/CourseVideoList';
+import { CourseVideoPlayer } from '../components/CourseVideoPlayer';
 import { CourseVideo } from '../types';
 
 // Using non-async function since there are no async operations
@@ -84,7 +83,7 @@ export const loader = ({ params }: { params: { courseId: string; videoId: string
     16: 'Mobile App Development',
   };
 
-  return json({
+  return Response.json({
     courseId,
     videoId,
     courseTitle: courseTitles[courseId] || 'Course Content',
