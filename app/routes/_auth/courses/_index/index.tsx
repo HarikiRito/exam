@@ -2,7 +2,7 @@ import { usePaginateCoursesQuery } from 'app/graphql/operations/course/paginateC
 import { HorizontalCourseCategory } from 'app/shared/components/custom/HorizontalCourseCategory';
 
 export default function CourseRoute() {
-  const { data, loading, error } = usePaginateCoursesQuery();
+  const { data } = usePaginateCoursesQuery();
 
   const items = data?.paginatedCourses.items ?? [];
 

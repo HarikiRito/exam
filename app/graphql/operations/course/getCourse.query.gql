@@ -1,0 +1,5 @@
+query GetCourse($id: ID!) {
+  course(id: $id) {
+    ...CourseItem
+  }
+} 

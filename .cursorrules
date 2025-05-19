@@ -31,6 +31,7 @@ Only components from the `app/shared/components` directory are permitted
 - Use React hooks for state management
 - Implement proper prop typing
 - Follow accessibility guidelines (WCAG)
+- Do not use useMemo or useCallback for non-expensive operations
 
 ### Function Declaration Guidelines
 - Use function declarations (`function functionName()`) for all functions
@@ -407,3 +408,20 @@ updated code
 
 - Fix all lint problems before proceeding with any other tasks.
   Example: Run `pnpm run lint:fix` to automatically address any lint issues.
+
+## Knowledge
+
+- Unique static paths in APP_ROUTES should be defined as string keys. For example:
+  - dashboard: '/dashboard'
+  - login: '/login'
+
+- Dynamic paths must be implemented as functions that accept parameters to generate the full path. For instance:
+  - adminCourseDetail: (courseId: string) => `/admin/courses/${courseId}`
+  - adminCourseEdit: (courseId: string) => `/admin/courses/${courseId}/edit`
+
+- Always use these defined keys and functions when navigating programmatically to ensure consistency and maintainability in the project.
+
+## Error Handling Guidelines
+
+- Do not use try-catch blocks. Instead, use the guardAsync function to handle errors.
+- For Apollo queries and mutations, only check for the plain error object; avoid using both try-catch and additional error handling.
