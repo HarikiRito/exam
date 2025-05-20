@@ -28,7 +28,7 @@ export default function AdminCourses() {
   });
 
   // Fetch courses data
-  const { data, loading, refetch } = usePaginateCoursesQuery({
+  const { data, refetch } = usePaginateCoursesQuery({
     variables: {
       paginationInput: {
         page: state.page,

@@ -5,17 +5,19 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useCreateCourseMutation } from 'app/graphql/operations/course/createCourse.mutation.generated';
+import { PaginateCoursesDocument } from 'app/graphql/operations/course/paginateCourse.query.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
+import { apolloService } from 'app/shared/services/apollo.service';
 
 // Create Zod schema for course validation
 const courseSchema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().optional(),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -40,7 +42,7 @@ export default function CreateCourse() {
       variables: {
         input: {
           title: data.title,
-          description: data.description,
+          description: data.description ?? '',
         },
       },
     });
@@ -51,6 +53,8 @@ export default function CreateCourse() {
     }
 
     toast.success('Course created successfully!');
+    apolloService.invalidateQueries([PaginateCoursesDocument]);
+
     navigate(APP_ROUTES.adminCourses);
   }
 
