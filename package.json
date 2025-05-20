@@ -11,7 +11,7 @@
     "ci:lint": "pnpm typecheck && pnpm lint",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc --noEmit",
-    "graphql:codegen": "graphql-codegen --config codegen/codegen.ts"
+    "graphql:codegen": "make clean-generated && graphql-codegen --config codegen/codegen.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.13.8",
