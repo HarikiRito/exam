@@ -1,0 +1,5 @@
+mutation CreateCourseSection($input: CreateCourseSectionInput!) {
+  createCourseSection(input: $input) {
+    ...CourseSectionItem
+  }
+} 

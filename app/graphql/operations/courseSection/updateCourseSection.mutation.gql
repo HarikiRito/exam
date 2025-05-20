@@ -1,0 +1,5 @@
+mutation UpdateCourseSection($id: ID!, $input: UpdateCourseSectionInput!) {
+  updateCourseSection(id: $id, input: $input) {
+    ...CourseSectionItem
+  }
+} 

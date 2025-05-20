@@ -1,0 +1,5 @@
+query GetCourseSection($id: ID!) {
+  courseSection(id: $id) {
+    ...CourseSectionItem
+  }
+} 

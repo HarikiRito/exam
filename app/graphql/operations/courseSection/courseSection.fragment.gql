@@ -1,0 +1,6 @@
+fragment CourseSectionItem on CourseSection {
+  id
+  title
+  description
+  courseId
+} 
