@@ -6,20 +6,19 @@ import { Link } from '@remix-run/react';
 import { AppCollapsible } from 'app/shared/components/collapsible/AppCollapsible';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
 
-export function NavMain({
-  items,
-}: {
-  readonly items: {
-    title: string;
-    url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
-  }[];
-}) {
+export interface NavItem {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  isActive?: boolean;
+  items?: NavItem[];
+}
+
+interface Props {
+  readonly items: NavItem[];
+}
+
+export function NavMain({ items }: Props) {
   return (
     <AppSidebar.Group>
       <AppSidebar.GroupLabel>Platform</AppSidebar.GroupLabel>
