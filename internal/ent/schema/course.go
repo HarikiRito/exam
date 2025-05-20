@@ -19,7 +19,7 @@ type Course struct {
 func (Course) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title").NotEmpty(),
-		field.Text("description").Optional(),
+		field.Text("description").Optional().Nillable(),
 		field.UUID("media_id", uuid.UUID{}).Optional(),
 		field.UUID("creator_id", uuid.UUID{}),
 		field.Bool("is_published").Default(false),

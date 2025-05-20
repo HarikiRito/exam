@@ -334,7 +334,7 @@ func (cc *CourseCreate) createSpec() (*Course, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := cc.mutation.Description(); ok {
 		_spec.SetField(course.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if value, ok := cc.mutation.IsPublished(); ok {
 		_spec.SetField(course.FieldIsPublished, field.TypeBool, value)

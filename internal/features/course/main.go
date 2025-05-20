@@ -22,7 +22,7 @@ func CreateCourse(ctx context.Context, userId uuid.UUID, input model.CreateCours
 
 	course, err := client.Course.Create().
 		SetTitle(input.Title).
-		SetDescription(input.Description).
+		SetNillableDescription(input.Description).
 		SetCreatorID(userId).
 		Save(ctx)
 	if err != nil {

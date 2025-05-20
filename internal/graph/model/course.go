@@ -10,7 +10,7 @@ import (
 type Course struct {
 	ID          uuid.UUID `json:"id"`
 	Title       string    `json:"title"`
-	Description string    `json:"description"`
+	Description *string   `json:"description"`
 	CreatorID   uuid.UUID `json:"creatorId"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`

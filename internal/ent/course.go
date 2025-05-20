@@ -29,7 +29,7 @@ type Course struct {
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// MediaID holds the value of the "media_id" field.
 	MediaID uuid.UUID `json:"media_id,omitempty"`
 	// CreatorID holds the value of the "creator_id" field.
@@ -171,7 +171,8 @@ func (c *Course) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				c.Description = value.String
+				c.Description = new(string)
+				*c.Description = value.String
 			}
 		case course.FieldMediaID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -266,8 +267,10 @@ func (c *Course) String() string {
 	builder.WriteString("title=")
 	builder.WriteString(c.Title)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(c.Description)
+	if v := c.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("media_id=")
 	builder.WriteString(fmt.Sprintf("%v", c.MediaID))

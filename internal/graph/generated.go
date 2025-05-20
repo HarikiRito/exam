@@ -2574,14 +2574,11 @@ func (ec *executionContext) _Course_description(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Course_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9774,7 +9771,7 @@ func (ec *executionContext) unmarshalInputCreateCourseInput(ctx context.Context,
 			it.Title = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -10535,9 +10532,6 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "description":
 			out.Values[i] = ec._Course_description(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "creator":
 			field := field
 

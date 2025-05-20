@@ -12,7 +12,7 @@ extend type Query {
 type Course {
   id: ID!
   title: String!
-  description: String!
+  description: String
   creator: User!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -26,7 +26,7 @@ type PaginatedCourse {
 
 input CreateCourseInput {
   title: String!
-  description: String!
+  description: String
 }
 
 input UpdateCourseInput {

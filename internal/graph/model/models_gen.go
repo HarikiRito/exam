@@ -14,8 +14,8 @@ type Auth struct {
 }
 
 type CreateCourseInput struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
 }
 
 type CreateCourseSectionInput struct {
