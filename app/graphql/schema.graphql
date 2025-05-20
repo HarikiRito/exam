@@ -16,7 +16,7 @@ type Auth {
 type Course {
   createdAt: DateTime!
   creator: User!
-  description: String!
+  description: String
   id: ID!
   title: String!
   updatedAt: DateTime!
@@ -30,7 +30,7 @@ type CourseSection {
 }
 
 input CreateCourseInput {
-  description: String!
+  description: String
   title: String!
 }
 

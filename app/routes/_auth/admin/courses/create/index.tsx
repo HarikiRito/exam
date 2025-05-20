@@ -42,7 +42,7 @@ export default function CreateCourse() {
       variables: {
         input: {
           title: data.title,
-          description: data.description ?? '',
+          description: data.description,
         },
       },
     });

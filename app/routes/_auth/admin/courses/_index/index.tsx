@@ -9,14 +9,7 @@ import { AppDataTable } from 'app/shared/components/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { useValtioState } from 'app/shared/hooks/useValtio';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
 
 export default function AdminCourses() {
   const navigate = useNavigate();
@@ -57,7 +50,7 @@ export default function AdminCourses() {
   }
 
   // Setup column definitions
-  const columnHelper = createColumnHelper<Course>();
+  const columnHelper = createColumnHelper<CourseItemFragment>();
   const columns = [
     columnHelper.accessor('title', {
       header: 'Title',
@@ -69,6 +62,10 @@ export default function AdminCourses() {
       header: 'Description',
       cell: (info) => {
         const description = info.getValue();
+        if (!description) {
+          return '-';
+        }
+
         return description.length > 100 ? `${description.substring(0, 100)}...` : description;
       },
       enableSorting: true,

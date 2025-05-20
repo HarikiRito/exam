@@ -25,14 +25,21 @@ interface DataTableProps<TData> {
   readonly data: TData[];
   readonly searchPlaceholder?: string;
   readonly totalItems?: number;
+  readonly pageSize?: number;
 }
 
-function DataTable<TData>({ columns, data, searchPlaceholder = 'Search...', totalItems }: DataTableProps<TData>) {
+function DataTable<TData>({
+  columns,
+  data,
+  searchPlaceholder = 'Search...',
+  totalItems,
+  pageSize: initialPageSize = 20,
+}: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState({});
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(initialPageSize);
   const [pageIndex, setPageIndex] = useState(0);
 
   const table = useReactTable({

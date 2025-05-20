@@ -26,7 +26,7 @@ export type Course = {
   __typename?: 'Course';
   createdAt: Scalars['DateTime']['output'];
   creator: User;
-  description: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -41,7 +41,7 @@ export type CourseSection = {
 };
 
 export type CreateCourseInput = {
-  description: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
 };
 
