@@ -1,31 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@remix-run/react';
 import { Edit2, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { createContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useGetCourseQuery } from 'app/graphql/operations/course/getCourse.query.generated';
 import { useUpdateCourseMutation } from 'app/graphql/operations/course/updateCourse.mutation.generated';
+import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
+import { useCourseSectionsByCourseIdQuery } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
 import { useCreateCourseSectionMutation } from 'app/graphql/operations/courseSection/createCourseSection.mutation.generated';
 import { useRemoveCourseSectionMutation } from 'app/graphql/operations/courseSection/removeCourseSection.mutation.generated';
 import { useUpdateCourseSectionMutation } from 'app/graphql/operations/courseSection/updateCourseSection.mutation.generated';
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppCombobox, ComboboxOption } from 'app/shared/components/combobox/AppCombobox';
 import { AppDialog } from 'app/shared/components/dialog/AppDialog';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
+import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useConstant } from 'app/shared/hooks/useConstant';
+import { useContextSnapshot } from 'app/shared/hooks/useContextSnapshot';
+import { proxy } from 'valtio';
 
-// Define interface for CourseSection (matching our fragment)
-interface CourseSection {
-  id: string;
-  title: string;
-  description: string;
-  courseId: string;
+// Extended interface for displaying sections with children
+interface SectionWithChildren extends CourseSectionItemFragment {
+  children: SectionWithChildren[];
 }
 
 // Course schema
@@ -43,14 +47,31 @@ const sectionSchema = z.object({
 type CourseFormData = z.infer<typeof courseSchema>;
 type SectionFormData = z.infer<typeof sectionSchema>;
 
-export default function EditCourse() {
+class EditCourseSectionState {
+  sections: SectionWithChildren[] = [];
+  editingSectionId: string | null = null;
+  deletingSectionId: string | null = null;
+  parentSectionId: string = '';
+  editingSection: SectionWithChildren | null = null;
+}
+
+const EditCourseSectionStateContext = createContext<EditCourseSectionState | null>(null);
+
+export default function Wrapper() {
+  const mutation = useConstant(() => proxy(new EditCourseSectionState()));
+
+  return (
+    <EditCourseSectionStateContext.Provider value={mutation}>
+      <EditCourse />
+    </EditCourseSectionStateContext.Provider>
+  );
+}
+
+function EditCourse() {
+  const { snap: state, state: mutation } = useContextSnapshot(EditCourseSectionStateContext);
+  const { deletingSectionId, editingSectionId, editingSection, parentSectionId, sections } = state;
   const { courseId } = useParams();
   const navigate = useNavigate();
-
-  // Section state
-  const [sections, setSections] = useState<CourseSection[]>([]);
-  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
-  const [deletingSectionId, setDeletingSectionId] = useState<string | null>(null);
 
   // Fetch course data
   const { data: courseData, loading: courseLoading } = useGetCourseQuery({
@@ -58,16 +79,41 @@ export default function EditCourse() {
     skip: !courseId,
   });
 
+  // Fetch course sections
+  const {
+    data: sectionsData,
+    loading: sectionsLoading,
+    refetch: refetchCourseSections,
+  } = useCourseSectionsByCourseIdQuery({
+    variables: { courseId: courseId! },
+    skip: !courseId,
+  });
+
+  // Map sections to ComboboxOption for combobox - only root sections (no sectionId)
+  const availableParentSections: ComboboxOption[] =
+    sectionsData?.courseSectionsByCourseId
+      .filter((section) => {
+        // If we're editing a section, don't allow it to be its own parent
+        if (editingSectionId && section.id === editingSectionId) return false;
+        // Only include top-level sections (no sectionId)
+        return !section.sectionId;
+      })
+      .map((section) => ({
+        value: section.id,
+        label: section.title,
+      })) || [];
+
   // Course mutations
   const [updateCourse, { loading: updateCourseLoading }] = useUpdateCourseMutation();
 
   // Section mutations
   const [createCourseSection, { loading: createSectionLoading }] = useCreateCourseSectionMutation({
-    onCompleted: (data) => {
-      const newSection = data.createCourseSection;
-      setSections([...sections, newSection]);
+    onCompleted: () => {
       sectionForm.reset();
+      mutation.parentSectionId = '';
       toast.success('Section created successfully!');
+      // Refresh the sections
+      refetchSections();
     },
     onError: (error) => {
       toast.error(`Failed to create section: ${error.message}`);
@@ -75,28 +121,38 @@ export default function EditCourse() {
   });
 
   const [updateCourseSection, { loading: updateSectionLoading }] = useUpdateCourseSectionMutation({
-    onCompleted: (data) => {
-      const updatedSection = data.updateCourseSection;
-      setSections(sections.map((section) => (section.id === updatedSection.id ? updatedSection : section)));
-      setEditingSectionId(null);
+    onCompleted: () => {
+      mutation.editingSectionId = null;
+      mutation.editingSection = null;
       sectionForm.reset();
+      mutation.parentSectionId = '';
       toast.success('Section updated successfully!');
+      // Refresh the sections
+      refetchSections();
     },
     onError: (error) => {
       toast.error(`Failed to update section: ${error.message}`);
     },
   });
 
-  const [removeCourseSection] = useRemoveCourseSectionMutation({
+  const [removeCourseSection, { loading: removeSectionLoading }] = useRemoveCourseSectionMutation({
     onCompleted: () => {
-      setSections(sections.filter((section) => section.id !== deletingSectionId));
-      setDeletingSectionId(null);
+      mutation.deletingSectionId = null;
       toast.success('Section deleted successfully!');
+      // Refresh the sections
+      refetchSections();
     },
     onError: (error) => {
       toast.error(`Failed to delete section: ${error.message}`);
     },
   });
+
+  // Refetch sections helper
+  function refetchSections() {
+    if (!courseId) return;
+
+    refetchCourseSections();
+  }
 
   // Course form
   const courseForm = useForm<CourseFormData>({
@@ -117,6 +173,54 @@ export default function EditCourse() {
       description: '',
     },
   });
+
+  // Process sections data into parent-child structure
+  useEffect(() => {
+    if (sectionsData?.courseSectionsByCourseId) {
+      const allSections = [...sectionsData.courseSectionsByCourseId];
+
+      // Helper function to build tree
+      function buildSectionTree(): SectionWithChildren[] {
+        // First, map all sections to include empty children array
+        const sectionsWithEmptyChildren: SectionWithChildren[] = allSections.map((section) => ({
+          ...section,
+          children: [],
+        }));
+
+        // Create a lookup map for quick access
+        const sectionsMap = new Map<string, SectionWithChildren>();
+        sectionsWithEmptyChildren.forEach((section) => {
+          sectionsMap.set(section.id, section);
+        });
+
+        // Build the tree structure
+        const rootSections: SectionWithChildren[] = [];
+
+        sectionsWithEmptyChildren.forEach((section) => {
+          // If the section has a parent, add it to the parent's children
+          if (section.sectionId) {
+            const parent = sectionsMap.get(section.sectionId);
+            if (parent) {
+              parent.children.push(section);
+            } else {
+              // If parent not found, treat as root
+              rootSections.push(section);
+            }
+          } else {
+            // This is a root section
+            rootSections.push(section);
+          }
+        });
+
+        return rootSections;
+      }
+
+      const sectionTree = buildSectionTree();
+      mutation.sections = sectionTree;
+    }
+  }, [sectionsData, mutation]);
+
+  console.log('index.tsx 211', state);
 
   // Update course form when data is loaded
   useEffect(() => {
@@ -161,6 +265,8 @@ export default function EditCourse() {
           courseId,
           title: data.title,
           description: data.description || '',
+          // TODO: We can't include parentId in the input since it's not in the schema
+          // Instead, we'll need to update the backend to support this feature
         },
       },
     });
@@ -176,6 +282,8 @@ export default function EditCourse() {
         input: {
           title: data.title,
           description: data.description,
+          // TODO: We can't include parentId in the input since it's not in the schema
+          // Instead, we'll need to update the backend to support this feature
         },
       },
     });
@@ -193,8 +301,11 @@ export default function EditCourse() {
   }
 
   // Start editing a section
-  function startEditingSection(section: CourseSection) {
-    setEditingSectionId(section.id);
+  function startEditingSection(section: (typeof sections)[number]) {
+    mutation.editingSectionId = section.id;
+    mutation.editingSection = section as SectionWithChildren;
+    // Ensure the sectionId is string or empty string for type safety
+    mutation.parentSectionId = section.sectionId ? section.sectionId : '';
     sectionForm.reset({
       title: section.title,
       description: section.description,
@@ -203,11 +314,179 @@ export default function EditCourse() {
 
   // Cancel editing a section
   function cancelEditingSection() {
-    setEditingSectionId(null);
+    mutation.editingSectionId = null;
+    mutation.editingSection = null;
+    mutation.parentSectionId = '';
     sectionForm.reset();
   }
 
-  if (courseLoading) {
+  // Recursive section renderer
+  function renderSectionItem(section: (typeof sections)[number]) {
+    // Determine if this section has children
+    const hasChildren = section.children && section.children.length > 0;
+
+    return (
+      <AppAccordion.Item key={section.id} value={section.id} className='mb-2 rounded-md border px-4'>
+        <AppAccordion.Trigger className={hasChildren ? '' : '[&[data-state=open]>svg]:hidden'}>
+          {section.description ? (
+            <AppTooltip.Root>
+              <AppTooltip.Trigger asChild>
+                <div className='flex w-full items-center justify-between'>
+                  <div className='flex flex-col items-start text-left'>
+                    <h3 className='text-base font-semibold'>{section.title}</h3>
+                    <p className='max-w-[400px] truncate text-sm text-gray-600'>{section.description}</p>
+                  </div>
+                  <div className='flex gap-2'>
+                    <AppButton
+                      variant='ghost'
+                      size='icon'
+                      className='h-8 w-8'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        startEditingSection(section);
+                      }}>
+                      <Edit2 className='h-4 w-4' />
+                    </AppButton>
+                    <AppButton
+                      variant='ghost'
+                      size='icon'
+                      className='h-8 w-8'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        mutation.deletingSectionId = section.id;
+                      }}>
+                      <Trash2 className='text-destructive h-4 w-4' />
+                    </AppButton>
+                  </div>
+                </div>
+              </AppTooltip.Trigger>
+              <AppTooltip.Content>
+                <p>{section.description}</p>
+              </AppTooltip.Content>
+            </AppTooltip.Root>
+          ) : (
+            <div className='flex w-full items-center justify-between'>
+              <div className='flex flex-col items-start text-left'>
+                <h3 className='text-base font-semibold'>{section.title}</h3>
+                <p className='max-w-[400px] truncate text-sm text-gray-600'>{section.description}</p>
+              </div>
+              <div className='flex gap-2'>
+                <AppButton
+                  variant='ghost'
+                  size='icon'
+                  className='h-8 w-8'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startEditingSection(section);
+                  }}>
+                  <Edit2 className='h-4 w-4' />
+                </AppButton>
+                <AppButton
+                  variant='ghost'
+                  size='icon'
+                  className='h-8 w-8'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    mutation.deletingSectionId = section.id;
+                  }}>
+                  <Trash2 className='text-destructive h-4 w-4' />
+                </AppButton>
+              </div>
+            </div>
+          )}
+        </AppAccordion.Trigger>
+
+        {hasChildren && (
+          <AppAccordion.Content>
+            <div className='space-y-2 py-2'>
+              {/* Render child sections */}
+              <div className='pl-4'>
+                {section.children.map((childSection) => (
+                  <AppAccordion.Item
+                    key={childSection.id}
+                    value={childSection.id}
+                    className='mb-2 rounded-md border px-4'>
+                    <AppAccordion.Trigger className='[&[data-state=open]>svg]:hidden'>
+                      {childSection.description ? (
+                        <AppTooltip.Root>
+                          <AppTooltip.Trigger asChild>
+                            <div className='flex w-full items-center justify-between'>
+                              <div className='flex flex-col items-start text-left'>
+                                <h3 className='text-base font-semibold'>{childSection.title}</h3>
+                                <p className='max-w-[400px] truncate text-sm text-gray-600'>
+                                  {childSection.description}
+                                </p>
+                              </div>
+                              <div className='flex gap-2'>
+                                <AppButton
+                                  variant='ghost'
+                                  size='icon'
+                                  className='h-8 w-8'
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    startEditingSection(childSection);
+                                  }}>
+                                  <Edit2 className='h-4 w-4' />
+                                </AppButton>
+                                <AppButton
+                                  variant='ghost'
+                                  size='icon'
+                                  className='h-8 w-8'
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    mutation.deletingSectionId = childSection.id;
+                                  }}>
+                                  <Trash2 className='text-destructive h-4 w-4' />
+                                </AppButton>
+                              </div>
+                            </div>
+                          </AppTooltip.Trigger>
+                          <AppTooltip.Content>
+                            <p>{childSection.description}</p>
+                          </AppTooltip.Content>
+                        </AppTooltip.Root>
+                      ) : (
+                        <div className='flex w-full items-center justify-between'>
+                          <div className='flex flex-col items-start text-left'>
+                            <h3 className='text-base font-semibold'>{childSection.title}</h3>
+                            <p className='max-w-[400px] truncate text-sm text-gray-600'>{childSection.description}</p>
+                          </div>
+                          <div className='flex gap-2'>
+                            <AppButton
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditingSection(childSection);
+                              }}>
+                              <Edit2 className='h-4 w-4' />
+                            </AppButton>
+                            <AppButton
+                              variant='ghost'
+                              size='icon'
+                              className='h-8 w-8'
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                mutation.deletingSectionId = childSection.id;
+                              }}>
+                              <Trash2 className='text-destructive h-4 w-4' />
+                            </AppButton>
+                          </div>
+                        </div>
+                      )}
+                    </AppAccordion.Trigger>
+                  </AppAccordion.Item>
+                ))}
+              </div>
+            </div>
+          </AppAccordion.Content>
+        )}
+      </AppAccordion.Item>
+    );
+  }
+
+  if (courseLoading || sectionsLoading) {
     return (
       <div className='p-6'>
         <AppTypography.h1>Loading course...</AppTypography.h1>
@@ -277,42 +556,7 @@ export default function EditCourse() {
           <div className='mb-6'>
             {sections.length > 0 ? (
               <AppAccordion.Root type='multiple' className='space-y-2'>
-                {sections.map((section) => (
-                  <AppAccordion.Item key={section.id} value={section.id} className='rounded-md border px-4'>
-                    <AppAccordion.Trigger>
-                      <div className='flex w-full items-center justify-between'>
-                        <span>{section.title}</span>
-                        <div className='flex gap-2'>
-                          <AppButton
-                            variant='ghost'
-                            size='icon'
-                            className='h-8 w-8'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startEditingSection(section);
-                            }}>
-                            <Edit2 className='h-4 w-4' />
-                          </AppButton>
-                          <AppButton
-                            variant='ghost'
-                            size='icon'
-                            className='h-8 w-8'
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeletingSectionId(section.id);
-                            }}>
-                            <Trash2 className='text-destructive h-4 w-4' />
-                          </AppButton>
-                        </div>
-                      </div>
-                    </AppAccordion.Trigger>
-                    <AppAccordion.Content className='px-2'>
-                      <div className='py-2'>
-                        <AppTypography.p className='mb-2 text-sm text-gray-600'>{section.description}</AppTypography.p>
-                      </div>
-                    </AppAccordion.Content>
-                  </AppAccordion.Item>
-                ))}
+                {sections.map((section) => renderSectionItem(section))}
               </AppAccordion.Root>
             ) : (
               <div className='rounded-md border p-8 text-center'>
@@ -360,6 +604,24 @@ export default function EditCourse() {
                   )}
                 />
 
+                {/* Only show parent section combobox when editing root sections or creating new sections */}
+                {(!editingSection || !editingSection.sectionId) && (
+                  <div className='space-y-2'>
+                    <AppForm.Label>Parent Section (Optional)</AppForm.Label>
+                    <AppCombobox
+                      options={availableParentSections}
+                      value={parentSectionId}
+                      onValueChange={(value) => (mutation.parentSectionId = value)}
+                      placeholder='Select parent section (optional)'
+                      emptyMessage='No parent sections available.'
+                      className='w-full'
+                    />
+                    <p className='text-xs text-gray-500'>
+                      Select a parent section to create a sub-section. Leave empty for a top-level section.
+                    </p>
+                  </div>
+                )}
+
                 <div className='flex justify-end gap-2 pt-2'>
                   {editingSectionId && (
                     <AppButton type='button' variant='outline' onClick={cancelEditingSection}>
@@ -386,7 +648,7 @@ export default function EditCourse() {
       <AppDialog.Root
         open={!!deletingSectionId}
         onOpenChange={(open) => {
-          if (!open) setDeletingSectionId(null);
+          if (!open) mutation.deletingSectionId = null;
         }}>
         <AppDialog.Content>
           <AppDialog.Header>
@@ -396,11 +658,15 @@ export default function EditCourse() {
             </AppDialog.Description>
           </AppDialog.Header>
           <AppDialog.Footer>
-            <AppButton variant='outline' onClick={() => setDeletingSectionId(null)}>
+            <AppButton variant='outline' onClick={() => (mutation.deletingSectionId = null)}>
               Cancel
             </AppButton>
-            <AppButton variant='destructive' onClick={handleDeleteSection}>
-              Delete
+            <AppButton
+              variant='destructive'
+              className='text-white'
+              onClick={handleDeleteSection}
+              disabled={removeSectionLoading}>
+              {removeSectionLoading ? 'Deleting...' : 'Delete'}
             </AppButton>
           </AppDialog.Footer>
         </AppDialog.Content>

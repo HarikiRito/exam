@@ -7,18 +7,17 @@ import { usePaginateCoursesQuery } from 'app/graphql/operations/course/paginateC
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppDataTable } from 'app/shared/components/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { useValtioState } from 'app/shared/hooks/useValtio';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
 
 export default function AdminCourses() {
   const navigate = useNavigate();
 
-  const [state] = useValtioState({
+  const state = {
     page: 1,
     limit: 10,
     search: '',
-  });
+  };
 
   // Fetch courses data
   const { data, refetch } = usePaginateCoursesQuery({

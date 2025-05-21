@@ -3,4 +3,5 @@ fragment CourseSectionItem on CourseSection {
   title
   description
   courseId
+  sectionId
 } 

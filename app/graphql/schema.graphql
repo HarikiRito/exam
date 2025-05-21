@@ -26,7 +26,12 @@ type CourseSection {
   courseId: ID!
   description: String!
   id: ID!
+  sectionId: ID
   title: String!
+}
+
+input CourseSectionFilterInput {
+  onlyRoot: Boolean
 }
 
 input CreateCourseInput {
@@ -156,7 +161,7 @@ input PaginationInput {
 type Query {
   course(id: ID!): Course!
   courseSection(id: ID!): CourseSection!
-  courseSectionsByCourseId(courseId: ID!): [CourseSection!]!
+  courseSectionsByCourseId(courseId: ID!, filter: CourseSectionFilterInput): [CourseSection!]!
   isAuthenticated: Boolean!
   login(input: LoginInput!): Auth!
   me: User!

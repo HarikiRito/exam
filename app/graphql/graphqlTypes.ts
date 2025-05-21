@@ -37,7 +37,12 @@ export type CourseSection = {
   courseId: Scalars['ID']['output'];
   description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  sectionId?: Maybe<Scalars['ID']['output']>;
   title: Scalars['String']['output'];
+};
+
+export type CourseSectionFilterInput = {
+  onlyRoot?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type CreateCourseInput = {
@@ -330,6 +335,7 @@ export type QueryCourseSectionArgs = {
 
 export type QueryCourseSectionsByCourseIdArgs = {
   courseId: Scalars['ID']['input'];
+  filter?: InputMaybe<CourseSectionFilterInput>;
 };
 
 
