@@ -8,6 +8,7 @@ import (
 	"context"
 	"template/internal/features/course_section"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -59,4 +60,19 @@ func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model
 		return nil, err
 	}
 	return model.ConvertCourseSectionToModel(cs), nil
+}
+
+// CourseSectionsByCourseID is the resolver for the courseSectionsByCourseId field.
+func (r *queryResolver) CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID) ([]*model.CourseSection, error) {
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	sections, err := course_section.GetCourseSectionsByCourseID(ctx, userId, courseID)
+	if err != nil {
+		return nil, err
+	}
+
+	return slice.Map(sections, model.ConvertCourseSectionToModel), nil
 }

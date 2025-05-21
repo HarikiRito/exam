@@ -6,6 +6,7 @@ extend type Mutation {
 
 extend type Query {
   courseSection(id: ID!): CourseSection!
+  courseSectionsByCourseId(courseId: ID!): [CourseSection!]!
 }
 
 
