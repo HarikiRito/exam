@@ -9,6 +9,8 @@
   "bracketSpacing": true,
   "useTabs": false,
   "arrowParens": "always",
-  "endOfLine": "auto",
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "endOfLine": "lf",
+  "plugins": [
+    "prettier-plugin-tailwindcss"
+  ]
 }

@@ -300,6 +300,7 @@ export type Query = {
   __typename?: 'Query';
   course: Course;
   courseSection: CourseSection;
+  courseSectionsByCourseId: Array<CourseSection>;
   isAuthenticated: Scalars['Boolean']['output'];
   login: Auth;
   me: User;
@@ -324,6 +325,11 @@ export type QueryCourseArgs = {
 
 export type QueryCourseSectionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryCourseSectionsByCourseIdArgs = {
+  courseId: Scalars['ID']['input'];
 };
 
 
