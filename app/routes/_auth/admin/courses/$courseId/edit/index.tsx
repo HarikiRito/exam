@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate, useParams } from '@remix-run/react';
 import { Edit2, Trash2 } from 'lucide-react';
-import { createContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -23,10 +23,8 @@ import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { useConstant } from 'app/shared/hooks/useConstant';
-import { useContextSnapshot } from 'app/shared/hooks/useContextSnapshot';
-import { proxy } from 'valtio';
-
+import { createProxyWithReset } from 'app/shared/utils/valtio';
+import { useSnapshot } from 'valtio';
 // Extended interface for displaying sections with children
 interface SectionWithChildren extends CourseSectionItemFragment {
   children: SectionWithChildren[];
@@ -55,21 +53,11 @@ class EditCourseSectionState {
   editingSection: SectionWithChildren | null = null;
 }
 
-const EditCourseSectionStateContext = createContext<EditCourseSectionState | null>(null);
+const { proxyState: mutation, useResetHook } = createProxyWithReset(new EditCourseSectionState());
 
-export default function Wrapper() {
-  const mutation = useConstant(() => proxy(new EditCourseSectionState()));
-
-  return (
-    <EditCourseSectionStateContext.Provider value={mutation}>
-      <EditCourse />
-    </EditCourseSectionStateContext.Provider>
-  );
-}
-
-function EditCourse() {
-  const { snap: state, state: mutation } = useContextSnapshot(EditCourseSectionStateContext);
-  const { deletingSectionId, editingSectionId, editingSection, parentSectionId, sections } = state;
+export default function EditCourse() {
+  useResetHook();
+  const { deletingSectionId, editingSectionId, editingSection, parentSectionId, sections } = useSnapshot(mutation);
   const { courseId } = useParams();
   const navigate = useNavigate();
 
@@ -218,9 +206,7 @@ function EditCourse() {
       const sectionTree = buildSectionTree();
       mutation.sections = sectionTree;
     }
-  }, [sectionsData, mutation]);
-
-  console.log('index.tsx 211', state);
+  }, [sectionsData]);
 
   // Update course form when data is loaded
   useEffect(() => {
