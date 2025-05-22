@@ -24,7 +24,7 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
 
     return (
       <AppAccordion.Item key={section.id} value={section.id} className='mb-2 rounded-md border px-4'>
-        <AppAccordion.Trigger className={cn(hasChildren && '[&[data-state=open]>svg]:hidden')}>
+        <AppAccordion.Trigger showIcon={hasChildren} className={cn(!hasChildren && 'pointer-events-none')}>
           {content}
         </AppAccordion.Trigger>
 
@@ -38,7 +38,7 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
                     key={childSection.id}
                     value={childSection.id}
                     className='mb-2 rounded-md border px-4'>
-                    <AppAccordion.Trigger className='[&[data-state=open]>svg]:hidden'>
+                    <AppAccordion.Trigger showIcon={false} className='pointer-events-none'>
                       {_renderSectionItemContent(childSection)}
                     </AppAccordion.Trigger>
                   </AppAccordion.Item>
