@@ -24,7 +24,7 @@ const mutation = editCourseSectionState.proxyState;
 export default function EditCourse() {
   // Initialize state
   editCourseSectionState.useResetHook();
-  const snap = editCourseSectionState.useStateSnapshot();
+  const state = editCourseSectionState.useStateSnapshot();
   const { courseId } = useParams();
   const navigate = useNavigate();
 
@@ -88,7 +88,7 @@ export default function EditCourse() {
     sectionsData?.courseSectionsByCourseId
       .filter((section) => {
         // If we're editing a section, don't allow it to be its own parent
-        if (snap.editingSectionId && section.id === snap.editingSectionId) return false;
+        if (state.editingSectionId && section.id === state.editingSectionId) return false;
         // Only include top-level sections (no sectionId)
         return !section.sectionId;
       })
@@ -105,48 +105,42 @@ export default function EditCourse() {
 
   // Process sections data into parent-child structure
   useEffect(() => {
-    if (sectionsData?.courseSectionsByCourseId) {
-      const allSections = [...sectionsData.courseSectionsByCourseId];
+    if (!sectionsData?.courseSectionsByCourseId) return;
 
-      // Helper function to build tree
-      function buildSectionTree(): SectionWithChildren[] {
-        // First, map all sections to include empty children array
-        const sectionsWithEmptyChildren: SectionWithChildren[] = allSections.map((section) => ({
-          ...section,
-          children: [],
-        }));
+    const allSections = [...sectionsData.courseSectionsByCourseId];
 
-        // Create a lookup map for quick access
-        const sectionsMap = new Map<string, SectionWithChildren>();
-        sectionsWithEmptyChildren.forEach((section) => {
-          sectionsMap.set(section.id, section);
-        });
+    // Helper function to build tree
+    function buildSectionTree(): SectionWithChildren[] {
+      // First, map all sections to include empty children array
+      const sectionsWithEmptyChildren: SectionWithChildren[] = allSections.map((section) => ({
+        ...section,
+        children: [],
+      }));
 
-        // Build the tree structure
-        const rootSections: SectionWithChildren[] = [];
+      // Create a lookup map for quick access
+      const sectionsMap: Record<string, SectionWithChildren> = {};
+      sectionsWithEmptyChildren.forEach((section) => {
+        sectionsMap[section.id] = section;
+      });
+      // Build the tree structure
+      const rootSections: SectionWithChildren[] = [];
 
-        sectionsWithEmptyChildren.forEach((section) => {
-          // If the section has a parent, add it to the parent's children
-          if (section.sectionId) {
-            const parent = sectionsMap.get(section.sectionId);
-            if (parent) {
-              parent.children.push(section);
-            } else {
-              // If parent not found, treat as root
-              rootSections.push(section);
-            }
-          } else {
-            // This is a root section
-            rootSections.push(section);
-          }
-        });
+      sectionsWithEmptyChildren.forEach((section) => {
+        // If the section has a parent, add it to the parent's children
+        const parent = section.sectionId ? sectionsMap[section.sectionId] : null;
+        if (parent) {
+          parent.children.push(section);
+        } else {
+          // This is a root section
+          rootSections.push(section);
+        }
+      });
 
-        return rootSections;
-      }
-
-      const sectionTree = buildSectionTree();
-      mutation.sections = sectionTree;
+      return rootSections;
     }
+
+    const sectionTree = buildSectionTree();
+    mutation.sections = sectionTree;
   }, [sectionsData]);
 
   // Handle update course form submission
@@ -191,11 +185,11 @@ export default function EditCourse() {
 
   // Handle update section form submission
   async function handleUpdateSection(data: SectionFormData) {
-    if (!snap.editingSectionId) return;
+    if (!state.editingSectionId) return;
 
     await updateCourseSection({
       variables: {
-        id: snap.editingSectionId,
+        id: state.editingSectionId,
         input: {
           title: data.title,
           description: data.description,
@@ -208,11 +202,11 @@ export default function EditCourse() {
 
   // Handle section deletion
   async function handleDeleteSection() {
-    if (!snap.deletingSectionId) return;
+    if (!state.deletingSectionId) return;
 
     await removeCourseSection({
       variables: {
-        id: snap.deletingSectionId,
+        id: state.deletingSectionId,
       },
     });
   }

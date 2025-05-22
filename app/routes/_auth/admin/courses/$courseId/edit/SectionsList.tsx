@@ -20,75 +20,12 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
     // Determine if this section has children
     const hasChildren = section.children && section.children.length > 0;
 
+    const content = _renderSectionItemContent(section);
+
     return (
       <AppAccordion.Item key={section.id} value={section.id} className='mb-2 rounded-md border px-4'>
         <AppAccordion.Trigger className={cn(hasChildren && '[&[data-state=open]>svg]:hidden')}>
-          {section.description ? (
-            <AppTooltip.Root>
-              <AppTooltip.Trigger asChild>
-                <div className='flex w-full items-center justify-between'>
-                  <div className='flex flex-col items-start text-left'>
-                    <h3 className='text-base font-semibold'>{section.title}</h3>
-                    <p className='max-w-[400px] truncate text-sm text-gray-600'>{section.description}</p>
-                  </div>
-                  <div className='flex gap-2'>
-                    <AppButton
-                      variant='ghost'
-                      size='icon'
-                      className='h-8 w-8'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStartEditingSection(section as SectionWithChildren);
-                      }}>
-                      <Edit2 className='h-4 w-4' />
-                    </AppButton>
-                    <AppButton
-                      variant='ghost'
-                      size='icon'
-                      className='h-8 w-8'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        mutation.deletingSectionId = section.id;
-                      }}>
-                      <Trash2 className='text-destructive h-4 w-4' />
-                    </AppButton>
-                  </div>
-                </div>
-              </AppTooltip.Trigger>
-              <AppTooltip.Content>
-                <p>{section.description}</p>
-              </AppTooltip.Content>
-            </AppTooltip.Root>
-          ) : (
-            <div className='flex w-full items-center justify-between'>
-              <div className='flex flex-col items-start text-left'>
-                <h3 className='text-base font-semibold'>{section.title}</h3>
-                <p className='max-w-[400px] truncate text-sm text-gray-600'>{section.description}</p>
-              </div>
-              <div className='flex gap-2'>
-                <AppButton
-                  variant='ghost'
-                  size='icon'
-                  className='h-8 w-8'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStartEditingSection(section as SectionWithChildren);
-                  }}>
-                  <Edit2 className='h-4 w-4' />
-                </AppButton>
-                <AppButton
-                  variant='ghost'
-                  size='icon'
-                  className='h-8 w-8'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    mutation.deletingSectionId = section.id;
-                  }}>
-                  <Trash2 className='text-destructive h-4 w-4' />
-                </AppButton>
-              </div>
-            </div>
-          )}
+          {content}
         </AppAccordion.Trigger>
 
         {hasChildren && (
@@ -102,74 +39,7 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
                     value={childSection.id}
                     className='mb-2 rounded-md border px-4'>
                     <AppAccordion.Trigger className='[&[data-state=open]>svg]:hidden'>
-                      {childSection.description ? (
-                        <AppTooltip.Root>
-                          <AppTooltip.Trigger asChild>
-                            <div className='flex w-full items-center justify-between'>
-                              <div className='flex flex-col items-start text-left'>
-                                <h3 className='text-base font-semibold'>{childSection.title}</h3>
-                                <p className='max-w-[400px] truncate text-sm text-gray-600'>
-                                  {childSection.description}
-                                </p>
-                              </div>
-                              <div className='flex gap-2'>
-                                <AppButton
-                                  variant='ghost'
-                                  size='icon'
-                                  className='h-8 w-8'
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onStartEditingSection(childSection as unknown as SectionWithChildren);
-                                  }}>
-                                  <Edit2 className='h-4 w-4' />
-                                </AppButton>
-                                <AppButton
-                                  variant='ghost'
-                                  size='icon'
-                                  className='h-8 w-8'
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    mutation.deletingSectionId = childSection.id;
-                                  }}>
-                                  <Trash2 className='text-destructive h-4 w-4' />
-                                </AppButton>
-                              </div>
-                            </div>
-                          </AppTooltip.Trigger>
-                          <AppTooltip.Content>
-                            <p>{childSection.description}</p>
-                          </AppTooltip.Content>
-                        </AppTooltip.Root>
-                      ) : (
-                        <div className='flex w-full items-center justify-between'>
-                          <div className='flex flex-col items-start text-left'>
-                            <h3 className='text-base font-semibold'>{childSection.title}</h3>
-                            <p className='max-w-[400px] truncate text-sm text-gray-600'>{childSection.description}</p>
-                          </div>
-                          <div className='flex gap-2'>
-                            <AppButton
-                              variant='ghost'
-                              size='icon'
-                              className='h-8 w-8'
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onStartEditingSection(childSection as unknown as SectionWithChildren);
-                              }}>
-                              <Edit2 className='h-4 w-4' />
-                            </AppButton>
-                            <AppButton
-                              variant='ghost'
-                              size='icon'
-                              className='h-8 w-8'
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                mutation.deletingSectionId = childSection.id;
-                              }}>
-                              <Trash2 className='text-destructive h-4 w-4' />
-                            </AppButton>
-                          </div>
-                        </div>
-                      )}
+                      {_renderSectionItemContent(childSection)}
                     </AppAccordion.Trigger>
                   </AppAccordion.Item>
                 ))}
@@ -178,6 +48,39 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
           </AppAccordion.Content>
         )}
       </AppAccordion.Item>
+    );
+  }
+
+  function _renderSectionItemContent(section: SectionWithChildren) {
+    return (
+      <div className='flex w-full items-center justify-between'>
+        <div className='flex flex-col items-start text-left'>
+          <h3 className='text-base font-semibold'>{section.title}</h3>
+          <p className='max-w-[400px] truncate text-sm text-gray-600'>{section.description}</p>
+        </div>
+        <div className='flex gap-2'>
+          <AppButton
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8'
+            onClick={(e) => {
+              e.stopPropagation();
+              onStartEditingSection(section);
+            }}>
+            <Edit2 className='h-4 w-4' />
+          </AppButton>
+          <AppButton
+            variant='ghost'
+            size='icon'
+            className='h-8 w-8'
+            onClick={(e) => {
+              e.stopPropagation();
+              mutation.deletingSectionId = section.id;
+            }}>
+            <Trash2 className='text-destructive h-4 w-4' />
+          </AppButton>
+        </div>
+      </div>
     );
   }
 
