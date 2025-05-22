@@ -53,11 +53,14 @@ class EditCourseSectionState {
   editingSection: SectionWithChildren | null = null;
 }
 
-const { proxyState: mutation, useResetHook } = createProxyWithReset(new EditCourseSectionState());
+const editCourseSectionState = createProxyWithReset(new EditCourseSectionState());
+
+const mutation = editCourseSectionState.proxyState;
 
 export default function EditCourse() {
-  useResetHook();
-  const { deletingSectionId, editingSectionId, editingSection, parentSectionId, sections } = useSnapshot(mutation);
+  editCourseSectionState.useResetHook();
+  const { deletingSectionId, editingSectionId, editingSection, parentSectionId, sections } =
+    editCourseSectionState.useStateSnapshot();
   const { courseId } = useParams();
   const navigate = useNavigate();
 

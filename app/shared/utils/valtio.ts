@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { proxy } from 'valtio';
+import { proxy, useSnapshot } from 'valtio';
 import { deepClone } from 'valtio/utils';
 
 export function createProxyWithReset<T extends object>(initialState: T) {
@@ -22,5 +22,9 @@ export function createProxyWithReset<T extends object>(initialState: T) {
     }, []);
   }
 
-  return { proxyState, reset, useResetHook };
+  function useStateSnapshot() {
+    return useSnapshot(proxyState);
+  }
+
+  return { proxyState, reset, useResetHook, useStateSnapshot };
 }
