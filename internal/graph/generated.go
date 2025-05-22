@@ -72,6 +72,7 @@ type ComplexityRoot struct {
 		CourseID    func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		SectionID   func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
 
@@ -143,7 +144,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Course                       func(childComplexity int, id uuid.UUID) int
 		CourseSection                func(childComplexity int, id uuid.UUID) int
-		CourseSectionsByCourseID     func(childComplexity int, courseID uuid.UUID) int
+		CourseSectionsByCourseID     func(childComplexity int, courseID uuid.UUID, filter *model.CourseSectionFilterInput) int
 		IsAuthenticated              func(childComplexity int) int
 		Login                        func(childComplexity int, input model.LoginInput) int
 		Me                           func(childComplexity int) int
@@ -250,7 +251,7 @@ type QueryResolver interface {
 	Course(ctx context.Context, id uuid.UUID) (*model.Course, error)
 	PaginatedCourses(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedCourse, error)
 	CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error)
-	CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID) ([]*model.CourseSection, error)
+	CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID, filter *model.CourseSectionFilterInput) ([]*model.CourseSection, error)
 	Question(ctx context.Context, id uuid.UUID) (*model.Question, error)
 	PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error)
 	QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error)
@@ -372,6 +373,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CourseSection.ID(childComplexity), true
+
+	case "CourseSection.sectionId":
+		if e.complexity.CourseSection.SectionID == nil {
+			break
+		}
+
+		return e.complexity.CourseSection.SectionID(childComplexity), true
 
 	case "CourseSection.title":
 		if e.complexity.CourseSection.Title == nil {
@@ -821,7 +829,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.CourseSectionsByCourseID(childComplexity, args["courseId"].(uuid.UUID)), true
+		return e.complexity.Query.CourseSectionsByCourseID(childComplexity, args["courseId"].(uuid.UUID), args["filter"].(*model.CourseSectionFilterInput)), true
 
 	case "Query.isAuthenticated":
 		if e.complexity.Query.IsAuthenticated == nil {
@@ -1208,6 +1216,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCourseSectionFilterInput,
 		ec.unmarshalInputCreateCourseInput,
 		ec.unmarshalInputCreateCourseSectionInput,
 		ec.unmarshalInputCreateQuestionInput,
@@ -2069,6 +2078,11 @@ func (ec *executionContext) field_Query_courseSectionsByCourseId_args(ctx contex
 		return nil, err
 	}
 	args["courseId"] = arg0
+	arg1, err := ec.field_Query_courseSectionsByCourseId_argsFilter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg1
 	return args, nil
 }
 func (ec *executionContext) field_Query_courseSectionsByCourseId_argsCourseID(
@@ -2081,6 +2095,19 @@ func (ec *executionContext) field_Query_courseSectionsByCourseId_argsCourseID(
 	}
 
 	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_courseSectionsByCourseId_argsFilter(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*model.CourseSectionFilterInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+	if tmp, ok := rawArgs["filter"]; ok {
+		return ec.unmarshalOCourseSectionFilterInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSectionFilterInput(ctx, tmp)
+	}
+
+	var zeroVal *model.CourseSectionFilterInput
 	return zeroVal, nil
 }
 
@@ -2945,6 +2972,47 @@ func (ec *executionContext) fieldContext_CourseSection_courseId(_ context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _CourseSection_sectionId(ctx context.Context, field graphql.CollectedField, obj *model.CourseSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseSection_sectionId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SectionID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uuid.UUID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseSection_sectionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_register(ctx, field)
 	if err != nil {
@@ -3307,6 +3375,8 @@ func (ec *executionContext) fieldContext_Mutation_createCourseSection(ctx contex
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -3372,6 +3442,8 @@ func (ec *executionContext) fieldContext_Mutation_updateCourseSection(ctx contex
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -5695,6 +5767,8 @@ func (ec *executionContext) fieldContext_Query_courseSection(ctx context.Context
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -5727,7 +5801,7 @@ func (ec *executionContext) _Query_courseSectionsByCourseId(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CourseSectionsByCourseID(rctx, fc.Args["courseId"].(uuid.UUID))
+		return ec.resolvers.Query().CourseSectionsByCourseID(rctx, fc.Args["courseId"].(uuid.UUID), fc.Args["filter"].(*model.CourseSectionFilterInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5760,6 +5834,8 @@ func (ec *executionContext) fieldContext_Query_courseSectionsByCourseId(ctx cont
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -6674,6 +6750,8 @@ func (ec *executionContext) fieldContext_Question_section(_ context.Context, fie
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -7053,6 +7131,8 @@ func (ec *executionContext) fieldContext_Test_courseSection(_ context.Context, f
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -7307,6 +7387,8 @@ func (ec *executionContext) fieldContext_TestSession_courseSection(_ context.Con
 				return ec.fieldContext_CourseSection_description(ctx, field)
 			case "courseId":
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
+			case "sectionId":
+				return ec.fieldContext_CourseSection_sectionId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -9850,6 +9932,33 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCourseSectionFilterInput(ctx context.Context, obj interface{}) (model.CourseSectionFilterInput, error) {
+	var it model.CourseSectionFilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"onlyRoot"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "onlyRoot":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onlyRoot"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OnlyRoot = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateCourseInput(ctx context.Context, obj interface{}) (model.CreateCourseInput, error) {
 	var it model.CreateCourseInput
 	asMap := map[string]interface{}{}
@@ -10734,6 +10843,8 @@ func (ec *executionContext) _CourseSection(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "sectionId":
+			out.Values[i] = ec._CourseSection_sectionId(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -13695,6 +13806,14 @@ func (ec *executionContext) marshalOCourseSection2ᚖtemplateᚋinternalᚋgraph
 		return graphql.Null
 	}
 	return ec._CourseSection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOCourseSectionFilterInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSectionFilterInput(ctx context.Context, v interface{}) (*model.CourseSectionFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCourseSectionFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {

@@ -63,13 +63,13 @@ func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model
 }
 
 // CourseSectionsByCourseID is the resolver for the courseSectionsByCourseId field.
-func (r *queryResolver) CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID) ([]*model.CourseSection, error) {
+func (r *queryResolver) CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID, filter *model.CourseSectionFilterInput) ([]*model.CourseSection, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	sections, err := course_section.GetCourseSectionsByCourseID(ctx, userId, courseID)
+	sections, err := course_section.GetCourseSectionsByCourseID(ctx, userId, courseID, filter)
 	if err != nil {
 		return nil, err
 	}

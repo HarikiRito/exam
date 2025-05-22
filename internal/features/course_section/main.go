@@ -118,7 +118,8 @@ func PaginatedCourseSections(ctx context.Context, userId uuid.UUID, page, limit 
 
 // GetCourseSectionsByCourseID retrieves all course sections for a specific course ID.
 // The function performs authorization check to ensure the user is the course creator.
-func GetCourseSectionsByCourseID(ctx context.Context, userId uuid.UUID, courseId uuid.UUID) ([]*ent.CourseSection, error) {
+// If filter.onlyRoot is true, only returns sections that don't have a parent section.
+func GetCourseSectionsByCourseID(ctx context.Context, userId uuid.UUID, courseId uuid.UUID, filter *model.CourseSectionFilterInput) ([]*ent.CourseSection, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
@@ -134,12 +135,19 @@ func GetCourseSectionsByCourseID(ctx context.Context, userId uuid.UUID, courseId
 		return nil, errors.New("unauthorized: only the course creator can view sections")
 	}
 
-	// Query all sections for the specified course
-	sections, err := client.CourseSection.Query().
+	// Build the query
+	query := client.CourseSection.Query().
 		Where(
 			coursesection.HasCourseWith(course.ID(courseId), course.CreatorID(userId)),
-		).
-		All(ctx)
+		)
+
+	// Apply filter if provided
+	if filter != nil && filter.OnlyRoot != nil && *filter.OnlyRoot {
+		query = query.Where(coursesection.SectionIDIsNil())
+	}
+
+	// Execute the query
+	sections, err := query.All(ctx)
 	if err != nil {
 		return nil, err
 	}

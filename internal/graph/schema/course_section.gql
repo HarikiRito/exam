@@ -6,7 +6,7 @@ extend type Mutation {
 
 extend type Query {
   courseSection(id: ID!): CourseSection!
-  courseSectionsByCourseId(courseId: ID!): [CourseSection!]!
+  courseSectionsByCourseId(courseId: ID!, filter: CourseSectionFilterInput): [CourseSection!]!
 }
 
 
@@ -15,6 +15,7 @@ type CourseSection {
   title: String!
   description: String!
   courseId: ID!
+  sectionId: ID
 }
 
 input CreateCourseSectionInput {
@@ -26,5 +27,9 @@ input CreateCourseSectionInput {
 input UpdateCourseSectionInput {
   title: String
   description: String
+}
+
+input CourseSectionFilterInput {
+  onlyRoot: Boolean
 }
 

@@ -13,6 +13,10 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type CourseSectionFilterInput struct {
+	OnlyRoot *bool `json:"onlyRoot,omitempty"`
+}
+
 type CreateCourseInput struct {
 	Title       string  `json:"title"`
 	Description *string `json:"description,omitempty"`
