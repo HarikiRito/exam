@@ -8,11 +8,11 @@ import { z } from 'zod';
 
 import { useGetCourseQuery } from 'app/graphql/operations/course/getCourse.query.generated';
 import { useUpdateCourseMutation } from 'app/graphql/operations/course/updateCourse.mutation.generated';
-import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
 import { useCourseSectionsByCourseIdQuery } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
 import { useCreateCourseSectionMutation } from 'app/graphql/operations/courseSection/createCourseSection.mutation.generated';
 import { useRemoveCourseSectionMutation } from 'app/graphql/operations/courseSection/removeCourseSection.mutation.generated';
 import { useUpdateCourseSectionMutation } from 'app/graphql/operations/courseSection/updateCourseSection.mutation.generated';
+import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCombobox, ComboboxOption } from 'app/shared/components/combobox/AppCombobox';
@@ -23,12 +23,7 @@ import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { createProxyWithReset } from 'app/shared/utils/valtio';
-import { useSnapshot } from 'valtio';
-// Extended interface for displaying sections with children
-interface SectionWithChildren extends CourseSectionItemFragment {
-  children: SectionWithChildren[];
-}
+import { SectionTree } from './SectionTree';
 
 // Course schema
 const courseSchema = z.object({
@@ -45,22 +40,11 @@ const sectionSchema = z.object({
 type CourseFormData = z.infer<typeof courseSchema>;
 type SectionFormData = z.infer<typeof sectionSchema>;
 
-class EditCourseSectionState {
-  sections: SectionWithChildren[] = [];
-  editingSectionId: string | null = null;
-  deletingSectionId: string | null = null;
-  parentSectionId: string = '';
-  editingSection: SectionWithChildren | null = null;
-}
-
-const editCourseSectionState = createProxyWithReset(new EditCourseSectionState());
-
 const mutation = editCourseSectionState.proxyState;
 
 export default function EditCourse() {
   editCourseSectionState.useResetHook();
-  const { deletingSectionId, editingSectionId, editingSection, parentSectionId, sections } =
-    editCourseSectionState.useStateSnapshot();
+  const snap = editCourseSectionState.useStateSnapshot();
   const { courseId } = useParams();
   const navigate = useNavigate();
 
@@ -85,7 +69,7 @@ export default function EditCourse() {
     sectionsData?.courseSectionsByCourseId
       .filter((section) => {
         // If we're editing a section, don't allow it to be its own parent
-        if (editingSectionId && section.id === editingSectionId) return false;
+        if (snap.editingSectionId && section.id === snap.editingSectionId) return false;
         // Only include top-level sections (no sectionId)
         return !section.sectionId;
       })
@@ -263,11 +247,11 @@ export default function EditCourse() {
 
   // Handle update section form submission
   async function handleUpdateSection(data: SectionFormData) {
-    if (!editingSectionId) return;
+    if (!snap.editingSectionId) return;
 
     await updateCourseSection({
       variables: {
-        id: editingSectionId,
+        id: snap.editingSectionId,
         input: {
           title: data.title,
           description: data.description,
@@ -280,17 +264,17 @@ export default function EditCourse() {
 
   // Handle section deletion
   async function handleDeleteSection() {
-    if (!deletingSectionId) return;
+    if (!snap.deletingSectionId) return;
 
     await removeCourseSection({
       variables: {
-        id: deletingSectionId,
+        id: snap.deletingSectionId,
       },
     });
   }
 
   // Start editing a section
-  function startEditingSection(section: (typeof sections)[number]) {
+  function startEditingSection(section: (typeof snap.sections)[number]) {
     mutation.editingSectionId = section.id;
     mutation.editingSection = section as SectionWithChildren;
     // Ensure the sectionId is string or empty string for type safety
@@ -310,7 +294,7 @@ export default function EditCourse() {
   }
 
   // Recursive section renderer
-  function renderSectionItem(section: (typeof sections)[number]) {
+  function renderSectionItem(section: (typeof snap.sections)[number]) {
     // Determine if this section has children
     const hasChildren = section.children && section.children.length > 0;
 
@@ -535,6 +519,8 @@ export default function EditCourse() {
           </AppForm.Root>
         </div>
 
+        <SectionTree />
+
         {/* Course Sections */}
         <div className='rounded-lg border p-6 shadow-sm'>
           <div className='mb-6 flex items-center justify-between'>
@@ -543,9 +529,9 @@ export default function EditCourse() {
 
           {/* Accordion to display sections */}
           <div className='mb-6'>
-            {sections.length > 0 ? (
+            {snap.sections.length > 0 ? (
               <AppAccordion.Root type='multiple' className='space-y-2'>
-                {sections.map((section) => renderSectionItem(section))}
+                {snap.sections.map((section) => renderSectionItem(section))}
               </AppAccordion.Root>
             ) : (
               <div className='rounded-md border p-8 text-center'>
@@ -559,11 +545,11 @@ export default function EditCourse() {
           {/* Create/Edit Section Form */}
           <div className='rounded-md border p-4'>
             <AppTypography.h3 className='mb-4'>
-              {editingSectionId ? 'Edit Section' : 'Add New Section'}
+              {snap.editingSectionId ? 'Edit Section' : 'Add New Section'}
             </AppTypography.h3>
             <AppForm.Root {...sectionForm}>
               <form
-                onSubmit={sectionForm.handleSubmit(editingSectionId ? handleUpdateSection : handleCreateSection)}
+                onSubmit={sectionForm.handleSubmit(snap.editingSectionId ? handleUpdateSection : handleCreateSection)}
                 className='space-y-4'>
                 <AppForm.Field
                   control={sectionForm.control}
@@ -594,12 +580,12 @@ export default function EditCourse() {
                 />
 
                 {/* Only show parent section combobox when editing root sections or creating new sections */}
-                {(!editingSection || !editingSection.sectionId) && (
+                {(!snap.editingSection || !snap.editingSection.sectionId) && (
                   <div className='space-y-2'>
                     <AppForm.Label>Parent Section (Optional)</AppForm.Label>
                     <AppCombobox
                       options={availableParentSections}
-                      value={parentSectionId}
+                      value={snap.parentSectionId}
                       onValueChange={(value) => (mutation.parentSectionId = value)}
                       placeholder='Select parent section (optional)'
                       emptyMessage='No parent sections available.'
@@ -612,13 +598,13 @@ export default function EditCourse() {
                 )}
 
                 <div className='flex justify-end gap-2 pt-2'>
-                  {editingSectionId && (
+                  {snap.editingSectionId && (
                     <AppButton type='button' variant='outline' onClick={cancelEditingSection}>
                       Cancel
                     </AppButton>
                   )}
                   <AppButton type='submit' disabled={createSectionLoading || updateSectionLoading}>
-                    {editingSectionId
+                    {snap.editingSectionId
                       ? updateSectionLoading
                         ? 'Updating...'
                         : 'Update Section'
@@ -635,7 +621,7 @@ export default function EditCourse() {
 
       {/* Delete Section Confirmation Dialog */}
       <AppDialog.Root
-        open={!!deletingSectionId}
+        open={!!snap.deletingSectionId}
         onOpenChange={(open) => {
           if (!open) mutation.deletingSectionId = null;
         }}>
