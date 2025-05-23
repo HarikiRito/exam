@@ -30,6 +30,8 @@ const (
 	FieldTitle = "title"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldOrder holds the string denoting the order field in the database.
+	FieldOrder = "order"
 	// EdgeCourse holds the string denoting the course edge name in mutations.
 	EdgeCourse = "course"
 	// EdgeParent holds the string denoting the parent edge name in mutations.
@@ -101,6 +103,7 @@ var Columns = []string{
 	FieldSectionID,
 	FieldTitle,
 	FieldDescription,
+	FieldOrder,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -129,6 +132,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// DefaultOrder holds the default value on creation for the "order" field.
+	DefaultOrder int
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -174,6 +179,11 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 // ByDescription orders the results by the description field.
 func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDescription, opts...).ToFunc()
+}
+
+// ByOrder orders the results by the order field.
+func ByOrder(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrder, opts...).ToFunc()
 }
 
 // ByCourseField orders the results by course field.

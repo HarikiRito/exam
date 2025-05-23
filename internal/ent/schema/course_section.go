@@ -22,6 +22,7 @@ func (CourseSection) Fields() []ent.Field {
 		field.UUID("section_id", uuid.UUID{}).Optional().Nillable(),
 		field.String("title").NotEmpty(),
 		field.Text("description").Optional(),
+		field.Int("order").Default(0),
 	}
 }
 
@@ -36,7 +37,8 @@ func (CourseSection) Edges() []ent.Edge {
 		edge.From("parent", CourseSection.Type).
 			Ref("children").
 			Field("section_id").
-			Unique(),
+			Unique().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("children", CourseSection.Type),
 		edge.To("course_section_videos", Video.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),

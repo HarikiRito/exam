@@ -142,6 +142,27 @@ func (csu *CourseSectionUpdate) ClearDescription() *CourseSectionUpdate {
 	return csu
 }
 
+// SetOrder sets the "order" field.
+func (csu *CourseSectionUpdate) SetOrder(i int) *CourseSectionUpdate {
+	csu.mutation.ResetOrder()
+	csu.mutation.SetOrder(i)
+	return csu
+}
+
+// SetNillableOrder sets the "order" field if the given value is not nil.
+func (csu *CourseSectionUpdate) SetNillableOrder(i *int) *CourseSectionUpdate {
+	if i != nil {
+		csu.SetOrder(*i)
+	}
+	return csu
+}
+
+// AddOrder adds i to the "order" field.
+func (csu *CourseSectionUpdate) AddOrder(i int) *CourseSectionUpdate {
+	csu.mutation.AddOrder(i)
+	return csu
+}
+
 // SetCourse sets the "course" edge to the Course entity.
 func (csu *CourseSectionUpdate) SetCourse(c *Course) *CourseSectionUpdate {
 	return csu.SetCourseID(c.ID)
@@ -450,6 +471,12 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 	}
 	if csu.mutation.DescriptionCleared() {
 		_spec.ClearField(coursesection.FieldDescription, field.TypeString)
+	}
+	if value, ok := csu.mutation.Order(); ok {
+		_spec.SetField(coursesection.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := csu.mutation.AddedOrder(); ok {
+		_spec.AddField(coursesection.FieldOrder, field.TypeInt, value)
 	}
 	if csu.mutation.CourseCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -862,6 +889,27 @@ func (csuo *CourseSectionUpdateOne) ClearDescription() *CourseSectionUpdateOne {
 	return csuo
 }
 
+// SetOrder sets the "order" field.
+func (csuo *CourseSectionUpdateOne) SetOrder(i int) *CourseSectionUpdateOne {
+	csuo.mutation.ResetOrder()
+	csuo.mutation.SetOrder(i)
+	return csuo
+}
+
+// SetNillableOrder sets the "order" field if the given value is not nil.
+func (csuo *CourseSectionUpdateOne) SetNillableOrder(i *int) *CourseSectionUpdateOne {
+	if i != nil {
+		csuo.SetOrder(*i)
+	}
+	return csuo
+}
+
+// AddOrder adds i to the "order" field.
+func (csuo *CourseSectionUpdateOne) AddOrder(i int) *CourseSectionUpdateOne {
+	csuo.mutation.AddOrder(i)
+	return csuo
+}
+
 // SetCourse sets the "course" edge to the Course entity.
 func (csuo *CourseSectionUpdateOne) SetCourse(c *Course) *CourseSectionUpdateOne {
 	return csuo.SetCourseID(c.ID)
@@ -1200,6 +1248,12 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 	}
 	if csuo.mutation.DescriptionCleared() {
 		_spec.ClearField(coursesection.FieldDescription, field.TypeString)
+	}
+	if value, ok := csuo.mutation.Order(); ok {
+		_spec.SetField(coursesection.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := csuo.mutation.AddedOrder(); ok {
+		_spec.AddField(coursesection.FieldOrder, field.TypeInt, value)
 	}
 	if csuo.mutation.CourseCleared() {
 		edge := &sqlgraph.EdgeSpec{

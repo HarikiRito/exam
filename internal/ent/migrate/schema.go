@@ -48,6 +48,7 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "title", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "order", Type: field.TypeInt, Default: 0},
 		{Name: "course_id", Type: field.TypeUUID},
 		{Name: "section_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -59,13 +60,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "course_sections_courses_course_sections",
-				Columns:    []*schema.Column{CourseSectionsColumns[6]},
+				Columns:    []*schema.Column{CourseSectionsColumns[7]},
 				RefColumns: []*schema.Column{CoursesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "course_sections_course_sections_children",
-				Columns:    []*schema.Column{CourseSectionsColumns[7]},
+				Columns:    []*schema.Column{CourseSectionsColumns[8]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

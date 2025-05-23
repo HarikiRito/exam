@@ -91,6 +91,11 @@ func Description(v string) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldDescription, v))
 }
 
+// Order applies equality check predicate on the "order" field. It's identical to OrderEQ.
+func Order(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldEQ(FieldOrder, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldEQ(FieldCreatedAt, v))
@@ -409,6 +414,46 @@ func DescriptionEqualFold(v string) predicate.CourseSection {
 // DescriptionContainsFold applies the ContainsFold predicate on the "description" field.
 func DescriptionContainsFold(v string) predicate.CourseSection {
 	return predicate.CourseSection(sql.FieldContainsFold(FieldDescription, v))
+}
+
+// OrderEQ applies the EQ predicate on the "order" field.
+func OrderEQ(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldEQ(FieldOrder, v))
+}
+
+// OrderNEQ applies the NEQ predicate on the "order" field.
+func OrderNEQ(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldNEQ(FieldOrder, v))
+}
+
+// OrderIn applies the In predicate on the "order" field.
+func OrderIn(vs ...int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldIn(FieldOrder, vs...))
+}
+
+// OrderNotIn applies the NotIn predicate on the "order" field.
+func OrderNotIn(vs ...int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldNotIn(FieldOrder, vs...))
+}
+
+// OrderGT applies the GT predicate on the "order" field.
+func OrderGT(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldGT(FieldOrder, v))
+}
+
+// OrderGTE applies the GTE predicate on the "order" field.
+func OrderGTE(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldGTE(FieldOrder, v))
+}
+
+// OrderLT applies the LT predicate on the "order" field.
+func OrderLT(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldLT(FieldOrder, v))
+}
+
+// OrderLTE applies the LTE predicate on the "order" field.
+func OrderLTE(v int) predicate.CourseSection {
+	return predicate.CourseSection(sql.FieldLTE(FieldOrder, v))
 }
 
 // HasCourse applies the HasEdge predicate on the "course" edge.

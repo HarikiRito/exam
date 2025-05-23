@@ -82,6 +82,10 @@ func init() {
 	coursesectionDescTitle := coursesectionFields[2].Descriptor()
 	// coursesection.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	coursesection.TitleValidator = coursesectionDescTitle.Validators[0].(func(string) error)
+	// coursesectionDescOrder is the schema descriptor for order field.
+	coursesectionDescOrder := coursesectionFields[4].Descriptor()
+	// coursesection.DefaultOrder holds the default value on creation for the order field.
+	coursesection.DefaultOrder = coursesectionDescOrder.Default.(int)
 	// coursesectionDescID is the schema descriptor for id field.
 	coursesectionDescID := coursesectionMixinFields0[0].Descriptor()
 	// coursesection.DefaultID holds the default value on creation for the id field.

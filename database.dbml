@@ -79,6 +79,7 @@ Table course_sections {
   description text
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
+  order int [not null, default: 0]
 }
 
 Table videos {

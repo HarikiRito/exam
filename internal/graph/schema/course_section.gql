@@ -16,6 +16,7 @@ type CourseSection {
   description: String!
   courseId: ID!
   sectionId: ID
+  order: Int!
 }
 
 input CreateCourseSectionInput {

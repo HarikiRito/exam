@@ -108,6 +108,20 @@ func (csc *CourseSectionCreate) SetNillableDescription(s *string) *CourseSection
 	return csc
 }
 
+// SetOrder sets the "order" field.
+func (csc *CourseSectionCreate) SetOrder(i int) *CourseSectionCreate {
+	csc.mutation.SetOrder(i)
+	return csc
+}
+
+// SetNillableOrder sets the "order" field if the given value is not nil.
+func (csc *CourseSectionCreate) SetNillableOrder(i *int) *CourseSectionCreate {
+	if i != nil {
+		csc.SetOrder(*i)
+	}
+	return csc
+}
+
 // SetID sets the "id" field.
 func (csc *CourseSectionCreate) SetID(u uuid.UUID) *CourseSectionCreate {
 	csc.mutation.SetID(u)
@@ -272,6 +286,10 @@ func (csc *CourseSectionCreate) defaults() error {
 		v := coursesection.DefaultUpdatedAt()
 		csc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := csc.mutation.Order(); !ok {
+		v := coursesection.DefaultOrder
+		csc.mutation.SetOrder(v)
+	}
 	if _, ok := csc.mutation.ID(); !ok {
 		if coursesection.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized coursesection.DefaultID (forgotten import ent/runtime?)")
@@ -300,6 +318,9 @@ func (csc *CourseSectionCreate) check() error {
 		if err := coursesection.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "CourseSection.title": %w`, err)}
 		}
+	}
+	if _, ok := csc.mutation.Order(); !ok {
+		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "CourseSection.order"`)}
 	}
 	if len(csc.mutation.CourseIDs()) == 0 {
 		return &ValidationError{Name: "course", err: errors.New(`ent: missing required edge "CourseSection.course"`)}
@@ -358,6 +379,10 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 	if value, ok := csc.mutation.Description(); ok {
 		_spec.SetField(coursesection.FieldDescription, field.TypeString, value)
 		_node.Description = value
+	}
+	if value, ok := csc.mutation.Order(); ok {
+		_spec.SetField(coursesection.FieldOrder, field.TypeInt, value)
+		_node.Order = value
 	}
 	if nodes := csc.mutation.CourseIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -72,6 +72,7 @@ type ComplexityRoot struct {
 		CourseID    func(childComplexity int) int
 		Description func(childComplexity int) int
 		ID          func(childComplexity int) int
+		Order       func(childComplexity int) int
 		SectionID   func(childComplexity int) int
 		Title       func(childComplexity int) int
 	}
@@ -373,6 +374,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CourseSection.ID(childComplexity), true
+
+	case "CourseSection.order":
+		if e.complexity.CourseSection.Order == nil {
+			break
+		}
+
+		return e.complexity.CourseSection.Order(childComplexity), true
 
 	case "CourseSection.sectionId":
 		if e.complexity.CourseSection.SectionID == nil {
@@ -3013,6 +3021,50 @@ func (ec *executionContext) fieldContext_CourseSection_sectionId(_ context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _CourseSection_order(ctx context.Context, field graphql.CollectedField, obj *model.CourseSection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CourseSection_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CourseSection_order(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CourseSection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_register(ctx, field)
 	if err != nil {
@@ -3377,6 +3429,8 @@ func (ec *executionContext) fieldContext_Mutation_createCourseSection(ctx contex
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -3444,6 +3498,8 @@ func (ec *executionContext) fieldContext_Mutation_updateCourseSection(ctx contex
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -5769,6 +5825,8 @@ func (ec *executionContext) fieldContext_Query_courseSection(ctx context.Context
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -5836,6 +5894,8 @@ func (ec *executionContext) fieldContext_Query_courseSectionsByCourseId(ctx cont
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -6752,6 +6812,8 @@ func (ec *executionContext) fieldContext_Question_section(_ context.Context, fie
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -7133,6 +7195,8 @@ func (ec *executionContext) fieldContext_Test_courseSection(_ context.Context, f
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -7389,6 +7453,8 @@ func (ec *executionContext) fieldContext_TestSession_courseSection(_ context.Con
 				return ec.fieldContext_CourseSection_courseId(ctx, field)
 			case "sectionId":
 				return ec.fieldContext_CourseSection_sectionId(ctx, field)
+			case "order":
+				return ec.fieldContext_CourseSection_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
 		},
@@ -10859,6 +10925,11 @@ func (ec *executionContext) _CourseSection(ctx context.Context, sel ast.Selectio
 			}
 		case "sectionId":
 			out.Values[i] = ec._CourseSection_sectionId(ctx, field, obj)
+		case "order":
+			out.Values[i] = ec._CourseSection_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

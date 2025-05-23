@@ -1188,6 +1188,8 @@ type CourseSectionMutation struct {
 	deleted_at                   *time.Time
 	title                        *string
 	description                  *string
+	_order                       *int
+	add_order                    *int
 	clearedFields                map[string]struct{}
 	course                       *uuid.UUID
 	clearedcourse                bool
@@ -1608,6 +1610,62 @@ func (m *CourseSectionMutation) ResetDescription() {
 	delete(m.clearedFields, coursesection.FieldDescription)
 }
 
+// SetOrder sets the "order" field.
+func (m *CourseSectionMutation) SetOrder(i int) {
+	m._order = &i
+	m.add_order = nil
+}
+
+// Order returns the value of the "order" field in the mutation.
+func (m *CourseSectionMutation) Order() (r int, exists bool) {
+	v := m._order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrder returns the old "order" field's value of the CourseSection entity.
+// If the CourseSection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CourseSectionMutation) OldOrder(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrder: %w", err)
+	}
+	return oldValue.Order, nil
+}
+
+// AddOrder adds i to the "order" field.
+func (m *CourseSectionMutation) AddOrder(i int) {
+	if m.add_order != nil {
+		*m.add_order += i
+	} else {
+		m.add_order = &i
+	}
+}
+
+// AddedOrder returns the value that was added to the "order" field in this mutation.
+func (m *CourseSectionMutation) AddedOrder() (r int, exists bool) {
+	v := m.add_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOrder resets all changes to the "order" field.
+func (m *CourseSectionMutation) ResetOrder() {
+	m._order = nil
+	m.add_order = nil
+}
+
 // ClearCourse clears the "course" edge to the Course entity.
 func (m *CourseSectionMutation) ClearCourse() {
 	m.clearedcourse = true
@@ -1979,7 +2037,7 @@ func (m *CourseSectionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CourseSectionMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, coursesection.FieldCreatedAt)
 	}
@@ -2000,6 +2058,9 @@ func (m *CourseSectionMutation) Fields() []string {
 	}
 	if m.description != nil {
 		fields = append(fields, coursesection.FieldDescription)
+	}
+	if m._order != nil {
+		fields = append(fields, coursesection.FieldOrder)
 	}
 	return fields
 }
@@ -2023,6 +2084,8 @@ func (m *CourseSectionMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case coursesection.FieldDescription:
 		return m.Description()
+	case coursesection.FieldOrder:
+		return m.Order()
 	}
 	return nil, false
 }
@@ -2046,6 +2109,8 @@ func (m *CourseSectionMutation) OldField(ctx context.Context, name string) (ent.
 		return m.OldTitle(ctx)
 	case coursesection.FieldDescription:
 		return m.OldDescription(ctx)
+	case coursesection.FieldOrder:
+		return m.OldOrder(ctx)
 	}
 	return nil, fmt.Errorf("unknown CourseSection field %s", name)
 }
@@ -2104,6 +2169,13 @@ func (m *CourseSectionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDescription(v)
 		return nil
+	case coursesection.FieldOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown CourseSection field %s", name)
 }
@@ -2111,13 +2183,21 @@ func (m *CourseSectionMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *CourseSectionMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.add_order != nil {
+		fields = append(fields, coursesection.FieldOrder)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *CourseSectionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case coursesection.FieldOrder:
+		return m.AddedOrder()
+	}
 	return nil, false
 }
 
@@ -2126,6 +2206,13 @@ func (m *CourseSectionMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CourseSectionMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case coursesection.FieldOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOrder(v)
+		return nil
 	}
 	return fmt.Errorf("unknown CourseSection numeric field %s", name)
 }
@@ -2194,6 +2281,9 @@ func (m *CourseSectionMutation) ResetField(name string) error {
 		return nil
 	case coursesection.FieldDescription:
 		m.ResetDescription()
+		return nil
+	case coursesection.FieldOrder:
+		m.ResetOrder()
 		return nil
 	}
 	return fmt.Errorf("unknown CourseSection field %s", name)

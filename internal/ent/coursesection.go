@@ -33,6 +33,8 @@ type CourseSection struct {
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Order holds the value of the "order" field.
+	Order int `json:"order,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CourseSectionQuery when eager-loading is set.
 	Edges        CourseSectionEdges `json:"edges"`
@@ -134,6 +136,8 @@ func (*CourseSection) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case coursesection.FieldSectionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case coursesection.FieldOrder:
+			values[i] = new(sql.NullInt64)
 		case coursesection.FieldTitle, coursesection.FieldDescription:
 			values[i] = new(sql.NullString)
 		case coursesection.FieldCreatedAt, coursesection.FieldUpdatedAt, coursesection.FieldDeletedAt:
@@ -204,6 +208,12 @@ func (cs *CourseSection) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				cs.Description = value.String
+			}
+		case coursesection.FieldOrder:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field order", values[i])
+			} else if value.Valid {
+				cs.Order = int(value.Int64)
 			}
 		default:
 			cs.selectValues.Set(columns[i], values[i])
@@ -300,6 +310,9 @@ func (cs *CourseSection) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("description=")
 	builder.WriteString(cs.Description)
+	builder.WriteString(", ")
+	builder.WriteString("order=")
+	builder.WriteString(fmt.Sprintf("%v", cs.Order))
 	builder.WriteByte(')')
 	return builder.String()
 }
