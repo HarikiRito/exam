@@ -9,6 +9,7 @@ import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { useEffect } from 'react';
 
 // Section schema
 const sectionSchema = z.object({
@@ -37,7 +38,6 @@ export function SectionForm({
   onCancel,
 }: SectionFormProps) {
   const state = editCourseSectionState.useStateSnapshot();
-  const mutation = editCourseSectionState.proxyState;
 
   // Section form
   const sectionForm = useForm<SectionFormData>({
@@ -48,6 +48,13 @@ export function SectionForm({
       description: state.editingSection?.description || '',
     },
   });
+
+  useEffect(() => {
+    sectionForm.reset({
+      title: state.editingSection?.title || '',
+      description: state.editingSection?.description || '',
+    });
+  }, [state.editingSection, sectionForm]);
 
   // Handle form submission based on whether we're editing or creating
   function handleSubmit(data: SectionFormData) {
