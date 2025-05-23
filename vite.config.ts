@@ -1,7 +1,13 @@
 import { vitePlugin as remix } from '@remix-run/dev';
 import { flatRoutes } from 'remix-flat-routes';
 import { defineConfig } from 'vite';
+import babel from 'vite-plugin-babel';
 import tsconfigPaths from 'vite-tsconfig-paths';
+const ReactCompilerConfig = {
+  sources: (filename: string) => {
+    return filename.indexOf('app') !== -1;
+  },
+};
 declare module '@remix-run/node' {
   interface Future {
     v3_singleFetch: true;
@@ -32,6 +38,13 @@ export default defineConfig({
           //nestedDirectoryChar: '+',
           //routeRegex: /((\${nestedDirectoryChar}[\/\\][^\/\\:?*]+)|[\/\\]((index|route|layout|page)|(_[^\/\\:?*]+)|([^\/\\:?*]+\.route)))\.(ts|tsx|js|jsx|md|mdx)$$/,
         });
+      },
+    }),
+    babel({
+      filter: /\.[jt]sx?$/,
+      babelConfig: {
+        presets: ['@babel/preset-typescript'], // if you use TypeScript
+        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
       },
     }),
     tsconfigPaths(),
