@@ -37,6 +37,7 @@ export type CourseSection = {
   courseId: Scalars['ID']['output'];
   description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  order: Scalars['Int']['output'];
   sectionId?: Maybe<Scalars['ID']['output']>;
   title: Scalars['String']['output'];
 };

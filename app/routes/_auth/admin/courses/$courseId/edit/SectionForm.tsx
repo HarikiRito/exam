@@ -46,6 +46,7 @@ export function SectionForm({
     defaultValues: {
       title: state.editingSection?.title || '',
       description: state.editingSection?.description || '',
+      parentSectionId: state.editingSection?.sectionId || '',
     },
   });
 
@@ -53,6 +54,7 @@ export function SectionForm({
     sectionForm.reset({
       title: state.editingSection?.title || '',
       description: state.editingSection?.description || '',
+      parentSectionId: state.editingSection?.sectionId || '',
     });
   }, [state.editingSection, sectionForm]);
 
@@ -65,6 +67,8 @@ export function SectionForm({
 
     onCreateSection(data);
   }
+
+  const showParentSectionSelector = !state.editingSection || (state.editingSection && state.editingSection.sectionId);
 
   return (
     <div className='rounded-md border p-4'>
@@ -101,7 +105,8 @@ export function SectionForm({
             )}
           />
 
-          {(!state.editingSection || !state.editingSection.sectionId) && (
+          {/* Show parent section selector for new sections or when editing child sections */}
+          {showParentSectionSelector && (
             <AppForm.Field
               control={sectionForm.control}
               name='parentSectionId'
@@ -109,6 +114,7 @@ export function SectionForm({
                 <AppForm.Item>
                   <AppForm.Label>Parent Section (Optional)</AppForm.Label>
                   <AppForm.Control>
+                    {/* TODO: Handle case where selected parent becomes invalid (e.g., another user adds a child to it) */}
                     <AppCombobox
                       options={availableParentSections}
                       value={field.value ?? ''}

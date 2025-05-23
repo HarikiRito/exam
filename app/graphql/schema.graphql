@@ -26,6 +26,7 @@ type CourseSection {
   courseId: ID!
   description: String!
   id: ID!
+  order: Int!
   sectionId: ID
   title: String!
 }
