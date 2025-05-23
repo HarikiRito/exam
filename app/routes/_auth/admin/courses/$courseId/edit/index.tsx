@@ -50,7 +50,7 @@ export default function EditCourse() {
   // Section mutations
   const [createCourseSection, { loading: createSectionLoading }] = useCreateCourseSectionMutation({
     onCompleted: () => {
-      mutation.parentSectionId = '';
+      mutation.parentSectionId = null;
       toast.success('Section created successfully!');
       refetchSections();
     },
@@ -63,7 +63,7 @@ export default function EditCourse() {
     onCompleted: () => {
       mutation.editingSectionId = null;
       mutation.editingSection = null;
-      mutation.parentSectionId = '';
+      mutation.parentSectionId = null;
       toast.success('Section updated successfully!');
       refetchSections();
     },
@@ -89,7 +89,11 @@ export default function EditCourse() {
       .filter((section) => {
         // If we're editing a section, don't allow it to be its own parent
         if (state.editingSectionId && section.id === state.editingSectionId) return false;
-        // Only include top-level sections (no sectionId)
+
+        // Don't allow a section to be a parent of itself (circular dependency prevention)
+        if (state.editingSectionId && section.sectionId === state.editingSectionId) return false;
+
+        // Only include top-level sections (no sectionId) as potential parents
         return !section.sectionId;
       })
       .map((section) => ({
@@ -107,7 +111,7 @@ export default function EditCourse() {
   useEffect(() => {
     if (!sectionsData?.courseSectionsByCourseId) return;
 
-    const allSections = [...sectionsData.courseSectionsByCourseId];
+    const allSections = sectionsData.courseSectionsByCourseId;
 
     // Helper function to build tree
     function buildSectionTree(): SectionWithChildren[] {
@@ -176,11 +180,12 @@ export default function EditCourse() {
           courseId,
           title: data.title,
           description: data.description || '',
-          // TODO: We can't include parentId in the input since it's not in the schema
-          // Instead, we'll need to update the backend to support this feature
+          sectionId: data.parentSectionId || undefined,
         },
       },
     });
+
+    mutation.parentSectionId = null;
   }
 
   // Handle update section form submission
@@ -193,20 +198,19 @@ export default function EditCourse() {
         input: {
           title: data.title,
           description: data.description,
-          // TODO: We can't include parentId in the input since it's not in the schema
-          // Instead, we'll need to update the backend to support this feature
+          sectionId: data.parentSectionId || undefined,
         },
       },
     });
+
+    mutation.parentSectionId = null;
   }
 
   // Handle section deletion
-  async function handleDeleteSection() {
-    if (!state.deletingSectionId) return;
-
+  async function handleDeleteSection(sectionId: string) {
     await removeCourseSection({
       variables: {
-        id: state.deletingSectionId,
+        id: sectionId,
       },
     });
   }
@@ -216,14 +220,14 @@ export default function EditCourse() {
     mutation.editingSectionId = section.id;
     mutation.editingSection = section;
     // Ensure the sectionId is string or empty string for type safety
-    mutation.parentSectionId = section.sectionId ? section.sectionId : '';
+    mutation.parentSectionId = section.sectionId ?? null;
   }
 
   // Cancel editing a section
   function cancelEditingSection() {
     mutation.editingSectionId = null;
     mutation.editingSection = null;
-    mutation.parentSectionId = '';
+    mutation.parentSectionId = null;
   }
 
   if (courseLoading || sectionsLoading) {

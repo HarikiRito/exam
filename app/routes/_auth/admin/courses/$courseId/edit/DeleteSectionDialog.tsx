@@ -4,12 +4,13 @@ import { AppDialog } from 'app/shared/components/dialog/AppDialog';
 
 interface DeleteSectionDialogProps {
   readonly isLoading: boolean;
-  readonly onConfirm: () => Promise<void>;
+  readonly onConfirm: (sectionId: string) => Promise<void>;
 }
+
+const mutation = editCourseSectionState.proxyState;
 
 export function DeleteSectionDialog({ isLoading, onConfirm }: DeleteSectionDialogProps) {
   const state = editCourseSectionState.useStateSnapshot();
-  const mutation = editCourseSectionState.proxyState;
 
   return (
     <AppDialog.Root
@@ -28,7 +29,14 @@ export function DeleteSectionDialog({ isLoading, onConfirm }: DeleteSectionDialo
           <AppButton variant='outline' onClick={() => (mutation.deletingSectionId = null)}>
             Cancel
           </AppButton>
-          <AppButton variant='destructive' className='text-white' onClick={onConfirm} disabled={isLoading}>
+          <AppButton
+            variant='destructive'
+            className='text-white'
+            onClick={() => {
+              if (!state.deletingSectionId) return;
+              onConfirm(state.deletingSectionId);
+            }}
+            disabled={isLoading}>
             {isLoading ? 'Deleting...' : 'Delete'}
           </AppButton>
         </AppDialog.Footer>

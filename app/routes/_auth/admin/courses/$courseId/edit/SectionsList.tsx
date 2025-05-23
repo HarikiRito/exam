@@ -70,7 +70,7 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
           <AppButton
             variant='ghost'
             size='icon'
-            className='h-8 w-8'
+            className='pointer-events-auto h-8 w-8'
             onClick={(e) => {
               e.stopPropagation();
               onStartEditingSection(section);
@@ -80,7 +80,7 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
           <AppButton
             variant='ghost'
             size='icon'
-            className='h-8 w-8'
+            className='pointer-events-auto h-8 w-8'
             onClick={(e) => {
               e.stopPropagation();
               mutation.deletingSectionId = section.id;

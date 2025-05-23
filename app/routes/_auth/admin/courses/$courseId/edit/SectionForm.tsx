@@ -12,8 +12,9 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 
 // Section schema
 const sectionSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters'),
+  title: z.string().min(1, 'Title must be at least 1 characters'),
   description: z.string().optional(),
+  parentSectionId: z.string().optional(),
 });
 
 export type SectionFormData = z.infer<typeof sectionSchema>;
@@ -35,7 +36,7 @@ export function SectionForm({
   onUpdateSection,
   onCancel,
 }: SectionFormProps) {
-  const snap = editCourseSectionState.useStateSnapshot();
+  const state = editCourseSectionState.useStateSnapshot();
   const mutation = editCourseSectionState.proxyState;
 
   // Section form
@@ -43,23 +44,26 @@ export function SectionForm({
     resolver: zodResolver(sectionSchema),
     mode: 'onBlur',
     defaultValues: {
-      title: snap.editingSection?.title || '',
-      description: snap.editingSection?.description || '',
+      title: state.editingSection?.title || '',
+      description: state.editingSection?.description || '',
     },
   });
 
   // Handle form submission based on whether we're editing or creating
   function handleSubmit(data: SectionFormData) {
-    if (snap.editingSectionId) {
+    if (state.editingSectionId) {
       onUpdateSection(data);
-    } else {
-      onCreateSection(data);
+      return;
     }
+
+    onCreateSection(data);
   }
 
   return (
     <div className='rounded-md border p-4'>
-      <AppTypography.h3 className='mb-4'>{snap.editingSectionId ? 'Edit Section' : 'Add New Section'}</AppTypography.h3>
+      <AppTypography.h3 className='mb-4'>
+        {state.editingSectionId ? 'Edit Section' : 'Add New Section'}
+      </AppTypography.h3>
       <AppForm.Root {...sectionForm}>
         <form onSubmit={sectionForm.handleSubmit(handleSubmit)} className='space-y-4'>
           <AppForm.Field
@@ -90,32 +94,39 @@ export function SectionForm({
             )}
           />
 
-          {/* Only show parent section combobox when editing root sections or creating new sections */}
-          {(!snap.editingSection || !snap.editingSection.sectionId) && (
-            <div className='space-y-2'>
-              <AppForm.Label>Parent Section (Optional)</AppForm.Label>
-              <AppCombobox
-                options={availableParentSections}
-                value={snap.parentSectionId}
-                onValueChange={(value) => (mutation.parentSectionId = value)}
-                placeholder='Select parent section (optional)'
-                emptyMessage='No parent sections available.'
-                className='w-full'
-              />
-              <p className='text-xs text-gray-500'>
-                Select a parent section to create a sub-section. Leave empty for a top-level section.
-              </p>
-            </div>
+          {(!state.editingSection || !state.editingSection.sectionId) && (
+            <AppForm.Field
+              control={sectionForm.control}
+              name='parentSectionId'
+              render={({ field }) => (
+                <AppForm.Item>
+                  <AppForm.Label>Parent Section (Optional)</AppForm.Label>
+                  <AppForm.Control>
+                    <AppCombobox
+                      options={availableParentSections}
+                      value={field.value ?? ''}
+                      onValueChange={(value) => field.onChange(value)}
+                      placeholder='Select parent section (optional)'
+                      emptyMessage='No parent sections available.'
+                      className='w-full'
+                    />
+                  </AppForm.Control>
+                  <p className='text-xs text-gray-500'>
+                    Select a parent section to create a sub-section. Leave empty for a top-level section.
+                  </p>
+                  <AppForm.Message />
+                </AppForm.Item>
+              )}
+            />
           )}
-
           <div className='flex justify-end gap-2 pt-2'>
-            {snap.editingSectionId && (
+            {state.editingSectionId && (
               <AppButton type='button' variant='outline' onClick={onCancel}>
                 Cancel
               </AppButton>
             )}
             <AppButton type='submit' disabled={createSectionLoading || updateSectionLoading}>
-              {snap.editingSectionId
+              {state.editingSectionId
                 ? updateSectionLoading
                   ? 'Updating...'
                   : 'Update Section'

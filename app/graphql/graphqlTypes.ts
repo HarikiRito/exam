@@ -53,6 +53,7 @@ export type CreateCourseInput = {
 export type CreateCourseSectionInput = {
   courseId: Scalars['ID']['input'];
   description: Scalars['String']['input'];
+  sectionId?: InputMaybe<Scalars['ID']['input']>;
   title: Scalars['String']['input'];
 };
 
@@ -453,6 +454,7 @@ export type UpdateCourseInput = {
 
 export type UpdateCourseSectionInput = {
   description?: InputMaybe<Scalars['String']['input']>;
+  sectionId?: InputMaybe<Scalars['ID']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
