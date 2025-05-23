@@ -5,3 +5,5 @@ node_modules
 .env
 _shadcn
 tsconfig.tsbuildinfo
+
+coverage
