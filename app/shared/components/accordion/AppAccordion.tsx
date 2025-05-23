@@ -24,7 +24,7 @@ function AccordionTrigger({
     icon?: string;
   };
 }) {
-  const { showIcon, classes, ...rest } = props;
+  const { showIcon = true, classes, ...rest } = props;
   return (
     <AccordionPrimitive.Header className='flex'>
       <AccordionPrimitive.Trigger
