@@ -1,23 +1,17 @@
 import { useNavigate, useParams } from '@remix-run/react';
 import { useEffect } from 'react';
-import { toast } from 'sonner';
 
 import { useGetCourseQuery } from 'app/graphql/operations/course/getCourse.query.generated';
-import { useUpdateCourseMutation } from 'app/graphql/operations/course/updateCourse.mutation.generated';
 import { useCourseSectionsByCourseIdQuery } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
-import { useCreateCourseSectionMutation } from 'app/graphql/operations/courseSection/createCourseSection.mutation.generated';
-import { useRemoveCourseSectionMutation } from 'app/graphql/operations/courseSection/removeCourseSection.mutation.generated';
-import { useUpdateCourseSectionMutation } from 'app/graphql/operations/courseSection/updateCourseSection.mutation.generated';
 import { editCourseSectionState, SectionWithChildren } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { ComboboxOption } from 'app/shared/components/combobox/AppCombobox';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
 
-import { CourseForm, CourseFormData } from './CourseForm';
+import { CourseForm } from './CourseForm';
 import { DeleteSectionDialog } from './DeleteSectionDialog';
-import { SectionForm, SectionFormData } from './SectionForm';
+import { SectionForm } from './SectionForm';
 import { SectionsList } from './SectionsList';
 
 const mutation = editCourseSectionState.proxyState;
@@ -36,52 +30,9 @@ export default function EditCourse() {
   });
 
   // Fetch course sections
-  const {
-    data: sectionsData,
-    loading: sectionsLoading,
-    refetch: refetchCourseSections,
-  } = useCourseSectionsByCourseIdQuery({
+  const { data: sectionsData, loading: sectionsLoading } = useCourseSectionsByCourseIdQuery({
     variables: { courseId: courseId! },
     skip: !courseId,
-  });
-
-  // Course mutations
-  const [updateCourse, { loading: updateCourseLoading }] = useUpdateCourseMutation();
-
-  // Section mutations
-  const [createCourseSection, { loading: createSectionLoading }] = useCreateCourseSectionMutation({
-    onCompleted: () => {
-      mutation.parentSectionId = null;
-      toast.success('Section created successfully!');
-      refetchSections();
-    },
-    onError: (error) => {
-      toast.error(`Failed to create section: ${error.message}`);
-    },
-  });
-
-  const [updateCourseSection, { loading: updateSectionLoading }] = useUpdateCourseSectionMutation({
-    onCompleted: () => {
-      mutation.editingSectionId = null;
-      mutation.editingSection = null;
-      mutation.parentSectionId = null;
-      toast.success('Section updated successfully!');
-      refetchSections();
-    },
-    onError: (error) => {
-      toast.error(`Failed to update section: ${error.message}`);
-    },
-  });
-
-  const [removeCourseSection, { loading: removeSectionLoading }] = useRemoveCourseSectionMutation({
-    onCompleted: () => {
-      mutation.deletingSectionId = null;
-      toast.success('Section deleted successfully!');
-      refetchSections();
-    },
-    onError: (error) => {
-      toast.error(`Failed to delete section: ${error.message}`);
-    },
   });
 
   // Map sections to ComboboxOption for combobox - only root sections (no sectionId)
@@ -101,12 +52,6 @@ export default function EditCourse() {
         value: section.id,
         label: section.title,
       })) || [];
-
-  // Refetch sections helper
-  function refetchSections() {
-    if (!courseId) return;
-    refetchCourseSections();
-  }
 
   // Process sections data into parent-child structure
   useEffect(() => {
@@ -148,89 +93,6 @@ export default function EditCourse() {
     mutation.sections = sectionTree;
   }, [sectionsData]);
 
-  // Handle update course form submission
-  async function handleUpdateCourse(data: CourseFormData) {
-    if (!courseId) return;
-
-    try {
-      const result = await updateCourse({
-        variables: {
-          id: courseId,
-          input: {
-            title: data.title,
-            description: data.description,
-          },
-        },
-      });
-
-      if (result.data?.updateCourse) {
-        toast.success('Course updated successfully!');
-      }
-    } catch (error) {
-      toast.error(`Failed to update course: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
-
-  // Handle create section form submission
-  async function handleCreateSection(data: SectionFormData) {
-    if (!courseId) return;
-
-    await createCourseSection({
-      variables: {
-        input: {
-          courseId,
-          title: data.title,
-          description: data.description || '',
-          sectionId: data.parentSectionId || undefined,
-        },
-      },
-    });
-
-    mutation.parentSectionId = null;
-  }
-
-  // Handle update section form submission
-  async function handleUpdateSection(data: SectionFormData) {
-    if (!state.editingSectionId) return;
-
-    await updateCourseSection({
-      variables: {
-        id: state.editingSectionId,
-        input: {
-          title: data.title,
-          description: data.description,
-          sectionId: data.parentSectionId || undefined,
-        },
-      },
-    });
-
-    mutation.parentSectionId = null;
-  }
-
-  // Handle section deletion
-  async function handleDeleteSection(sectionId: string) {
-    await removeCourseSection({
-      variables: {
-        id: sectionId,
-      },
-    });
-  }
-
-  // Start editing a section
-  function startEditingSection(section: SectionWithChildren) {
-    mutation.editingSectionId = section.id;
-    mutation.editingSection = section;
-    // Ensure the sectionId is string or empty string for type safety
-    mutation.parentSectionId = section.sectionId ?? null;
-  }
-
-  // Cancel editing a section
-  function cancelEditingSection() {
-    mutation.editingSectionId = null;
-    mutation.editingSection = null;
-    mutation.parentSectionId = null;
-  }
-
   if (courseLoading || sectionsLoading) {
     return (
       <div className='p-6'>
@@ -255,8 +117,6 @@ export default function EditCourse() {
             title: courseData?.course?.title || '',
             description: courseData?.course?.description || '',
           }}
-          isLoading={updateCourseLoading}
-          onSubmit={handleUpdateCourse}
         />
 
         {/* Course Sections */}
@@ -266,22 +126,15 @@ export default function EditCourse() {
           </div>
 
           {/* Accordion to display sections */}
-          <SectionsList onStartEditingSection={startEditingSection} />
+          <SectionsList />
 
           {/* Create/Edit Section Form */}
-          <SectionForm
-            availableParentSections={availableParentSections}
-            createSectionLoading={createSectionLoading}
-            updateSectionLoading={updateSectionLoading}
-            onCreateSection={handleCreateSection}
-            onUpdateSection={handleUpdateSection}
-            onCancel={cancelEditingSection}
-          />
+          <SectionForm availableParentSections={availableParentSections} />
         </div>
       </div>
 
       {/* Delete Section Confirmation Dialog */}
-      <DeleteSectionDialog isLoading={removeSectionLoading} onConfirm={handleDeleteSection} />
+      <DeleteSectionDialog />
     </div>
   );
 }

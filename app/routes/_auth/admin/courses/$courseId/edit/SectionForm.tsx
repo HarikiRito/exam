@@ -1,15 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useParams } from '@remix-run/react';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
+import { useCreateCourseSectionMutation } from 'app/graphql/operations/courseSection/createCourseSection.mutation.generated';
+import { useUpdateCourseSectionMutation } from 'app/graphql/operations/courseSection/updateCourseSection.mutation.generated';
+import { CourseSectionsByCourseIdDocument } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCombobox, ComboboxOption } from 'app/shared/components/combobox/AppCombobox';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { useEffect } from 'react';
+import { apolloService } from 'app/shared/services/apollo.service';
 
 // Section schema
 const sectionSchema = z.object({
@@ -22,22 +28,44 @@ export type SectionFormData = z.infer<typeof sectionSchema>;
 
 interface SectionFormProps {
   readonly availableParentSections: ComboboxOption[];
-  readonly createSectionLoading: boolean;
-  readonly updateSectionLoading: boolean;
-  readonly onCreateSection: (data: SectionFormData) => Promise<void>;
-  readonly onUpdateSection: (data: SectionFormData) => Promise<void>;
-  readonly onCancel: () => void;
 }
 
-export function SectionForm({
-  availableParentSections,
-  createSectionLoading,
-  updateSectionLoading,
-  onCreateSection,
-  onUpdateSection,
-  onCancel,
-}: SectionFormProps) {
+const mutation = editCourseSectionState.proxyState;
+
+export function SectionForm({ availableParentSections }: SectionFormProps) {
   const state = editCourseSectionState.useStateSnapshot();
+  const { courseId } = useParams();
+
+  // Cancel editing a section
+  function cancelEditingSection() {
+    mutation.editingSectionId = null;
+    mutation.editingSection = null;
+    mutation.parentSectionId = null;
+  }
+
+  const [createCourseSection, { loading: createSectionLoading }] = useCreateCourseSectionMutation({
+    onCompleted: () => {
+      mutation.parentSectionId = null;
+      toast.success('Section created successfully!');
+      apolloService.invalidateQueries([CourseSectionsByCourseIdDocument]);
+    },
+    onError: (error) => {
+      toast.error(`Failed to create section: ${error.message}`);
+    },
+  });
+
+  const [updateCourseSection, { loading: updateSectionLoading }] = useUpdateCourseSectionMutation({
+    onCompleted: () => {
+      mutation.editingSectionId = null;
+      mutation.editingSection = null;
+      mutation.parentSectionId = null;
+      toast.success('Section updated successfully!');
+      apolloService.invalidateQueries([CourseSectionsByCourseIdDocument]);
+    },
+    onError: (error) => {
+      toast.error(`Failed to update section: ${error.message}`);
+    },
+  });
 
   // Section form
   const sectionForm = useForm<SectionFormData>({
@@ -59,13 +87,35 @@ export function SectionForm({
   }, [state.editingSection, sectionForm]);
 
   // Handle form submission based on whether we're editing or creating
-  function handleSubmit(data: SectionFormData) {
+  async function handleSubmit(data: SectionFormData) {
+    if (!courseId) return;
+
     if (state.editingSectionId) {
-      onUpdateSection(data);
+      await updateCourseSection({
+        variables: {
+          id: state.editingSectionId,
+          input: {
+            title: data.title,
+            description: data.description,
+            sectionId: data.parentSectionId || undefined,
+          },
+        },
+      });
       return;
     }
 
-    onCreateSection(data);
+    await createCourseSection({
+      variables: {
+        input: {
+          courseId,
+          title: data.title,
+          description: data.description || '',
+          sectionId: data.parentSectionId || undefined,
+        },
+      },
+    });
+
+    mutation.parentSectionId = null;
   }
 
   const showParentSectionSelector = !state.editingSection || (state.editingSection && state.editingSection.sectionId);
@@ -134,7 +184,7 @@ export function SectionForm({
           )}
           <div className='flex justify-end gap-2 pt-2'>
             {state.editingSectionId && (
-              <AppButton type='button' variant='outline' onClick={onCancel}>
+              <AppButton type='button' variant='outline' onClick={cancelEditingSection}>
                 Cancel
               </AppButton>
             )}

@@ -3,17 +3,20 @@ import { Edit2, Trash2 } from 'lucide-react';
 import { editCourseSectionState, SectionWithChildren } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { cn } from 'app/shared/utils/className';
 
-interface SectionsListProps {
-  readonly onStartEditingSection: (section: SectionWithChildren) => void;
-}
-
-export function SectionsList({ onStartEditingSection }: SectionsListProps) {
+export function SectionsList() {
   const snap = editCourseSectionState.useStateSnapshot();
   const mutation = editCourseSectionState.proxyState;
+
+  // Start editing a section
+  function startEditingSection(section: SectionWithChildren) {
+    mutation.editingSectionId = section.id;
+    mutation.editingSection = section;
+    // Ensure the sectionId is string or empty string for type safety
+    mutation.parentSectionId = section.sectionId ?? null;
+  }
 
   // Recursive section renderer
   function renderSectionItem(section: (typeof snap.sections)[number]) {
@@ -73,7 +76,7 @@ export function SectionsList({ onStartEditingSection }: SectionsListProps) {
             className='pointer-events-auto h-8 w-8'
             onClick={(e) => {
               e.stopPropagation();
-              onStartEditingSection(section);
+              startEditingSection(section);
             }}>
             <Edit2 className='h-4 w-4' />
           </AppButton>
