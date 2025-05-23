@@ -15,28 +15,62 @@ import (
 
 // CreateCourseSection creates a new course section for a course, only if the user is the course creator.
 func CreateCourseSection(ctx context.Context, userId uuid.UUID, courseId uuid.UUID, input model.CreateCourseSectionInput) (*ent.CourseSection, error) {
-	client, err := db.OpenClient()
+	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+	defer db.CloseTransaction(tx)
 
-	crs, err := client.Course.Get(ctx, courseId)
+	// Check if the user is the course creator
+	crs, err := tx.Course.Get(ctx, courseId)
 	if err != nil {
-		return nil, err
+		return nil, db.Rollback(tx, err)
 	}
 	if crs.CreatorID != userId {
-		return nil, errors.New("unauthorized: only the course creator can add sections")
+		return nil, db.Rollback(tx, errors.New("unauthorized: only the course creator can add sections to this course"))
 	}
 
-	section, err := client.CourseSection.Create().
+	// Validate sectionId if provided
+	if input.SectionID != nil {
+		// Check if sectionId belongs to the same course
+		parentSection, err := tx.CourseSection.Query().
+			Where(coursesection.ID(*input.SectionID)).
+			Select(coursesection.FieldCourseID).
+			First(ctx)
+		if err != nil {
+			return nil, db.Rollback(tx, errors.New("invalid sectionId: section not found"))
+		}
+		if parentSection.CourseID != courseId {
+			return nil, db.Rollback(tx, errors.New("section must belong to the same course"))
+		}
+
+		// Check if the section is a root section (do not have a parent section)
+		isRootSection, err := tx.CourseSection.Query().
+			Where(coursesection.ID(*input.SectionID)).
+			Where(coursesection.SectionIDIsNil()).
+			Exist(ctx)
+		if err != nil {
+			return nil, db.Rollback(tx, err)
+		}
+		if !isRootSection {
+			return nil, db.Rollback(tx, errors.New("the section cannot be the child of a non-root section"))
+		}
+	}
+
+	section, err := tx.CourseSection.Create().
 		SetCourseID(courseId).
 		SetTitle(input.Title).
 		SetDescription(input.Description).
+		SetNillableSectionID(input.SectionID).
 		Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, db.Rollback(tx, err)
 	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, db.Rollback(tx, err)
+	}
+
 	return section, nil
 }
 
@@ -60,24 +94,62 @@ func GetCourseSectionByID(ctx context.Context, userId uuid.UUID, sectionId uuid.
 
 // UpdateCourseSection updates a course section, only if the user is the course creator.
 func UpdateCourseSection(ctx context.Context, userId uuid.UUID, sectionId uuid.UUID, input model.UpdateCourseSectionInput) (*ent.CourseSection, error) {
-	client, err := db.OpenClient()
+	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+	defer db.CloseTransaction(tx)
 
-	section, err := client.CourseSection.Query().Where(coursesection.ID(sectionId), coursesection.HasCourseWith(course.CreatorID(userId))).First(ctx)
+	section, err := tx.CourseSection.Query().Where(coursesection.ID(sectionId), coursesection.HasCourseWith(course.CreatorID(userId))).First(ctx)
 	if err != nil {
-		return nil, err
+		return nil, db.Rollback(tx, err)
+	}
+
+	// Validate sectionId if provided
+	if input.SectionID != nil {
+		// Check if sectionId references itself
+		if *input.SectionID == sectionId {
+			return nil, db.Rollback(tx, errors.New("the section cannot be the child of itself"))
+		}
+
+		// Check if sectionId belongs to the same course
+		parentSection, err := tx.CourseSection.Query().
+			Where(coursesection.ID(*input.SectionID)).
+			Select(coursesection.FieldCourseID).
+			First(ctx)
+		if err != nil {
+			return nil, db.Rollback(tx, errors.New("invalid sectionId: section not found"))
+		}
+		if parentSection.CourseID != section.CourseID {
+			return nil, db.Rollback(tx, errors.New("sectionId must belong to the same course"))
+		}
+
+		// Check if the section is a root section (do not have a parent section)
+		isRootSection, err := tx.CourseSection.Query().
+			Where(coursesection.ID(*input.SectionID)).
+			Where(coursesection.SectionIDIsNil()).
+			Exist(ctx)
+		if err != nil {
+			return nil, db.Rollback(tx, err)
+		}
+		if !isRootSection {
+			return nil, db.Rollback(tx, errors.New("the section cannot be the child of a non-root section"))
+		}
 	}
 
 	section, err = section.Update().
 		SetNillableTitle(input.Title).
 		SetNillableDescription(input.Description).
+		SetNillableSectionID(input.SectionID).
 		Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, db.Rollback(tx, err)
 	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, db.Rollback(tx, err)
+	}
+
 	return section, nil
 }
 

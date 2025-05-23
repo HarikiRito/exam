@@ -23,9 +23,10 @@ type CreateCourseInput struct {
 }
 
 type CreateCourseSectionInput struct {
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	CourseID    uuid.UUID `json:"courseId"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	CourseID    uuid.UUID  `json:"courseId"`
+	SectionID   *uuid.UUID `json:"sectionId,omitempty"`
 }
 
 type CreateQuestionInput struct {
@@ -146,8 +147,9 @@ type UpdateCourseInput struct {
 }
 
 type UpdateCourseSectionInput struct {
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Title       *string    `json:"title,omitempty"`
+	Description *string    `json:"description,omitempty"`
+	SectionID   *uuid.UUID `json:"sectionId,omitempty"`
 }
 
 type UpdateQuestionInput struct {

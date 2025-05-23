@@ -10000,7 +10000,7 @@ func (ec *executionContext) unmarshalInputCreateCourseSectionInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "description", "courseId"}
+	fieldsInOrder := [...]string{"title", "description", "courseId", "sectionId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10028,6 +10028,13 @@ func (ec *executionContext) unmarshalInputCreateCourseSectionInput(ctx context.C
 				return it, err
 			}
 			it.CourseID = data
+		case "sectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sectionId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SectionID = data
 		}
 	}
 
@@ -10457,7 +10464,7 @@ func (ec *executionContext) unmarshalInputUpdateCourseSectionInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "description"}
+	fieldsInOrder := [...]string{"title", "description", "sectionId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10478,6 +10485,13 @@ func (ec *executionContext) unmarshalInputUpdateCourseSectionInput(ctx context.C
 				return it, err
 			}
 			it.Description = data
+		case "sectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sectionId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SectionID = data
 		}
 	}
 

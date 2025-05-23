@@ -22,11 +22,13 @@ input CreateCourseSectionInput {
   title: String!
   description: String!
   courseId: ID!
+  sectionId: ID
 }
 
 input UpdateCourseSectionInput {
   title: String
   description: String
+  sectionId: ID
 }
 
 input CourseSectionFilterInput {
