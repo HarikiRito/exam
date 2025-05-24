@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { proxy, useSnapshot } from 'valtio';
+import { proxy, snapshot, useSnapshot } from 'valtio';
 import { deepClone } from 'valtio/utils';
 
 export function createProxyWithReset<T extends object>(initialState: T) {
@@ -32,4 +32,13 @@ export function createProxyWithReset<T extends object>(initialState: T) {
   }
 
   return { proxyState, reset, useResetHook, useStateSnapshot };
+}
+
+/**
+ * Unwraps a proxy to a deep clone of the original object.
+ * @param proxy - The proxy to unwrap.
+ * @returns A deep clone of the original object.
+ */
+export function unwrapProxy<T extends object>(proxy: T) {
+  return deepClone(proxy);
 }

@@ -1,10 +1,14 @@
 import { Edit2, Trash2 } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { cn } from 'app/shared/utils/className';
 import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
+import { snapshot } from 'valtio';
+import { unwrapProxy } from 'app/shared/utils/valtio';
+import { deepClone } from 'valtio/utils';
 
 // TODO: Test rendering of sections and children recursively
 // TODO: Test onEdit and onDelete callbacks are called with correct parameters
@@ -31,6 +35,19 @@ export function AccordionSection({
   className,
   emptyStateMessage = 'No sections found. Create a section to get started.',
 }: AccordionSectionProps) {
+  // Memoize deeply cloned and sorted sections
+  const sortedRootSections = useMemo(() => {
+    const deepCopy = deepClone(sections); // Deep clone
+
+    deepCopy.sort((a, b) => a.order - b.order); // Sort root sections by order
+    deepCopy.forEach((section) => {
+      if (section.children?.length) {
+        section.children.sort((a, b) => a.order - b.order); // Sort children by order
+      }
+    });
+    return deepCopy;
+  }, [sections]);
+
   // Recursive section renderer
   function renderSectionItem(section: SectionWithChildren) {
     // Determine if this section has children
@@ -41,7 +58,6 @@ export function AccordionSection({
     return (
       <AppAccordion.Item key={section.id} value={section.id} className='mb-2 rounded-md border px-4'>
         <AppAccordion.Trigger
-          aria-label={`Toggle section: ${section.title}${hasChildren ? ' (has subsections)' : ''}`}
           classes={{
             icon: cn(!hasChildren && 'invisible'),
           }}
@@ -92,8 +108,7 @@ export function AccordionSection({
             onClick={(e) => {
               e.stopPropagation();
               onEdit(section);
-            }}
-            aria-label={`Edit section: ${section.title}`}>
+            }}>
             <Edit2 className='h-4 w-4' />
           </AppButton>
           <AppButton
@@ -103,8 +118,7 @@ export function AccordionSection({
             onClick={(e) => {
               e.stopPropagation();
               onDelete(section.id);
-            }}
-            aria-label={`Delete section: ${section.title}`}>
+            }}>
             <Trash2 className='text-destructive h-4 w-4' />
           </AppButton>
         </div>
@@ -124,7 +138,7 @@ export function AccordionSection({
   return (
     <div className={className}>
       <AppAccordion.Root type='multiple' className='space-y-2'>
-        {sections.map((section) => renderSectionItem(section))}
+        {sortedRootSections.map((section) => renderSectionItem(section))}
       </AppAccordion.Root>
     </div>
   );
