@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { vitePlugin as remix } from '@remix-run/dev';
 import { flatRoutes } from 'remix-flat-routes';
 import { defineConfig } from 'vite';
@@ -14,32 +15,34 @@ declare module '@remix-run/node' {
   }
 }
 
+/**
+ * https://akoskm.com/react-router-vitest-example/
+ * Vitest not working with react-router and since remix is using react-router internally,
+ * we need to disable remix when running tests.
+ */
+const isVitest = Boolean(process.env.VITEST);
+
 export default defineConfig({
   ssr: {
     // noExternal: true,
   },
   plugins: [
-    remix({
-      ssr: false,
-      future: {
-        v3_fetcherPersist: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-        v3_singleFetch: true,
-        v3_lazyRouteDiscovery: true,
-      },
-      routes(defineRoutes) {
-        return flatRoutes('routes', defineRoutes, {
-          ignoredRouteFiles: ['**/.*'], // Ignore dot files (like .DS_Store)
-          //appDir: 'app',
-          //routeDir: 'routes',
-          //basePath: '/',
-          //paramPrefixChar: '$',
-          //nestedDirectoryChar: '+',
-          //routeRegex: /((\${nestedDirectoryChar}[\/\\][^\/\\:?*]+)|[\/\\]((index|route|layout|page)|(_[^\/\\:?*]+)|([^\/\\:?*]+\.route)))\.(ts|tsx|js|jsx|md|mdx)$$/,
-        });
-      },
-    }),
+    !isVitest &&
+      remix({
+        ssr: false,
+        future: {
+          v3_fetcherPersist: true,
+          v3_relativeSplatPath: true,
+          v3_throwAbortReason: true,
+          v3_singleFetch: true,
+          v3_lazyRouteDiscovery: true,
+        },
+        routes(defineRoutes) {
+          return flatRoutes('routes', defineRoutes, {
+            ignoredRouteFiles: ['**/.*'], // Ignore dot files (like .DS_Store)
+          });
+        },
+      }),
     babel({
       filter: /\.[jt]sx?$/,
       babelConfig: {
@@ -49,4 +52,13 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './app/setupTests.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+    },
+  },
 });
