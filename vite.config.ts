@@ -59,6 +59,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules', 'dist', 'build', 'public', 'app/graphql'],
+      include: ['app/**/*.{ts,tsx}'],
     },
   },
 });
