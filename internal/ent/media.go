@@ -33,7 +33,7 @@ type Media struct {
 	// MimeType holds the value of the "mime_type" field.
 	MimeType string `json:"mime_type,omitempty"`
 	// UploaderID holds the value of the "uploader_id" field.
-	UploaderID uuid.UUID `json:"uploader_id,omitempty"`
+	UploaderID *uuid.UUID `json:"uploader_id,omitempty"`
 	// Additional metadata for the file
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -100,13 +100,15 @@ func (*Media) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case media.FieldUploaderID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case media.FieldMetadata:
 			values[i] = new([]byte)
 		case media.FieldFileName, media.FieldFileURL, media.FieldMimeType:
 			values[i] = new(sql.NullString)
 		case media.FieldCreatedAt, media.FieldUpdatedAt, media.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case media.FieldID, media.FieldUploaderID:
+		case media.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -167,10 +169,11 @@ func (m *Media) assignValues(columns []string, values []any) error {
 				m.MimeType = value.String
 			}
 		case media.FieldUploaderID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field uploader_id", values[i])
-			} else if value != nil {
-				m.UploaderID = *value
+			} else if value.Valid {
+				m.UploaderID = new(uuid.UUID)
+				*m.UploaderID = *value.S.(*uuid.UUID)
 			}
 		case media.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -256,8 +259,10 @@ func (m *Media) String() string {
 	builder.WriteString("mime_type=")
 	builder.WriteString(m.MimeType)
 	builder.WriteString(", ")
-	builder.WriteString("uploader_id=")
-	builder.WriteString(fmt.Sprintf("%v", m.UploaderID))
+	if v := m.UploaderID; v != nil {
+		builder.WriteString("uploader_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
 	builder.WriteString(fmt.Sprintf("%v", m.Metadata))

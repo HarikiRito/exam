@@ -21,9 +21,9 @@ func (User) Fields() []ent.Field {
 		field.String("username").NotEmpty().Unique(),
 		field.String("email").NotEmpty().Unique(),
 		field.String("password_hash").NotEmpty(),
-		field.String("first_name").Optional(),
-		field.String("last_name").Optional(),
-		field.UUID("avatar_id", uuid.UUID{}).Optional(),
+		field.String("first_name").Optional().Nillable(),
+		field.String("last_name").Optional().Nillable(),
+		field.UUID("avatar_id", uuid.UUID{}).Optional().Nillable(),
 		field.Bool("is_active").Default(true),
 	}
 }

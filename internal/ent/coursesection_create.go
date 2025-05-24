@@ -378,7 +378,7 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 	}
 	if value, ok := csc.mutation.Description(); ok {
 		_spec.SetField(coursesection.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if value, ok := csc.mutation.Order(); ok {
 		_spec.SetField(coursesection.FieldOrder, field.TypeInt, value)

@@ -414,7 +414,7 @@ func (m *CourseMutation) MediaID() (r uuid.UUID, exists bool) {
 // OldMediaID returns the old "media_id" field's value of the Course entity.
 // If the Course object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseMutation) OldMediaID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *CourseMutation) OldMediaID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMediaID is only allowed on UpdateOne operations")
 	}
@@ -1578,7 +1578,7 @@ func (m *CourseSectionMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the CourseSection entity.
 // If the CourseSection object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CourseSectionMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *CourseSectionMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -2893,7 +2893,7 @@ func (m *MediaMutation) UploaderID() (r uuid.UUID, exists bool) {
 // OldUploaderID returns the old "uploader_id" field's value of the Media entity.
 // If the Media object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaMutation) OldUploaderID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *MediaMutation) OldUploaderID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUploaderID is only allowed on UpdateOne operations")
 	}
@@ -3899,7 +3899,7 @@ func (m *PermissionMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Permission entity.
 // If the Permission object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PermissionMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *PermissionMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -4555,7 +4555,7 @@ func (m *QuestionMutation) SectionID() (r uuid.UUID, exists bool) {
 // OldSectionID returns the old "section_id" field's value of the Question entity.
 // If the Question object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *QuestionMutation) OldSectionID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *QuestionMutation) OldSectionID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSectionID is only allowed on UpdateOne operations")
 	}
@@ -6327,7 +6327,7 @@ func (m *RoleMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Role entity.
 // If the Role object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *RoleMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -9133,7 +9133,7 @@ func (m *TodoMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Todo entity.
 // If the Todo object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TodoMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *TodoMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -9818,7 +9818,7 @@ func (m *UserMutation) FirstName() (r string, exists bool) {
 // OldFirstName returns the old "first_name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldFirstName(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldFirstName(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldFirstName is only allowed on UpdateOne operations")
 	}
@@ -9867,7 +9867,7 @@ func (m *UserMutation) LastName() (r string, exists bool) {
 // OldLastName returns the old "last_name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldLastName(ctx context.Context) (v string, err error) {
+func (m *UserMutation) OldLastName(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLastName is only allowed on UpdateOne operations")
 	}
@@ -9916,7 +9916,7 @@ func (m *UserMutation) AvatarID() (r uuid.UUID, exists bool) {
 // OldAvatarID returns the old "avatar_id" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldAvatarID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *UserMutation) OldAvatarID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAvatarID is only allowed on UpdateOne operations")
 	}
@@ -12786,7 +12786,7 @@ func (m *VideoMutation) Description() (r string, exists bool) {
 // OldDescription returns the old "description" field's value of the Video entity.
 // If the Video object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldDescription(ctx context.Context) (v string, err error) {
+func (m *VideoMutation) OldDescription(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
 	}
@@ -12908,7 +12908,7 @@ func (m *VideoMutation) Duration() (r int, exists bool) {
 // OldDuration returns the old "duration" field's value of the Video entity.
 // If the Video object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *VideoMutation) OldDuration(ctx context.Context) (v int, err error) {
+func (m *VideoMutation) OldDuration(ctx context.Context) (v *int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
 	}

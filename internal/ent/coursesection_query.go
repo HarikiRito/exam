@@ -810,9 +810,12 @@ func (csq *CourseSectionQuery) loadQuestions(ctx context.Context, query *Questio
 	}
 	for _, n := range neighbors {
 		fk := n.SectionID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "section_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "section_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "section_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

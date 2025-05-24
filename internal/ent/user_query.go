@@ -672,7 +672,10 @@ func (uq *UserQuery) loadMedia(ctx context.Context, query *MediaQuery, nodes []*
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*User)
 	for i := range nodes {
-		fk := nodes[i].AvatarID
+		if nodes[i].AvatarID == nil {
+			continue
+		}
+		fk := *nodes[i].AvatarID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -719,9 +722,12 @@ func (uq *UserQuery) loadMediaUploader(ctx context.Context, query *MediaQuery, n
 	}
 	for _, n := range neighbors {
 		fk := n.UploaderID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "uploader_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "uploader_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "uploader_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

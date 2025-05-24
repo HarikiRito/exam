@@ -15,7 +15,7 @@ type Todo struct {
 func (Todo) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title"),
-		field.String("description").Optional(),
+		field.String("description").Optional().Nillable(),
 	}
 }
 

@@ -21,7 +21,7 @@ func (CourseSection) Fields() []ent.Field {
 		field.UUID("course_id", uuid.UUID{}),
 		field.UUID("section_id", uuid.UUID{}).Optional().Nillable(),
 		field.String("title").NotEmpty(),
-		field.Text("description").Optional(),
+		field.Text("description").Optional().Nillable(),
 		field.Int("order").Default(0),
 	}
 }

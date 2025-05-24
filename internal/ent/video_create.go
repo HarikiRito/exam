@@ -317,11 +317,11 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := vc.mutation.Description(); ok {
 		_spec.SetField(video.FieldDescription, field.TypeString, value)
-		_node.Description = value
+		_node.Description = &value
 	}
 	if value, ok := vc.mutation.Duration(); ok {
 		_spec.SetField(video.FieldDuration, field.TypeInt, value)
-		_node.Duration = value
+		_node.Duration = &value
 	}
 	if nodes := vc.mutation.CourseSectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

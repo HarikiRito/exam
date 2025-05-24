@@ -32,7 +32,7 @@ type CourseSection struct {
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Order holds the value of the "order" field.
 	Order int `json:"order,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -207,7 +207,8 @@ func (cs *CourseSection) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				cs.Description = value.String
+				cs.Description = new(string)
+				*cs.Description = value.String
 			}
 		case coursesection.FieldOrder:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -308,8 +309,10 @@ func (cs *CourseSection) String() string {
 	builder.WriteString("title=")
 	builder.WriteString(cs.Title)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(cs.Description)
+	if v := cs.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("order=")
 	builder.WriteString(fmt.Sprintf("%v", cs.Order))

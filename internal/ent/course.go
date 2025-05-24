@@ -31,7 +31,7 @@ type Course struct {
 	// Description holds the value of the "description" field.
 	Description *string `json:"description,omitempty"`
 	// MediaID holds the value of the "media_id" field.
-	MediaID uuid.UUID `json:"media_id,omitempty"`
+	MediaID *uuid.UUID `json:"media_id,omitempty"`
 	// CreatorID holds the value of the "creator_id" field.
 	CreatorID uuid.UUID `json:"creator_id,omitempty"`
 	// IsPublished holds the value of the "is_published" field.
@@ -113,13 +113,15 @@ func (*Course) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case course.FieldMediaID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case course.FieldIsPublished:
 			values[i] = new(sql.NullBool)
 		case course.FieldTitle, course.FieldDescription:
 			values[i] = new(sql.NullString)
 		case course.FieldCreatedAt, course.FieldUpdatedAt, course.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case course.FieldID, course.FieldMediaID, course.FieldCreatorID:
+		case course.FieldID, course.FieldCreatorID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -175,10 +177,11 @@ func (c *Course) assignValues(columns []string, values []any) error {
 				*c.Description = value.String
 			}
 		case course.FieldMediaID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field media_id", values[i])
-			} else if value != nil {
-				c.MediaID = *value
+			} else if value.Valid {
+				c.MediaID = new(uuid.UUID)
+				*c.MediaID = *value.S.(*uuid.UUID)
 			}
 		case course.FieldCreatorID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -272,8 +275,10 @@ func (c *Course) String() string {
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	builder.WriteString("media_id=")
-	builder.WriteString(fmt.Sprintf("%v", c.MediaID))
+	if v := c.MediaID; v != nil {
+		builder.WriteString("media_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("creator_id=")
 	builder.WriteString(fmt.Sprintf("%v", c.CreatorID))

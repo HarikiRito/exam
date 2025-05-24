@@ -587,7 +587,10 @@ func (qq *QuestionQuery) loadSection(ctx context.Context, query *CourseSectionQu
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Question)
 	for i := range nodes {
-		fk := nodes[i].SectionID
+		if nodes[i].SectionID == nil {
+			continue
+		}
+		fk := *nodes[i].SectionID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}

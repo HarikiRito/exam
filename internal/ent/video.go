@@ -32,13 +32,13 @@ type Video struct {
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// MediaID holds the value of the "media_id" field.
 	MediaID uuid.UUID `json:"media_id,omitempty"`
 	// CourseID holds the value of the "course_id" field.
 	CourseID uuid.UUID `json:"course_id,omitempty"`
 	// Duration in seconds
-	Duration int `json:"duration,omitempty"`
+	Duration *int `json:"duration,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the VideoQuery when eager-loading is set.
 	Edges        VideoEdges `json:"edges"`
@@ -171,7 +171,8 @@ func (v *Video) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				v.Description = value.String
+				v.Description = new(string)
+				*v.Description = value.String
 			}
 		case video.FieldMediaID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -189,7 +190,8 @@ func (v *Video) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field duration", values[i])
 			} else if value.Valid {
-				v.Duration = int(value.Int64)
+				v.Duration = new(int)
+				*v.Duration = int(value.Int64)
 			}
 		default:
 			v.selectValues.Set(columns[i], values[i])
@@ -264,8 +266,10 @@ func (v *Video) String() string {
 	builder.WriteString("title=")
 	builder.WriteString(v.Title)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(v.Description)
+	if v := v.Description; v != nil {
+		builder.WriteString("description=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("media_id=")
 	builder.WriteString(fmt.Sprintf("%v", v.MediaID))
@@ -273,8 +277,10 @@ func (v *Video) String() string {
 	builder.WriteString("course_id=")
 	builder.WriteString(fmt.Sprintf("%v", v.CourseID))
 	builder.WriteString(", ")
-	builder.WriteString("duration=")
-	builder.WriteString(fmt.Sprintf("%v", v.Duration))
+	if v := v.Duration; v != nil {
+		builder.WriteString("duration=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

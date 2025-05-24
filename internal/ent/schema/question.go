@@ -18,7 +18,7 @@ type Question struct {
 // Fields of the Question.
 func (Question) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("section_id", uuid.UUID{}).Optional(),
+		field.UUID("section_id", uuid.UUID{}).Optional().Nillable(),
 		field.Text("question_text").NotEmpty(),
 	}
 }

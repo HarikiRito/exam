@@ -20,7 +20,7 @@ func (Media) Fields() []ent.Field {
 		field.String("file_name").NotEmpty(),
 		field.String("file_url").NotEmpty(),
 		field.String("mime_type").NotEmpty(),
-		field.UUID("uploader_id", uuid.UUID{}).Optional(),
+		field.UUID("uploader_id", uuid.UUID{}).Optional().Nillable(),
 		field.JSON("metadata", map[string]interface{}{}).Optional().Comment("Additional metadata for the file"),
 	}
 }

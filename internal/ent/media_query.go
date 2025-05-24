@@ -556,9 +556,12 @@ func (mq *MediaQuery) loadUserMedia(ctx context.Context, query *UserQuery, nodes
 	}
 	for _, n := range neighbors {
 		fk := n.AvatarID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "avatar_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "avatar_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "avatar_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -568,7 +571,10 @@ func (mq *MediaQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*M
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Media)
 	for i := range nodes {
-		fk := nodes[i].UploaderID
+		if nodes[i].UploaderID == nil {
+			continue
+		}
+		fk := *nodes[i].UploaderID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -615,9 +621,12 @@ func (mq *MediaQuery) loadCourseMedia(ctx context.Context, query *CourseQuery, n
 	}
 	for _, n := range neighbors {
 		fk := n.MediaID
-		node, ok := nodeids[fk]
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "media_id" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "media_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "media_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -582,7 +582,10 @@ func (cq *CourseQuery) loadMedia(ctx context.Context, query *MediaQuery, nodes [
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Course)
 	for i := range nodes {
-		fk := nodes[i].MediaID
+		if nodes[i].MediaID == nil {
+			continue
+		}
+		fk := *nodes[i].MediaID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}

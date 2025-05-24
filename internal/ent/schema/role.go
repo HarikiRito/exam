@@ -17,7 +17,7 @@ type Role struct {
 func (Role) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty().Unique(),
-		field.Text("description").Optional(),
+		field.Text("description").Optional().Nillable(),
 	}
 }
 

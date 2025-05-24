@@ -20,10 +20,10 @@ func (Video) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("section_id", uuid.UUID{}),
 		field.String("title").NotEmpty(),
-		field.Text("description").Optional(),
+		field.Text("description").Optional().Nillable(),
 		field.UUID("media_id", uuid.UUID{}),
 		field.UUID("course_id", uuid.UUID{}),
-		field.Int("duration").Optional().Comment("Duration in seconds"),
+		field.Int("duration").Optional().Nillable().Comment("Duration in seconds"),
 	}
 }
 

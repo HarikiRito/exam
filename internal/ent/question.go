@@ -26,7 +26,7 @@ type Question struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// SectionID holds the value of the "section_id" field.
-	SectionID uuid.UUID `json:"section_id,omitempty"`
+	SectionID *uuid.UUID `json:"section_id,omitempty"`
 	// QuestionText holds the value of the "question_text" field.
 	QuestionText string `json:"question_text,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -104,11 +104,13 @@ func (*Question) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case question.FieldSectionID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case question.FieldQuestionText:
 			values[i] = new(sql.NullString)
 		case question.FieldCreatedAt, question.FieldUpdatedAt, question.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case question.FieldID, question.FieldSectionID:
+		case question.FieldID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -151,10 +153,11 @@ func (q *Question) assignValues(columns []string, values []any) error {
 				*q.DeletedAt = value.Time
 			}
 		case question.FieldSectionID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field section_id", values[i])
-			} else if value != nil {
-				q.SectionID = *value
+			} else if value.Valid {
+				q.SectionID = new(uuid.UUID)
+				*q.SectionID = *value.S.(*uuid.UUID)
 			}
 		case question.FieldQuestionText:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -234,8 +237,10 @@ func (q *Question) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("section_id=")
-	builder.WriteString(fmt.Sprintf("%v", q.SectionID))
+	if v := q.SectionID; v != nil {
+		builder.WriteString("section_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("question_text=")
 	builder.WriteString(q.QuestionText)
