@@ -46,6 +46,7 @@ type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Question() QuestionResolver
+	QuestionCollection() QuestionCollectionResolver
 	QuestionOption() QuestionOptionResolver
 	TestSession() TestSessionResolver
 }
@@ -82,12 +83,14 @@ type ComplexityRoot struct {
 		CreateCourse             func(childComplexity int, input model.CreateCourseInput) int
 		CreateCourseSection      func(childComplexity int, input model.CreateCourseSectionInput) int
 		CreateQuestion           func(childComplexity int, input model.CreateQuestionInput) int
+		CreateQuestionCollection func(childComplexity int, input model.CreateQuestionCollectionInput) int
 		CreateQuestionOption     func(childComplexity int, input model.CreateQuestionOptionInput) int
 		CreateTest               func(childComplexity int, input model.CreateTestInput) int
 		CreateTestSession        func(childComplexity int, input model.CreateTestSessionInput) int
 		CreateTodo               func(childComplexity int, input model.NewTodo) int
 		CreateUserQuestionAnswer func(childComplexity int, input model.CreateUserQuestionAnswerInput) int
 		DeleteQuestion           func(childComplexity int, id uuid.UUID) int
+		DeleteQuestionCollection func(childComplexity int, id uuid.UUID) int
 		DeleteQuestionOption     func(childComplexity int, id uuid.UUID) int
 		DeleteTest               func(childComplexity int, id uuid.UUID) int
 		DeleteTestSession        func(childComplexity int, id uuid.UUID) int
@@ -99,6 +102,7 @@ type ComplexityRoot struct {
 		UpdateCourse             func(childComplexity int, id uuid.UUID, input model.UpdateCourseInput) int
 		UpdateCourseSection      func(childComplexity int, id uuid.UUID, input model.UpdateCourseSectionInput) int
 		UpdateQuestion           func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
+		UpdateQuestionCollection func(childComplexity int, id uuid.UUID, input model.UpdateQuestionCollectionInput) int
 		UpdateQuestionOption     func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
 		UpdateTest               func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
 		UpdateUserQuestionAnswer func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
@@ -110,6 +114,11 @@ type ComplexityRoot struct {
 	}
 
 	PaginatedQuestion struct {
+		Items      func(childComplexity int) int
+		Pagination func(childComplexity int) int
+	}
+
+	PaginatedQuestionCollection struct {
 		Items      func(childComplexity int) int
 		Pagination func(childComplexity int) int
 	}
@@ -150,11 +159,13 @@ type ComplexityRoot struct {
 		Login                        func(childComplexity int, input model.LoginInput) int
 		Me                           func(childComplexity int) int
 		PaginatedCourses             func(childComplexity int, paginationInput *model.PaginationInput) int
+		PaginatedQuestionCollections func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestionOptions     func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestions           func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedTests               func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedUserQuestionAnswers func(childComplexity int, paginationInput *model.PaginationInput) int
 		Question                     func(childComplexity int, id uuid.UUID) int
+		QuestionCollection           func(childComplexity int, id uuid.UUID) int
 		QuestionOption               func(childComplexity int, id uuid.UUID) int
 		Test                         func(childComplexity int, id uuid.UUID) int
 		TestSession                  func(childComplexity int, id uuid.UUID) int
@@ -163,10 +174,20 @@ type ComplexityRoot struct {
 	}
 
 	Question struct {
+		Collection   func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Options      func(childComplexity int) int
 		QuestionText func(childComplexity int) int
-		Section      func(childComplexity int) int
+	}
+
+	QuestionCollection struct {
+		CreatedAt   func(childComplexity int) int
+		Creator     func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Questions   func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	QuestionOption struct {
@@ -231,6 +252,9 @@ type MutationResolver interface {
 	CreateQuestion(ctx context.Context, input model.CreateQuestionInput) (*model.Question, error)
 	UpdateQuestion(ctx context.Context, id uuid.UUID, input model.UpdateQuestionInput) (*model.Question, error)
 	DeleteQuestion(ctx context.Context, id uuid.UUID) (bool, error)
+	CreateQuestionCollection(ctx context.Context, input model.CreateQuestionCollectionInput) (*model.QuestionCollection, error)
+	UpdateQuestionCollection(ctx context.Context, id uuid.UUID, input model.UpdateQuestionCollectionInput) (*model.QuestionCollection, error)
+	DeleteQuestionCollection(ctx context.Context, id uuid.UUID) (bool, error)
 	CreateQuestionOption(ctx context.Context, input model.CreateQuestionOptionInput) (*model.QuestionOption, error)
 	UpdateQuestionOption(ctx context.Context, id uuid.UUID, input model.UpdateQuestionOptionInput) (*model.QuestionOption, error)
 	DeleteQuestionOption(ctx context.Context, id uuid.UUID) (bool, error)
@@ -255,6 +279,8 @@ type QueryResolver interface {
 	CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID, filter *model.CourseSectionFilterInput) ([]*model.CourseSection, error)
 	Question(ctx context.Context, id uuid.UUID) (*model.Question, error)
 	PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error)
+	QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error)
+	PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error)
 	QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error)
 	PaginatedQuestionOptions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionOption, error)
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
@@ -265,8 +291,12 @@ type QueryResolver interface {
 	PaginatedUserQuestionAnswers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUserQuestionAnswer, error)
 }
 type QuestionResolver interface {
-	Section(ctx context.Context, obj *model.Question) (*model.CourseSection, error)
+	Collection(ctx context.Context, obj *model.Question) (*model.QuestionCollection, error)
 	Options(ctx context.Context, obj *model.Question) ([]*model.QuestionOption, error)
+}
+type QuestionCollectionResolver interface {
+	Creator(ctx context.Context, obj *model.QuestionCollection) (*model.User, error)
+	Questions(ctx context.Context, obj *model.QuestionCollection) ([]*model.Question, error)
 }
 type QuestionOptionResolver interface {
 	Question(ctx context.Context, obj *model.QuestionOption) (*model.Question, error)
@@ -444,6 +474,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateQuestion(childComplexity, args["input"].(model.CreateQuestionInput)), true
 
+	case "Mutation.createQuestionCollection":
+		if e.complexity.Mutation.CreateQuestionCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createQuestionCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateQuestionCollection(childComplexity, args["input"].(model.CreateQuestionCollectionInput)), true
+
 	case "Mutation.createQuestionOption":
 		if e.complexity.Mutation.CreateQuestionOption == nil {
 			break
@@ -515,6 +557,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteQuestion(childComplexity, args["id"].(uuid.UUID)), true
+
+	case "Mutation.deleteQuestionCollection":
+		if e.complexity.Mutation.DeleteQuestionCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteQuestionCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteQuestionCollection(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.deleteQuestionOption":
 		if e.complexity.Mutation.DeleteQuestionOption == nil {
@@ -648,6 +702,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateQuestion(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateQuestionInput)), true
 
+	case "Mutation.updateQuestionCollection":
+		if e.complexity.Mutation.UpdateQuestionCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateQuestionCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateQuestionCollection(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateQuestionCollectionInput)), true
+
 	case "Mutation.updateQuestionOption":
 		if e.complexity.Mutation.UpdateQuestionOption == nil {
 			break
@@ -711,6 +777,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PaginatedQuestion.Pagination(childComplexity), true
+
+	case "PaginatedQuestionCollection.items":
+		if e.complexity.PaginatedQuestionCollection.Items == nil {
+			break
+		}
+
+		return e.complexity.PaginatedQuestionCollection.Items(childComplexity), true
+
+	case "PaginatedQuestionCollection.pagination":
+		if e.complexity.PaginatedQuestionCollection.Pagination == nil {
+			break
+		}
+
+		return e.complexity.PaginatedQuestionCollection.Pagination(childComplexity), true
 
 	case "PaginatedQuestionOption.items":
 		if e.complexity.PaginatedQuestionOption.Items == nil {
@@ -877,6 +957,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.PaginatedCourses(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
+	case "Query.paginatedQuestionCollections":
+		if e.complexity.Query.PaginatedQuestionCollections == nil {
+			break
+		}
+
+		args, err := ec.field_Query_paginatedQuestionCollections_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.PaginatedQuestionCollections(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
+
 	case "Query.paginatedQuestionOptions":
 		if e.complexity.Query.PaginatedQuestionOptions == nil {
 			break
@@ -937,6 +1029,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Question(childComplexity, args["id"].(uuid.UUID)), true
 
+	case "Query.questionCollection":
+		if e.complexity.Query.QuestionCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Query_questionCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.QuestionCollection(childComplexity, args["id"].(uuid.UUID)), true
+
 	case "Query.questionOption":
 		if e.complexity.Query.QuestionOption == nil {
 			break
@@ -992,6 +1096,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.UserQuestionAnswer(childComplexity, args["id"].(uuid.UUID)), true
 
+	case "Question.collection":
+		if e.complexity.Question.Collection == nil {
+			break
+		}
+
+		return e.complexity.Question.Collection(childComplexity), true
+
 	case "Question.id":
 		if e.complexity.Question.ID == nil {
 			break
@@ -1013,12 +1124,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Question.QuestionText(childComplexity), true
 
-	case "Question.section":
-		if e.complexity.Question.Section == nil {
+	case "QuestionCollection.createdAt":
+		if e.complexity.QuestionCollection.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Question.Section(childComplexity), true
+		return e.complexity.QuestionCollection.CreatedAt(childComplexity), true
+
+	case "QuestionCollection.creator":
+		if e.complexity.QuestionCollection.Creator == nil {
+			break
+		}
+
+		return e.complexity.QuestionCollection.Creator(childComplexity), true
+
+	case "QuestionCollection.description":
+		if e.complexity.QuestionCollection.Description == nil {
+			break
+		}
+
+		return e.complexity.QuestionCollection.Description(childComplexity), true
+
+	case "QuestionCollection.id":
+		if e.complexity.QuestionCollection.ID == nil {
+			break
+		}
+
+		return e.complexity.QuestionCollection.ID(childComplexity), true
+
+	case "QuestionCollection.questions":
+		if e.complexity.QuestionCollection.Questions == nil {
+			break
+		}
+
+		return e.complexity.QuestionCollection.Questions(childComplexity), true
+
+	case "QuestionCollection.title":
+		if e.complexity.QuestionCollection.Title == nil {
+			break
+		}
+
+		return e.complexity.QuestionCollection.Title(childComplexity), true
+
+	case "QuestionCollection.updatedAt":
+		if e.complexity.QuestionCollection.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.QuestionCollection.UpdatedAt(childComplexity), true
 
 	case "QuestionOption.id":
 		if e.complexity.QuestionOption.ID == nil {
@@ -1227,6 +1380,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCourseSectionFilterInput,
 		ec.unmarshalInputCreateCourseInput,
 		ec.unmarshalInputCreateCourseSectionInput,
+		ec.unmarshalInputCreateQuestionCollectionInput,
 		ec.unmarshalInputCreateQuestionInput,
 		ec.unmarshalInputCreateQuestionOptionInput,
 		ec.unmarshalInputCreateTestInput,
@@ -1239,6 +1393,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputRegisterInput,
 		ec.unmarshalInputUpdateCourseInput,
 		ec.unmarshalInputUpdateCourseSectionInput,
+		ec.unmarshalInputUpdateQuestionCollectionInput,
 		ec.unmarshalInputUpdateQuestionInput,
 		ec.unmarshalInputUpdateQuestionOptionInput,
 		ec.unmarshalInputUpdateTestInput,
@@ -1340,7 +1495,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/question.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql" "schema/user_question_answer.gql"
+//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql" "schema/user_question_answer.gql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1357,6 +1512,7 @@ var sources = []*ast.Source{
 	{Name: "schema/course.gql", Input: sourceData("schema/course.gql"), BuiltIn: false},
 	{Name: "schema/course_section.gql", Input: sourceData("schema/course_section.gql"), BuiltIn: false},
 	{Name: "schema/question.gql", Input: sourceData("schema/question.gql"), BuiltIn: false},
+	{Name: "schema/question_collection.gql", Input: sourceData("schema/question_collection.gql"), BuiltIn: false},
 	{Name: "schema/question_option.gql", Input: sourceData("schema/question_option.gql"), BuiltIn: false},
 	{Name: "schema/schema.gql", Input: sourceData("schema/schema.gql"), BuiltIn: false},
 	{Name: "schema/test.gql", Input: sourceData("schema/test.gql"), BuiltIn: false},
@@ -1438,6 +1594,29 @@ func (ec *executionContext) field_Mutation_createCourse_argsInput(
 	}
 
 	var zeroVal model.CreateCourseInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createQuestionCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_createQuestionCollection_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createQuestionCollection_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.CreateQuestionCollectionInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateQuestionCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐCreateQuestionCollectionInput(ctx, tmp)
+	}
+
+	var zeroVal model.CreateQuestionCollectionInput
 	return zeroVal, nil
 }
 
@@ -1576,6 +1755,29 @@ func (ec *executionContext) field_Mutation_createUserQuestionAnswer_argsInput(
 	}
 
 	var zeroVal model.CreateUserQuestionAnswerInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteQuestionCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_deleteQuestionCollection_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteQuestionCollection_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1865,6 +2067,47 @@ func (ec *executionContext) field_Mutation_updateCourse_argsInput(
 	}
 
 	var zeroVal model.UpdateCourseInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateQuestionCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateQuestionCollection_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := ec.field_Mutation_updateQuestionCollection_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateQuestionCollection_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateQuestionCollection_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateQuestionCollectionInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateQuestionCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionCollectionInput(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateQuestionCollectionInput
 	return zeroVal, nil
 }
 
@@ -2188,6 +2431,29 @@ func (ec *executionContext) field_Query_paginatedCourses_argsPaginationInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_paginatedQuestionCollections_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_paginatedQuestionCollections_argsPaginationInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["paginationInput"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_paginatedQuestionCollections_argsPaginationInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*model.PaginationInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("paginationInput"))
+	if tmp, ok := rawArgs["paginationInput"]; ok {
+		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
+	}
+
+	var zeroVal *model.PaginationInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_paginatedQuestionOptions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2277,6 +2543,29 @@ func (ec *executionContext) field_Query_paginatedUserQuestionAnswers_argsPaginat
 	}
 
 	var zeroVal *model.PaginationInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_questionCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_questionCollection_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_questionCollection_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -3616,8 +3905,8 @@ func (ec *executionContext) fieldContext_Mutation_createQuestion(ctx context.Con
 				return ec.fieldContext_Question_id(ctx, field)
 			case "questionText":
 				return ec.fieldContext_Question_questionText(ctx, field)
-			case "section":
-				return ec.fieldContext_Question_section(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
 			}
@@ -3681,8 +3970,8 @@ func (ec *executionContext) fieldContext_Mutation_updateQuestion(ctx context.Con
 				return ec.fieldContext_Question_id(ctx, field)
 			case "questionText":
 				return ec.fieldContext_Question_questionText(ctx, field)
-			case "section":
-				return ec.fieldContext_Question_section(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
 			}
@@ -3752,6 +4041,203 @@ func (ec *executionContext) fieldContext_Mutation_deleteQuestion(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteQuestion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createQuestionCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createQuestionCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateQuestionCollection(rctx, fc.Args["input"].(model.CreateQuestionCollectionInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.QuestionCollection)
+	fc.Result = res
+	return ec.marshalNQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createQuestionCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_QuestionCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_QuestionCollection_title(ctx, field)
+			case "description":
+				return ec.fieldContext_QuestionCollection_description(ctx, field)
+			case "creator":
+				return ec.fieldContext_QuestionCollection_creator(ctx, field)
+			case "questions":
+				return ec.fieldContext_QuestionCollection_questions(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_QuestionCollection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_QuestionCollection_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createQuestionCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateQuestionCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateQuestionCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateQuestionCollection(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateQuestionCollectionInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.QuestionCollection)
+	fc.Result = res
+	return ec.marshalNQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateQuestionCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_QuestionCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_QuestionCollection_title(ctx, field)
+			case "description":
+				return ec.fieldContext_QuestionCollection_description(ctx, field)
+			case "creator":
+				return ec.fieldContext_QuestionCollection_creator(ctx, field)
+			case "questions":
+				return ec.fieldContext_QuestionCollection_questions(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_QuestionCollection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_QuestionCollection_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateQuestionCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteQuestionCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteQuestionCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteQuestionCollection(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteQuestionCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteQuestionCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4804,12 +5290,128 @@ func (ec *executionContext) fieldContext_PaginatedQuestion_items(_ context.Conte
 				return ec.fieldContext_Question_id(ctx, field)
 			case "questionText":
 				return ec.fieldContext_Question_questionText(ctx, field)
-			case "section":
-				return ec.fieldContext_Question_section(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedQuestionCollection_pagination(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedQuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedQuestionCollection_pagination(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Pagination, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Pagination)
+	fc.Result = res
+	return ec.marshalNPagination2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPagination(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedQuestionCollection_pagination(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedQuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "currentPage":
+				return ec.fieldContext_Pagination_currentPage(ctx, field)
+			case "totalPages":
+				return ec.fieldContext_Pagination_totalPages(ctx, field)
+			case "totalItems":
+				return ec.fieldContext_Pagination_totalItems(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_Pagination_hasNextPage(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_Pagination_hasPreviousPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Pagination", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedQuestionCollection_items(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedQuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedQuestionCollection_items(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Items, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.QuestionCollection)
+	fc.Result = res
+	return ec.marshalNQuestionCollection2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollectionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedQuestionCollection_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedQuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_QuestionCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_QuestionCollection_title(ctx, field)
+			case "description":
+				return ec.fieldContext_QuestionCollection_description(ctx, field)
+			case "creator":
+				return ec.fieldContext_QuestionCollection_creator(ctx, field)
+			case "questions":
+				return ec.fieldContext_QuestionCollection_questions(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_QuestionCollection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_QuestionCollection_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionCollection", field.Name)
 		},
 	}
 	return fc, nil
@@ -5957,8 +6559,8 @@ func (ec *executionContext) fieldContext_Query_question(ctx context.Context, fie
 				return ec.fieldContext_Question_id(ctx, field)
 			case "questionText":
 				return ec.fieldContext_Question_questionText(ctx, field)
-			case "section":
-				return ec.fieldContext_Question_section(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
 			}
@@ -6034,6 +6636,138 @@ func (ec *executionContext) fieldContext_Query_paginatedQuestions(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_paginatedQuestions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_questionCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_questionCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().QuestionCollection(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.QuestionCollection)
+	fc.Result = res
+	return ec.marshalNQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_questionCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_QuestionCollection_id(ctx, field)
+			case "title":
+				return ec.fieldContext_QuestionCollection_title(ctx, field)
+			case "description":
+				return ec.fieldContext_QuestionCollection_description(ctx, field)
+			case "creator":
+				return ec.fieldContext_QuestionCollection_creator(ctx, field)
+			case "questions":
+				return ec.fieldContext_QuestionCollection_questions(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_QuestionCollection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_QuestionCollection_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_questionCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_paginatedQuestionCollections(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_paginatedQuestionCollections(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().PaginatedQuestionCollections(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PaginatedQuestionCollection)
+	fc.Result = res
+	return ec.marshalNPaginatedQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionCollection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_paginatedQuestionCollections(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "pagination":
+				return ec.fieldContext_PaginatedQuestionCollection_pagination(ctx, field)
+			case "items":
+				return ec.fieldContext_PaginatedQuestionCollection_items(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedQuestionCollection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_paginatedQuestionCollections_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6766,8 +7500,8 @@ func (ec *executionContext) fieldContext_Question_questionText(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Question_section(ctx context.Context, field graphql.CollectedField, obj *model.Question) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Question_section(ctx, field)
+func (ec *executionContext) _Question_collection(ctx context.Context, field graphql.CollectedField, obj *model.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_collection(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6780,7 +7514,7 @@ func (ec *executionContext) _Question_section(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Question().Section(rctx, obj)
+		return ec.resolvers.Question().Collection(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6789,12 +7523,12 @@ func (ec *executionContext) _Question_section(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.CourseSection)
+	res := resTmp.(*model.QuestionCollection)
 	fc.Result = res
-	return ec.marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx, field.Selections, res)
+	return ec.marshalOQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Question_section(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Question_collection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Question",
 		Field:      field,
@@ -6803,19 +7537,21 @@ func (ec *executionContext) fieldContext_Question_section(_ context.Context, fie
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_CourseSection_id(ctx, field)
+				return ec.fieldContext_QuestionCollection_id(ctx, field)
 			case "title":
-				return ec.fieldContext_CourseSection_title(ctx, field)
+				return ec.fieldContext_QuestionCollection_title(ctx, field)
 			case "description":
-				return ec.fieldContext_CourseSection_description(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSection_courseId(ctx, field)
-			case "sectionId":
-				return ec.fieldContext_CourseSection_sectionId(ctx, field)
-			case "order":
-				return ec.fieldContext_CourseSection_order(ctx, field)
+				return ec.fieldContext_QuestionCollection_description(ctx, field)
+			case "creator":
+				return ec.fieldContext_QuestionCollection_creator(ctx, field)
+			case "questions":
+				return ec.fieldContext_QuestionCollection_questions(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_QuestionCollection_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_QuestionCollection_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type QuestionCollection", field.Name)
 		},
 	}
 	return fc, nil
@@ -6870,6 +7606,327 @@ func (ec *executionContext) fieldContext_Question_options(_ context.Context, fie
 				return ec.fieldContext_QuestionOption_isCorrect(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type QuestionOption", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_id(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_title(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_description(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_creator(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_creator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QuestionCollection().Creator(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_creator(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_questions(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_questions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.QuestionCollection().Questions(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Question)
+	fc.Result = res
+	return ec.marshalNQuestion2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_questions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "questionText":
+				return ec.fieldContext_Question_questionText(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
+			case "options":
+				return ec.fieldContext_Question_options(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionCollection_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionCollection_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionCollection_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionCollection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6962,8 +8019,8 @@ func (ec *executionContext) fieldContext_QuestionOption_question(_ context.Conte
 				return ec.fieldContext_Question_id(ctx, field)
 			case "questionText":
 				return ec.fieldContext_Question_questionText(ctx, field)
-			case "section":
-				return ec.fieldContext_Question_section(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
 			}
@@ -8008,8 +9065,8 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_question(_ context.C
 				return ec.fieldContext_Question_id(ctx, field)
 			case "questionText":
 				return ec.fieldContext_Question_questionText(ctx, field)
-			case "section":
-				return ec.fieldContext_Question_section(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
 			}
@@ -10107,6 +11164,40 @@ func (ec *executionContext) unmarshalInputCreateCourseSectionInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateQuestionCollectionInput(ctx context.Context, obj interface{}) (model.CreateQuestionCollectionInput, error) {
+	var it model.CreateQuestionCollectionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"title", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Context, obj interface{}) (model.CreateQuestionInput, error) {
 	var it model.CreateQuestionInput
 	asMap := map[string]interface{}{}
@@ -10114,7 +11205,7 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionText", "courseSectionId", "options"}
+	fieldsInOrder := [...]string{"questionText", "questionCollectionId", "options"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10128,13 +11219,13 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 				return it, err
 			}
 			it.QuestionText = data
-		case "courseSectionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
+		case "questionCollectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionCollectionId"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CourseSectionID = data
+			it.QuestionCollectionID = data
 		case "options":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
 			data, err := ec.unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx, v)
@@ -10564,6 +11655,40 @@ func (ec *executionContext) unmarshalInputUpdateCourseSectionInput(ctx context.C
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateQuestionCollectionInput(ctx context.Context, obj interface{}) (model.UpdateQuestionCollectionInput, error) {
+	var it model.UpdateQuestionCollectionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"title", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Context, obj interface{}) (model.UpdateQuestionInput, error) {
 	var it model.UpdateQuestionInput
 	asMap := map[string]interface{}{}
@@ -10571,7 +11696,7 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionText", "courseSectionId", "options"}
+	fieldsInOrder := [...]string{"questionText", "questionCollectionId", "options"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -10585,13 +11710,13 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 				return it, err
 			}
 			it.QuestionText = data
-		case "courseSectionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
+		case "questionCollectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionCollectionId"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CourseSectionID = data
+			it.QuestionCollectionID = data
 		case "options":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
 			data, err := ec.unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx, v)
@@ -11049,6 +12174,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createQuestionCollection":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createQuestionCollection(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateQuestionCollection":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateQuestionCollection(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteQuestionCollection":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteQuestionCollection(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createQuestionOption":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createQuestionOption(ctx, field)
@@ -11225,6 +12371,50 @@ func (ec *executionContext) _PaginatedQuestion(ctx context.Context, sel ast.Sele
 			}
 		case "items":
 			out.Values[i] = ec._PaginatedQuestion_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var paginatedQuestionCollectionImplementors = []string{"PaginatedQuestionCollection"}
+
+func (ec *executionContext) _PaginatedQuestionCollection(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedQuestionCollection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedQuestionCollectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedQuestionCollection")
+		case "pagination":
+			out.Values[i] = ec._PaginatedQuestionCollection_pagination(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "items":
+			out.Values[i] = ec._PaginatedQuestionCollection_items(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11703,6 +12893,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "questionCollection":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_questionCollection(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "paginatedQuestionCollections":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_paginatedQuestionCollections(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "questionOption":
 			field := field
 
@@ -11931,7 +13165,7 @@ func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "section":
+		case "collection":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -11940,7 +13174,7 @@ func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Question_section(ctx, field, obj)
+				res = ec._Question_collection(ctx, field, obj)
 				return res
 			}
 
@@ -12000,6 +13234,134 @@ func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var questionCollectionImplementors = []string{"QuestionCollection"}
+
+func (ec *executionContext) _QuestionCollection(ctx context.Context, sel ast.SelectionSet, obj *model.QuestionCollection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, questionCollectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("QuestionCollection")
+		case "id":
+			out.Values[i] = ec._QuestionCollection_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "title":
+			out.Values[i] = ec._QuestionCollection_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "description":
+			out.Values[i] = ec._QuestionCollection_description(ctx, field, obj)
+		case "creator":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QuestionCollection_creator(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "questions":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._QuestionCollection_questions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "createdAt":
+			out.Values[i] = ec._QuestionCollection_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "updatedAt":
+			out.Values[i] = ec._QuestionCollection_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12991,6 +14353,11 @@ func (ec *executionContext) unmarshalNCreateCourseSectionInput2templateᚋintern
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateQuestionCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐCreateQuestionCollectionInput(ctx context.Context, v interface{}) (model.CreateQuestionCollectionInput, error) {
+	res, err := ec.unmarshalInputCreateQuestionCollectionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateQuestionInput2templateᚋinternalᚋgraphᚋmodelᚐCreateQuestionInput(ctx context.Context, v interface{}) (model.CreateQuestionInput, error) {
 	res, err := ec.unmarshalInputCreateQuestionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -13131,6 +14498,20 @@ func (ec *executionContext) marshalNPaginatedQuestion2ᚖtemplateᚋinternalᚋg
 	return ec._PaginatedQuestion(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPaginatedQuestionCollection2templateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionCollection(ctx context.Context, sel ast.SelectionSet, v model.PaginatedQuestionCollection) graphql.Marshaler {
+	return ec._PaginatedQuestionCollection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionCollection(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedQuestionCollection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedQuestionCollection(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPaginatedQuestionOption2templateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionOption(ctx context.Context, sel ast.SelectionSet, v model.PaginatedQuestionOption) graphql.Marshaler {
 	return ec._PaginatedQuestionOption(ctx, sel, &v)
 }
@@ -13239,6 +14620,64 @@ func (ec *executionContext) marshalNQuestion2ᚖtemplateᚋinternalᚋgraphᚋmo
 		return graphql.Null
 	}
 	return ec._Question(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNQuestionCollection2templateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx context.Context, sel ast.SelectionSet, v model.QuestionCollection) graphql.Marshaler {
+	return ec._QuestionCollection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNQuestionCollection2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.QuestionCollection) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx context.Context, sel ast.SelectionSet, v *model.QuestionCollection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._QuestionCollection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNQuestionOption2templateᚋinternalᚋgraphᚋmodelᚐQuestionOption(ctx context.Context, sel ast.SelectionSet, v model.QuestionOption) graphql.Marshaler {
@@ -13526,6 +14965,11 @@ func (ec *executionContext) unmarshalNUpdateCourseInput2templateᚋinternalᚋgr
 
 func (ec *executionContext) unmarshalNUpdateCourseSectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateCourseSectionInput(ctx context.Context, v interface{}) (model.UpdateCourseSectionInput, error) {
 	res, err := ec.unmarshalInputUpdateCourseSectionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateQuestionCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionCollectionInput(ctx context.Context, v interface{}) (model.UpdateQuestionCollectionInput, error) {
+	res, err := ec.unmarshalInputUpdateQuestionCollectionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -13976,6 +15420,13 @@ func (ec *executionContext) unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋg
 	}
 	res, err := ec.unmarshalInputPaginationInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOQuestionCollection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionCollection(ctx context.Context, sel ast.SelectionSet, v *model.QuestionCollection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._QuestionCollection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx context.Context, v interface{}) ([]*model.QuestionOptionInput, error) {

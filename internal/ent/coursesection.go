@@ -51,8 +51,8 @@ type CourseSectionEdges struct {
 	Children []*CourseSection `json:"children,omitempty"`
 	// CourseSectionVideos holds the value of the course_section_videos edge.
 	CourseSectionVideos []*Video `json:"course_section_videos,omitempty"`
-	// Questions holds the value of the questions edge.
-	Questions []*Question `json:"questions,omitempty"`
+	// QuestionCollections holds the value of the question_collections edge.
+	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
 	// Tests holds the value of the tests edge.
@@ -102,13 +102,13 @@ func (e CourseSectionEdges) CourseSectionVideosOrErr() ([]*Video, error) {
 	return nil, &NotLoadedError{edge: "course_section_videos"}
 }
 
-// QuestionsOrErr returns the Questions value or an error if the edge
+// QuestionCollectionsOrErr returns the QuestionCollections value or an error if the edge
 // was not loaded in eager-loading.
-func (e CourseSectionEdges) QuestionsOrErr() ([]*Question, error) {
+func (e CourseSectionEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
 	if e.loadedTypes[4] {
-		return e.Questions, nil
+		return e.QuestionCollections, nil
 	}
-	return nil, &NotLoadedError{edge: "questions"}
+	return nil, &NotLoadedError{edge: "question_collections"}
 }
 
 // TestSessionsOrErr returns the TestSessions value or an error if the edge
@@ -249,9 +249,9 @@ func (cs *CourseSection) QueryCourseSectionVideos() *VideoQuery {
 	return NewCourseSectionClient(cs.config).QueryCourseSectionVideos(cs)
 }
 
-// QueryQuestions queries the "questions" edge of the CourseSection entity.
-func (cs *CourseSection) QueryQuestions() *QuestionQuery {
-	return NewCourseSectionClient(cs.config).QueryQuestions(cs)
+// QueryQuestionCollections queries the "question_collections" edge of the CourseSection entity.
+func (cs *CourseSection) QueryQuestionCollections() *QuestionCollectionQuery {
+	return NewCourseSectionClient(cs.config).QueryQuestionCollections(cs)
 }
 
 // QueryTestSessions queries the "test_sessions" edge of the CourseSection entity.

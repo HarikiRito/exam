@@ -71,9 +71,9 @@ func DeletedAt(v time.Time) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// SectionID applies equality check predicate on the "section_id" field. It's identical to SectionIDEQ.
-func SectionID(v uuid.UUID) predicate.Question {
-	return predicate.Question(sql.FieldEQ(FieldSectionID, v))
+// CollectionID applies equality check predicate on the "collection_id" field. It's identical to CollectionIDEQ.
+func CollectionID(v uuid.UUID) predicate.Question {
+	return predicate.Question(sql.FieldEQ(FieldCollectionID, v))
 }
 
 // QuestionText applies equality check predicate on the "question_text" field. It's identical to QuestionTextEQ.
@@ -211,34 +211,24 @@ func DeletedAtNotNil() predicate.Question {
 	return predicate.Question(sql.FieldNotNull(FieldDeletedAt))
 }
 
-// SectionIDEQ applies the EQ predicate on the "section_id" field.
-func SectionIDEQ(v uuid.UUID) predicate.Question {
-	return predicate.Question(sql.FieldEQ(FieldSectionID, v))
+// CollectionIDEQ applies the EQ predicate on the "collection_id" field.
+func CollectionIDEQ(v uuid.UUID) predicate.Question {
+	return predicate.Question(sql.FieldEQ(FieldCollectionID, v))
 }
 
-// SectionIDNEQ applies the NEQ predicate on the "section_id" field.
-func SectionIDNEQ(v uuid.UUID) predicate.Question {
-	return predicate.Question(sql.FieldNEQ(FieldSectionID, v))
+// CollectionIDNEQ applies the NEQ predicate on the "collection_id" field.
+func CollectionIDNEQ(v uuid.UUID) predicate.Question {
+	return predicate.Question(sql.FieldNEQ(FieldCollectionID, v))
 }
 
-// SectionIDIn applies the In predicate on the "section_id" field.
-func SectionIDIn(vs ...uuid.UUID) predicate.Question {
-	return predicate.Question(sql.FieldIn(FieldSectionID, vs...))
+// CollectionIDIn applies the In predicate on the "collection_id" field.
+func CollectionIDIn(vs ...uuid.UUID) predicate.Question {
+	return predicate.Question(sql.FieldIn(FieldCollectionID, vs...))
 }
 
-// SectionIDNotIn applies the NotIn predicate on the "section_id" field.
-func SectionIDNotIn(vs ...uuid.UUID) predicate.Question {
-	return predicate.Question(sql.FieldNotIn(FieldSectionID, vs...))
-}
-
-// SectionIDIsNil applies the IsNil predicate on the "section_id" field.
-func SectionIDIsNil() predicate.Question {
-	return predicate.Question(sql.FieldIsNull(FieldSectionID))
-}
-
-// SectionIDNotNil applies the NotNil predicate on the "section_id" field.
-func SectionIDNotNil() predicate.Question {
-	return predicate.Question(sql.FieldNotNull(FieldSectionID))
+// CollectionIDNotIn applies the NotIn predicate on the "collection_id" field.
+func CollectionIDNotIn(vs ...uuid.UUID) predicate.Question {
+	return predicate.Question(sql.FieldNotIn(FieldCollectionID, vs...))
 }
 
 // QuestionTextEQ applies the EQ predicate on the "question_text" field.
@@ -306,21 +296,21 @@ func QuestionTextContainsFold(v string) predicate.Question {
 	return predicate.Question(sql.FieldContainsFold(FieldQuestionText, v))
 }
 
-// HasSection applies the HasEdge predicate on the "section" edge.
-func HasSection() predicate.Question {
+// HasCollection applies the HasEdge predicate on the "collection" edge.
+func HasCollection() predicate.Question {
 	return predicate.Question(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, SectionTable, SectionColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, CollectionTable, CollectionColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasSectionWith applies the HasEdge predicate on the "section" edge with a given conditions (other predicates).
-func HasSectionWith(preds ...predicate.CourseSection) predicate.Question {
+// HasCollectionWith applies the HasEdge predicate on the "collection" edge with a given conditions (other predicates).
+func HasCollectionWith(preds ...predicate.QuestionCollection) predicate.Question {
 	return predicate.Question(func(s *sql.Selector) {
-		step := newSectionStep()
+		step := newCollectionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -44,6 +44,8 @@ const (
 	EdgeRoles = "roles"
 	// EdgeCourseCreator holds the string denoting the course_creator edge name in mutations.
 	EdgeCourseCreator = "course_creator"
+	// EdgeQuestionCollections holds the string denoting the question_collections edge name in mutations.
+	EdgeQuestionCollections = "question_collections"
 	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
 	EdgeUserQuestionAnswers = "user_question_answers"
 	// EdgeTestSessions holds the string denoting the test_sessions edge name in mutations.
@@ -78,6 +80,13 @@ const (
 	CourseCreatorInverseTable = "courses"
 	// CourseCreatorColumn is the table column denoting the course_creator relation/edge.
 	CourseCreatorColumn = "creator_id"
+	// QuestionCollectionsTable is the table that holds the question_collections relation/edge.
+	QuestionCollectionsTable = "question_collections"
+	// QuestionCollectionsInverseTable is the table name for the QuestionCollection entity.
+	// It exists in this package in order to avoid circular dependency with the "questioncollection" package.
+	QuestionCollectionsInverseTable = "question_collections"
+	// QuestionCollectionsColumn is the table column denoting the question_collections relation/edge.
+	QuestionCollectionsColumn = "creator_id"
 	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
 	UserQuestionAnswersTable = "user_question_answers"
 	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
@@ -265,6 +274,20 @@ func ByCourseCreator(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByQuestionCollectionsCount orders the results by question_collections count.
+func ByQuestionCollectionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newQuestionCollectionsStep(), opts...)
+	}
+}
+
+// ByQuestionCollections orders the results by question_collections terms.
+func ByQuestionCollections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newQuestionCollectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByUserQuestionAnswersCount orders the results by user_question_answers count.
 func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -332,6 +355,13 @@ func newCourseCreatorStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CourseCreatorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, CourseCreatorTable, CourseCreatorColumn),
+	)
+}
+func newQuestionCollectionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(QuestionCollectionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, QuestionCollectionsTable, QuestionCollectionsColumn),
 	)
 }
 func newUserQuestionAnswersStep() *sqlgraph.Step {

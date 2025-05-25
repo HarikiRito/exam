@@ -713,6 +713,29 @@ func HasCourseCreatorWith(preds ...predicate.Course) predicate.User {
 	})
 }
 
+// HasQuestionCollections applies the HasEdge predicate on the "question_collections" edge.
+func HasQuestionCollections() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, QuestionCollectionsTable, QuestionCollectionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasQuestionCollectionsWith applies the HasEdge predicate on the "question_collections" edge with a given conditions (other predicates).
+func HasQuestionCollectionsWith(preds ...predicate.QuestionCollection) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newQuestionCollectionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUserQuestionAnswers applies the HasEdge predicate on the "user_question_answers" edge.
 func HasUserQuestionAnswers() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

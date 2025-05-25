@@ -548,21 +548,21 @@ func HasCourseSectionVideosWith(preds ...predicate.Video) predicate.CourseSectio
 	})
 }
 
-// HasQuestions applies the HasEdge predicate on the "questions" edge.
-func HasQuestions() predicate.CourseSection {
+// HasQuestionCollections applies the HasEdge predicate on the "question_collections" edge.
+func HasQuestionCollections() predicate.CourseSection {
 	return predicate.CourseSection(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, QuestionsTable, QuestionsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, QuestionCollectionsTable, QuestionCollectionsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasQuestionsWith applies the HasEdge predicate on the "questions" edge with a given conditions (other predicates).
-func HasQuestionsWith(preds ...predicate.Question) predicate.CourseSection {
+// HasQuestionCollectionsWith applies the HasEdge predicate on the "question_collections" edge with a given conditions (other predicates).
+func HasQuestionCollectionsWith(preds ...predicate.QuestionCollection) predicate.CourseSection {
 	return predicate.CourseSection(func(s *sql.Selector) {
-		step := newQuestionsStep()
+		step := newQuestionCollectionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

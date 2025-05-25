@@ -29,10 +29,15 @@ type CreateCourseSectionInput struct {
 	SectionID   *uuid.UUID `json:"sectionId,omitempty"`
 }
 
+type CreateQuestionCollectionInput struct {
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+}
+
 type CreateQuestionInput struct {
-	QuestionText    string                 `json:"questionText"`
-	CourseSectionID *uuid.UUID             `json:"courseSectionId,omitempty"`
-	Options         []*QuestionOptionInput `json:"options,omitempty"`
+	QuestionText         string                 `json:"questionText"`
+	QuestionCollectionID *uuid.UUID             `json:"questionCollectionId,omitempty"`
+	Options              []*QuestionOptionInput `json:"options,omitempty"`
 }
 
 type CreateQuestionOptionInput struct {
@@ -80,6 +85,11 @@ type PaginatedCourse struct {
 type PaginatedQuestion struct {
 	Pagination *Pagination `json:"pagination"`
 	Items      []*Question `json:"items"`
+}
+
+type PaginatedQuestionCollection struct {
+	Pagination *Pagination           `json:"pagination"`
+	Items      []*QuestionCollection `json:"items"`
 }
 
 type PaginatedQuestionOption struct {
@@ -152,10 +162,15 @@ type UpdateCourseSectionInput struct {
 	SectionID   *uuid.UUID `json:"sectionId,omitempty"`
 }
 
+type UpdateQuestionCollectionInput struct {
+	Title       *string `json:"title,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
 type UpdateQuestionInput struct {
-	QuestionText    *string                `json:"questionText,omitempty"`
-	CourseSectionID *uuid.UUID             `json:"courseSectionId,omitempty"`
-	Options         []*QuestionOptionInput `json:"options,omitempty"`
+	QuestionText         *string                `json:"questionText,omitempty"`
+	QuestionCollectionID *uuid.UUID             `json:"questionCollectionId,omitempty"`
+	Options              []*QuestionOptionInput `json:"options,omitempty"`
 }
 
 type UpdateQuestionOptionInput struct {

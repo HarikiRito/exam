@@ -118,3 +118,6 @@ models:
   TestSession:
     model:
       - template/internal/graph/model.TestSession
+  QuestionCollection:
+    model:
+      - template/internal/graph/model.QuestionCollection

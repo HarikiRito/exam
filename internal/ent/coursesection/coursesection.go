@@ -40,8 +40,8 @@ const (
 	EdgeChildren = "children"
 	// EdgeCourseSectionVideos holds the string denoting the course_section_videos edge name in mutations.
 	EdgeCourseSectionVideos = "course_section_videos"
-	// EdgeQuestions holds the string denoting the questions edge name in mutations.
-	EdgeQuestions = "questions"
+	// EdgeQuestionCollections holds the string denoting the question_collections edge name in mutations.
+	EdgeQuestionCollections = "question_collections"
 	// EdgeTestSessions holds the string denoting the test_sessions edge name in mutations.
 	EdgeTestSessions = "test_sessions"
 	// EdgeTests holds the string denoting the tests edge name in mutations.
@@ -70,13 +70,13 @@ const (
 	CourseSectionVideosInverseTable = "videos"
 	// CourseSectionVideosColumn is the table column denoting the course_section_videos relation/edge.
 	CourseSectionVideosColumn = "section_id"
-	// QuestionsTable is the table that holds the questions relation/edge.
-	QuestionsTable = "questions"
-	// QuestionsInverseTable is the table name for the Question entity.
-	// It exists in this package in order to avoid circular dependency with the "question" package.
-	QuestionsInverseTable = "questions"
-	// QuestionsColumn is the table column denoting the questions relation/edge.
-	QuestionsColumn = "section_id"
+	// QuestionCollectionsTable is the table that holds the question_collections relation/edge.
+	QuestionCollectionsTable = "question_collections"
+	// QuestionCollectionsInverseTable is the table name for the QuestionCollection entity.
+	// It exists in this package in order to avoid circular dependency with the "questioncollection" package.
+	QuestionCollectionsInverseTable = "question_collections"
+	// QuestionCollectionsColumn is the table column denoting the question_collections relation/edge.
+	QuestionCollectionsColumn = "course_section_id"
 	// TestSessionsTable is the table that holds the test_sessions relation/edge.
 	TestSessionsTable = "test_sessions"
 	// TestSessionsInverseTable is the table name for the TestSession entity.
@@ -228,17 +228,17 @@ func ByCourseSectionVideos(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpti
 	}
 }
 
-// ByQuestionsCount orders the results by questions count.
-func ByQuestionsCount(opts ...sql.OrderTermOption) OrderOption {
+// ByQuestionCollectionsCount orders the results by question_collections count.
+func ByQuestionCollectionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newQuestionsStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newQuestionCollectionsStep(), opts...)
 	}
 }
 
-// ByQuestions orders the results by questions terms.
-func ByQuestions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByQuestionCollections orders the results by question_collections terms.
+func ByQuestionCollections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newQuestionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newQuestionCollectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -297,11 +297,11 @@ func newCourseSectionVideosStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, CourseSectionVideosTable, CourseSectionVideosColumn),
 	)
 }
-func newQuestionsStep() *sqlgraph.Step {
+func newQuestionCollectionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(QuestionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, QuestionsTable, QuestionsColumn),
+		sqlgraph.To(QuestionCollectionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, QuestionCollectionsTable, QuestionCollectionsColumn),
 	)
 }
 func newTestSessionsStep() *sqlgraph.Step {

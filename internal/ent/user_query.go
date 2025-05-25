@@ -10,6 +10,7 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
@@ -34,6 +35,7 @@ type UserQuery struct {
 	withMediaUploader       *MediaQuery
 	withRoles               *RoleQuery
 	withCourseCreator       *CourseQuery
+	withQuestionCollections *QuestionCollectionQuery
 	withUserQuestionAnswers *UserQuestionAnswerQuery
 	withTestSessions        *TestSessionQuery
 	withUserRoles           *UserRoleQuery
@@ -154,6 +156,28 @@ func (uq *UserQuery) QueryCourseCreator() *CourseQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(course.Table, course.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.CourseCreatorTable, user.CourseCreatorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryQuestionCollections chains the current query on the "question_collections" edge.
+func (uq *UserQuery) QueryQuestionCollections() *QuestionCollectionQuery {
+	query := (&QuestionCollectionClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(questioncollection.Table, questioncollection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.QuestionCollectionsTable, user.QuestionCollectionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -423,6 +447,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withMediaUploader:       uq.withMediaUploader.Clone(),
 		withRoles:               uq.withRoles.Clone(),
 		withCourseCreator:       uq.withCourseCreator.Clone(),
+		withQuestionCollections: uq.withQuestionCollections.Clone(),
 		withUserQuestionAnswers: uq.withUserQuestionAnswers.Clone(),
 		withTestSessions:        uq.withTestSessions.Clone(),
 		withUserRoles:           uq.withUserRoles.Clone(),
@@ -473,6 +498,17 @@ func (uq *UserQuery) WithCourseCreator(opts ...func(*CourseQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withCourseCreator = query
+	return uq
+}
+
+// WithQuestionCollections tells the query-builder to eager-load the nodes that are connected to
+// the "question_collections" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithQuestionCollections(opts ...func(*QuestionCollectionQuery)) *UserQuery {
+	query := (&QuestionCollectionClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withQuestionCollections = query
 	return uq
 }
 
@@ -587,11 +623,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [7]bool{
+		loadedTypes = [8]bool{
 			uq.withMedia != nil,
 			uq.withMediaUploader != nil,
 			uq.withRoles != nil,
 			uq.withCourseCreator != nil,
+			uq.withQuestionCollections != nil,
 			uq.withUserQuestionAnswers != nil,
 			uq.withTestSessions != nil,
 			uq.withUserRoles != nil,
@@ -639,6 +676,15 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadCourseCreator(ctx, query, nodes,
 			func(n *User) { n.Edges.CourseCreator = []*Course{} },
 			func(n *User, e *Course) { n.Edges.CourseCreator = append(n.Edges.CourseCreator, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withQuestionCollections; query != nil {
+		if err := uq.loadQuestionCollections(ctx, query, nodes,
+			func(n *User) { n.Edges.QuestionCollections = []*QuestionCollection{} },
+			func(n *User, e *QuestionCollection) {
+				n.Edges.QuestionCollections = append(n.Edges.QuestionCollections, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -809,6 +855,36 @@ func (uq *UserQuery) loadCourseCreator(ctx context.Context, query *CourseQuery, 
 	}
 	query.Where(predicate.Course(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.CourseCreatorColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CreatorID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "creator_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadQuestionCollections(ctx context.Context, query *QuestionCollectionQuery, nodes []*User, init func(*User), assign func(*User, *QuestionCollection)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(questioncollection.FieldCreatorID)
+	}
+	query.Where(predicate.QuestionCollection(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.QuestionCollectionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

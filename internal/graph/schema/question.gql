@@ -12,7 +12,7 @@ extend type Query {
 type Question {
   id: ID!
   questionText: String!
-  section: CourseSection
+  collection: QuestionCollection
   options: [QuestionOption!]!
 }
 
@@ -23,7 +23,7 @@ type PaginatedQuestion {
 
 input CreateQuestionInput {
   questionText: String!
-  courseSectionId: ID
+  questionCollectionId: ID
   options: [QuestionOptionInput!]
 }
 
@@ -34,6 +34,6 @@ input QuestionOptionInput {
 
 input UpdateQuestionInput {
   questionText: String  
-  courseSectionId: ID
+  questionCollectionId: ID
   options: [QuestionOptionInput!]
 }

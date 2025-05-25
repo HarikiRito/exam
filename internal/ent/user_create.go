@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"template/internal/ent/course"
 	"template/internal/ent/media"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
@@ -219,6 +220,21 @@ func (uc *UserCreate) AddCourseCreator(c ...*Course) *UserCreate {
 		ids[i] = c[i].ID
 	}
 	return uc.AddCourseCreatorIDs(ids...)
+}
+
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (uc *UserCreate) AddQuestionCollectionIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddQuestionCollectionIDs(ids...)
+	return uc
+}
+
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (uc *UserCreate) AddQuestionCollections(q ...*QuestionCollection) *UserCreate {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return uc.AddQuestionCollectionIDs(ids...)
 }
 
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
@@ -502,6 +518,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

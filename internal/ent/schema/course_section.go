@@ -42,7 +42,7 @@ func (CourseSection) Edges() []ent.Edge {
 		edge.To("children", CourseSection.Type),
 		edge.To("course_section_videos", Video.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
-		edge.To("questions", Question.Type).
+		edge.To("question_collections", QuestionCollection.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("test_sessions", TestSession.Type),
 		edge.To("tests", Test.Type).

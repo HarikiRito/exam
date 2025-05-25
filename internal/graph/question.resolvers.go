@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"template/internal/features/question"
-	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 
@@ -108,21 +107,9 @@ func (r *queryResolver) PaginatedQuestions(ctx context.Context, paginationInput 
 	}, nil
 }
 
-// Section is the resolver for the section field.
-func (r *questionResolver) Section(ctx context.Context, obj *model.Question) (*model.CourseSection, error) {
-	// Check if the question has a section ID
-	if obj.SectionID == nil {
-		return nil, nil
-	}
-
-	// Get the authenticated user
-	_, err := GetUserIdFromRequestContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// Use the dataloader to fetch the course section
-	return dataloader.GetCourseSection(ctx, *obj.SectionID)
+// Collection is the resolver for the collection field.
+func (r *questionResolver) Collection(ctx context.Context, obj *model.Question) (*model.QuestionCollection, error) {
+	panic(fmt.Errorf("not implemented: Collection - collection"))
 }
 
 // Options is the resolver for the options field.

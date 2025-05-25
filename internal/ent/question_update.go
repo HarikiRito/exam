@@ -6,9 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/test"
 	"template/internal/ent/userquestionanswer"
@@ -74,23 +74,17 @@ func (qu *QuestionUpdate) ClearDeletedAt() *QuestionUpdate {
 	return qu
 }
 
-// SetSectionID sets the "section_id" field.
-func (qu *QuestionUpdate) SetSectionID(u uuid.UUID) *QuestionUpdate {
-	qu.mutation.SetSectionID(u)
+// SetCollectionID sets the "collection_id" field.
+func (qu *QuestionUpdate) SetCollectionID(u uuid.UUID) *QuestionUpdate {
+	qu.mutation.SetCollectionID(u)
 	return qu
 }
 
-// SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (qu *QuestionUpdate) SetNillableSectionID(u *uuid.UUID) *QuestionUpdate {
+// SetNillableCollectionID sets the "collection_id" field if the given value is not nil.
+func (qu *QuestionUpdate) SetNillableCollectionID(u *uuid.UUID) *QuestionUpdate {
 	if u != nil {
-		qu.SetSectionID(*u)
+		qu.SetCollectionID(*u)
 	}
-	return qu
-}
-
-// ClearSectionID clears the value of the "section_id" field.
-func (qu *QuestionUpdate) ClearSectionID() *QuestionUpdate {
-	qu.mutation.ClearSectionID()
 	return qu
 }
 
@@ -108,9 +102,9 @@ func (qu *QuestionUpdate) SetNillableQuestionText(s *string) *QuestionUpdate {
 	return qu
 }
 
-// SetSection sets the "section" edge to the CourseSection entity.
-func (qu *QuestionUpdate) SetSection(c *CourseSection) *QuestionUpdate {
-	return qu.SetSectionID(c.ID)
+// SetCollection sets the "collection" edge to the QuestionCollection entity.
+func (qu *QuestionUpdate) SetCollection(q *QuestionCollection) *QuestionUpdate {
+	return qu.SetCollectionID(q.ID)
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by IDs.
@@ -178,9 +172,9 @@ func (qu *QuestionUpdate) Mutation() *QuestionMutation {
 	return qu.mutation
 }
 
-// ClearSection clears the "section" edge to the CourseSection entity.
-func (qu *QuestionUpdate) ClearSection() *QuestionUpdate {
-	qu.mutation.ClearSection()
+// ClearCollection clears the "collection" edge to the QuestionCollection entity.
+func (qu *QuestionUpdate) ClearCollection() *QuestionUpdate {
+	qu.mutation.ClearCollection()
 	return qu
 }
 
@@ -317,6 +311,9 @@ func (qu *QuestionUpdate) check() error {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
 	}
+	if qu.mutation.CollectionCleared() && len(qu.mutation.CollectionIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Question.collection"`)
+	}
 	return nil
 }
 
@@ -347,28 +344,28 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := qu.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
 	}
-	if qu.mutation.SectionCleared() {
+	if qu.mutation.CollectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.SectionTable,
-			Columns: []string{question.SectionColumn},
+			Table:   question.CollectionTable,
+			Columns: []string{question.CollectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := qu.mutation.SectionIDs(); len(nodes) > 0 {
+	if nodes := qu.mutation.CollectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.SectionTable,
-			Columns: []string{question.SectionColumn},
+			Table:   question.CollectionTable,
+			Columns: []string{question.CollectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -616,23 +613,17 @@ func (quo *QuestionUpdateOne) ClearDeletedAt() *QuestionUpdateOne {
 	return quo
 }
 
-// SetSectionID sets the "section_id" field.
-func (quo *QuestionUpdateOne) SetSectionID(u uuid.UUID) *QuestionUpdateOne {
-	quo.mutation.SetSectionID(u)
+// SetCollectionID sets the "collection_id" field.
+func (quo *QuestionUpdateOne) SetCollectionID(u uuid.UUID) *QuestionUpdateOne {
+	quo.mutation.SetCollectionID(u)
 	return quo
 }
 
-// SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (quo *QuestionUpdateOne) SetNillableSectionID(u *uuid.UUID) *QuestionUpdateOne {
+// SetNillableCollectionID sets the "collection_id" field if the given value is not nil.
+func (quo *QuestionUpdateOne) SetNillableCollectionID(u *uuid.UUID) *QuestionUpdateOne {
 	if u != nil {
-		quo.SetSectionID(*u)
+		quo.SetCollectionID(*u)
 	}
-	return quo
-}
-
-// ClearSectionID clears the value of the "section_id" field.
-func (quo *QuestionUpdateOne) ClearSectionID() *QuestionUpdateOne {
-	quo.mutation.ClearSectionID()
 	return quo
 }
 
@@ -650,9 +641,9 @@ func (quo *QuestionUpdateOne) SetNillableQuestionText(s *string) *QuestionUpdate
 	return quo
 }
 
-// SetSection sets the "section" edge to the CourseSection entity.
-func (quo *QuestionUpdateOne) SetSection(c *CourseSection) *QuestionUpdateOne {
-	return quo.SetSectionID(c.ID)
+// SetCollection sets the "collection" edge to the QuestionCollection entity.
+func (quo *QuestionUpdateOne) SetCollection(q *QuestionCollection) *QuestionUpdateOne {
+	return quo.SetCollectionID(q.ID)
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by IDs.
@@ -720,9 +711,9 @@ func (quo *QuestionUpdateOne) Mutation() *QuestionMutation {
 	return quo.mutation
 }
 
-// ClearSection clears the "section" edge to the CourseSection entity.
-func (quo *QuestionUpdateOne) ClearSection() *QuestionUpdateOne {
-	quo.mutation.ClearSection()
+// ClearCollection clears the "collection" edge to the QuestionCollection entity.
+func (quo *QuestionUpdateOne) ClearCollection() *QuestionUpdateOne {
+	quo.mutation.ClearCollection()
 	return quo
 }
 
@@ -872,6 +863,9 @@ func (quo *QuestionUpdateOne) check() error {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
 	}
+	if quo.mutation.CollectionCleared() && len(quo.mutation.CollectionIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Question.collection"`)
+	}
 	return nil
 }
 
@@ -919,28 +913,28 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 	if value, ok := quo.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
 	}
-	if quo.mutation.SectionCleared() {
+	if quo.mutation.CollectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.SectionTable,
-			Columns: []string{question.SectionColumn},
+			Table:   question.CollectionTable,
+			Columns: []string{question.CollectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := quo.mutation.SectionIDs(); len(nodes) > 0 {
+	if nodes := quo.mutation.CollectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.SectionTable,
-			Columns: []string{question.SectionColumn},
+			Table:   question.CollectionTable,
+			Columns: []string{question.CollectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

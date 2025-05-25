@@ -7,9 +7,9 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"math"
-	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/test"
 	"template/internal/ent/userquestionanswer"
@@ -29,7 +29,7 @@ type QuestionQuery struct {
 	order                               []question.OrderOption
 	inters                              []Interceptor
 	predicates                          []predicate.Question
-	withSection                         *CourseSectionQuery
+	withCollection                      *QuestionCollectionQuery
 	withQuestionOptions                 *QuestionOptionQuery
 	withVideoQuestionTimestampsQuestion *VideoQuestionTimestampQuery
 	withUserQuestionAnswers             *UserQuestionAnswerQuery
@@ -70,9 +70,9 @@ func (qq *QuestionQuery) Order(o ...question.OrderOption) *QuestionQuery {
 	return qq
 }
 
-// QuerySection chains the current query on the "section" edge.
-func (qq *QuestionQuery) QuerySection() *CourseSectionQuery {
-	query := (&CourseSectionClient{config: qq.config}).Query()
+// QueryCollection chains the current query on the "collection" edge.
+func (qq *QuestionQuery) QueryCollection() *QuestionCollectionQuery {
+	query := (&QuestionCollectionClient{config: qq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := qq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -83,8 +83,8 @@ func (qq *QuestionQuery) QuerySection() *CourseSectionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(question.Table, question.FieldID, selector),
-			sqlgraph.To(coursesection.Table, coursesection.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, question.SectionTable, question.SectionColumn),
+			sqlgraph.To(questioncollection.Table, questioncollection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, question.CollectionTable, question.CollectionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
 		return fromU, nil
@@ -372,7 +372,7 @@ func (qq *QuestionQuery) Clone() *QuestionQuery {
 		order:                               append([]question.OrderOption{}, qq.order...),
 		inters:                              append([]Interceptor{}, qq.inters...),
 		predicates:                          append([]predicate.Question{}, qq.predicates...),
-		withSection:                         qq.withSection.Clone(),
+		withCollection:                      qq.withCollection.Clone(),
 		withQuestionOptions:                 qq.withQuestionOptions.Clone(),
 		withVideoQuestionTimestampsQuestion: qq.withVideoQuestionTimestampsQuestion.Clone(),
 		withUserQuestionAnswers:             qq.withUserQuestionAnswers.Clone(),
@@ -383,14 +383,14 @@ func (qq *QuestionQuery) Clone() *QuestionQuery {
 	}
 }
 
-// WithSection tells the query-builder to eager-load the nodes that are connected to
-// the "section" edge. The optional arguments are used to configure the query builder of the edge.
-func (qq *QuestionQuery) WithSection(opts ...func(*CourseSectionQuery)) *QuestionQuery {
-	query := (&CourseSectionClient{config: qq.config}).Query()
+// WithCollection tells the query-builder to eager-load the nodes that are connected to
+// the "collection" edge. The optional arguments are used to configure the query builder of the edge.
+func (qq *QuestionQuery) WithCollection(opts ...func(*QuestionCollectionQuery)) *QuestionQuery {
+	query := (&QuestionCollectionClient{config: qq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	qq.withSection = query
+	qq.withCollection = query
 	return qq
 }
 
@@ -517,7 +517,7 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 		nodes       = []*Question{}
 		_spec       = qq.querySpec()
 		loadedTypes = [5]bool{
-			qq.withSection != nil,
+			qq.withCollection != nil,
 			qq.withQuestionOptions != nil,
 			qq.withVideoQuestionTimestampsQuestion != nil,
 			qq.withUserQuestionAnswers != nil,
@@ -542,9 +542,9 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := qq.withSection; query != nil {
-		if err := qq.loadSection(ctx, query, nodes, nil,
-			func(n *Question, e *CourseSection) { n.Edges.Section = e }); err != nil {
+	if query := qq.withCollection; query != nil {
+		if err := qq.loadCollection(ctx, query, nodes, nil,
+			func(n *Question, e *QuestionCollection) { n.Edges.Collection = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -583,14 +583,11 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 	return nodes, nil
 }
 
-func (qq *QuestionQuery) loadSection(ctx context.Context, query *CourseSectionQuery, nodes []*Question, init func(*Question), assign func(*Question, *CourseSection)) error {
+func (qq *QuestionQuery) loadCollection(ctx context.Context, query *QuestionCollectionQuery, nodes []*Question, init func(*Question), assign func(*Question, *QuestionCollection)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Question)
 	for i := range nodes {
-		if nodes[i].SectionID == nil {
-			continue
-		}
-		fk := *nodes[i].SectionID
+		fk := nodes[i].CollectionID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -599,7 +596,7 @@ func (qq *QuestionQuery) loadSection(ctx context.Context, query *CourseSectionQu
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(coursesection.IDIn(ids...))
+	query.Where(questioncollection.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -607,7 +604,7 @@ func (qq *QuestionQuery) loadSection(ctx context.Context, query *CourseSectionQu
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "section_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "collection_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -792,8 +789,8 @@ func (qq *QuestionQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if qq.withSection != nil {
-			_spec.Node.AddColumnOnce(question.FieldSectionID)
+		if qq.withCollection != nil {
+			_spec.Node.AddColumnOnce(question.FieldCollectionID)
 		}
 	}
 	if ps := qq.predicates; len(ps) > 0 {

@@ -5,8 +5,8 @@ package ent
 import (
 	"fmt"
 	"strings"
-	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"time"
 
 	"entgo.io/ent"
@@ -25,8 +25,8 @@ type Question struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
-	// SectionID holds the value of the "section_id" field.
-	SectionID *uuid.UUID `json:"section_id,omitempty"`
+	// CollectionID holds the value of the "collection_id" field.
+	CollectionID uuid.UUID `json:"collection_id,omitempty"`
 	// QuestionText holds the value of the "question_text" field.
 	QuestionText string `json:"question_text,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -37,8 +37,8 @@ type Question struct {
 
 // QuestionEdges holds the relations/edges for other nodes in the graph.
 type QuestionEdges struct {
-	// Section holds the value of the section edge.
-	Section *CourseSection `json:"section,omitempty"`
+	// Collection holds the value of the collection edge.
+	Collection *QuestionCollection `json:"collection,omitempty"`
 	// QuestionOptions holds the value of the question_options edge.
 	QuestionOptions []*QuestionOption `json:"question_options,omitempty"`
 	// VideoQuestionTimestampsQuestion holds the value of the video_question_timestamps_question edge.
@@ -52,15 +52,15 @@ type QuestionEdges struct {
 	loadedTypes [5]bool
 }
 
-// SectionOrErr returns the Section value or an error if the edge
+// CollectionOrErr returns the Collection value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e QuestionEdges) SectionOrErr() (*CourseSection, error) {
-	if e.Section != nil {
-		return e.Section, nil
+func (e QuestionEdges) CollectionOrErr() (*QuestionCollection, error) {
+	if e.Collection != nil {
+		return e.Collection, nil
 	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: coursesection.Label}
+		return nil, &NotFoundError{label: questioncollection.Label}
 	}
-	return nil, &NotLoadedError{edge: "section"}
+	return nil, &NotLoadedError{edge: "collection"}
 }
 
 // QuestionOptionsOrErr returns the QuestionOptions value or an error if the edge
@@ -104,13 +104,11 @@ func (*Question) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case question.FieldSectionID:
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case question.FieldQuestionText:
 			values[i] = new(sql.NullString)
 		case question.FieldCreatedAt, question.FieldUpdatedAt, question.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case question.FieldID:
+		case question.FieldID, question.FieldCollectionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -152,12 +150,11 @@ func (q *Question) assignValues(columns []string, values []any) error {
 				q.DeletedAt = new(time.Time)
 				*q.DeletedAt = value.Time
 			}
-		case question.FieldSectionID:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field section_id", values[i])
-			} else if value.Valid {
-				q.SectionID = new(uuid.UUID)
-				*q.SectionID = *value.S.(*uuid.UUID)
+		case question.FieldCollectionID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field collection_id", values[i])
+			} else if value != nil {
+				q.CollectionID = *value
 			}
 		case question.FieldQuestionText:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -178,9 +175,9 @@ func (q *Question) Value(name string) (ent.Value, error) {
 	return q.selectValues.Get(name)
 }
 
-// QuerySection queries the "section" edge of the Question entity.
-func (q *Question) QuerySection() *CourseSectionQuery {
-	return NewQuestionClient(q.config).QuerySection(q)
+// QueryCollection queries the "collection" edge of the Question entity.
+func (q *Question) QueryCollection() *QuestionCollectionQuery {
+	return NewQuestionClient(q.config).QueryCollection(q)
 }
 
 // QueryQuestionOptions queries the "question_options" edge of the Question entity.
@@ -237,10 +234,8 @@ func (q *Question) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := q.SectionID; v != nil {
-		builder.WriteString("section_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("collection_id=")
+	builder.WriteString(fmt.Sprintf("%v", q.CollectionID))
 	builder.WriteString(", ")
 	builder.WriteString("question_text=")
 	builder.WriteString(q.QuestionText)

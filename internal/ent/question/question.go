@@ -22,12 +22,12 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldSectionID holds the string denoting the section_id field in the database.
-	FieldSectionID = "section_id"
+	// FieldCollectionID holds the string denoting the collection_id field in the database.
+	FieldCollectionID = "collection_id"
 	// FieldQuestionText holds the string denoting the question_text field in the database.
 	FieldQuestionText = "question_text"
-	// EdgeSection holds the string denoting the section edge name in mutations.
-	EdgeSection = "section"
+	// EdgeCollection holds the string denoting the collection edge name in mutations.
+	EdgeCollection = "collection"
 	// EdgeQuestionOptions holds the string denoting the question_options edge name in mutations.
 	EdgeQuestionOptions = "question_options"
 	// EdgeVideoQuestionTimestampsQuestion holds the string denoting the video_question_timestamps_question edge name in mutations.
@@ -38,13 +38,13 @@ const (
 	EdgeTests = "tests"
 	// Table holds the table name of the question in the database.
 	Table = "questions"
-	// SectionTable is the table that holds the section relation/edge.
-	SectionTable = "questions"
-	// SectionInverseTable is the table name for the CourseSection entity.
-	// It exists in this package in order to avoid circular dependency with the "coursesection" package.
-	SectionInverseTable = "course_sections"
-	// SectionColumn is the table column denoting the section relation/edge.
-	SectionColumn = "section_id"
+	// CollectionTable is the table that holds the collection relation/edge.
+	CollectionTable = "questions"
+	// CollectionInverseTable is the table name for the QuestionCollection entity.
+	// It exists in this package in order to avoid circular dependency with the "questioncollection" package.
+	CollectionInverseTable = "question_collections"
+	// CollectionColumn is the table column denoting the collection relation/edge.
+	CollectionColumn = "collection_id"
 	// QuestionOptionsTable is the table that holds the question_options relation/edge.
 	QuestionOptionsTable = "question_options"
 	// QuestionOptionsInverseTable is the table name for the QuestionOption entity.
@@ -79,7 +79,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldSectionID,
+	FieldCollectionID,
 	FieldQuestionText,
 }
 
@@ -142,9 +142,9 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// BySectionID orders the results by the section_id field.
-func BySectionID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSectionID, opts...).ToFunc()
+// ByCollectionID orders the results by the collection_id field.
+func ByCollectionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCollectionID, opts...).ToFunc()
 }
 
 // ByQuestionText orders the results by the question_text field.
@@ -152,10 +152,10 @@ func ByQuestionText(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldQuestionText, opts...).ToFunc()
 }
 
-// BySectionField orders the results by section field.
-func BySectionField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByCollectionField orders the results by collection field.
+func ByCollectionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSectionStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newCollectionStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -214,11 +214,11 @@ func ByTests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTestsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newSectionStep() *sqlgraph.Step {
+func newCollectionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SectionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, SectionTable, SectionColumn),
+		sqlgraph.To(CollectionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CollectionTable, CollectionColumn),
 	)
 }
 func newQuestionOptionsStep() *sqlgraph.Step {

@@ -13,6 +13,7 @@ import (
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/test"
@@ -92,6 +93,7 @@ func checkColumn(table, column string) error {
 			media.Table:                  media.ValidColumn,
 			permission.Table:             permission.ValidColumn,
 			question.Table:               question.ValidColumn,
+			questioncollection.Table:     questioncollection.ValidColumn,
 			questionoption.Table:         questionoption.ValidColumn,
 			role.Table:                   role.ValidColumn,
 			test.Table:                   test.ValidColumn,

@@ -9,6 +9,7 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
@@ -255,6 +256,21 @@ func (uu *UserUpdate) AddCourseCreator(c ...*Course) *UserUpdate {
 	return uu.AddCourseCreatorIDs(ids...)
 }
 
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (uu *UserUpdate) AddQuestionCollectionIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddQuestionCollectionIDs(ids...)
+	return uu
+}
+
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (uu *UserUpdate) AddQuestionCollections(q ...*QuestionCollection) *UserUpdate {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return uu.AddQuestionCollectionIDs(ids...)
+}
+
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
 func (uu *UserUpdate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddUserQuestionAnswerIDs(ids...)
@@ -372,6 +388,27 @@ func (uu *UserUpdate) RemoveCourseCreator(c ...*Course) *UserUpdate {
 		ids[i] = c[i].ID
 	}
 	return uu.RemoveCourseCreatorIDs(ids...)
+}
+
+// ClearQuestionCollections clears all "question_collections" edges to the QuestionCollection entity.
+func (uu *UserUpdate) ClearQuestionCollections() *UserUpdate {
+	uu.mutation.ClearQuestionCollections()
+	return uu
+}
+
+// RemoveQuestionCollectionIDs removes the "question_collections" edge to QuestionCollection entities by IDs.
+func (uu *UserUpdate) RemoveQuestionCollectionIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveQuestionCollectionIDs(ids...)
+	return uu
+}
+
+// RemoveQuestionCollections removes "question_collections" edges to QuestionCollection entities.
+func (uu *UserUpdate) RemoveQuestionCollections(q ...*QuestionCollection) *UserUpdate {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return uu.RemoveQuestionCollectionIDs(ids...)
 }
 
 // ClearUserQuestionAnswers clears all "user_question_answers" edges to the UserQuestionAnswer entity.
@@ -725,6 +762,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedQuestionCollectionsIDs(); len(nodes) > 0 && !uu.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1107,6 +1189,21 @@ func (uuo *UserUpdateOne) AddCourseCreator(c ...*Course) *UserUpdateOne {
 	return uuo.AddCourseCreatorIDs(ids...)
 }
 
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (uuo *UserUpdateOne) AddQuestionCollectionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddQuestionCollectionIDs(ids...)
+	return uuo
+}
+
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (uuo *UserUpdateOne) AddQuestionCollections(q ...*QuestionCollection) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return uuo.AddQuestionCollectionIDs(ids...)
+}
+
 // AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
 func (uuo *UserUpdateOne) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.AddUserQuestionAnswerIDs(ids...)
@@ -1224,6 +1321,27 @@ func (uuo *UserUpdateOne) RemoveCourseCreator(c ...*Course) *UserUpdateOne {
 		ids[i] = c[i].ID
 	}
 	return uuo.RemoveCourseCreatorIDs(ids...)
+}
+
+// ClearQuestionCollections clears all "question_collections" edges to the QuestionCollection entity.
+func (uuo *UserUpdateOne) ClearQuestionCollections() *UserUpdateOne {
+	uuo.mutation.ClearQuestionCollections()
+	return uuo
+}
+
+// RemoveQuestionCollectionIDs removes the "question_collections" edge to QuestionCollection entities by IDs.
+func (uuo *UserUpdateOne) RemoveQuestionCollectionIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveQuestionCollectionIDs(ids...)
+	return uuo
+}
+
+// RemoveQuestionCollections removes "question_collections" edges to QuestionCollection entities.
+func (uuo *UserUpdateOne) RemoveQuestionCollections(q ...*QuestionCollection) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return uuo.RemoveQuestionCollectionIDs(ids...)
 }
 
 // ClearUserQuestionAnswers clears all "user_question_answers" edges to the UserQuestionAnswer entity.
@@ -1607,6 +1725,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(course.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedQuestionCollectionsIDs(); len(nodes) > 0 && !uuo.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.QuestionCollectionsTable,
+			Columns: []string{user.QuestionCollectionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

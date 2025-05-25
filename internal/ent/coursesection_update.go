@@ -9,7 +9,7 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
-	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/video"
@@ -217,19 +217,19 @@ func (csu *CourseSectionUpdate) AddCourseSectionVideos(v ...*Video) *CourseSecti
 	return csu.AddCourseSectionVideoIDs(ids...)
 }
 
-// AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (csu *CourseSectionUpdate) AddQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdate {
-	csu.mutation.AddQuestionIDs(ids...)
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (csu *CourseSectionUpdate) AddQuestionCollectionIDs(ids ...uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.AddQuestionCollectionIDs(ids...)
 	return csu
 }
 
-// AddQuestions adds the "questions" edges to the Question entity.
-func (csu *CourseSectionUpdate) AddQuestions(q ...*Question) *CourseSectionUpdate {
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (csu *CourseSectionUpdate) AddQuestionCollections(q ...*QuestionCollection) *CourseSectionUpdate {
 	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
-	return csu.AddQuestionIDs(ids...)
+	return csu.AddQuestionCollectionIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -321,25 +321,25 @@ func (csu *CourseSectionUpdate) RemoveCourseSectionVideos(v ...*Video) *CourseSe
 	return csu.RemoveCourseSectionVideoIDs(ids...)
 }
 
-// ClearQuestions clears all "questions" edges to the Question entity.
-func (csu *CourseSectionUpdate) ClearQuestions() *CourseSectionUpdate {
-	csu.mutation.ClearQuestions()
+// ClearQuestionCollections clears all "question_collections" edges to the QuestionCollection entity.
+func (csu *CourseSectionUpdate) ClearQuestionCollections() *CourseSectionUpdate {
+	csu.mutation.ClearQuestionCollections()
 	return csu
 }
 
-// RemoveQuestionIDs removes the "questions" edge to Question entities by IDs.
-func (csu *CourseSectionUpdate) RemoveQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdate {
-	csu.mutation.RemoveQuestionIDs(ids...)
+// RemoveQuestionCollectionIDs removes the "question_collections" edge to QuestionCollection entities by IDs.
+func (csu *CourseSectionUpdate) RemoveQuestionCollectionIDs(ids ...uuid.UUID) *CourseSectionUpdate {
+	csu.mutation.RemoveQuestionCollectionIDs(ids...)
 	return csu
 }
 
-// RemoveQuestions removes "questions" edges to Question entities.
-func (csu *CourseSectionUpdate) RemoveQuestions(q ...*Question) *CourseSectionUpdate {
+// RemoveQuestionCollections removes "question_collections" edges to QuestionCollection entities.
+func (csu *CourseSectionUpdate) RemoveQuestionCollections(q ...*QuestionCollection) *CourseSectionUpdate {
 	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
-	return csu.RemoveQuestionIDs(ids...)
+	return csu.RemoveQuestionCollectionIDs(ids...)
 }
 
 // ClearTestSessions clears all "test_sessions" edges to the TestSession entity.
@@ -626,28 +626,28 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if csu.mutation.QuestionsCleared() {
+	if csu.mutation.QuestionCollectionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csu.mutation.RemovedQuestionsIDs(); len(nodes) > 0 && !csu.mutation.QuestionsCleared() {
+	if nodes := csu.mutation.RemovedQuestionCollectionsIDs(); len(nodes) > 0 && !csu.mutation.QuestionCollectionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -655,15 +655,15 @@ func (csu *CourseSectionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csu.mutation.QuestionsIDs(); len(nodes) > 0 {
+	if nodes := csu.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -964,19 +964,19 @@ func (csuo *CourseSectionUpdateOne) AddCourseSectionVideos(v ...*Video) *CourseS
 	return csuo.AddCourseSectionVideoIDs(ids...)
 }
 
-// AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (csuo *CourseSectionUpdateOne) AddQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
-	csuo.mutation.AddQuestionIDs(ids...)
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (csuo *CourseSectionUpdateOne) AddQuestionCollectionIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.AddQuestionCollectionIDs(ids...)
 	return csuo
 }
 
-// AddQuestions adds the "questions" edges to the Question entity.
-func (csuo *CourseSectionUpdateOne) AddQuestions(q ...*Question) *CourseSectionUpdateOne {
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (csuo *CourseSectionUpdateOne) AddQuestionCollections(q ...*QuestionCollection) *CourseSectionUpdateOne {
 	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
-	return csuo.AddQuestionIDs(ids...)
+	return csuo.AddQuestionCollectionIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -1068,25 +1068,25 @@ func (csuo *CourseSectionUpdateOne) RemoveCourseSectionVideos(v ...*Video) *Cour
 	return csuo.RemoveCourseSectionVideoIDs(ids...)
 }
 
-// ClearQuestions clears all "questions" edges to the Question entity.
-func (csuo *CourseSectionUpdateOne) ClearQuestions() *CourseSectionUpdateOne {
-	csuo.mutation.ClearQuestions()
+// ClearQuestionCollections clears all "question_collections" edges to the QuestionCollection entity.
+func (csuo *CourseSectionUpdateOne) ClearQuestionCollections() *CourseSectionUpdateOne {
+	csuo.mutation.ClearQuestionCollections()
 	return csuo
 }
 
-// RemoveQuestionIDs removes the "questions" edge to Question entities by IDs.
-func (csuo *CourseSectionUpdateOne) RemoveQuestionIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
-	csuo.mutation.RemoveQuestionIDs(ids...)
+// RemoveQuestionCollectionIDs removes the "question_collections" edge to QuestionCollection entities by IDs.
+func (csuo *CourseSectionUpdateOne) RemoveQuestionCollectionIDs(ids ...uuid.UUID) *CourseSectionUpdateOne {
+	csuo.mutation.RemoveQuestionCollectionIDs(ids...)
 	return csuo
 }
 
-// RemoveQuestions removes "questions" edges to Question entities.
-func (csuo *CourseSectionUpdateOne) RemoveQuestions(q ...*Question) *CourseSectionUpdateOne {
+// RemoveQuestionCollections removes "question_collections" edges to QuestionCollection entities.
+func (csuo *CourseSectionUpdateOne) RemoveQuestionCollections(q ...*QuestionCollection) *CourseSectionUpdateOne {
 	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
-	return csuo.RemoveQuestionIDs(ids...)
+	return csuo.RemoveQuestionCollectionIDs(ids...)
 }
 
 // ClearTestSessions clears all "test_sessions" edges to the TestSession entity.
@@ -1403,28 +1403,28 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if csuo.mutation.QuestionsCleared() {
+	if csuo.mutation.QuestionCollectionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csuo.mutation.RemovedQuestionsIDs(); len(nodes) > 0 && !csuo.mutation.QuestionsCleared() {
+	if nodes := csuo.mutation.RemovedQuestionCollectionsIDs(); len(nodes) > 0 && !csuo.mutation.QuestionCollectionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1432,15 +1432,15 @@ func (csuo *CourseSectionUpdateOne) sqlSave(ctx context.Context) (_node *CourseS
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := csuo.mutation.QuestionsIDs(); len(nodes) > 0 {
+	if nodes := csuo.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

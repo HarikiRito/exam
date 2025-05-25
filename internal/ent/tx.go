@@ -22,6 +22,8 @@ type Tx struct {
 	Permission *PermissionClient
 	// Question is the client for interacting with the Question builders.
 	Question *QuestionClient
+	// QuestionCollection is the client for interacting with the QuestionCollection builders.
+	QuestionCollection *QuestionCollectionClient
 	// QuestionOption is the client for interacting with the QuestionOption builders.
 	QuestionOption *QuestionOptionClient
 	// Role is the client for interacting with the Role builders.
@@ -178,6 +180,7 @@ func (tx *Tx) init() {
 	tx.Media = NewMediaClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Question = NewQuestionClient(tx.config)
+	tx.QuestionCollection = NewQuestionCollectionClient(tx.config)
 	tx.QuestionOption = NewQuestionOptionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
 	tx.Test = NewTestClient(tx.config)

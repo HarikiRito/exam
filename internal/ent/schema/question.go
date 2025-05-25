@@ -18,7 +18,7 @@ type Question struct {
 // Fields of the Question.
 func (Question) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("section_id", uuid.UUID{}).Optional().Nillable(),
+		field.UUID("collection_id", uuid.UUID{}),
 		field.Text("question_text").NotEmpty(),
 	}
 }
@@ -26,10 +26,11 @@ func (Question) Fields() []ent.Field {
 // Edges of the Question.
 func (Question) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("section", CourseSection.Type).
+		edge.From("collection", QuestionCollection.Type).
 			Ref("questions").
-			Field("section_id").
-			Unique(),
+			Field("collection_id").
+			Unique().
+			Required(),
 		edge.To("question_options", QuestionOption.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("video_question_timestamps_question", VideoQuestionTimestamp.Type),

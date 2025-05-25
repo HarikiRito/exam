@@ -21,6 +21,9 @@ type Permission func(*sql.Selector)
 // Question is the predicate function for question builders.
 type Question func(*sql.Selector)
 
+// QuestionCollection is the predicate function for questioncollection builders.
+type QuestionCollection func(*sql.Selector)
+
 // QuestionOption is the predicate function for questionoption builders.
 type QuestionOption func(*sql.Selector)
 

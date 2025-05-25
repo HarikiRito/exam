@@ -68,6 +68,18 @@ func (f QuestionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuestionMutation", m)
 }
 
+// The QuestionCollectionFunc type is an adapter to allow the use of ordinary
+// function as QuestionCollection mutator.
+type QuestionCollectionFunc func(context.Context, *ent.QuestionCollectionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuestionCollectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.QuestionCollectionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuestionCollectionMutation", m)
+}
+
 // The QuestionOptionFunc type is an adapter to allow the use of ordinary
 // function as QuestionOption mutator.
 type QuestionOptionFunc func(context.Context, *ent.QuestionOptionMutation) (ent.Value, error)

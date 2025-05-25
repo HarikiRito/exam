@@ -94,9 +94,18 @@ Table videos {
 }
 
 // Question Management
+Table question_collections {
+  id varchar [pk]
+  title varchar [not null]
+  description text
+  creator_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
 Table questions {
   id varchar [pk]
-  section_id varchar
+  collection_id varchar [not null]
   question_text text [not null]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
@@ -210,7 +219,7 @@ Ref: courses.creator_id > users.id
 Ref: course_sections.course_id > courses.id [delete: cascade]
 Ref: videos.section_id > course_sections.id [delete: cascade]
 Ref: videos.media_id > media.id
-Ref: questions.section_id > course_sections.id [delete: cascade]
+Ref: questions.collection_id > question_collections.id [delete: cascade]
 Ref: video_question_timestamps.video_id > videos.id [delete: cascade]
 Ref: video_question_timestamps.question_id > questions.id [delete: cascade]
 Ref: question_options.question_id > questions.id [delete: cascade]

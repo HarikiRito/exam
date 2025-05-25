@@ -8,6 +8,7 @@ import (
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/schema"
@@ -179,6 +180,33 @@ func init() {
 	questionDescID := questionMixinFields0[0].Descriptor()
 	// question.DefaultID holds the default value on creation for the id field.
 	question.DefaultID = questionDescID.Default.(func() uuid.UUID)
+	questioncollectionMixin := schema.QuestionCollection{}.Mixin()
+	questioncollectionMixinHooks1 := questioncollectionMixin[1].Hooks()
+	questioncollection.Hooks[0] = questioncollectionMixinHooks1[0]
+	questioncollectionMixinInters1 := questioncollectionMixin[1].Interceptors()
+	questioncollection.Interceptors[0] = questioncollectionMixinInters1[0]
+	questioncollectionMixinFields0 := questioncollectionMixin[0].Fields()
+	_ = questioncollectionMixinFields0
+	questioncollectionFields := schema.QuestionCollection{}.Fields()
+	_ = questioncollectionFields
+	// questioncollectionDescCreatedAt is the schema descriptor for created_at field.
+	questioncollectionDescCreatedAt := questioncollectionMixinFields0[1].Descriptor()
+	// questioncollection.DefaultCreatedAt holds the default value on creation for the created_at field.
+	questioncollection.DefaultCreatedAt = questioncollectionDescCreatedAt.Default.(func() time.Time)
+	// questioncollectionDescUpdatedAt is the schema descriptor for updated_at field.
+	questioncollectionDescUpdatedAt := questioncollectionMixinFields0[2].Descriptor()
+	// questioncollection.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	questioncollection.DefaultUpdatedAt = questioncollectionDescUpdatedAt.Default.(func() time.Time)
+	// questioncollection.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	questioncollection.UpdateDefaultUpdatedAt = questioncollectionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// questioncollectionDescTitle is the schema descriptor for title field.
+	questioncollectionDescTitle := questioncollectionFields[0].Descriptor()
+	// questioncollection.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	questioncollection.TitleValidator = questioncollectionDescTitle.Validators[0].(func(string) error)
+	// questioncollectionDescID is the schema descriptor for id field.
+	questioncollectionDescID := questioncollectionMixinFields0[0].Descriptor()
+	// questioncollection.DefaultID holds the default value on creation for the id field.
+	questioncollection.DefaultID = questioncollectionDescID.Default.(func() uuid.UUID)
 	questionoptionMixin := schema.QuestionOption{}.Mixin()
 	questionoptionMixinHooks1 := questionoptionMixin[1].Hooks()
 	questionoption.Hooks[0] = questionoptionMixinHooks1[0]

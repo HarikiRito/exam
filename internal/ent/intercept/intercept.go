@@ -13,6 +13,7 @@ import (
 	"template/internal/ent/permission"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/test"
@@ -216,6 +217,33 @@ func (f TraverseQuestion) Traverse(ctx context.Context, q ent.Query) error {
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.QuestionQuery", q)
+}
+
+// The QuestionCollectionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type QuestionCollectionFunc func(context.Context, *ent.QuestionCollectionQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f QuestionCollectionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.QuestionCollectionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.QuestionCollectionQuery", q)
+}
+
+// The TraverseQuestionCollection type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseQuestionCollection func(context.Context, *ent.QuestionCollectionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseQuestionCollection) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseQuestionCollection) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.QuestionCollectionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.QuestionCollectionQuery", q)
 }
 
 // The QuestionOptionFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -501,6 +529,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.PermissionQuery, predicate.Permission, permission.OrderOption]{typ: ent.TypePermission, tq: q}, nil
 	case *ent.QuestionQuery:
 		return &query[*ent.QuestionQuery, predicate.Question, question.OrderOption]{typ: ent.TypeQuestion, tq: q}, nil
+	case *ent.QuestionCollectionQuery:
+		return &query[*ent.QuestionCollectionQuery, predicate.QuestionCollection, questioncollection.OrderOption]{typ: ent.TypeQuestionCollection, tq: q}, nil
 	case *ent.QuestionOptionQuery:
 		return &query[*ent.QuestionOptionQuery, predicate.QuestionOption, questionoption.OrderOption]{typ: ent.TypeQuestionOption, tq: q}, nil
 	case *ent.RoleQuery:

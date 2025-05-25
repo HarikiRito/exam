@@ -55,6 +55,8 @@ type UserEdges struct {
 	Roles []*Role `json:"roles,omitempty"`
 	// CourseCreator holds the value of the course_creator edge.
 	CourseCreator []*Course `json:"course_creator,omitempty"`
+	// QuestionCollections holds the value of the question_collections edge.
+	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
 	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
@@ -63,7 +65,7 @@ type UserEdges struct {
 	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [8]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -104,10 +106,19 @@ func (e UserEdges) CourseCreatorOrErr() ([]*Course, error) {
 	return nil, &NotLoadedError{edge: "course_creator"}
 }
 
+// QuestionCollectionsOrErr returns the QuestionCollections value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
+	if e.loadedTypes[4] {
+		return e.QuestionCollections, nil
+	}
+	return nil, &NotLoadedError{edge: "question_collections"}
+}
+
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[5] {
 		return e.UserQuestionAnswers, nil
 	}
 	return nil, &NotLoadedError{edge: "user_question_answers"}
@@ -116,7 +127,7 @@ func (e UserEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
 // TestSessionsOrErr returns the TestSessions value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) TestSessionsOrErr() ([]*TestSession, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[6] {
 		return e.TestSessions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_sessions"}
@@ -125,7 +136,7 @@ func (e UserEdges) TestSessionsOrErr() ([]*TestSession, error) {
 // UserRolesOrErr returns the UserRoles value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[7] {
 		return e.UserRoles, nil
 	}
 	return nil, &NotLoadedError{edge: "user_roles"}
@@ -262,6 +273,11 @@ func (u *User) QueryRoles() *RoleQuery {
 // QueryCourseCreator queries the "course_creator" edge of the User entity.
 func (u *User) QueryCourseCreator() *CourseQuery {
 	return NewUserClient(u.config).QueryCourseCreator(u)
+}
+
+// QueryQuestionCollections queries the "question_collections" edge of the User entity.
+func (u *User) QueryQuestionCollections() *QuestionCollectionQuery {
+	return NewUserClient(u.config).QueryQuestionCollections(u)
 }
 
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the User entity.

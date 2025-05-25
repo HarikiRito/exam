@@ -10,7 +10,7 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
-	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/video"
@@ -33,7 +33,7 @@ type CourseSectionQuery struct {
 	withParent              *CourseSectionQuery
 	withChildren            *CourseSectionQuery
 	withCourseSectionVideos *VideoQuery
-	withQuestions           *QuestionQuery
+	withQuestionCollections *QuestionCollectionQuery
 	withTestSessions        *TestSessionQuery
 	withTests               *TestQuery
 	// intermediate query (i.e. traversal path).
@@ -160,9 +160,9 @@ func (csq *CourseSectionQuery) QueryCourseSectionVideos() *VideoQuery {
 	return query
 }
 
-// QueryQuestions chains the current query on the "questions" edge.
-func (csq *CourseSectionQuery) QueryQuestions() *QuestionQuery {
-	query := (&QuestionClient{config: csq.config}).Query()
+// QueryQuestionCollections chains the current query on the "question_collections" edge.
+func (csq *CourseSectionQuery) QueryQuestionCollections() *QuestionCollectionQuery {
+	query := (&QuestionCollectionClient{config: csq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := csq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -173,8 +173,8 @@ func (csq *CourseSectionQuery) QueryQuestions() *QuestionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(coursesection.Table, coursesection.FieldID, selector),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.QuestionsTable, coursesection.QuestionsColumn),
+			sqlgraph.To(questioncollection.Table, questioncollection.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, coursesection.QuestionCollectionsTable, coursesection.QuestionCollectionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(csq.driver.Dialect(), step)
 		return fromU, nil
@@ -422,7 +422,7 @@ func (csq *CourseSectionQuery) Clone() *CourseSectionQuery {
 		withParent:              csq.withParent.Clone(),
 		withChildren:            csq.withChildren.Clone(),
 		withCourseSectionVideos: csq.withCourseSectionVideos.Clone(),
-		withQuestions:           csq.withQuestions.Clone(),
+		withQuestionCollections: csq.withQuestionCollections.Clone(),
 		withTestSessions:        csq.withTestSessions.Clone(),
 		withTests:               csq.withTests.Clone(),
 		// clone intermediate query.
@@ -475,14 +475,14 @@ func (csq *CourseSectionQuery) WithCourseSectionVideos(opts ...func(*VideoQuery)
 	return csq
 }
 
-// WithQuestions tells the query-builder to eager-load the nodes that are connected to
-// the "questions" edge. The optional arguments are used to configure the query builder of the edge.
-func (csq *CourseSectionQuery) WithQuestions(opts ...func(*QuestionQuery)) *CourseSectionQuery {
-	query := (&QuestionClient{config: csq.config}).Query()
+// WithQuestionCollections tells the query-builder to eager-load the nodes that are connected to
+// the "question_collections" edge. The optional arguments are used to configure the query builder of the edge.
+func (csq *CourseSectionQuery) WithQuestionCollections(opts ...func(*QuestionCollectionQuery)) *CourseSectionQuery {
+	query := (&QuestionCollectionClient{config: csq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	csq.withQuestions = query
+	csq.withQuestionCollections = query
 	return csq
 }
 
@@ -591,7 +591,7 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			csq.withParent != nil,
 			csq.withChildren != nil,
 			csq.withCourseSectionVideos != nil,
-			csq.withQuestions != nil,
+			csq.withQuestionCollections != nil,
 			csq.withTestSessions != nil,
 			csq.withTests != nil,
 		}
@@ -640,10 +640,12 @@ func (csq *CourseSectionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 			return nil, err
 		}
 	}
-	if query := csq.withQuestions; query != nil {
-		if err := csq.loadQuestions(ctx, query, nodes,
-			func(n *CourseSection) { n.Edges.Questions = []*Question{} },
-			func(n *CourseSection, e *Question) { n.Edges.Questions = append(n.Edges.Questions, e) }); err != nil {
+	if query := csq.withQuestionCollections; query != nil {
+		if err := csq.loadQuestionCollections(ctx, query, nodes,
+			func(n *CourseSection) { n.Edges.QuestionCollections = []*QuestionCollection{} },
+			func(n *CourseSection, e *QuestionCollection) {
+				n.Edges.QuestionCollections = append(n.Edges.QuestionCollections, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -788,7 +790,7 @@ func (csq *CourseSectionQuery) loadCourseSectionVideos(ctx context.Context, quer
 	}
 	return nil
 }
-func (csq *CourseSectionQuery) loadQuestions(ctx context.Context, query *QuestionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *Question)) error {
+func (csq *CourseSectionQuery) loadQuestionCollections(ctx context.Context, query *QuestionCollectionQuery, nodes []*CourseSection, init func(*CourseSection), assign func(*CourseSection, *QuestionCollection)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*CourseSection)
 	for i := range nodes {
@@ -799,23 +801,23 @@ func (csq *CourseSectionQuery) loadQuestions(ctx context.Context, query *Questio
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(question.FieldSectionID)
+		query.ctx.AppendFieldOnce(questioncollection.FieldCourseSectionID)
 	}
-	query.Where(predicate.Question(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(coursesection.QuestionsColumn), fks...))
+	query.Where(predicate.QuestionCollection(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(coursesection.QuestionCollectionsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.SectionID
+		fk := n.CourseSectionID
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "section_id" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "course_section_id" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "section_id" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "course_section_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

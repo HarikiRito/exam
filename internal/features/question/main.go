@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"template/internal/ent"
-	"template/internal/ent/course"
-	"template/internal/ent/coursesection"
 	"template/internal/ent/db"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/features/common"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
@@ -27,20 +26,20 @@ func CreateQuestion(ctx context.Context, userId uuid.UUID, input model.CreateQue
 	newQuestionQuery := tx.Question.Create().
 		SetQuestionText(input.QuestionText)
 
-	// If a section ID is provided, validate it and set it
-	if input.CourseSectionID != nil {
-		// Check if the section exists and the user has access to it
-		section, err := tx.CourseSection.Query().
+	// If a collection ID is provided, validate it and set it
+	if input.QuestionCollectionID != nil {
+		// Check if the collection exists and the user has access to it
+		collection, err := tx.QuestionCollection.Query().
 			Where(
-				coursesection.ID(*input.CourseSectionID),
-				coursesection.HasCourseWith(course.CreatorID(userId)),
+				questioncollection.ID(*input.QuestionCollectionID),
+				questioncollection.CreatorID(userId),
 			).
 			Only(ctx)
 		if err != nil {
-			return nil, db.Rollback(tx, errors.New("section not found or you don't have access to it"))
+			return nil, db.Rollback(tx, errors.New("collection not found or you don't have access to it"))
 		}
 
-		newQuestionQuery.SetSectionID(section.ID)
+		newQuestionQuery.SetCollectionID(collection.ID)
 	}
 
 	// Save the newQuestion
@@ -80,25 +79,10 @@ func GetQuestionByID(ctx context.Context, userId uuid.UUID, questionID uuid.UUID
 	defer client.Close()
 
 	q, err := client.Question.Query().
-		Where(question.ID(questionID)).
-		WithQuestionOptions().
-		WithSection().
+		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
 		Only(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	// If the question is linked to a section, verify the user has access
-	if q.Edges.Section != nil {
-		hasAccess, err := client.Course.Query().
-			Where(
-				course.ID(q.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return nil, errors.New("you don't have access to this question")
-		}
 	}
 
 	return q, nil
@@ -114,24 +98,10 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 
 	// Get the question
 	q, err := tx.Question.Query().
-		Where(question.ID(questionID)).
-		WithSection().
+		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
 		Only(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
-	}
-
-	// Verify user has access
-	if q.Edges.Section != nil {
-		hasAccess, err := tx.Course.Query().
-			Where(
-				course.ID(q.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return nil, db.Rollback(tx, errors.New("you don't have access to update this question"))
-		}
 	}
 
 	// Start building the update
@@ -142,22 +112,22 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 		update.SetQuestionText(*input.QuestionText)
 	}
 
-	// Update section ID if provided
-	if input.CourseSectionID != nil {
-		section, err := tx.CourseSection.Query().
+	// Update collection ID if provided
+	if input.QuestionCollectionID != nil {
+		collection, err := tx.QuestionCollection.Query().
 			Where(
-				coursesection.ID(*input.CourseSectionID),
-				coursesection.HasCourseWith(course.CreatorID(userId)),
+				questioncollection.ID(*input.QuestionCollectionID),
+				questioncollection.CreatorID(userId),
 			).
 			Only(ctx)
 		if err != nil {
-			return nil, db.Rollback(tx, errors.New("section not found or you don't have access to it"))
+			return nil, db.Rollback(tx, errors.New("collection not found or you don't have access to it"))
 		}
-		update.SetSectionID(section.ID)
+		update.SetCollectionID(collection.ID)
 	}
 
 	// Save the changes
-	q, err = update.Save(ctx)
+	_, err = update.Save(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
 	}
@@ -165,8 +135,6 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 	// Fetch the updated question with all related data
 	q, err = tx.Question.Query().
 		Where(question.ID(questionID)).
-		WithQuestionOptions().
-		WithSection().
 		Only(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
@@ -189,24 +157,10 @@ func DeleteQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID)
 
 	// Get the question
 	q, err := client.Question.Query().
-		Where(question.ID(questionID)).
-		WithSection().
+		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
 		Only(ctx)
 	if err != nil {
 		return false, err
-	}
-
-	// Verify user has access
-	if q.Edges.Section != nil {
-		hasAccess, err := client.Course.Query().
-			Where(
-				course.ID(q.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return false, errors.New("you don't have access to delete this question")
-		}
 	}
 
 	// Delete the question
@@ -230,16 +184,11 @@ func PaginatedQuestions(ctx context.Context, userId uuid.UUID, input *model.Pagi
 	query := client.Question.Query()
 
 	// Filter by questions that are either:
-	// 1. Not associated with any section
-	// 2. Associated with a section of a course created by the user
+	// 1. Not associated with any collection
+	// 2. Associated with a collection created by the user
 	query = query.Where(
-		question.Or(
-			question.Not(question.HasSection()),
-			question.HasSectionWith(
-				coursesection.HasCourseWith(
-					course.CreatorID(userId),
-				),
-			),
+		question.HasCollectionWith(
+			questioncollection.CreatorID(userId),
 		),
 	)
 

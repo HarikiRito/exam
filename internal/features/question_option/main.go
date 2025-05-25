@@ -4,10 +4,9 @@ import (
 	"context"
 	"errors"
 	"template/internal/ent"
-	"template/internal/ent/course"
-	"template/internal/ent/coursesection"
 	"template/internal/ent/db"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/features/common"
 	"template/internal/graph/model"
@@ -15,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateQuestionOption creates a new question option with the given input.
+// CreateQuestionOption creates a new question option with the given input and userId.
 func CreateQuestionOption(ctx context.Context, userId uuid.UUID, input model.CreateQuestionOptionInput) (*ent.QuestionOption, error) {
 	client, err := db.OpenClient()
 	if err != nil {
@@ -23,26 +22,22 @@ func CreateQuestionOption(ctx context.Context, userId uuid.UUID, input model.Cre
 	}
 	defer client.Close()
 
-	// First verify that the user has access to the question
-	query, err := client.Question.Query().
+	// Verify that the question exists and the user has access to it
+	q, err := client.Question.Query().
 		Where(question.ID(input.QuestionID)).
-		WithSection().
+		WithCollection(
+			func(c *ent.QuestionCollectionQuery) {
+				c.Select(questioncollection.FieldCreatorID)
+			},
+		).
 		Only(ctx)
 	if err != nil {
 		return nil, errors.New("question not found")
 	}
 
-	// If the question is linked to a section, verify the user has access
-	if query.Edges.Section != nil {
-		hasAccess, err := client.Course.Query().
-			Where(
-				course.ID(query.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return nil, errors.New("you don't have access to this question")
-		}
+	// Verify the user has access to the question through its collection
+	if q.Edges.Collection != nil && q.Edges.Collection.CreatorID != userId {
+		return nil, errors.New("you don't have access to this question")
 	}
 
 	// Create the question option
@@ -66,28 +61,12 @@ func GetQuestionOptionByID(ctx context.Context, userId uuid.UUID, optionID uuid.
 	}
 	defer client.Close()
 
-	// Get the option with its associated question and section
+	// Get the option with its associated question and collection
 	option, err := client.QuestionOption.Query().
-		Where(questionoption.ID(optionID)).
-		WithQuestion(func(q *ent.QuestionQuery) {
-			q.WithSection()
-		}).
+		Where(questionoption.ID(optionID), questionoption.HasQuestionWith(question.HasCollectionWith(questioncollection.CreatorID(userId)))).
 		Only(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	// Verify the user has access to the associated question
-	if option.Edges.Question.Edges.Section != nil {
-		hasAccess, err := client.Course.Query().
-			Where(
-				course.ID(option.Edges.Question.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return nil, errors.New("you don't have access to this question option")
-		}
 	}
 
 	return option, nil
@@ -101,28 +80,12 @@ func UpdateQuestionOption(ctx context.Context, userId uuid.UUID, optionID uuid.U
 	}
 	defer client.Close()
 
-	// Get the option with its associated question and section
+	// Get the option with its associated question and collection
 	option, err := client.QuestionOption.Query().
-		Where(questionoption.ID(optionID)).
-		WithQuestion(func(q *ent.QuestionQuery) {
-			q.WithSection()
-		}).
+		Where(questionoption.ID(optionID), questionoption.HasQuestionWith(question.HasCollectionWith(questioncollection.CreatorID(userId)))).
 		Only(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	// Verify the user has access to the associated question
-	if option.Edges.Question.Edges.Section != nil {
-		hasAccess, err := client.Course.Query().
-			Where(
-				course.ID(option.Edges.Question.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return nil, errors.New("you don't have access to update this question option")
-		}
 	}
 
 	// Start building the update
@@ -147,30 +110,16 @@ func DeleteQuestionOption(ctx context.Context, userId uuid.UUID, optionID uuid.U
 	}
 	defer client.Close()
 
-	// Get the option with its associated question and section
-	option, err := client.QuestionOption.Query().
-		Where(questionoption.ID(optionID)).
-		WithQuestion(func(q *ent.QuestionQuery) {
-			q.Select(question.FieldSectionID).WithSection(func(s *ent.CourseSectionQuery) {
-				s.Select(coursesection.FieldCourseID)
-			})
-		}).
-		Only(ctx)
+	// Get the option with its associated question and collection
+	exists, err := client.QuestionOption.Query().
+		Where(questionoption.ID(optionID), questionoption.HasQuestionWith(question.HasCollectionWith(questioncollection.CreatorID(userId)))).
+		Exist(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	// Verify the user has access to the associated question
-	if option.Edges.Question.Edges.Section != nil {
-		hasAccess, err := client.Course.Query().
-			Where(
-				course.ID(option.Edges.Question.Edges.Section.CourseID),
-				course.CreatorID(userId),
-			).
-			Exist(ctx)
-		if err != nil || !hasAccess {
-			return false, errors.New("you don't have access to delete this question option")
-		}
+	if !exists {
+		return false, errors.New("question option not found")
 	}
 
 	// Delete the option
@@ -197,24 +146,15 @@ func PaginatedQuestionOptions(ctx context.Context, userId uuid.UUID, questionId 
 	if questionId != nil {
 		// First verify that the user has access to the question
 		q, err := client.Question.Query().
-			Where(question.ID(*questionId)).
-			WithSection(func(s *ent.CourseSectionQuery) {
-				s.Select(coursesection.FieldCourseID)
-			}).
+			Where(question.ID(*questionId), question.HasCollectionWith(questioncollection.CreatorID(userId))).
 			Only(ctx)
 		if err != nil {
 			return nil, errors.New("question not found")
 		}
 
-		// If the question is linked to a section, verify the user has access
-		if q.Edges.Section != nil {
-			hasAccess, err := client.Course.Query().
-				Where(
-					course.ID(q.Edges.Section.CourseID),
-					course.CreatorID(userId),
-				).
-				Exist(ctx)
-			if err != nil || !hasAccess {
+		// If the question is linked to a collection, verify the user has access
+		if q.Edges.Collection != nil {
+			if q.Edges.Collection.CreatorID != userId {
 				return nil, errors.New("you don't have access to this question")
 			}
 		}
@@ -225,13 +165,8 @@ func PaginatedQuestionOptions(ctx context.Context, userId uuid.UUID, questionId 
 		// If no question ID is provided, filter by options for questions that the user has access to
 		query = query.Where(
 			questionoption.HasQuestionWith(
-				question.Or(
-					question.Not(question.HasSection()),
-					question.HasSectionWith(
-						coursesection.HasCourseWith(
-							course.CreatorID(userId),
-						),
-					),
+				question.HasCollectionWith(
+					questioncollection.CreatorID(userId),
 				),
 			),
 		)

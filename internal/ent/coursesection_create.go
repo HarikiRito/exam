@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
-	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
 	"template/internal/ent/testsession"
 	"template/internal/ent/video"
@@ -190,19 +190,19 @@ func (csc *CourseSectionCreate) AddCourseSectionVideos(v ...*Video) *CourseSecti
 	return csc.AddCourseSectionVideoIDs(ids...)
 }
 
-// AddQuestionIDs adds the "questions" edge to the Question entity by IDs.
-func (csc *CourseSectionCreate) AddQuestionIDs(ids ...uuid.UUID) *CourseSectionCreate {
-	csc.mutation.AddQuestionIDs(ids...)
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (csc *CourseSectionCreate) AddQuestionCollectionIDs(ids ...uuid.UUID) *CourseSectionCreate {
+	csc.mutation.AddQuestionCollectionIDs(ids...)
 	return csc
 }
 
-// AddQuestions adds the "questions" edges to the Question entity.
-func (csc *CourseSectionCreate) AddQuestions(q ...*Question) *CourseSectionCreate {
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (csc *CourseSectionCreate) AddQuestionCollections(q ...*QuestionCollection) *CourseSectionCreate {
 	ids := make([]uuid.UUID, len(q))
 	for i := range q {
 		ids[i] = q[i].ID
 	}
-	return csc.AddQuestionIDs(ids...)
+	return csc.AddQuestionCollectionIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -450,15 +450,15 @@ func (csc *CourseSectionCreate) createSpec() (*CourseSection, *sqlgraph.CreateSp
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := csc.mutation.QuestionsIDs(); len(nodes) > 0 {
+	if nodes := csc.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   coursesection.QuestionsTable,
-			Columns: []string{coursesection.QuestionsColumn},
+			Table:   coursesection.QuestionCollectionsTable,
+			Columns: []string{coursesection.QuestionCollectionsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

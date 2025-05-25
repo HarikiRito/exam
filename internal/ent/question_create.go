@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/test"
 	"template/internal/ent/userquestionanswer"
@@ -68,17 +68,9 @@ func (qc *QuestionCreate) SetNillableDeletedAt(t *time.Time) *QuestionCreate {
 	return qc
 }
 
-// SetSectionID sets the "section_id" field.
-func (qc *QuestionCreate) SetSectionID(u uuid.UUID) *QuestionCreate {
-	qc.mutation.SetSectionID(u)
-	return qc
-}
-
-// SetNillableSectionID sets the "section_id" field if the given value is not nil.
-func (qc *QuestionCreate) SetNillableSectionID(u *uuid.UUID) *QuestionCreate {
-	if u != nil {
-		qc.SetSectionID(*u)
-	}
+// SetCollectionID sets the "collection_id" field.
+func (qc *QuestionCreate) SetCollectionID(u uuid.UUID) *QuestionCreate {
+	qc.mutation.SetCollectionID(u)
 	return qc
 }
 
@@ -102,9 +94,9 @@ func (qc *QuestionCreate) SetNillableID(u *uuid.UUID) *QuestionCreate {
 	return qc
 }
 
-// SetSection sets the "section" edge to the CourseSection entity.
-func (qc *QuestionCreate) SetSection(c *CourseSection) *QuestionCreate {
-	return qc.SetSectionID(c.ID)
+// SetCollection sets the "collection" edge to the QuestionCollection entity.
+func (qc *QuestionCreate) SetCollection(q *QuestionCollection) *QuestionCreate {
+	return qc.SetCollectionID(q.ID)
 }
 
 // AddQuestionOptionIDs adds the "question_options" edge to the QuestionOption entity by IDs.
@@ -236,6 +228,9 @@ func (qc *QuestionCreate) check() error {
 	if _, ok := qc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Question.updated_at"`)}
 	}
+	if _, ok := qc.mutation.CollectionID(); !ok {
+		return &ValidationError{Name: "collection_id", err: errors.New(`ent: missing required field "Question.collection_id"`)}
+	}
 	if _, ok := qc.mutation.QuestionText(); !ok {
 		return &ValidationError{Name: "question_text", err: errors.New(`ent: missing required field "Question.question_text"`)}
 	}
@@ -243,6 +238,9 @@ func (qc *QuestionCreate) check() error {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
+	}
+	if len(qc.mutation.CollectionIDs()) == 0 {
+		return &ValidationError{Name: "collection", err: errors.New(`ent: missing required edge "Question.collection"`)}
 	}
 	return nil
 }
@@ -295,21 +293,21 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
 		_node.QuestionText = value
 	}
-	if nodes := qc.mutation.SectionIDs(); len(nodes) > 0 {
+	if nodes := qc.mutation.CollectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   question.SectionTable,
-			Columns: []string{question.SectionColumn},
+			Table:   question.CollectionTable,
+			Columns: []string{question.CollectionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.SectionID = &nodes[0]
+		_node.CollectionID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := qc.mutation.QuestionOptionsIDs(); len(nodes) > 0 {
