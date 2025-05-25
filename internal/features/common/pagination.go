@@ -7,10 +7,10 @@ import (
 )
 
 var defaultLimit = 20
-
+var defaultPage = 1
 var DefaultPaginationInput = model.PaginationInput{
-	Page:   1,
-	Limit:  defaultLimit,
+	Page:   &defaultPage,
+	Limit:  &defaultLimit,
 	Search: nil,
 }
 

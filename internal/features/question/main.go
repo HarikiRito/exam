@@ -252,5 +252,5 @@ func PaginatedQuestions(ctx context.Context, userId uuid.UUID, input *model.Pagi
 	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
 
 	// Paginate the results
-	return common.EntQueryPaginated(ctx, query, newInput.Page, newInput.Limit)
+	return common.EntQueryPaginated(ctx, query, *newInput.Page, *newInput.Limit)
 }

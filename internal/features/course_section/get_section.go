@@ -27,3 +27,21 @@ func GetCourseSectionByID(ctx context.Context, userId uuid.UUID, sectionId uuid.
 	}
 	return section, nil
 }
+
+// GetCourseSectionsByIDs fetches multiple course sections by their IDs, only if the user is the course creator.
+func GetCourseSectionsByIDs(ctx context.Context, sectionIDs []uuid.UUID) ([]*ent.CourseSection, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+
+	sections, err := client.CourseSection.Query().
+		Where(coursesection.IDIn(sectionIDs...)).
+		Select(coursesection.FieldID, coursesection.FieldTitle, coursesection.FieldDescription, coursesection.FieldOrder).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return sections, nil
+}

@@ -20,7 +20,7 @@ func ConvertCourseSectionToModel(cs *ent.CourseSection) *CourseSection {
 type CourseSection struct {
 	ID          uuid.UUID  `json:"id"`
 	Title       string     `json:"title"`
-	Description string     `json:"description"`
+	Description *string    `json:"description"`
 	CourseID    uuid.UUID  `json:"courseId"`
 	SectionID   *uuid.UUID `json:"sectionId"`
 	Order       int        `json:"order"`

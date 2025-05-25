@@ -1,6 +1,6 @@
 input PaginationInput {
-  page: Int!
-  limit: Int!
+  page: Int
+  limit: Int
   search: String
 }
 

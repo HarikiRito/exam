@@ -104,5 +104,5 @@ func PaginatedCourses(ctx context.Context, userId uuid.UUID, input *model.Pagina
 
 	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
 
-	return common.EntQueryPaginated(ctx, query, newInput.Page, newInput.Limit)
+	return common.EntQueryPaginated(ctx, query, *newInput.Page, *newInput.Limit)
 }

@@ -3,7 +3,6 @@ package question_option
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"template/internal/ent"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
@@ -12,6 +11,8 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/features/common"
 	"template/internal/graph/model"
+
+	"github.com/google/uuid"
 )
 
 // CreateQuestionOption creates a new question option with the given input.
@@ -245,5 +246,5 @@ func PaginatedQuestionOptions(ctx context.Context, userId uuid.UUID, questionId 
 	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
 
 	// Paginate the results
-	return common.EntQueryPaginated(ctx, query, newInput.Page, newInput.Limit)
+	return common.EntQueryPaginated(ctx, query, *newInput.Page, *newInput.Limit)
 }

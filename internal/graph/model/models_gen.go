@@ -111,8 +111,8 @@ type Pagination struct {
 }
 
 type PaginationInput struct {
-	Page   int     `json:"page"`
-	Limit  int     `json:"limit"`
+	Page   *int    `json:"page,omitempty"`
+	Limit  *int    `json:"limit,omitempty"`
 	Search *string `json:"search,omitempty"`
 }
 
