@@ -1,0 +1,5 @@
+fragment QuestionOptionItem on QuestionOption {
+  id
+  optionText
+  isCorrect
+} 

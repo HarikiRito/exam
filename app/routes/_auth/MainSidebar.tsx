@@ -38,6 +38,10 @@ const navMain: NavItem[] = [
         title: 'Courses',
         url: APP_ROUTES.adminCourses,
       },
+      {
+        title: 'Questions',
+        url: APP_ROUTES.adminQuestions,
+      },
     ],
   },
 ];

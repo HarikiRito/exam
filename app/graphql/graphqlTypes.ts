@@ -58,9 +58,14 @@ export type CreateCourseSectionInput = {
   title: Scalars['String']['input'];
 };
 
+export type CreateQuestionCollectionInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
 export type CreateQuestionInput = {
-  courseSectionId?: InputMaybe<Scalars['ID']['input']>;
-  options?: InputMaybe<Array<QuestionOptionInput>>;
+  options: Array<QuestionOptionInput>;
+  questionCollectionId: Scalars['ID']['input'];
   questionText: Scalars['String']['input'];
 };
 
@@ -100,12 +105,14 @@ export type Mutation = {
   createCourse: Course;
   createCourseSection: CourseSection;
   createQuestion: Question;
+  createQuestionCollection: QuestionCollection;
   createQuestionOption: QuestionOption;
   createTest: Test;
   createTestSession: TestSession;
   createTodo: Todo;
   createUserQuestionAnswer: UserQuestionAnswer;
   deleteQuestion: Scalars['Boolean']['output'];
+  deleteQuestionCollection: Scalars['Boolean']['output'];
   deleteQuestionOption: Scalars['Boolean']['output'];
   deleteTest: Scalars['Boolean']['output'];
   deleteTestSession: Scalars['Boolean']['output'];
@@ -117,6 +124,7 @@ export type Mutation = {
   updateCourse: Course;
   updateCourseSection: CourseSection;
   updateQuestion: Question;
+  updateQuestionCollection: QuestionCollection;
   updateQuestionOption: QuestionOption;
   updateTest: Test;
   updateUserQuestionAnswer: UserQuestionAnswer;
@@ -140,6 +148,11 @@ export type MutationCreateCourseSectionArgs = {
 
 export type MutationCreateQuestionArgs = {
   input: CreateQuestionInput;
+};
+
+
+export type MutationCreateQuestionCollectionArgs = {
+  input: CreateQuestionCollectionInput;
 };
 
 
@@ -169,6 +182,11 @@ export type MutationCreateUserQuestionAnswerArgs = {
 
 
 export type MutationDeleteQuestionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteQuestionCollectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -231,6 +249,12 @@ export type MutationUpdateQuestionArgs = {
 };
 
 
+export type MutationUpdateQuestionCollectionArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateQuestionCollectionInput;
+};
+
+
 export type MutationUpdateQuestionOptionArgs = {
   id: Scalars['ID']['input'];
   input: UpdateQuestionOptionInput;
@@ -261,6 +285,12 @@ export type PaginatedCourse = {
 export type PaginatedQuestion = {
   __typename?: 'PaginatedQuestion';
   items: Array<Question>;
+  pagination: Pagination;
+};
+
+export type PaginatedQuestionCollection = {
+  __typename?: 'PaginatedQuestionCollection';
+  items: Array<QuestionCollection>;
   pagination: Pagination;
 };
 
@@ -298,8 +328,8 @@ export type Pagination = {
 };
 
 export type PaginationInput = {
-  limit: Scalars['Int']['input'];
-  page: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -312,11 +342,12 @@ export type Query = {
   login: Auth;
   me: User;
   paginatedCourses: PaginatedCourse;
-  paginatedQuestionOptions: PaginatedQuestionOption;
+  paginatedQuestionCollections: PaginatedQuestionCollection;
   paginatedQuestions: PaginatedQuestion;
   paginatedTests: PaginatedTest;
   paginatedUserQuestionAnswers: PaginatedUserQuestionAnswer;
   question: Question;
+  questionCollection: QuestionCollection;
   questionOption: QuestionOption;
   test: Test;
   testSession: TestSession;
@@ -351,7 +382,7 @@ export type QueryPaginatedCoursesArgs = {
 };
 
 
-export type QueryPaginatedQuestionOptionsArgs = {
+export type QueryPaginatedQuestionCollectionsArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
@@ -372,6 +403,11 @@ export type QueryPaginatedUserQuestionAnswersArgs = {
 
 
 export type QueryQuestionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryQuestionCollectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -397,10 +433,21 @@ export type QueryUserQuestionAnswerArgs = {
 
 export type Question = {
   __typename?: 'Question';
+  collection?: Maybe<QuestionCollection>;
   id: Scalars['ID']['output'];
   options: Array<QuestionOption>;
   questionText: Scalars['String']['output'];
-  section?: Maybe<CourseSection>;
+};
+
+export type QuestionCollection = {
+  __typename?: 'QuestionCollection';
+  createdAt: Scalars['DateTime']['output'];
+  creator: User;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  questions: Array<Question>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type QuestionOption = {
@@ -459,9 +506,14 @@ export type UpdateCourseSectionInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateQuestionCollectionInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateQuestionInput = {
-  courseSectionId?: InputMaybe<Scalars['ID']['input']>;
   options?: InputMaybe<Array<QuestionOptionInput>>;
+  questionCollectionId?: InputMaybe<Scalars['ID']['input']>;
   questionText?: InputMaybe<Scalars['String']['input']>;
 };
 
