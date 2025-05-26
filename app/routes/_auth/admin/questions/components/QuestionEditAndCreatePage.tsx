@@ -188,7 +188,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
   return (
     <div className='p-6'>
       <div className='mb-8 flex items-center justify-between'>
-        <AppTypography.h1>{mode === 'create' ? 'Create New Question' : 'Edit Question'}</AppTypography.h1>
+        <AppTypography.h1>{isEdit ? 'Edit Question' : 'Create New Question'}</AppTypography.h1>
         <AppButton onClick={() => navigate(APP_ROUTES.adminQuestions)} variant='outline'>
           Back to Questions
         </AppButton>
