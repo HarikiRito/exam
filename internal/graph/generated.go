@@ -160,7 +160,6 @@ type ComplexityRoot struct {
 		Me                           func(childComplexity int) int
 		PaginatedCourses             func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestionCollections func(childComplexity int, paginationInput *model.PaginationInput) int
-		PaginatedQuestionOptions     func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestions           func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedTests               func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedUserQuestionAnswers func(childComplexity int, paginationInput *model.PaginationInput) int
@@ -282,7 +281,6 @@ type QueryResolver interface {
 	QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error)
 	PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error)
 	QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error)
-	PaginatedQuestionOptions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionOption, error)
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
 	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
@@ -968,18 +966,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.PaginatedQuestionCollections(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
-
-	case "Query.paginatedQuestionOptions":
-		if e.complexity.Query.PaginatedQuestionOptions == nil {
-			break
-		}
-
-		args, err := ec.field_Query_paginatedQuestionOptions_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.PaginatedQuestionOptions(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
 	case "Query.paginatedQuestions":
 		if e.complexity.Query.PaginatedQuestions == nil {
@@ -2442,29 +2428,6 @@ func (ec *executionContext) field_Query_paginatedQuestionCollections_args(ctx co
 	return args, nil
 }
 func (ec *executionContext) field_Query_paginatedQuestionCollections_argsPaginationInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (*model.PaginationInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("paginationInput"))
-	if tmp, ok := rawArgs["paginationInput"]; ok {
-		return ec.unmarshalOPaginationInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginationInput(ctx, tmp)
-	}
-
-	var zeroVal *model.PaginationInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_paginatedQuestionOptions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_paginatedQuestionOptions_argsPaginationInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["paginationInput"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_paginatedQuestionOptions_argsPaginationInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*model.PaginationInput, error) {
@@ -6839,67 +6802,6 @@ func (ec *executionContext) fieldContext_Query_questionOption(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_paginatedQuestionOptions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_paginatedQuestionOptions(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaginatedQuestionOptions(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.PaginatedQuestionOption)
-	fc.Result = res
-	return ec.marshalNPaginatedQuestionOption2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionOption(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_paginatedQuestionOptions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "pagination":
-				return ec.fieldContext_PaginatedQuestionOption_pagination(ctx, field)
-			case "items":
-				return ec.fieldContext_PaginatedQuestionOption_items(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PaginatedQuestionOption", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_paginatedQuestionOptions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_test(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_test(ctx, field)
 	if err != nil {
@@ -11221,14 +11123,14 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 			it.QuestionText = data
 		case "questionCollectionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionCollectionId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.QuestionCollectionID = data
 		case "options":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
-			data, err := ec.unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx, v)
+			data, err := ec.unmarshalNQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -12959,28 +12861,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "paginatedQuestionOptions":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_paginatedQuestionOptions(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "test":
 			field := field
 
@@ -14512,20 +14392,6 @@ func (ec *executionContext) marshalNPaginatedQuestionCollection2ᚖtemplateᚋin
 	return ec._PaginatedQuestionCollection(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPaginatedQuestionOption2templateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionOption(ctx context.Context, sel ast.SelectionSet, v model.PaginatedQuestionOption) graphql.Marshaler {
-	return ec._PaginatedQuestionOption(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNPaginatedQuestionOption2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedQuestionOption(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedQuestionOption) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PaginatedQuestionOption(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNPaginatedTest2templateᚋinternalᚋgraphᚋmodelᚐPaginatedTest(ctx context.Context, sel ast.SelectionSet, v model.PaginatedTest) graphql.Marshaler {
 	return ec._PaginatedTest(ctx, sel, &v)
 }
@@ -14736,6 +14602,23 @@ func (ec *executionContext) marshalNQuestionOption2ᚖtemplateᚋinternalᚋgrap
 		return graphql.Null
 	}
 	return ec._QuestionOption(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInputᚄ(ctx context.Context, v interface{}) ([]*model.QuestionOptionInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.QuestionOptionInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) unmarshalNQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInput(ctx context.Context, v interface{}) (*model.QuestionOptionInput, error) {

@@ -6,8 +6,8 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"template/internal/features/question"
+	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 
@@ -109,12 +109,12 @@ func (r *queryResolver) PaginatedQuestions(ctx context.Context, paginationInput 
 
 // Collection is the resolver for the collection field.
 func (r *questionResolver) Collection(ctx context.Context, obj *model.Question) (*model.QuestionCollection, error) {
-	panic(fmt.Errorf("not implemented: Collection - collection"))
+	return dataloader.GetQuestionCollection(ctx, obj.ID)
 }
 
 // Options is the resolver for the options field.
 func (r *questionResolver) Options(ctx context.Context, obj *model.Question) ([]*model.QuestionOption, error) {
-	panic(fmt.Errorf("not implemented: Options - options"))
+	return dataloader.GetQuestionOptions(ctx, obj.ID)
 }
 
 // Question returns QuestionResolver implementation.

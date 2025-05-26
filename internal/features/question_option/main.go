@@ -8,7 +8,6 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
-	"template/internal/features/common"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
@@ -80,12 +79,16 @@ func UpdateQuestionOption(ctx context.Context, userId uuid.UUID, optionID uuid.U
 	}
 	defer client.Close()
 
-	// Get the option with its associated question and collection
-	option, err := client.QuestionOption.Query().
+	// Verify the option exists and user has access to it
+	exists, err := client.QuestionOption.Query().
 		Where(questionoption.ID(optionID), questionoption.HasQuestionWith(question.HasCollectionWith(questioncollection.CreatorID(userId)))).
-		Only(ctx)
+		Exist(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if !exists {
+		return nil, errors.New("question option not found or you don't have access to it")
 	}
 
 	// Start building the update
@@ -131,55 +134,18 @@ func DeleteQuestionOption(ctx context.Context, userId uuid.UUID, optionID uuid.U
 	return true, nil
 }
 
-// PaginatedQuestionOptions returns a paginated list of question options for a specific question.
-func PaginatedQuestionOptions(ctx context.Context, userId uuid.UUID, questionId *uuid.UUID, input *model.PaginationInput) (*common.PaginatedResult[*ent.QuestionOption], error) {
+func GetQuestionOptionsByQuestionIDs(ctx context.Context, questionIDs []uuid.UUID) ([]*ent.QuestionOption, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
 	}
 	defer client.Close()
 
-	// Start building the query
-	query := client.QuestionOption.Query()
-
-	// If a question ID is provided, filter by it
-	if questionId != nil {
-		// First verify that the user has access to the question
-		q, err := client.Question.Query().
-			Where(question.ID(*questionId), question.HasCollectionWith(questioncollection.CreatorID(userId))).
-			Only(ctx)
-		if err != nil {
-			return nil, errors.New("question not found")
-		}
-
-		// If the question is linked to a collection, verify the user has access
-		if q.Edges.Collection != nil {
-			if q.Edges.Collection.CreatorID != userId {
-				return nil, errors.New("you don't have access to this question")
-			}
-		}
-
-		// Filter by the question ID
-		query = query.Where(questionoption.QuestionID(*questionId))
-	} else {
-		// If no question ID is provided, filter by options for questions that the user has access to
-		query = query.Where(
-			questionoption.HasQuestionWith(
-				question.HasCollectionWith(
-					questioncollection.CreatorID(userId),
-				),
-			),
-		)
+	options, err := client.QuestionOption.Query().
+		Where(questionoption.QuestionIDIn(questionIDs...)).
+		All(ctx)
+	if err != nil {
+		return nil, err
 	}
-
-	// Add search functionality if provided
-	if input != nil && input.Search != nil && *input.Search != "" {
-		query = query.Where(questionoption.OptionTextContainsFold(*input.Search))
-	}
-
-	// Use the default pagination input if none is provided
-	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
-
-	// Paginate the results
-	return common.EntQueryPaginated(ctx, query, *newInput.Page, *newInput.Limit)
+	return options, nil
 }

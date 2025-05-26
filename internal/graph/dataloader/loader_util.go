@@ -84,3 +84,48 @@ func (lu *LoaderUtils[OriginalType, ReturnType]) LoadItems(
 	}
 	return lu.Items, lu.Errors
 }
+
+func (lu *LoaderUtils[OriginalType, ReturnType]) LoadItemsList(
+	ctx context.Context,
+	queryFunc func(ctx context.Context, ids []uuid.UUID) ([]*OriginalType, error),
+	keyFunc func(o *OriginalType) string,
+	transformFunc func(o []*OriginalType) ([]ReturnType, error),
+) ([][]ReturnType, []error) {
+	// Perform the query using the stored UUIDs.
+	items, err := queryFunc(ctx, lu.UUIDs)
+	if err != nil {
+		// Record the error for all indices that had valid IDs.
+		for _, i := range lu.IdMap {
+			if lu.Errors[i] == nil {
+				lu.Errors[i] = err
+			}
+		}
+		return [][]ReturnType{}, lu.Errors
+	}
+	itemMap := make(map[string][]*OriginalType)
+	// Build a map from each item's key to the original item.
+	for _, o := range items {
+		key := keyFunc(o)
+		itemMap[key] = append(itemMap[key], o)
+	}
+
+	itemsList := make([][]ReturnType, len(lu.UUIDs))
+	errors := make([]error, len(lu.UUIDs))
+	// For each input id from the IdMap, get the corresponding original item if available.
+	for uid, i := range lu.IdMap {
+		if o, ok := itemMap[uid]; ok {
+			transformed, err := transformFunc(o)
+			if err != nil {
+				errors[i] = err
+				itemsList[i] = nil
+			} else {
+				itemsList[i] = transformed
+				errors[i] = nil
+			}
+		} else {
+			itemsList[i] = nil
+			errors[i] = fmt.Errorf("item not found for id %s", uid)
+		}
+	}
+	return itemsList, errors
+}

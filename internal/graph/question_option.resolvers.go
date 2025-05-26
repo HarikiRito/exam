@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"template/internal/features/question_option"
 	"template/internal/graph/model"
-	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -78,33 +77,6 @@ func (r *queryResolver) QuestionOption(ctx context.Context, id uuid.UUID) (*mode
 
 	// Convert to GraphQL model
 	return model.ConvertQuestionOptionToModel(option), nil
-}
-
-// PaginatedQuestionOptions is the resolver for the paginatedQuestionOptions field.
-func (r *queryResolver) PaginatedQuestionOptions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionOption, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get paginated question options
-	result, err := question_option.PaginatedQuestionOptions(ctx, userId, nil, paginationInput)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert to GraphQL model
-	return &model.PaginatedQuestionOption{
-		Pagination: &model.Pagination{
-			CurrentPage:     result.CurrentPage,
-			TotalPages:      result.TotalPages,
-			TotalItems:      result.TotalItems,
-			HasNextPage:     result.HasNextPage,
-			HasPreviousPage: result.HasPrevPage,
-		},
-		Items: slice.Map(result.Items, model.ConvertQuestionOptionToModel),
-	}, nil
 }
 
 // Question is the resolver for the question field.

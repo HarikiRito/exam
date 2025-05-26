@@ -7,6 +7,7 @@ import (
 	"template/internal/ent/db"
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
+	"template/internal/ent/questionoption"
 	"template/internal/features/common"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
@@ -22,45 +23,40 @@ func CreateQuestion(ctx context.Context, userId uuid.UUID, input model.CreateQue
 	}
 	defer db.CloseTransaction(tx)
 
-	// Start building the question
-	newQuestionQuery := tx.Question.Create().
-		SetQuestionText(input.QuestionText)
+	// Check if the collection exists and the user has access to it (now required)
+	collection, err := tx.QuestionCollection.Query().
+		Where(
+			questioncollection.ID(input.QuestionCollectionID),
+			questioncollection.CreatorID(userId),
+		).
+		Only(ctx)
+	if err != nil {
+		return nil, db.Rollback(tx, errors.New("collection not found or you don't have access to it"))
+	}
 
-	// If a collection ID is provided, validate it and set it
-	if input.QuestionCollectionID != nil {
-		// Check if the collection exists and the user has access to it
-		collection, err := tx.QuestionCollection.Query().
-			Where(
-				questioncollection.ID(*input.QuestionCollectionID),
-				questioncollection.CreatorID(userId),
-			).
-			Only(ctx)
+	// Create the question with the required collection
+	newQuestion, err := tx.Question.Create().
+		SetQuestionText(input.QuestionText).
+		SetCollectionID(collection.ID).
+		Save(ctx)
+	if err != nil {
+		return nil, db.Rollback(tx, err)
+	}
+
+	// Create question options if provided
+	if len(input.Options) > 0 {
+		questionOptionCreateQueries := slice.Map(input.Options, func(option *model.QuestionOptionInput) *ent.QuestionOptionCreate {
+			return tx.QuestionOption.Create().
+				SetOptionText(option.OptionText).
+				SetIsCorrect(option.IsCorrect).
+				SetQuestionID(newQuestion.ID)
+		})
+
+		_, err = tx.QuestionOption.CreateBulk(questionOptionCreateQueries...).Save(ctx)
 		if err != nil {
-			return nil, db.Rollback(tx, errors.New("collection not found or you don't have access to it"))
+			return nil, db.Rollback(tx, err)
 		}
-
-		newQuestionQuery.SetCollectionID(collection.ID)
 	}
-
-	// Save the newQuestion
-	newQuestion, err := newQuestionQuery.Save(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-
-	questionOptionCreateQueries := slice.Map(input.Options, func(option *model.QuestionOptionInput) *ent.QuestionOptionCreate {
-		return tx.QuestionOption.Create().
-			SetOptionText(option.OptionText).
-			SetIsCorrect(option.IsCorrect).
-			SetQuestionID(newQuestion.ID)
-	})
-
-	questionOptions, err := tx.QuestionOption.CreateBulk(questionOptionCreateQueries...).Save(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-
-	newQuestionQuery.AddQuestionOptions(questionOptions...)
 
 	// Commit the transaction
 	if err := tx.Commit(); err != nil {
@@ -96,12 +92,12 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 	}
 	defer db.CloseTransaction(tx)
 
-	// Get the question
-	q, err := tx.Question.Query().
+	// Verify the question exists and user has access to it
+	exists, err := tx.Question.Query().
 		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
-		Only(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, err)
+		Exist(ctx)
+	if err != nil || !exists {
+		return nil, db.Rollback(tx, errors.New("question not found or you don't have access to it"))
 	}
 
 	// Start building the update
@@ -133,7 +129,7 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 	}
 
 	// Fetch the updated question with all related data
-	q, err = tx.Question.Query().
+	updatedQuestion, err := tx.Question.Query().
 		Where(question.ID(questionID)).
 		Only(ctx)
 	if err != nil {
@@ -144,7 +140,7 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 		return nil, db.Rollback(tx, err)
 	}
 
-	return q, nil
+	return updatedQuestion, nil
 }
 
 // DeleteQuestion deletes a question by its ID.
@@ -155,12 +151,16 @@ func DeleteQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID)
 	}
 	defer client.Close()
 
-	// Get the question
-	q, err := client.Question.Query().
+	// Verify the question exists and user has access to it
+	exists, err := client.Question.Query().
 		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
-		Only(ctx)
+		Exist(ctx)
 	if err != nil {
 		return false, err
+	}
+
+	if !exists {
+		return false, errors.New("question not found or you don't have access to it")
 	}
 
 	// Delete the question
@@ -202,4 +202,22 @@ func PaginatedQuestions(ctx context.Context, userId uuid.UUID, input *model.Pagi
 
 	// Paginate the results
 	return common.EntQueryPaginated(ctx, query, *newInput.Page, *newInput.Limit)
+}
+
+// GetQuestionOptionsByQuestionIDs fetches question options for multiple question IDs.
+func GetQuestionOptionsByQuestionIDs(ctx context.Context, questionIDs []uuid.UUID) ([]*ent.QuestionOption, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+
+	options, err := client.QuestionOption.Query().
+		Where(questionoption.QuestionIDIn(questionIDs...)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return options, nil
 }

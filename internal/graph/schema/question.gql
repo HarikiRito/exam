@@ -23,8 +23,8 @@ type PaginatedQuestion {
 
 input CreateQuestionInput {
   questionText: String!
-  questionCollectionId: ID
-  options: [QuestionOptionInput!]
+  questionCollectionId: ID!
+  options: [QuestionOptionInput!]!
 }
 
 input QuestionOptionInput {

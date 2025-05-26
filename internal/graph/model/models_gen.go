@@ -36,8 +36,8 @@ type CreateQuestionCollectionInput struct {
 
 type CreateQuestionInput struct {
 	QuestionText         string                 `json:"questionText"`
-	QuestionCollectionID *uuid.UUID             `json:"questionCollectionId,omitempty"`
-	Options              []*QuestionOptionInput `json:"options,omitempty"`
+	QuestionCollectionID uuid.UUID              `json:"questionCollectionId"`
+	Options              []*QuestionOptionInput `json:"options"`
 }
 
 type CreateQuestionOptionInput struct {
