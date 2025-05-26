@@ -6,6 +6,8 @@ import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppDataTable } from 'app/shared/components/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { AppPopover } from 'app/shared/components/popover/AppPopover';
+import { AppCommand } from 'app/shared/components/command/AppCommand';
+import { Check } from 'lucide-react';
 
 // Type for a single question item from the query
 type QuestionItem = PaginateQuestionsQuery['paginatedQuestions']['items'][0];
@@ -57,18 +59,17 @@ export default function AdminQuestions() {
                 View Options ({options.length})
               </AppButton>
             </AppPopover.Trigger>
-            <AppPopover.Content>
-              <div className='space-y-2 p-2'>
-                <AppTypography.small className='font-semibold'>Options:</AppTypography.small>
-                {options.map((option) => (
-                  <div key={option.id} className='flex items-center gap-2'>
-                    <div className={`h-2 w-2 rounded-full ${option.isCorrect ? 'bg-green-500' : 'bg-red-500'}`} />
-                    <AppTypography.small className={option.isCorrect ? 'font-medium' : ''}>
-                      {option.optionText}
-                    </AppTypography.small>
-                  </div>
-                ))}
-              </div>
+            <AppPopover.Content className='p-0'>
+              <AppCommand.Root>
+                <AppCommand.List>
+                  {options.map((option) => (
+                    <AppCommand.Item key={option.id} className='p-3' title={option.optionText}>
+                      <span>{option.optionText}</span>
+                      {option.isCorrect && <Check className='ml-auto' />}
+                    </AppCommand.Item>
+                  ))}
+                </AppCommand.List>
+              </AppCommand.Root>
             </AppPopover.Content>
           </AppPopover.Root>
         );
