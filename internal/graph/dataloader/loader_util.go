@@ -85,12 +85,15 @@ func (lu *LoaderUtils[OriginalType, ReturnType]) LoadItems(
 	return lu.Items, lu.Errors
 }
 
-func (lu *LoaderUtils[OriginalType, ReturnType]) LoadItemsList(
+// GenerateItemsList generates a list of items based on the query function, key function, and transform function.
+// It returns a list of items and a list of errors.
+// Each key will contain a slice of items that have the same key.
+func (lu *LoaderUtils[OriginalType, ReturnType]) GenerateItemsList(
 	ctx context.Context,
 	queryFunc func(ctx context.Context, ids []uuid.UUID) ([]*OriginalType, error),
 	keyFunc func(o *OriginalType) string,
-	transformFunc func(o []*OriginalType) ([]ReturnType, error),
-) ([][]ReturnType, []error) {
+	transformFunc func(o []*OriginalType) ([]*ReturnType, error),
+) ([][]*ReturnType, []error) {
 	// Perform the query using the stored UUIDs.
 	items, err := queryFunc(ctx, lu.UUIDs)
 	if err != nil {
@@ -100,7 +103,7 @@ func (lu *LoaderUtils[OriginalType, ReturnType]) LoadItemsList(
 				lu.Errors[i] = err
 			}
 		}
-		return [][]ReturnType{}, lu.Errors
+		return [][]*ReturnType{}, lu.Errors
 	}
 	itemMap := make(map[string][]*OriginalType)
 	// Build a map from each item's key to the original item.
@@ -109,7 +112,7 @@ func (lu *LoaderUtils[OriginalType, ReturnType]) LoadItemsList(
 		itemMap[key] = append(itemMap[key], o)
 	}
 
-	itemsList := make([][]ReturnType, len(lu.UUIDs))
+	itemsList := make([][]*ReturnType, len(lu.UUIDs))
 	errors := make([]error, len(lu.UUIDs))
 	// For each input id from the IdMap, get the corresponding original item if available.
 	for uid, i := range lu.IdMap {
