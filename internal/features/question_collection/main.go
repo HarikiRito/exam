@@ -20,6 +20,9 @@ func GetQuestionCollectionByQuestionIDs(ctx context.Context, questionIDs []uuid.
 
 	collections, err := client.QuestionCollection.Query().
 		Where(questioncollection.HasQuestionsWith(question.IDIn(questionIDs...))).
+		WithQuestions(func(q *ent.QuestionQuery) {
+			q.Where(question.IDIn(questionIDs...)).Select(question.FieldID)
+		}).
 		All(ctx)
 	if err != nil {
 		return nil, err

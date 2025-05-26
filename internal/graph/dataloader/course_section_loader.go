@@ -5,6 +5,7 @@ import (
 	"template/internal/ent"
 	"template/internal/features/course_section"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -12,8 +13,10 @@ import (
 func getCourseSections(ctx context.Context, sectionIDs []uuid.UUID) ([]*model.CourseSection, []error) {
 	lu := NewLoaderByIds[ent.CourseSection, model.CourseSection](sectionIDs)
 
-	lu.LoadItems(ctx, course_section.GetCourseSectionsByIDs, func(entSection *ent.CourseSection) string {
-		return entSection.ID.String()
+	lu.LoadItemsOneToOne(ctx, course_section.GetCourseSectionsByIDs, func(id uuid.UUID, items []*ent.CourseSection) *ent.CourseSection {
+		return *slice.Find(items, func(item *ent.CourseSection) bool {
+			return item.ID == id
+		})
 	}, func(entSection *ent.CourseSection) (*model.CourseSection, error) {
 		return model.ConvertCourseSectionToModel(entSection), nil
 	})

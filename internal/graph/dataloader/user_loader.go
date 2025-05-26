@@ -5,6 +5,7 @@ import (
 	"template/internal/ent"
 	"template/internal/features/user"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -12,8 +13,10 @@ import (
 func getUsers(ctx context.Context, userIDs []uuid.UUID) ([]*model.User, []error) {
 	lu := NewLoaderByIds[ent.User, model.User](userIDs)
 
-	lu.LoadItems(ctx, user.GetUsersByIDs, func(entUser *ent.User) string {
-		return entUser.ID.String()
+	lu.LoadItemsOneToOne(ctx, user.GetUsersByIDs, func(id uuid.UUID, items []*ent.User) *ent.User {
+		return *slice.Find(items, func(item *ent.User) bool {
+			return item.ID == id
+		})
 	}, func(entUser *ent.User) (*model.User, error) {
 		return &model.User{
 			ID:    entUser.ID,

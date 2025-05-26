@@ -12,10 +12,13 @@ import (
 
 func getQuestionOptions(ctx context.Context, questionIDs []uuid.UUID) ([][]*model.QuestionOption, []error) {
 	lu := NewLoaderByIds[ent.QuestionOption, model.QuestionOption](questionIDs)
-	items, errs := lu.GenerateItemsList(ctx, question_option.GetQuestionOptionsByQuestionIDs, func(item *ent.QuestionOption) string {
-		return item.QuestionID.String()
-	}, func(item []*ent.QuestionOption) ([]*model.QuestionOption, error) {
-		result := slice.Map(item, func(option *ent.QuestionOption) *model.QuestionOption {
+
+	items, errs := lu.LoadItemsOneToMany(ctx, question_option.GetQuestionOptionsByQuestionIDs, func(id uuid.UUID, items []*ent.QuestionOption) []*ent.QuestionOption {
+		return slice.Filter(items, func(item *ent.QuestionOption) bool {
+			return item.QuestionID == id
+		})
+	}, func(items []*ent.QuestionOption) ([]*model.QuestionOption, error) {
+		result := slice.Map(items, func(option *ent.QuestionOption) *model.QuestionOption {
 			return &model.QuestionOption{
 				ID:         option.ID,
 				OptionText: option.OptionText,

@@ -8,7 +8,11 @@ import (
 )
 
 func OpenClient() (*ent.Client, error) {
-	return ent.Open("postgres", connectionString(), ent.Debug())
+	options := []ent.Option{}
+	if environment.IsDebug() {
+		options = append(options, ent.Debug())
+	}
+	return ent.Open("postgres", connectionString(), options...)
 }
 
 func OpenClientWithoutDebug() (*ent.Client, error) {

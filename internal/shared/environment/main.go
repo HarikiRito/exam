@@ -14,6 +14,7 @@ var DB_PORT string
 var PORT string
 var JWT_SECRET string
 var JWT_REFRESH_SECRET string
+var DEBUG string
 
 func LoadEnvironment() error {
 	err := godotenv.Load()
@@ -30,6 +31,10 @@ func LoadEnvironment() error {
 	PORT = os.Getenv("PORT")
 	JWT_SECRET = os.Getenv("JWT_SECRET")
 	JWT_REFRESH_SECRET = os.Getenv("JWT_REFRESH_SECRET")
-
+	DEBUG = os.Getenv("DEBUG")
 	return nil
+}
+
+func IsDebug() bool {
+	return DEBUG == "true"
 }

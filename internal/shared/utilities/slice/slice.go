@@ -35,3 +35,12 @@ func Some[T any](slice []T, fn func(T) bool) bool {
 	}
 	return false
 }
+
+func Find[T any](slice []T, fn func(T) bool) *T {
+	for _, v := range slice {
+		if fn(v) {
+			return &v
+		}
+	}
+	return nil
+}
