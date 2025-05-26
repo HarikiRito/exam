@@ -1,15 +1,17 @@
-import { useLoaderData } from '@remix-run/react';
+import { useParams } from '@remix-run/react';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { CourseVideoList } from '../components/CourseVideoList';
 import { CourseVideoPlayer } from '../components/CourseVideoPlayer';
 import { CourseVideo } from '../types';
 
-// Using non-async function since there are no async operations
-export const loader = ({ params }: { params: { courseId: string; videoId: string } }) => {
-  // Mock course data - in a real app, fetch this from an API or database
-  const courseId = parseInt(params.courseId, 10);
-  const videoId = parseInt(params.videoId, 10);
+export default function CourseVideoContent() {
+  const { courseId, videoId } = useParams();
 
+  // Convert params to numbers
+  const courseIdNum = parseInt(courseId || '1', 10);
+  const videoIdNum = parseInt(videoId || '1', 10);
+
+  // Mock course data - in a real app, fetch this from an API or database
   const videos: CourseVideo[] = [
     {
       id: 1,
@@ -59,9 +61,9 @@ export const loader = ({ params }: { params: { courseId: string; videoId: string
   ];
 
   // Find the selected video or default to the first video
-  const selectedVideo = videos.find((video) => video.id === videoId);
-  // Ensure we always have a valid video object
-  const currentVideo = selectedVideo ?? videos[0];
+  const selectedVideo = videos.find((video) => video.id === videoIdNum);
+  // Ensure we always have a valid video object - videos array is never empty
+  const currentVideo = (selectedVideo || videos[0]) as CourseVideo;
 
   // For demo purposes, hardcode a course title based on the courseId
   const courseTitles: Record<number, string> = {
@@ -83,25 +85,7 @@ export const loader = ({ params }: { params: { courseId: string; videoId: string
     16: 'Mobile App Development',
   };
 
-  return Response.json({
-    courseId,
-    videoId,
-    courseTitle: courseTitles[courseId] || 'Course Content',
-    currentVideo,
-    videos,
-  });
-};
-
-interface LoaderData {
-  courseId: number;
-  videoId: number;
-  courseTitle: string;
-  currentVideo: CourseVideo;
-  videos: CourseVideo[];
-}
-
-export default function CourseVideoContent() {
-  const { courseTitle, currentVideo, videos } = useLoaderData<typeof loader>() as LoaderData;
+  const courseTitle = courseTitles[courseIdNum] || 'Course Content';
 
   return (
     <div className='container mx-auto px-4 py-8'>

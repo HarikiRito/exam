@@ -1,0 +1,11 @@
+mutation UpdateQuestion($id: ID!, $input: UpdateQuestionInput!) {
+  updateQuestion(id: $id, input: $input) {
+    ...QuestionItem
+    options {
+      ...QuestionOptionItem
+    }
+    collection {
+      ...QuestionCollectionItem
+    }
+  }
+} 

@@ -1,4 +1,6 @@
+import { useNavigate } from '@remix-run/react';
 import { createColumnHelper } from '@tanstack/react-table';
+import { Check, EyeIcon, PencilIcon, PlusIcon } from 'lucide-react';
 
 import { PaginateQuestionsQuery } from 'app/graphql/operations/question/paginateQuestions.query.generated';
 import { usePaginateQuestionsQuery } from 'app/graphql/operations/question/paginateQuestions.query.generated';
@@ -7,12 +9,15 @@ import { AppDataTable } from 'app/shared/components/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { AppPopover } from 'app/shared/components/popover/AppPopover';
 import { AppCommand } from 'app/shared/components/command/AppCommand';
-import { Check } from 'lucide-react';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import { cn } from 'app/shared/utils/className';
 
 // Type for a single question item from the query
 type QuestionItem = PaginateQuestionsQuery['paginatedQuestions']['items'][0];
 
 export default function AdminQuestions() {
+  const navigate = useNavigate();
+
   const state = {
     page: 1,
     limit: 10,
@@ -38,7 +43,7 @@ export default function AdminQuestions() {
   const columnHelper = createColumnHelper<QuestionItem>();
   const columns = [
     columnHelper.accessor('questionText', {
-      header: 'Question Text',
+      header: 'Question',
       cell: (info) => {
         const questionText = info.getValue();
         return questionText.length > 100 ? `${questionText.substring(0, 100)}...` : questionText;
@@ -46,8 +51,15 @@ export default function AdminQuestions() {
       enableSorting: true,
       enableColumnFilter: true,
     }),
-    // Note: Section/Collection field is temporarily disabled due to schema validation issues
-    // This column will be added once the GraphQL schema is updated to support the section field
+    columnHelper.accessor('collection', {
+      header: 'Collection',
+      cell: (info) => {
+        const collection = info.getValue();
+        return collection?.title || '-';
+      },
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
     columnHelper.accessor('options', {
       header: 'Options',
       cell: (info) => {
@@ -63,7 +75,10 @@ export default function AdminQuestions() {
               <AppCommand.Root>
                 <AppCommand.List>
                   {options.map((option) => (
-                    <AppCommand.Item key={option.id} className='p-3' title={option.optionText}>
+                    <AppCommand.Item
+                      key={option.id}
+                      className={cn('p-3', option.isCorrect && 'bg-green-50')}
+                      title={option.optionText}>
                       <span>{option.optionText}</span>
                       {option.isCorrect && <Check className='ml-auto' />}
                     </AppCommand.Item>
@@ -77,12 +92,42 @@ export default function AdminQuestions() {
       enableSorting: false,
       enableColumnFilter: false,
     }),
+    columnHelper.accessor('id', {
+      header: 'Actions',
+      cell: (info) => {
+        const questionId = info.getValue();
+        return (
+          <div className='flex items-center gap-2'>
+            <AppButton
+              size='icon'
+              variant='ghost'
+              onClick={() => navigate(APP_ROUTES.adminQuestionDetail(questionId))}
+              aria-label='View question'>
+              <EyeIcon className='h-4 w-4' />
+            </AppButton>
+            <AppButton
+              size='icon'
+              variant='ghost'
+              onClick={() => navigate(APP_ROUTES.adminQuestionEdit(questionId))}
+              aria-label='Edit question'>
+              <PencilIcon className='h-4 w-4' />
+            </AppButton>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableColumnFilter: false,
+    }),
   ];
 
   return (
     <div className='container mx-auto py-6'>
       <div className='mb-6 flex items-center justify-between'>
         <AppTypography.h1>Questions Management</AppTypography.h1>
+        <AppButton onClick={() => navigate(APP_ROUTES.adminQuestionCreate)} className='flex items-center gap-2'>
+          <PlusIcon className='h-4 w-4' />
+          Add Question
+        </AppButton>
       </div>
 
       <AppDataTable
