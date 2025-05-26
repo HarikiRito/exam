@@ -6,45 +6,104 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"template/internal/features/question_collection"
+	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
 
 // CreateQuestionCollection is the resolver for the createQuestionCollection field.
 func (r *mutationResolver) CreateQuestionCollection(ctx context.Context, input model.CreateQuestionCollectionInput) (*model.QuestionCollection, error) {
-	panic(fmt.Errorf("not implemented: CreateQuestionCollection - createQuestionCollection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	collection, err := question_collection.CreateQuestionCollection(ctx, userId, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.ConvertQuestionCollectionToModel(collection), nil
 }
 
 // UpdateQuestionCollection is the resolver for the updateQuestionCollection field.
 func (r *mutationResolver) UpdateQuestionCollection(ctx context.Context, id uuid.UUID, input model.UpdateQuestionCollectionInput) (*model.QuestionCollection, error) {
-	panic(fmt.Errorf("not implemented: UpdateQuestionCollection - updateQuestionCollection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	collection, err := question_collection.UpdateQuestionCollection(ctx, userId, id, input)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.ConvertQuestionCollectionToModel(collection), nil
 }
 
 // DeleteQuestionCollection is the resolver for the deleteQuestionCollection field.
 func (r *mutationResolver) DeleteQuestionCollection(ctx context.Context, id uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteQuestionCollection - deleteQuestionCollection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return question_collection.DeleteQuestionCollection(ctx, userId, id)
 }
 
 // QuestionCollection is the resolver for the questionCollection field.
 func (r *queryResolver) QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error) {
-	panic(fmt.Errorf("not implemented: QuestionCollection - questionCollection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	collection, err := question_collection.GetQuestionCollectionByID(ctx, userId, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.ConvertQuestionCollectionToModel(collection), nil
 }
 
 // PaginatedQuestionCollections is the resolver for the paginatedQuestionCollections field.
 func (r *queryResolver) PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error) {
-	panic(fmt.Errorf("not implemented: PaginatedQuestionCollections - paginatedQuestionCollections"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := question_collection.PaginatedQuestionCollections(ctx, userId, paginationInput)
+	if err != nil {
+		return nil, err
+	}
+
+	items := slice.Map(result.Items, model.ConvertQuestionCollectionToModel)
+	pagination := &model.Pagination{
+		CurrentPage:     result.CurrentPage,
+		TotalPages:      result.TotalPages,
+		TotalItems:      result.TotalItems,
+		HasNextPage:     result.HasNextPage,
+		HasPreviousPage: result.HasPrevPage,
+	}
+
+	return &model.PaginatedQuestionCollection{
+		Pagination: pagination,
+		Items:      items,
+	}, nil
 }
 
 // Creator is the resolver for the creator field.
 func (r *questionCollectionResolver) Creator(ctx context.Context, obj *model.QuestionCollection) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: Creator - creator"))
+	return dataloader.GetUser(ctx, obj.CreatorID)
 }
 
 // Questions is the resolver for the questions field.
 func (r *questionCollectionResolver) Questions(ctx context.Context, obj *model.QuestionCollection) ([]*model.Question, error) {
-	panic(fmt.Errorf("not implemented: Questions - questions"))
+	return dataloader.GetQuestionsByCollectionID(ctx, obj.ID)
 }
 
 // QuestionCollection returns QuestionCollectionResolver implementation.
