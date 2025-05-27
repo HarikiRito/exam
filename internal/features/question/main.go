@@ -84,65 +84,6 @@ func GetQuestionByID(ctx context.Context, userId uuid.UUID, questionID uuid.UUID
 	return q, nil
 }
 
-// UpdateQuestion updates a question by its ID with the provided input.
-func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID, input model.UpdateQuestionInput) (*ent.Question, error) {
-	tx, err := db.OpenTransaction(ctx)
-	if err != nil {
-		return nil, err
-	}
-	defer db.CloseTransaction(tx)
-
-	// Verify the question exists and user has access to it
-	exists, err := tx.Question.Query().
-		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
-		Exist(ctx)
-	if err != nil || !exists {
-		return nil, db.Rollback(tx, errors.New("question not found or you don't have access to it"))
-	}
-
-	// Start building the update
-	update := tx.Question.UpdateOneID(questionID)
-
-	// Update question text if provided
-	if input.QuestionText != nil {
-		update.SetQuestionText(*input.QuestionText)
-	}
-
-	// Update collection ID if provided
-	if input.QuestionCollectionID != nil {
-		collection, err := tx.QuestionCollection.Query().
-			Where(
-				questioncollection.ID(*input.QuestionCollectionID),
-				questioncollection.CreatorID(userId),
-			).
-			Only(ctx)
-		if err != nil {
-			return nil, db.Rollback(tx, errors.New("collection not found or you don't have access to it"))
-		}
-		update.SetCollectionID(collection.ID)
-	}
-
-	// Save the changes
-	_, err = update.Save(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-
-	// Fetch the updated question with all related data
-	updatedQuestion, err := tx.Question.Query().
-		Where(question.ID(questionID)).
-		Only(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-
-	return updatedQuestion, nil
-}
-
 // DeleteQuestion deletes a question by its ID.
 func DeleteQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID) (bool, error) {
 	client, err := db.OpenClient()
