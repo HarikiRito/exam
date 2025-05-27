@@ -1,4 +1,4 @@
-import { Check, PlusIcon, TrashIcon } from 'lucide-react';
+import { Check, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Control, useFieldArray } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -7,6 +7,7 @@ import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCommand } from 'app/shared/components/command/AppCommand';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
+import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { questionFormState } from '../state';
 
@@ -26,6 +27,8 @@ export function QuestionOptionsManager({ control }: QuestionOptionsManagerProps)
   });
 
   const [newOptionText, setNewOptionText] = useState('');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState('');
 
   function handleAddOption() {
     const trimmedNewOptionText = newOptionText.trim();
@@ -54,6 +57,9 @@ export function QuestionOptionsManager({ control }: QuestionOptionsManagerProps)
   }
 
   function handleToggleCorrect(index: number) {
+    // Don't toggle if we're editing this item
+    if (editingIndex === index) return;
+
     const currentOption = fields[index];
     if (!currentOption) return;
 
@@ -74,6 +80,60 @@ export function QuestionOptionsManager({ control }: QuestionOptionsManagerProps)
       optionText: currentOption.optionText,
       isCorrect: newIsCorrect,
     });
+  }
+
+  function handleStartEdit(index: number) {
+    const currentOption = fields[index];
+    if (!currentOption) return;
+
+    setEditingIndex(index);
+    setEditingText(currentOption.optionText);
+  }
+
+  function handleSaveEdit(index: number) {
+    const trimmedText = editingText.trim();
+
+    if (!trimmedText) {
+      toast.error('Option text cannot be empty.');
+      return;
+    }
+
+    // Check for duplicates (excluding the current item)
+    const isDuplicate = fields.some(
+      (field, fieldIndex) =>
+        fieldIndex !== index && field.optionText.trim().toLowerCase() === trimmedText.toLowerCase(),
+    );
+
+    if (isDuplicate) {
+      toast.error(`Option "${trimmedText}" already exists.`);
+      return;
+    }
+
+    const currentOption = fields[index];
+    if (!currentOption) return;
+
+    update(index, {
+      optionText: trimmedText,
+      isCorrect: currentOption.isCorrect,
+    });
+
+    setEditingIndex(null);
+    setEditingText('');
+  }
+
+  function handleCancelEdit() {
+    setEditingIndex(null);
+    setEditingText('');
+  }
+
+  function handleEditKeyDown(event: React.KeyboardEvent, index: number) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleSaveEdit(index);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      handleCancelEdit();
+    }
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
@@ -131,23 +191,88 @@ export function QuestionOptionsManager({ control }: QuestionOptionsManagerProps)
                         className={cn(
                           'hover:bg-accent pointer-events-auto flex cursor-pointer items-center justify-between p-3',
                           field.isCorrect && 'bg-green-50',
+                          editingIndex === index && 'bg-blue-50',
                         )}
                         onSelect={() => handleToggleCorrect(index)}>
-                        <div className='flex items-center gap-2'>
-                          <span className='flex-1'>{field.optionText}</span>
+                        <div className='flex flex-1 items-center gap-2'>
+                          {editingIndex === index ? (
+                            <AppInput
+                              value={editingText}
+                              onChange={(e) => setEditingText(e.target.value)}
+                              onKeyDown={(e) => handleEditKeyDown(e, index)}
+                              onBlur={() => handleSaveEdit(index)}
+                              className='flex-1'
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            <span className='flex-1'>{field.optionText}</span>
+                          )}
                           {field.isCorrect && <Check className='h-4 w-4 text-green-600' />}
                         </div>
-                        <AppButton
-                          type='button'
-                          variant='ghost'
-                          size='sm'
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveOption(index);
-                          }}
-                          className='text-destructive hover:text-destructive h-8 w-8 p-0'>
-                          <TrashIcon className='h-4 w-4' />
-                        </AppButton>
+                        <div className='flex items-center gap-1'>
+                          {editingIndex === index ? (
+                            <>
+                              <AppButton
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSaveEdit(index);
+                                }}
+                                className='h-8 w-8 p-0 text-green-600 hover:text-green-700'>
+                                <Check className='h-4 w-4' />
+                              </AppButton>
+                              <AppButton
+                                type='button'
+                                variant='ghost'
+                                size='sm'
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCancelEdit();
+                                }}
+                                className='h-8 w-8 p-0'>
+                                ×
+                              </AppButton>
+                            </>
+                          ) : (
+                            <>
+                              <AppTooltip.Root>
+                                <AppTooltip.Trigger asChild>
+                                  <AppButton
+                                    type='button'
+                                    variant='ghost'
+                                    size='sm'
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleStartEdit(index);
+                                    }}
+                                    className='h-8 w-8 p-0'>
+                                    <PencilIcon className='h-4 w-4' />
+                                  </AppButton>
+                                </AppTooltip.Trigger>
+                                <AppTooltip.Content side='top'>Edit option</AppTooltip.Content>
+                              </AppTooltip.Root>
+                              <AppTooltip.Root>
+                                <AppTooltip.Trigger asChild>
+                                  <AppButton
+                                    type='button'
+                                    variant='ghost'
+                                    size='sm'
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveOption(index);
+                                    }}
+                                    className='text-destructive hover:text-destructive h-8 w-8 p-0'>
+                                    <TrashIcon className='h-4 w-4' />
+                                  </AppButton>
+                                </AppTooltip.Trigger>
+                                <AppTooltip.Content side='top'>Delete option</AppTooltip.Content>
+                              </AppTooltip.Root>
+                            </>
+                          )}
+                        </div>
                       </AppCommand.Item>
                     ))}
                   </AppCommand.List>
