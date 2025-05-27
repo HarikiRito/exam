@@ -11,4 +11,8 @@ export const APP_ROUTES = {
   adminQuestionDetail: (questionId: string) => `/admin/questions/${questionId}`,
   adminQuestionEdit: (questionId: string) => `/admin/questions/${questionId}/edit`,
   adminQuestionCreate: '/admin/questions/create',
+  adminCollections: '/admin/collections',
+  adminCollectionDetail: (collectionId: string) => `/admin/collections/${collectionId}`,
+  adminCollectionEdit: (collectionId: string) => `/admin/collections/${collectionId}/edit`,
+  adminCollectionCreate: '/admin/collections/create',
 };

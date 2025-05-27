@@ -1,0 +1,5 @@
+query GetQuestionCollection($id: ID!) {
+  questionCollection(id: $id) {
+    ...QuestionCollectionItem
+  }
+} 
