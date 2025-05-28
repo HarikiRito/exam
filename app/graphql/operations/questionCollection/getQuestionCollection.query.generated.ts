@@ -1,8 +1,12 @@
 import type * as Types from '../../graphqlTypes';
 
 import type { QuestionCollectionItemFragment } from './questionCollection.fragment.generated';
+import type { QuestionItemFragment } from '../question/question.fragment.generated';
+import type { QuestionOptionItemFragment } from '../question/questionOption.fragment.generated';
 import { gql } from '@apollo/client/index.js';
 import { QuestionCollectionItemFragmentDoc } from './questionCollection.fragment.generated';
+import { QuestionItemFragmentDoc } from '../question/question.fragment.generated';
+import { QuestionOptionItemFragmentDoc } from '../question/questionOption.fragment.generated';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type GetQuestionCollectionQueryVariables = Types.Exact<{
@@ -11,7 +15,13 @@ export type GetQuestionCollectionQueryVariables = Types.Exact<{
 
 
 export type GetQuestionCollectionQuery = { __typename?: 'Query', questionCollection: (
-    { __typename?: 'QuestionCollection' }
+    { __typename?: 'QuestionCollection', questions: Array<(
+      { __typename?: 'Question', options: Array<(
+        { __typename?: 'QuestionOption' }
+        & QuestionOptionItemFragment
+      )> }
+      & QuestionItemFragment
+    )> }
     & QuestionCollectionItemFragment
   ) };
 
@@ -20,9 +30,17 @@ export const GetQuestionCollectionDocument = gql`
     query GetQuestionCollection($id: ID!) {
   questionCollection(id: $id) {
     ...QuestionCollectionItem
+    questions {
+      ...QuestionItem
+      options {
+        ...QuestionOptionItem
+      }
+    }
   }
 }
-    ${QuestionCollectionItemFragmentDoc}`;
+    ${QuestionCollectionItemFragmentDoc}
+${QuestionItemFragmentDoc}
+${QuestionOptionItemFragmentDoc}`;
 
 /**
  * __useGetQuestionCollectionQuery__
