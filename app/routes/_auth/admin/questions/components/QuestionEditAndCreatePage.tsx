@@ -18,9 +18,9 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { apolloService } from 'app/shared/services/apollo.service';
 
-import { QuestionCollectionSelector } from './QuestionCollectionSelector';
-import { QuestionOptionsManager } from './QuestionOptionsManager';
-import { CorrectOptionToggle } from './CorrectOptionToggle';
+import { QuestionCollectionSelector } from 'app/shared/components/custom/question/QuestionCollectionSelector';
+import { QuestionOptionsManager } from 'app/shared/components/custom/question/QuestionOptionsManager';
+import { CorrectOptionToggle } from 'app/shared/components/custom/question/CorrectOptionToggle';
 
 // Question form schema
 const questionSchema = z.object({
@@ -130,9 +130,31 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
     }
   }, [questionData, form, isEdit, mutation]);
 
+  // Check the question data to see if there are multiple correct options
+  useEffect(() => {
+    if (!questionData?.question) return;
+
+    let count = 0;
+    for (const option of questionData.question.options) {
+      if (option.isCorrect) {
+        count++;
+      }
+
+      if (count > 1) {
+        mutation.allowMultipleCorrect = true;
+        break;
+      }
+    }
+  }, [questionData, mutation]);
+
   // Handle form submission
   async function handleSubmit(data: QuestionFormData) {
     mutation.isSaving = true;
+
+    const options = data.options.map((option) => ({
+      optionText: option.optionText,
+      isCorrect: option.isCorrect,
+    }));
 
     if (isEdit && questionId) {
       await updateQuestion({
@@ -141,10 +163,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
           input: {
             questionText: data.questionText,
             questionCollectionId: data.questionCollectionId,
-            options: data.options.map((option) => ({
-              optionText: option.optionText,
-              isCorrect: option.isCorrect,
-            })),
+            options,
           },
         },
       });
@@ -154,10 +173,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
           input: {
             questionText: data.questionText,
             questionCollectionId: data.questionCollectionId,
-            options: data.options.map((option) => ({
-              optionText: option.optionText,
-              isCorrect: option.isCorrect,
-            })),
+            options,
           },
         },
       });
@@ -213,13 +229,31 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
             />
 
             {/* Question Collection Selector */}
-            <QuestionCollectionSelector control={form.control} collections={collections} loading={collectionsLoading} />
+            <QuestionCollectionSelector
+              collections={collections}
+              loading={collectionsLoading}
+              value={form.watch('questionCollectionId')}
+              onValueChange={(value) => {
+                form.setValue('questionCollectionId', value || '');
+              }}
+            />
 
             {/* Multiple Choice Toggle */}
-            <CorrectOptionToggle />
+            <CorrectOptionToggle
+              allowMultipleCorrect={state.allowMultipleCorrect}
+              onToggleChange={(value) => {
+                mutation.allowMultipleCorrect = value;
+              }}
+            />
 
             {/* Question Options Manager */}
-            <QuestionOptionsManager control={form.control} />
+            <QuestionOptionsManager
+              options={form.getValues('options')}
+              onOptionsChange={(options) => {
+                form.setValue('options', options);
+              }}
+              allowMultipleCorrect={state.allowMultipleCorrect}
+            />
 
             {/* Submit Button */}
             <div className='flex justify-end pt-4'>

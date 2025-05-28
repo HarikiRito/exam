@@ -148,7 +148,7 @@ export default function AdminCollections() {
                   <AppAlertDialog.Action
                     onClick={() => handleDeleteCollection(collectionId)}
                     disabled={deleteLoading && deletingCollectionId === collectionId}
-                    className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
+                    className='bg-destructive hover:bg-destructive/90 text-white'>
                     {deleteLoading && deletingCollectionId === collectionId ? 'Deleting...' : 'Delete'}
                   </AppAlertDialog.Action>
                 </AppAlertDialog.Footer>

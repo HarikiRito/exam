@@ -1,13 +1,11 @@
 import { Edit2, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { cn } from 'app/shared/utils/className';
-import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
-import { snapshot } from 'valtio';
-import { unwrapProxy } from 'app/shared/utils/valtio';
 import { deepClone } from 'valtio/utils';
 
 // TODO: Test rendering of sections and children recursively

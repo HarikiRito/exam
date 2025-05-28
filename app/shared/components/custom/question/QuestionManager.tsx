@@ -7,15 +7,23 @@ import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 
 import { QuestionItem, QuestionData } from './QuestionItem';
+import { produce } from 'immer';
 
 interface QuestionManagerProps {
   readonly questions: QuestionData[];
   readonly onQuestionsChange: (questions: QuestionData[]) => void;
   readonly onSaveQuestions: () => void;
   readonly isSaving: boolean;
+  readonly collectionId: string;
 }
 
-export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) {
+export function QuestionManager({
+  questions,
+  onQuestionsChange,
+  onSaveQuestions,
+  isSaving,
+  collectionId,
+}: QuestionManagerProps) {
   const [questionToDeleteIndex, setQuestionToDeleteIndex] = useState<number | null>(null);
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(['question-0']);
 
@@ -45,32 +53,31 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
   function handleConfirmDeleteQuestion() {
     if (questionToDeleteIndex === null) return;
 
-    const updatedQuestions = [...questions];
-    const questionToDelete = updatedQuestions[questionToDeleteIndex];
+    const updatedQuestions = produce(questions, (draft) => {
+      const questionToDelete = draft[questionToDeleteIndex];
 
-    if (!questionToDelete) {
-      setQuestionToDeleteIndex(null);
-      return;
-    }
+      if (!questionToDelete) {
+        setQuestionToDeleteIndex(null);
+        return;
+      }
 
-    // If it's a new question, remove it completely
-    if (questionToDelete.isNew) {
-      updatedQuestions.splice(questionToDeleteIndex, 1);
-    } else {
-      // Otherwise mark it as deleted
-      updatedQuestions[questionToDeleteIndex] = {
-        ...questionToDelete,
-        isDeleted: true,
-      };
-    }
+      // If it's a new question, remove it completely
+      if (questionToDelete.isNew) {
+        draft.splice(questionToDeleteIndex, 1);
+      } else {
+        // Otherwise mark it as deleted
+        questionToDelete.isDeleted = true;
+      }
+    });
 
     onQuestionsChange(updatedQuestions);
     setQuestionToDeleteIndex(null);
   }
 
   function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index] = updatedQuestion;
+    const updatedQuestions = produce(questions, (draft) => {
+      draft[index] = updatedQuestion;
+    });
     onQuestionsChange(updatedQuestions);
   }
 
