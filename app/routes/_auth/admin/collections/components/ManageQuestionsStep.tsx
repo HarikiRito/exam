@@ -43,6 +43,18 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
       }
     }
 
+    const updatedQuestions = questions.map((question) => {
+      if (question.isDeleted) {
+        question.id = undefined;
+      } else if (question.isNew) {
+        question.id = '';
+      }
+
+      return question;
+    });
+
+    console.log('ManageQuestionsStep.tsx_57', updatedQuestions);
+
     // TODO: Implement question saving logic
     // This will handle:
     // - Creating new questions (isNew: true)

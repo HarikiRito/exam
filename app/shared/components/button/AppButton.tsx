@@ -57,7 +57,7 @@ function Button({
     readonly isLoading?: boolean;
     readonly loadingSpinnerOnly?: boolean;
   }) {
-  const Comp = asChild ? Slot : 'button';
+  const Comp = asChild ? 'span' : 'button';
 
   return (
     <Comp
