@@ -151,6 +151,11 @@ type Todo struct {
 	Text string    `json:"text"`
 }
 
+type UpdateBatchQuestionsByCollectionInput struct {
+	CollectionID uuid.UUID             `json:"collectionId"`
+	Questions    []*UpdateQuestionData `json:"questions"`
+}
+
 type UpdateCourseInput struct {
 	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
@@ -165,6 +170,12 @@ type UpdateCourseSectionInput struct {
 type UpdateQuestionCollectionInput struct {
 	Title       *string `json:"title,omitempty"`
 	Description *string `json:"description,omitempty"`
+}
+
+type UpdateQuestionData struct {
+	ID           *uuid.UUID                   `json:"id,omitempty"`
+	QuestionText *string                      `json:"questionText,omitempty"`
+	Options      []*UpdateQuestionOptionInput `json:"options"`
 }
 
 type UpdateQuestionInput struct {

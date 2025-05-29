@@ -79,33 +79,34 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CompleteTestSession      func(childComplexity int, id uuid.UUID) int
-		CreateCourse             func(childComplexity int, input model.CreateCourseInput) int
-		CreateCourseSection      func(childComplexity int, input model.CreateCourseSectionInput) int
-		CreateQuestion           func(childComplexity int, input model.CreateQuestionInput) int
-		CreateQuestionCollection func(childComplexity int, input model.CreateQuestionCollectionInput) int
-		CreateQuestionOption     func(childComplexity int, input model.CreateQuestionOptionInput) int
-		CreateTest               func(childComplexity int, input model.CreateTestInput) int
-		CreateTestSession        func(childComplexity int, input model.CreateTestSessionInput) int
-		CreateTodo               func(childComplexity int, input model.NewTodo) int
-		CreateUserQuestionAnswer func(childComplexity int, input model.CreateUserQuestionAnswerInput) int
-		DeleteQuestion           func(childComplexity int, id uuid.UUID) int
-		DeleteQuestionCollection func(childComplexity int, id uuid.UUID) int
-		DeleteQuestionOption     func(childComplexity int, id uuid.UUID) int
-		DeleteTest               func(childComplexity int, id uuid.UUID) int
-		DeleteTestSession        func(childComplexity int, id uuid.UUID) int
-		DeleteUserQuestionAnswer func(childComplexity int, id uuid.UUID) int
-		Register                 func(childComplexity int, input model.RegisterInput) int
-		RemoveCourse             func(childComplexity int, id uuid.UUID) int
-		RemoveCourseSection      func(childComplexity int, id uuid.UUID) int
-		RenewToken               func(childComplexity int, refreshToken string) int
-		UpdateCourse             func(childComplexity int, id uuid.UUID, input model.UpdateCourseInput) int
-		UpdateCourseSection      func(childComplexity int, id uuid.UUID, input model.UpdateCourseSectionInput) int
-		UpdateQuestion           func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
-		UpdateQuestionCollection func(childComplexity int, id uuid.UUID, input model.UpdateQuestionCollectionInput) int
-		UpdateQuestionOption     func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
-		UpdateTest               func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
-		UpdateUserQuestionAnswer func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
+		CompleteTestSession              func(childComplexity int, id uuid.UUID) int
+		CreateCourse                     func(childComplexity int, input model.CreateCourseInput) int
+		CreateCourseSection              func(childComplexity int, input model.CreateCourseSectionInput) int
+		CreateQuestion                   func(childComplexity int, input model.CreateQuestionInput) int
+		CreateQuestionCollection         func(childComplexity int, input model.CreateQuestionCollectionInput) int
+		CreateQuestionOption             func(childComplexity int, input model.CreateQuestionOptionInput) int
+		CreateTest                       func(childComplexity int, input model.CreateTestInput) int
+		CreateTestSession                func(childComplexity int, input model.CreateTestSessionInput) int
+		CreateTodo                       func(childComplexity int, input model.NewTodo) int
+		CreateUserQuestionAnswer         func(childComplexity int, input model.CreateUserQuestionAnswerInput) int
+		DeleteQuestion                   func(childComplexity int, id uuid.UUID) int
+		DeleteQuestionCollection         func(childComplexity int, id uuid.UUID) int
+		DeleteQuestionOption             func(childComplexity int, id uuid.UUID) int
+		DeleteTest                       func(childComplexity int, id uuid.UUID) int
+		DeleteTestSession                func(childComplexity int, id uuid.UUID) int
+		DeleteUserQuestionAnswer         func(childComplexity int, id uuid.UUID) int
+		Register                         func(childComplexity int, input model.RegisterInput) int
+		RemoveCourse                     func(childComplexity int, id uuid.UUID) int
+		RemoveCourseSection              func(childComplexity int, id uuid.UUID) int
+		RenewToken                       func(childComplexity int, refreshToken string) int
+		UpdateBatchQuestionsByCollection func(childComplexity int, input model.UpdateBatchQuestionsByCollectionInput) int
+		UpdateCourse                     func(childComplexity int, id uuid.UUID, input model.UpdateCourseInput) int
+		UpdateCourseSection              func(childComplexity int, id uuid.UUID, input model.UpdateCourseSectionInput) int
+		UpdateQuestion                   func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
+		UpdateQuestionCollection         func(childComplexity int, id uuid.UUID, input model.UpdateQuestionCollectionInput) int
+		UpdateQuestionOption             func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
+		UpdateTest                       func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
+		UpdateUserQuestionAnswer         func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
 	}
 
 	PaginatedCourse struct {
@@ -254,6 +255,7 @@ type MutationResolver interface {
 	CreateQuestionCollection(ctx context.Context, input model.CreateQuestionCollectionInput) (*model.QuestionCollection, error)
 	UpdateQuestionCollection(ctx context.Context, id uuid.UUID, input model.UpdateQuestionCollectionInput) (*model.QuestionCollection, error)
 	DeleteQuestionCollection(ctx context.Context, id uuid.UUID) (bool, error)
+	UpdateBatchQuestionsByCollection(ctx context.Context, input model.UpdateBatchQuestionsByCollectionInput) (bool, error)
 	CreateQuestionOption(ctx context.Context, input model.CreateQuestionOptionInput) (*model.QuestionOption, error)
 	UpdateQuestionOption(ctx context.Context, id uuid.UUID, input model.UpdateQuestionOptionInput) (*model.QuestionOption, error)
 	DeleteQuestionOption(ctx context.Context, id uuid.UUID) (bool, error)
@@ -663,6 +665,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RenewToken(childComplexity, args["refreshToken"].(string)), true
+
+	case "Mutation.updateBatchQuestionsByCollection":
+		if e.complexity.Mutation.UpdateBatchQuestionsByCollection == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateBatchQuestionsByCollection_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateBatchQuestionsByCollection(childComplexity, args["input"].(model.UpdateBatchQuestionsByCollectionInput)), true
 
 	case "Mutation.updateCourse":
 		if e.complexity.Mutation.UpdateCourse == nil {
@@ -1377,9 +1391,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputQuestionOptionInput,
 		ec.unmarshalInputRegisterInput,
+		ec.unmarshalInputUpdateBatchQuestionsByCollectionInput,
 		ec.unmarshalInputUpdateCourseInput,
 		ec.unmarshalInputUpdateCourseSectionInput,
 		ec.unmarshalInputUpdateQuestionCollectionInput,
+		ec.unmarshalInputUpdateQuestionData,
 		ec.unmarshalInputUpdateQuestionInput,
 		ec.unmarshalInputUpdateQuestionOptionInput,
 		ec.unmarshalInputUpdateTestInput,
@@ -1971,6 +1987,29 @@ func (ec *executionContext) field_Mutation_renewToken_argsRefreshToken(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateBatchQuestionsByCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_updateBatchQuestionsByCollection_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateBatchQuestionsByCollection_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.UpdateBatchQuestionsByCollectionInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateBatchQuestionsByCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateBatchQuestionsByCollectionInput(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateBatchQuestionsByCollectionInput
 	return zeroVal, nil
 }
 
@@ -4201,6 +4240,61 @@ func (ec *executionContext) fieldContext_Mutation_deleteQuestionCollection(ctx c
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteQuestionCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateBatchQuestionsByCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateBatchQuestionsByCollection(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateBatchQuestionsByCollection(rctx, fc.Args["input"].(model.UpdateBatchQuestionsByCollectionInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateBatchQuestionsByCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateBatchQuestionsByCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -11482,6 +11576,40 @@ func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUpdateBatchQuestionsByCollectionInput(ctx context.Context, obj interface{}) (model.UpdateBatchQuestionsByCollectionInput, error) {
+	var it model.UpdateBatchQuestionsByCollectionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"collectionId", "questions"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "collectionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CollectionID = data
+		case "questions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questions"))
+			data, err := ec.unmarshalNUpdateQuestionData2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionDataᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Questions = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateCourseInput(ctx context.Context, obj interface{}) (model.UpdateCourseInput, error) {
 	var it model.UpdateCourseInput
 	asMap := map[string]interface{}{}
@@ -11585,6 +11713,47 @@ func (ec *executionContext) unmarshalInputUpdateQuestionCollectionInput(ctx cont
 				return it, err
 			}
 			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateQuestionData(ctx context.Context, obj interface{}) (model.UpdateQuestionData, error) {
+	var it model.UpdateQuestionData
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "questionText", "options"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "questionText":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionText"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionText = data
+		case "options":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("options"))
+			data, err := ec.unmarshalNUpdateQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionOptionInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Options = data
 		}
 	}
 
@@ -12093,6 +12262,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteQuestionCollection":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteQuestionCollection(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateBatchQuestionsByCollection":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateBatchQuestionsByCollection(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -14841,6 +15017,11 @@ func (ec *executionContext) marshalNTodo2ᚖtemplateᚋinternalᚋgraphᚋmodel�
 	return ec._Todo(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUpdateBatchQuestionsByCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateBatchQuestionsByCollectionInput(ctx context.Context, v interface{}) (model.UpdateBatchQuestionsByCollectionInput, error) {
+	res, err := ec.unmarshalInputUpdateBatchQuestionsByCollectionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUpdateCourseInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateCourseInput(ctx context.Context, v interface{}) (model.UpdateCourseInput, error) {
 	res, err := ec.unmarshalInputUpdateCourseInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14856,6 +15037,28 @@ func (ec *executionContext) unmarshalNUpdateQuestionCollectionInput2templateᚋi
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNUpdateQuestionData2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionDataᚄ(ctx context.Context, v interface{}) ([]*model.UpdateQuestionData, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UpdateQuestionData, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUpdateQuestionData2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionData(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUpdateQuestionData2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionData(ctx context.Context, v interface{}) (*model.UpdateQuestionData, error) {
+	res, err := ec.unmarshalInputUpdateQuestionData(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNUpdateQuestionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionInput(ctx context.Context, v interface{}) (model.UpdateQuestionInput, error) {
 	res, err := ec.unmarshalInputUpdateQuestionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -14864,6 +15067,28 @@ func (ec *executionContext) unmarshalNUpdateQuestionInput2templateᚋinternalᚋ
 func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionOptionInput(ctx context.Context, v interface{}) (model.UpdateQuestionOptionInput, error) {
 	res, err := ec.unmarshalInputUpdateQuestionOptionInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionOptionInputᚄ(ctx context.Context, v interface{}) ([]*model.UpdateQuestionOptionInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UpdateQuestionOptionInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUpdateQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionOptionInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionOptionInput(ctx context.Context, v interface{}) (*model.UpdateQuestionOptionInput, error) {
+	res, err := ec.unmarshalInputUpdateQuestionOptionInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateTestInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestInput(ctx context.Context, v interface{}) (model.UpdateTestInput, error) {

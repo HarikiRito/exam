@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/question_collection"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -52,6 +53,11 @@ func (r *mutationResolver) DeleteQuestionCollection(ctx context.Context, id uuid
 	}
 
 	return question_collection.DeleteQuestionCollection(ctx, userId, id)
+}
+
+// UpdateBatchQuestionsByCollection is the resolver for the updateBatchQuestionsByCollection field.
+func (r *mutationResolver) UpdateBatchQuestionsByCollection(ctx context.Context, input model.UpdateBatchQuestionsByCollectionInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateBatchQuestionsByCollection - updateBatchQuestionsByCollection"))
 }
 
 // QuestionCollection is the resolver for the questionCollection field.
