@@ -58,8 +58,11 @@ export function QuestionOptionsManager({
       };
       setLocalOptions((draft) => {
         draft.push(option);
-        onOptionsChange?.(draft);
       });
+
+      // Pass the updated array instead of the draft
+      const updatedOptions = [...localOptions, option];
+      onOptionsChange?.(updatedOptions);
       setNewOptionText('');
     }
   }
@@ -77,9 +80,23 @@ export function QuestionOptionsManager({
         // Otherwise just remove it from the array
         draft.splice(index, 1);
       }
-
-      onOptionsChange?.(draft);
     });
+
+    // Create a new array with the updates applied
+    const updatedOptions = localOptions
+      .map((option, idx) => {
+        if (idx === index) {
+          if (option.id) {
+            return { ...option, isDeleted: true };
+          } else {
+            return null; // Will be filtered out
+          }
+        }
+        return option;
+      })
+      .filter((option): option is QuestionOption => option !== null);
+
+    onOptionsChange?.(updatedOptions);
   }
 
   function handleToggleCorrect(index: number) {
@@ -102,9 +119,21 @@ export function QuestionOptionsManager({
       }
 
       currentOption.isCorrect = newIsCorrect;
-
-      onOptionsChange?.(draft);
     });
+
+    // Create a new array with the updates applied
+    const updatedOptions = localOptions.map((option, idx) => {
+      if (idx === index) {
+        const newIsCorrect = !option.isCorrect;
+        return { ...option, isCorrect: newIsCorrect };
+      } else if (!allowMultipleCorrect && idx !== index) {
+        // Set all others to false if only one can be correct
+        return { ...option, isCorrect: false };
+      }
+      return option;
+    });
+
+    onOptionsChange?.(updatedOptions);
   }
 
   function handleStartEdit(index: number) {
@@ -139,8 +168,17 @@ export function QuestionOptionsManager({
       if (!currentOption) return;
 
       currentOption.optionText = trimmedText;
-      onOptionsChange(draft);
     });
+
+    // Create a new array with the updates applied
+    const updatedOptions = localOptions.map((option, idx) => {
+      if (idx === index) {
+        return { ...option, optionText: trimmedText };
+      }
+      return option;
+    });
+
+    onOptionsChange(updatedOptions);
     setEditingIndex(null);
     setEditingText('');
   }

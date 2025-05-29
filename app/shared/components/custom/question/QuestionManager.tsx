@@ -1,29 +1,22 @@
-import { useState } from 'react';
 import { PlusIcon } from 'lucide-react';
+import { useState } from 'react';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppAlertDialog } from 'app/shared/components/alert-dialog/AppAlertDialog';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 
-import { QuestionItem, QuestionData } from './QuestionItem';
 import { produce } from 'immer';
+import { QuestionData, QuestionItem } from './QuestionItem';
 
 interface QuestionManagerProps {
   readonly questions: QuestionData[];
   readonly onQuestionsChange: (questions: QuestionData[]) => void;
   readonly onSaveQuestions: () => void;
   readonly isSaving: boolean;
-  readonly collectionId: string;
 }
 
-export function QuestionManager({
-  questions,
-  onQuestionsChange,
-  onSaveQuestions,
-  isSaving,
-  collectionId,
-}: QuestionManagerProps) {
+export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) {
   const [questionToDeleteIndex, setQuestionToDeleteIndex] = useState<number | null>(null);
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(['question-0']);
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { Link } from '@remix-run/react';
-import { CheckCircleIcon, PlayCircleIcon } from 'lucide-react';
 import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { CourseVideo } from '../types';
 import { cn } from 'app/shared/utils/className';
+import { CheckCircleIcon, PlayCircleIcon } from 'lucide-react';
+import { CourseVideo } from '../types';
 
 interface CourseVideoListProps {
   readonly videos: CourseVideo[];
@@ -28,7 +28,7 @@ interface CourseVideoItemProps {
 }
 
 function CourseVideoItem({ video, isActive }: CourseVideoItemProps) {
-  const { id, title, thumbnail, duration, description, progress } = video;
+  const { title, thumbnail, duration, description, progress } = video;
 
   // Determine the status icon based on progress
   function renderStatusIcon() {

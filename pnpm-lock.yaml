@@ -131,9 +131,6 @@ importers:
       react-hook-form:
         specifier: ^7.56.4
         version: 7.56.4(react@19.1.0)
-      react-immer:
-        specifier: ^1.5.3
-        version: 1.5.3(immer@10.1.1)(react@19.1.0)
       react-player:
         specifier: ^2.16.0
         version: 2.16.0(react@19.1.0)
@@ -5717,12 +5714,6 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18 || ^19
 
-  react-immer@1.5.3:
-    resolution: {integrity: sha512-PJvoTUge0o35JC2TIfNwaHgYCDcAt5P2j7FxNsKaC5aEYAYvkkIzGEejhV1Nvy/zKGeRuBONtI7oZ4r8LO84+w==}
-    peerDependencies:
-      immer: ^1.8.* || ^2.* || ^3.*
-      react: ^16.7.* || ^16.8.*
-
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -6279,10 +6270,6 @@ packages:
 
   swap-case@2.0.2:
     resolution: {integrity: sha512-kc6S2YS/2yXbtkSMunBtKdah4VFETZ8Oh6ONSmSd9bRxhqTrtARUCBUiWXH3xVPpvR7tz2CSnkuXVE42EcGnMw==}
-
-  symbol-observable@1.2.0:
-    resolution: {integrity: sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==}
-    engines: {node: '>=0.10.0'}
 
   symbol-observable@4.0.0:
     resolution: {integrity: sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==}
@@ -13263,12 +13250,6 @@ snapshots:
     dependencies:
       react: 19.1.0
 
-  react-immer@1.5.3(immer@10.1.1)(react@19.1.0):
-    dependencies:
-      immer: 10.1.1
-      react: 19.1.0
-      symbol-observable: 1.2.0
-
   react-is@16.13.1: {}
 
   react-is@17.0.2: {}
@@ -13918,8 +13899,6 @@ snapshots:
   swap-case@2.0.2:
     dependencies:
       tslib: 2.8.1
-
-  symbol-observable@1.2.0: {}
 
   symbol-observable@4.0.0: {}
 
