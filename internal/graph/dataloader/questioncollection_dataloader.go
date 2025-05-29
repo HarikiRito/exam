@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func getQuestionCollections(ctx context.Context, questionIDs []uuid.UUID) ([]*model.QuestionCollection, []error) {
+func getQuestionCollectionsByQuestionIDs(ctx context.Context, questionIDs []uuid.UUID) ([]*model.QuestionCollection, []error) {
 	lu := NewLoaderByIds[ent.QuestionCollection, model.QuestionCollection](questionIDs)
 
 	lu.LoadItemsOneToOne(ctx, question_collection.GetQuestionCollectionByQuestionIDs, func(id uuid.UUID, items []*ent.QuestionCollection) *ent.QuestionCollection {

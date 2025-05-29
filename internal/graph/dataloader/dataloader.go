@@ -28,9 +28,9 @@ func NewLoaders() *Loaders {
 	return &Loaders{
 		UserLoader:                  dataloadgen.NewLoader(getUsers, dataloadgen.WithWait(time.Millisecond)),
 		CourseSectionLoader:         dataloadgen.NewLoader(getCourseSections, dataloadgen.WithWait(time.Millisecond)),
-		QuestionOptionLoader:        dataloadgen.NewLoader(getQuestionOptions, dataloadgen.WithWait(time.Millisecond)),
-		QuestionCollectionLoader:    dataloadgen.NewLoader(getQuestionCollections, dataloadgen.WithWait(time.Millisecond)),
-		QuestionsByCollectionLoader: dataloadgen.NewLoader(getQuestionsByCollectionID, dataloadgen.WithWait(time.Millisecond)),
+		QuestionOptionLoader:        dataloadgen.NewLoader(getQuestionOptionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
+		QuestionCollectionLoader:    dataloadgen.NewLoader(getQuestionCollectionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
+		QuestionsByCollectionLoader: dataloadgen.NewLoader(getQuestionsByCollectionIDs, dataloadgen.WithWait(time.Millisecond)),
 	}
 }
 

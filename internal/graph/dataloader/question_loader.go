@@ -10,31 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
-func getQuestionsByCollectionID(ctx context.Context, collectionIDs []uuid.UUID) ([][]*model.Question, []error) {
+func getQuestionsByCollectionIDs(ctx context.Context, collectionIDs []uuid.UUID) ([][]*model.Question, []error) {
 	lu := NewLoaderByIds[ent.Question, model.Question](collectionIDs)
-	lu.LoadItemsOneToOne(ctx, question.GetQuestionsByCollectionIDs, func(id uuid.UUID, items []*ent.Question) *ent.Question {
-		return *slice.Find(items, func(item *ent.Question) bool {
+
+	items, errs := lu.LoadItemsOneToMany(ctx, question.GetQuestionsByCollectionIDs, func(id uuid.UUID, items []*ent.Question) []*ent.Question {
+		return slice.Filter(items, func(item *ent.Question) bool {
 			return item.CollectionID == id
 		})
-	}, func(item *ent.Question) (*model.Question, error) {
-		return model.ConvertQuestionToModel(item), nil
+	}, func(items []*ent.Question) ([]*model.Question, error) {
+		result := slice.Map(items, func(question *ent.Question) *model.Question {
+			return model.ConvertQuestionToModel(question)
+		})
+		return result, nil
 	})
 
-	result := make([][]*model.Question, len(collectionIDs))
-	errors := make([]error, len(collectionIDs))
-
-	for i, collectionID := range collectionIDs {
-		questions := make([]*model.Question, 0)
-		for _, question := range lu.Items {
-			if question != nil && question.CollectionID == collectionID {
-				questions = append(questions, question)
-			}
-		}
-		result[i] = questions
-		errors[i] = nil
-	}
-
-	return result, errors
+	return items, errs
 }
 
 // GetQuestionsByCollectionID returns questions for a collection ID using the dataloader.
