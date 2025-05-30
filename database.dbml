@@ -166,7 +166,8 @@ Table user_question_answers {
   user_id varchar [not null]
   test_session_id varchar [not null]
   question_id varchar [not null]
-  selected_option_id varchar
+  selected_option_id varchar [null]
+  selected_option_text text [null]
   manual_answer text
   is_correct boolean
   created_at timestamp [default: `now()`]
