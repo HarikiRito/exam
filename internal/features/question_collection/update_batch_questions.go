@@ -41,6 +41,7 @@ func UpdateBatchQuestionsByCollection(ctx context.Context, userId uuid.UUID, inp
 			questioncollection.ID(input.CollectionID),
 			questioncollection.CreatorID(userId),
 		).
+		Select(questioncollection.FieldID).
 		Only(ctx)
 	if err != nil {
 		return db.Rollback(tx, errors.New("collection not found or you don't have access to it"))
