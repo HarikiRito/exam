@@ -13,6 +13,7 @@ import { QuestionData } from 'app/shared/components/custom/question/QuestionItem
 import { isMoreThanOrEqual } from 'app/shared/utils/comparison';
 import { CollectionDetailsStep } from './CollectionDetailsStep';
 import { ManageQuestionsStep } from './ManageQuestionsStep';
+import { useUniqueId } from 'app/shared/hooks/useUniqueId';
 
 interface CollectionEditAndCreatePageProps {
   readonly mode: 'create' | 'edit';
@@ -31,6 +32,7 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
     CollectionAccordionSteps.CollectionDetails,
   );
   const [initialQuestions, setInitialQuestions] = useState<QuestionData[]>([]);
+  const [manageQuestionsKey, regenerateManageQuestionsKey] = useUniqueId();
 
   const isEdit = mode === 'edit';
 
@@ -47,6 +49,12 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
     skip: !isEdit || !collectionId,
   });
 
+  useEffect(() => {
+    if (collectionData?.questionCollection) {
+      regenerateManageQuestionsKey();
+    }
+  }, [collectionData, regenerateManageQuestionsKey]);
+
   // Update form when collection data is loaded (edit mode)
   useEffect(() => {
     if (isEdit && collectionData?.questionCollection) {
@@ -58,7 +66,6 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
           id: question.id,
           questionText: question.questionText,
           options: question.options.map((option) => ({
-            id: option.id,
             optionText: option.optionText,
             isCorrect: option.isCorrect,
           })),
@@ -171,7 +178,7 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
           />
           {isEdit && (
             <ManageQuestionsStep
-              key={initialQuestions?.[0]?.id}
+              key={manageQuestionsKey}
               collectionId={currentCollectionId || undefined}
               initialQuestions={initialQuestions}
             />

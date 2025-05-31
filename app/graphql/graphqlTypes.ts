@@ -121,6 +121,7 @@ export type Mutation = {
   removeCourse: Scalars['Boolean']['output'];
   removeCourseSection: Scalars['Boolean']['output'];
   renewToken: Auth;
+  updateBatchQuestionsByCollection: Scalars['Boolean']['output'];
   updateCourse: Course;
   updateCourseSection: CourseSection;
   updateQuestion: Question;
@@ -228,6 +229,11 @@ export type MutationRemoveCourseSectionArgs = {
 
 export type MutationRenewTokenArgs = {
   refreshToken: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateBatchQuestionsByCollectionArgs = {
+  input: UpdateBatchQuestionsByCollectionInput;
 };
 
 
@@ -495,6 +501,11 @@ export type Todo = {
   text: Scalars['String']['output'];
 };
 
+export type UpdateBatchQuestionsByCollectionInput = {
+  collectionId: Scalars['ID']['input'];
+  questions: Array<UpdateQuestionData>;
+};
+
 export type UpdateCourseInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -509,6 +520,12 @@ export type UpdateCourseSectionInput = {
 export type UpdateQuestionCollectionInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateQuestionData = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  options: Array<UpdateQuestionOptionInput>;
+  questionText?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateQuestionInput = {

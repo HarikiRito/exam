@@ -11,6 +11,7 @@ import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { CorrectOptionToggle } from './CorrectOptionToggle';
 import { QuestionOption, QuestionOptionsManager } from './QuestionOptionsManager';
 import { cn } from 'app/shared/utils/className';
+import { AppBadge } from 'app/shared/components/badge/AppBadge';
 
 export interface QuestionData {
   id?: string;
@@ -121,11 +122,30 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
   }
 
   function renderQuestionHeaderContent() {
+    function _renderBadge() {
+      if (question.isNew) {
+        return <AppBadge variant='outline'>New</AppBadge>;
+      }
+
+      if (question.isEdited) {
+        return <AppBadge variant='outline'>Edited</AppBadge>;
+      }
+
+      if (question.isDeleted) {
+        return <AppBadge variant='destructive'>Pending Delete</AppBadge>;
+      }
+
+      return null;
+    }
+
     return (
       <div className='flex w-full items-center justify-between'>
         <span className={cn({ 'line-through': question.isDeleted })}>{questionText || `Question ${index + 1}`}</span>
 
-        {question.isDeleted ? renderUndoDeleteButton() : renderDeleteButton()}
+        <div className='flex items-center gap-2'>
+          {_renderBadge()}
+          <span>{question.isDeleted ? renderUndoDeleteButton() : renderDeleteButton()}</span>
+        </div>
       </div>
     );
   }

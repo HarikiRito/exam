@@ -12,10 +12,8 @@ import { useImmer } from 'use-immer';
 import { cn } from 'app/shared/utils/className';
 
 export interface QuestionOption {
-  id?: string;
   optionText: string;
   isCorrect: boolean;
-  isDeleted?: boolean;
 }
 
 interface QuestionOptionsManagerProps {
@@ -73,24 +71,14 @@ export function QuestionOptionsManager({
 
       if (!optionToUpdate) return;
 
-      // If it's an existing option with an ID, mark it as deleted
-      if (optionToUpdate.id) {
-        optionToUpdate.isDeleted = true;
-      } else {
-        // Otherwise just remove it from the array
-        draft.splice(index, 1);
-      }
+      draft.splice(index, 1);
     });
 
     // Create a new array with the updates applied
     const updatedOptions = localOptions
       .map((option, idx) => {
         if (idx === index) {
-          if (option.id) {
-            return { ...option, isDeleted: true };
-          } else {
-            return null; // Will be filtered out
-          }
+          return null;
         }
         return option;
       })
@@ -229,7 +217,7 @@ export function QuestionOptionsManager({
               <AppCommand.List>
                 {localOptions.map((option, index) => (
                   <AppCommand.Item
-                    key={option.id || `new-option-${index}`}
+                    key={`new-option-${index}`}
                     className={cn(
                       'hover:bg-accent pointer-events-auto flex cursor-pointer items-center justify-between p-3',
                       option.isCorrect && 'bg-green-50',

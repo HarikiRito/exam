@@ -424,6 +424,4 @@ updated code
 - Always use these defined keys and functions when navigating programmatically to ensure consistency and maintainability in the project.
 
 ## Error Handling Guidelines
-
-- Do not use try-catch blocks. Instead, use the guardAsync function to handle errors.
 - For Apollo queries and mutations, only check for the plain error object; avoid using both try-catch and additional error handling.

@@ -111,6 +111,7 @@ type Mutation {
   removeCourse(id: ID!): Boolean!
   removeCourseSection(id: ID!): Boolean!
   renewToken(refreshToken: String!): Auth!
+  updateBatchQuestionsByCollection(input: UpdateBatchQuestionsByCollectionInput!): Boolean!
   updateCourse(id: ID!, input: UpdateCourseInput!): Course!
   updateCourseSection(id: ID!, input: UpdateCourseSectionInput!): CourseSection!
   updateQuestion(id: ID!, input: UpdateQuestionInput!): Question!
@@ -254,6 +255,11 @@ type Todo {
 
 scalar UUID
 
+input UpdateBatchQuestionsByCollectionInput {
+  collectionId: ID!
+  questions: [UpdateQuestionData!]!
+}
+
 input UpdateCourseInput {
   description: String
   title: String
@@ -268,6 +274,12 @@ input UpdateCourseSectionInput {
 input UpdateQuestionCollectionInput {
   description: String
   title: String
+}
+
+input UpdateQuestionData {
+  id: ID
+  options: [UpdateQuestionOptionInput!]!
+  questionText: String
 }
 
 input UpdateQuestionInput {

@@ -17,8 +17,7 @@ interface QuestionManagerProps {
 }
 
 export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) {
-  const [questionToDeleteIndex, setQuestionToDeleteIndex] = useState<number | null>(null);
-  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(['question-0']);
+  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
 
   function handleAddQuestion() {
     const newQuestion: QuestionData = {
@@ -34,30 +33,6 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
     // Open the newly added question accordion
     const newIndex = questions.length;
     setOpenAccordionItems([...openAccordionItems, `question-${newIndex}`]);
-  }
-
-  function handleConfirmDeleteQuestion() {
-    if (questionToDeleteIndex === null) return;
-
-    const updatedQuestions = produce(questions, (draft) => {
-      const questionToDelete = draft[questionToDeleteIndex];
-
-      if (!questionToDelete) {
-        setQuestionToDeleteIndex(null);
-        return;
-      }
-
-      // If it's a new question, remove it completely
-      if (questionToDelete.isNew) {
-        draft.splice(questionToDeleteIndex, 1);
-      } else {
-        // Otherwise mark it as deleted
-        questionToDelete.isDeleted = true;
-      }
-    });
-
-    onQuestionsChange(updatedQuestions);
-    setQuestionToDeleteIndex(null);
   }
 
   function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
@@ -100,26 +75,6 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
           </AppTypography.muted>
         </div>
       )}
-
-      {/* Delete Question Dialog */}
-      <AppAlertDialog.Root open={questionToDeleteIndex !== null}>
-        <AppAlertDialog.Content>
-          <AppAlertDialog.Header>
-            <AppAlertDialog.Title>Delete Question</AppAlertDialog.Title>
-            <AppAlertDialog.Description>
-              Are you sure you want to delete this question? This action cannot be undone.
-            </AppAlertDialog.Description>
-          </AppAlertDialog.Header>
-          <AppAlertDialog.Footer>
-            <AppAlertDialog.Cancel onClick={() => setQuestionToDeleteIndex(null)}>Cancel</AppAlertDialog.Cancel>
-            <AppAlertDialog.Action
-              onClick={handleConfirmDeleteQuestion}
-              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
-              Delete
-            </AppAlertDialog.Action>
-          </AppAlertDialog.Footer>
-        </AppAlertDialog.Content>
-      </AppAlertDialog.Root>
     </div>
   );
 }
