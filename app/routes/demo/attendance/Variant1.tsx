@@ -42,16 +42,6 @@ export function AttendanceVariant1() {
     setIsDialogOpen(false);
   };
 
-  const calculateTotalHours = () => {
-    return sessions
-      .reduce((total, session) => {
-        const start = new Date(`1970-01-01T${session.startTime}`);
-        const end = new Date(`1970-01-01T${session.endTime}`);
-        return total + (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-      }, 0)
-      .toFixed(2);
-  };
-
   return (
     <div>
       <AppDialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -44,9 +44,7 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
     }
 
     const updatedQuestions = questions.map((question) => {
-      if (question.isDeleted) {
-        question.id = undefined;
-      } else if (question.isNew) {
+      if (question.isNew) {
         question.id = '';
       }
 

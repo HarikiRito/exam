@@ -99,7 +99,6 @@ export default function AuthDashboard() {
   ];
 
   function handleContinueCourse(courseId: number) {
-    console.log(`Continue course with ID: ${courseId}`);
     // Navigation or other logic would go here
   }
 

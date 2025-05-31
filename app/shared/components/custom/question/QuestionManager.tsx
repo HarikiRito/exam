@@ -20,9 +20,6 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
   const [questionToDeleteIndex, setQuestionToDeleteIndex] = useState<number | null>(null);
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>(['question-0']);
 
-  // Filter out deleted questions for display
-  const visibleQuestions = questions.filter((q) => !q.isDeleted);
-
   function handleAddQuestion() {
     const newQuestion: QuestionData = {
       questionText: '',
@@ -35,12 +32,8 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
     onQuestionsChange(updatedQuestions);
 
     // Open the newly added question accordion
-    const newIndex = visibleQuestions.length;
+    const newIndex = questions.length;
     setOpenAccordionItems([...openAccordionItems, `question-${newIndex}`]);
-  }
-
-  function handleDeleteQuestion(index: number) {
-    setQuestionToDeleteIndex(index);
   }
 
   function handleConfirmDeleteQuestion() {
@@ -83,21 +76,20 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
             <PlusIcon className='mr-2 h-4 w-4' />
             Add Question
           </AppButton>
-          <AppButton type='button' onClick={onSaveQuestions} disabled={isSaving || visibleQuestions.length === 0}>
+          <AppButton type='button' onClick={onSaveQuestions} disabled={isSaving || questions.length === 0}>
             {isSaving ? 'Saving...' : 'Save Questions'}
           </AppButton>
         </div>
       </div>
 
-      {visibleQuestions.length > 0 ? (
+      {questions.length > 0 ? (
         <AppAccordion.Root type='multiple' value={openAccordionItems} onValueChange={setOpenAccordionItems}>
-          {visibleQuestions.map((question, index) => (
+          {questions.map((question, index) => (
             <QuestionItem
               key={question.id || `new-${index}`}
               index={index}
               question={question}
               onQuestionChange={handleQuestionChange}
-              onRequestDelete={handleDeleteQuestion}
             />
           ))}
         </AppAccordion.Root>
