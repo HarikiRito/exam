@@ -29,8 +29,8 @@ type TestQuestionCount struct {
 	TestID uuid.UUID `json:"test_id,omitempty"`
 	// NumberOfQuestions holds the value of the "number_of_questions" field.
 	NumberOfQuestions int `json:"number_of_questions,omitempty"`
-	// PointsPerQuestion holds the value of the "points_per_question" field.
-	PointsPerQuestion int `json:"points_per_question,omitempty"`
+	// Points holds the value of the "points" field.
+	Points int `json:"points,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestQuestionCountQuery when eager-loading is set.
 	Edges        TestQuestionCountEdges `json:"edges"`
@@ -62,7 +62,7 @@ func (*TestQuestionCount) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testquestioncount.FieldNumberOfQuestions, testquestioncount.FieldPointsPerQuestion:
+		case testquestioncount.FieldNumberOfQuestions, testquestioncount.FieldPoints:
 			values[i] = new(sql.NullInt64)
 		case testquestioncount.FieldCreatedAt, testquestioncount.FieldUpdatedAt, testquestioncount.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -120,11 +120,11 @@ func (tqc *TestQuestionCount) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				tqc.NumberOfQuestions = int(value.Int64)
 			}
-		case testquestioncount.FieldPointsPerQuestion:
+		case testquestioncount.FieldPoints:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field points_per_question", values[i])
+				return fmt.Errorf("unexpected type %T for field points", values[i])
 			} else if value.Valid {
-				tqc.PointsPerQuestion = int(value.Int64)
+				tqc.Points = int(value.Int64)
 			}
 		default:
 			tqc.selectValues.Set(columns[i], values[i])
@@ -184,8 +184,8 @@ func (tqc *TestQuestionCount) String() string {
 	builder.WriteString("number_of_questions=")
 	builder.WriteString(fmt.Sprintf("%v", tqc.NumberOfQuestions))
 	builder.WriteString(", ")
-	builder.WriteString("points_per_question=")
-	builder.WriteString(fmt.Sprintf("%v", tqc.PointsPerQuestion))
+	builder.WriteString("points=")
+	builder.WriteString(fmt.Sprintf("%v", tqc.Points))
 	builder.WriteByte(')')
 	return builder.String()
 }

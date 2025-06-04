@@ -8,9 +8,19 @@ import (
 	"github.com/google/uuid"
 )
 
+type AddMultiCollectionToTestInput struct {
+	TestID        uuid.UUID   `json:"testId"`
+	CollectionIds []uuid.UUID `json:"collectionIds"`
+}
+
 type Auth struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type BatchIgnoreQuestionsInput struct {
+	TestID             uuid.UUID             `json:"testId"`
+	QuestionIgnoreData []*QuestionIgnoreData `json:"questionIgnoreData"`
 }
 
 type CourseSectionFilterInput struct {
@@ -129,6 +139,11 @@ type PaginationInput struct {
 type Query struct {
 }
 
+type QuestionIgnoreData struct {
+	QuestionID uuid.UUID `json:"questionId"`
+	Reason     *string   `json:"reason,omitempty"`
+}
+
 type QuestionOptionInput struct {
 	OptionText string `json:"optionText"`
 	IsCorrect  bool   `json:"isCorrect"`
@@ -139,11 +154,27 @@ type RegisterInput struct {
 	Password string `json:"password"`
 }
 
-type Test struct {
-	ID            uuid.UUID      `json:"id"`
-	Name          string         `json:"name"`
-	CourseSection *CourseSection `json:"courseSection,omitempty"`
-	Course        *Course        `json:"course,omitempty"`
+type TestIgnoreQuestion struct {
+	ID         uuid.UUID `json:"id"`
+	TestID     uuid.UUID `json:"testId"`
+	QuestionID uuid.UUID `json:"questionId"`
+	Reason     *string   `json:"reason,omitempty"`
+	Question   *Question `json:"question,omitempty"`
+}
+
+type TestQuestionCount struct {
+	ID                uuid.UUID `json:"id"`
+	TestID            uuid.UUID `json:"testId"`
+	NumberOfQuestions int       `json:"numberOfQuestions"`
+	Points            int       `json:"points"`
+}
+
+type TestQuestionPoint struct {
+	ID         uuid.UUID `json:"id"`
+	TestID     uuid.UUID `json:"testId"`
+	QuestionID uuid.UUID `json:"questionId"`
+	Points     int       `json:"points"`
+	Question   *Question `json:"question,omitempty"`
 }
 
 type Todo struct {
@@ -189,11 +220,29 @@ type UpdateQuestionOptionInput struct {
 	IsCorrect  *bool   `json:"isCorrect,omitempty"`
 }
 
+type UpdateQuestionPointsByCollectionInput struct {
+	TestID       uuid.UUID `json:"testId"`
+	CollectionID uuid.UUID `json:"collectionId"`
+	Points       int       `json:"points"`
+}
+
+type UpdateQuestionPointsInput struct {
+	TestID     uuid.UUID `json:"testId"`
+	QuestionID uuid.UUID `json:"questionId"`
+	Points     int       `json:"points"`
+}
+
 type UpdateTestInput struct {
 	Name            *string     `json:"name,omitempty"`
 	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
 	CourseID        *uuid.UUID  `json:"courseId,omitempty"`
 	QuestionIds     []uuid.UUID `json:"questionIds"`
+}
+
+type UpdateTestQuestionRequirementInput struct {
+	TestID            uuid.UUID `json:"testId"`
+	NumberOfQuestions int       `json:"numberOfQuestions"`
+	PointsPerQuestion int       `json:"pointsPerQuestion"`
 }
 
 type UpdateTestSessionInput struct {

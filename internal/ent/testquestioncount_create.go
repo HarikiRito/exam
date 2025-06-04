@@ -84,16 +84,16 @@ func (tqcc *TestQuestionCountCreate) SetNillableNumberOfQuestions(i *int) *TestQ
 	return tqcc
 }
 
-// SetPointsPerQuestion sets the "points_per_question" field.
-func (tqcc *TestQuestionCountCreate) SetPointsPerQuestion(i int) *TestQuestionCountCreate {
-	tqcc.mutation.SetPointsPerQuestion(i)
+// SetPoints sets the "points" field.
+func (tqcc *TestQuestionCountCreate) SetPoints(i int) *TestQuestionCountCreate {
+	tqcc.mutation.SetPoints(i)
 	return tqcc
 }
 
-// SetNillablePointsPerQuestion sets the "points_per_question" field if the given value is not nil.
-func (tqcc *TestQuestionCountCreate) SetNillablePointsPerQuestion(i *int) *TestQuestionCountCreate {
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (tqcc *TestQuestionCountCreate) SetNillablePoints(i *int) *TestQuestionCountCreate {
 	if i != nil {
-		tqcc.SetPointsPerQuestion(*i)
+		tqcc.SetPoints(*i)
 	}
 	return tqcc
 }
@@ -172,9 +172,9 @@ func (tqcc *TestQuestionCountCreate) defaults() error {
 		v := testquestioncount.DefaultNumberOfQuestions
 		tqcc.mutation.SetNumberOfQuestions(v)
 	}
-	if _, ok := tqcc.mutation.PointsPerQuestion(); !ok {
-		v := testquestioncount.DefaultPointsPerQuestion
-		tqcc.mutation.SetPointsPerQuestion(v)
+	if _, ok := tqcc.mutation.Points(); !ok {
+		v := testquestioncount.DefaultPoints
+		tqcc.mutation.SetPoints(v)
 	}
 	if _, ok := tqcc.mutation.ID(); !ok {
 		if testquestioncount.DefaultID == nil {
@@ -200,8 +200,8 @@ func (tqcc *TestQuestionCountCreate) check() error {
 	if _, ok := tqcc.mutation.NumberOfQuestions(); !ok {
 		return &ValidationError{Name: "number_of_questions", err: errors.New(`ent: missing required field "TestQuestionCount.number_of_questions"`)}
 	}
-	if _, ok := tqcc.mutation.PointsPerQuestion(); !ok {
-		return &ValidationError{Name: "points_per_question", err: errors.New(`ent: missing required field "TestQuestionCount.points_per_question"`)}
+	if _, ok := tqcc.mutation.Points(); !ok {
+		return &ValidationError{Name: "points", err: errors.New(`ent: missing required field "TestQuestionCount.points"`)}
 	}
 	if len(tqcc.mutation.TestIDs()) == 0 {
 		return &ValidationError{Name: "test", err: errors.New(`ent: missing required edge "TestQuestionCount.test"`)}
@@ -257,9 +257,9 @@ func (tqcc *TestQuestionCountCreate) createSpec() (*TestQuestionCount, *sqlgraph
 		_spec.SetField(testquestioncount.FieldNumberOfQuestions, field.TypeInt, value)
 		_node.NumberOfQuestions = value
 	}
-	if value, ok := tqcc.mutation.PointsPerQuestion(); ok {
-		_spec.SetField(testquestioncount.FieldPointsPerQuestion, field.TypeInt, value)
-		_node.PointsPerQuestion = value
+	if value, ok := tqcc.mutation.Points(); ok {
+		_spec.SetField(testquestioncount.FieldPoints, field.TypeInt, value)
+		_node.Points = value
 	}
 	if nodes := tqcc.mutation.TestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

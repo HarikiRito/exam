@@ -9941,8 +9941,8 @@ type TestQuestionCountMutation struct {
 	deleted_at             *time.Time
 	number_of_questions    *int
 	addnumber_of_questions *int
-	points_per_question    *int
-	addpoints_per_question *int
+	points                 *int
+	addpoints              *int
 	clearedFields          map[string]struct{}
 	test                   *uuid.UUID
 	clearedtest            bool
@@ -10268,60 +10268,60 @@ func (m *TestQuestionCountMutation) ResetNumberOfQuestions() {
 	m.addnumber_of_questions = nil
 }
 
-// SetPointsPerQuestion sets the "points_per_question" field.
-func (m *TestQuestionCountMutation) SetPointsPerQuestion(i int) {
-	m.points_per_question = &i
-	m.addpoints_per_question = nil
+// SetPoints sets the "points" field.
+func (m *TestQuestionCountMutation) SetPoints(i int) {
+	m.points = &i
+	m.addpoints = nil
 }
 
-// PointsPerQuestion returns the value of the "points_per_question" field in the mutation.
-func (m *TestQuestionCountMutation) PointsPerQuestion() (r int, exists bool) {
-	v := m.points_per_question
+// Points returns the value of the "points" field in the mutation.
+func (m *TestQuestionCountMutation) Points() (r int, exists bool) {
+	v := m.points
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPointsPerQuestion returns the old "points_per_question" field's value of the TestQuestionCount entity.
+// OldPoints returns the old "points" field's value of the TestQuestionCount entity.
 // If the TestQuestionCount object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionCountMutation) OldPointsPerQuestion(ctx context.Context) (v int, err error) {
+func (m *TestQuestionCountMutation) OldPoints(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPointsPerQuestion is only allowed on UpdateOne operations")
+		return v, errors.New("OldPoints is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPointsPerQuestion requires an ID field in the mutation")
+		return v, errors.New("OldPoints requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPointsPerQuestion: %w", err)
+		return v, fmt.Errorf("querying old value for OldPoints: %w", err)
 	}
-	return oldValue.PointsPerQuestion, nil
+	return oldValue.Points, nil
 }
 
-// AddPointsPerQuestion adds i to the "points_per_question" field.
-func (m *TestQuestionCountMutation) AddPointsPerQuestion(i int) {
-	if m.addpoints_per_question != nil {
-		*m.addpoints_per_question += i
+// AddPoints adds i to the "points" field.
+func (m *TestQuestionCountMutation) AddPoints(i int) {
+	if m.addpoints != nil {
+		*m.addpoints += i
 	} else {
-		m.addpoints_per_question = &i
+		m.addpoints = &i
 	}
 }
 
-// AddedPointsPerQuestion returns the value that was added to the "points_per_question" field in this mutation.
-func (m *TestQuestionCountMutation) AddedPointsPerQuestion() (r int, exists bool) {
-	v := m.addpoints_per_question
+// AddedPoints returns the value that was added to the "points" field in this mutation.
+func (m *TestQuestionCountMutation) AddedPoints() (r int, exists bool) {
+	v := m.addpoints
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetPointsPerQuestion resets all changes to the "points_per_question" field.
-func (m *TestQuestionCountMutation) ResetPointsPerQuestion() {
-	m.points_per_question = nil
-	m.addpoints_per_question = nil
+// ResetPoints resets all changes to the "points" field.
+func (m *TestQuestionCountMutation) ResetPoints() {
+	m.points = nil
+	m.addpoints = nil
 }
 
 // ClearTest clears the "test" edge to the Test entity.
@@ -10401,8 +10401,8 @@ func (m *TestQuestionCountMutation) Fields() []string {
 	if m.number_of_questions != nil {
 		fields = append(fields, testquestioncount.FieldNumberOfQuestions)
 	}
-	if m.points_per_question != nil {
-		fields = append(fields, testquestioncount.FieldPointsPerQuestion)
+	if m.points != nil {
+		fields = append(fields, testquestioncount.FieldPoints)
 	}
 	return fields
 }
@@ -10422,8 +10422,8 @@ func (m *TestQuestionCountMutation) Field(name string) (ent.Value, bool) {
 		return m.TestID()
 	case testquestioncount.FieldNumberOfQuestions:
 		return m.NumberOfQuestions()
-	case testquestioncount.FieldPointsPerQuestion:
-		return m.PointsPerQuestion()
+	case testquestioncount.FieldPoints:
+		return m.Points()
 	}
 	return nil, false
 }
@@ -10443,8 +10443,8 @@ func (m *TestQuestionCountMutation) OldField(ctx context.Context, name string) (
 		return m.OldTestID(ctx)
 	case testquestioncount.FieldNumberOfQuestions:
 		return m.OldNumberOfQuestions(ctx)
-	case testquestioncount.FieldPointsPerQuestion:
-		return m.OldPointsPerQuestion(ctx)
+	case testquestioncount.FieldPoints:
+		return m.OldPoints(ctx)
 	}
 	return nil, fmt.Errorf("unknown TestQuestionCount field %s", name)
 }
@@ -10489,12 +10489,12 @@ func (m *TestQuestionCountMutation) SetField(name string, value ent.Value) error
 		}
 		m.SetNumberOfQuestions(v)
 		return nil
-	case testquestioncount.FieldPointsPerQuestion:
+	case testquestioncount.FieldPoints:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPointsPerQuestion(v)
+		m.SetPoints(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TestQuestionCount field %s", name)
@@ -10507,8 +10507,8 @@ func (m *TestQuestionCountMutation) AddedFields() []string {
 	if m.addnumber_of_questions != nil {
 		fields = append(fields, testquestioncount.FieldNumberOfQuestions)
 	}
-	if m.addpoints_per_question != nil {
-		fields = append(fields, testquestioncount.FieldPointsPerQuestion)
+	if m.addpoints != nil {
+		fields = append(fields, testquestioncount.FieldPoints)
 	}
 	return fields
 }
@@ -10520,8 +10520,8 @@ func (m *TestQuestionCountMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case testquestioncount.FieldNumberOfQuestions:
 		return m.AddedNumberOfQuestions()
-	case testquestioncount.FieldPointsPerQuestion:
-		return m.AddedPointsPerQuestion()
+	case testquestioncount.FieldPoints:
+		return m.AddedPoints()
 	}
 	return nil, false
 }
@@ -10538,12 +10538,12 @@ func (m *TestQuestionCountMutation) AddField(name string, value ent.Value) error
 		}
 		m.AddNumberOfQuestions(v)
 		return nil
-	case testquestioncount.FieldPointsPerQuestion:
+	case testquestioncount.FieldPoints:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddPointsPerQuestion(v)
+		m.AddPoints(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TestQuestionCount numeric field %s", name)
@@ -10596,8 +10596,8 @@ func (m *TestQuestionCountMutation) ResetField(name string) error {
 	case testquestioncount.FieldNumberOfQuestions:
 		m.ResetNumberOfQuestions()
 		return nil
-	case testquestioncount.FieldPointsPerQuestion:
-		m.ResetPointsPerQuestion()
+	case testquestioncount.FieldPoints:
+		m.ResetPoints()
 		return nil
 	}
 	return fmt.Errorf("unknown TestQuestionCount field %s", name)

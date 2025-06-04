@@ -2,6 +2,21 @@ extend type Mutation {
   createTest(input: CreateTestInput!): Test!
   updateTest(id: ID!, input: UpdateTestInput!): Test!
   deleteTest(id: ID!): Boolean!
+  
+  # Add multiple collections to a test
+  addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
+  
+  # Update question points - individual question
+  updateQuestionPoints(input: UpdateQuestionPointsInput!): Boolean!
+  
+  # Update question points - batch by collection
+  updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
+  
+  # Update number of questions requirement based on points per question
+  updateTestQuestionRequirement(input: UpdateTestQuestionRequirementInput!): Boolean!
+  
+  # Batch ignore questions
+  batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
 }
 
 extend type Query {
@@ -9,17 +24,44 @@ extend type Query {
   paginatedTests(paginationInput: PaginationInput): PaginatedTest!
 }
 
-
 type PaginatedTest {
   pagination: Pagination!
   items: [Test!]!
 }
+
 type Test {
   id: ID!
   name: String!
   courseSection: CourseSection
   course: Course
+  questionCollections: [QuestionCollection!]!
+  testQuestionCounts: [TestQuestionCount!]!
+  testQuestionPoints: [TestQuestionPoint!]!
+  testIgnoreQuestions: [TestIgnoreQuestion!]!
   # questions: [Question!]!
+}
+
+type TestQuestionCount {
+  id: ID!
+  testId: ID!
+  numberOfQuestions: Int!
+  points: Int!
+}
+
+type TestQuestionPoint {
+  id: ID!
+  testId: ID!
+  questionId: ID!
+  points: Int!
+  question: Question
+}
+
+type TestIgnoreQuestion {
+  id: ID!
+  testId: ID!
+  questionId: ID!
+  reason: String
+  question: Question
 }
 
 input CreateTestInput {
@@ -34,4 +76,37 @@ input UpdateTestInput {
   courseSectionId: ID
   courseId: ID
   questionIds: [ID!]!
+}
+
+input AddMultiCollectionToTestInput {
+  testId: ID!
+  collectionIds: [ID!]!
+}
+
+input UpdateQuestionPointsInput {
+  testId: ID!
+  questionId: ID!
+  points: Int!
+}
+
+input UpdateQuestionPointsByCollectionInput {
+  testId: ID!
+  collectionId: ID!
+  points: Int!
+}
+
+input UpdateTestQuestionRequirementInput {
+  testId: ID!
+  numberOfQuestions: Int!
+  pointsPerQuestion: Int!
+}
+
+input BatchIgnoreQuestionsInput {
+  testId: ID!
+  questionIgnoreData: [QuestionIgnoreData!]!
+}
+
+input QuestionIgnoreData {
+  questionId: ID!
+  reason: String
 }

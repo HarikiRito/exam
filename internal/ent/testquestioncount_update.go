@@ -105,24 +105,24 @@ func (tqcu *TestQuestionCountUpdate) AddNumberOfQuestions(i int) *TestQuestionCo
 	return tqcu
 }
 
-// SetPointsPerQuestion sets the "points_per_question" field.
-func (tqcu *TestQuestionCountUpdate) SetPointsPerQuestion(i int) *TestQuestionCountUpdate {
-	tqcu.mutation.ResetPointsPerQuestion()
-	tqcu.mutation.SetPointsPerQuestion(i)
+// SetPoints sets the "points" field.
+func (tqcu *TestQuestionCountUpdate) SetPoints(i int) *TestQuestionCountUpdate {
+	tqcu.mutation.ResetPoints()
+	tqcu.mutation.SetPoints(i)
 	return tqcu
 }
 
-// SetNillablePointsPerQuestion sets the "points_per_question" field if the given value is not nil.
-func (tqcu *TestQuestionCountUpdate) SetNillablePointsPerQuestion(i *int) *TestQuestionCountUpdate {
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (tqcu *TestQuestionCountUpdate) SetNillablePoints(i *int) *TestQuestionCountUpdate {
 	if i != nil {
-		tqcu.SetPointsPerQuestion(*i)
+		tqcu.SetPoints(*i)
 	}
 	return tqcu
 }
 
-// AddPointsPerQuestion adds i to the "points_per_question" field.
-func (tqcu *TestQuestionCountUpdate) AddPointsPerQuestion(i int) *TestQuestionCountUpdate {
-	tqcu.mutation.AddPointsPerQuestion(i)
+// AddPoints adds i to the "points" field.
+func (tqcu *TestQuestionCountUpdate) AddPoints(i int) *TestQuestionCountUpdate {
+	tqcu.mutation.AddPoints(i)
 	return tqcu
 }
 
@@ -222,11 +222,11 @@ func (tqcu *TestQuestionCountUpdate) sqlSave(ctx context.Context) (n int, err er
 	if value, ok := tqcu.mutation.AddedNumberOfQuestions(); ok {
 		_spec.AddField(testquestioncount.FieldNumberOfQuestions, field.TypeInt, value)
 	}
-	if value, ok := tqcu.mutation.PointsPerQuestion(); ok {
-		_spec.SetField(testquestioncount.FieldPointsPerQuestion, field.TypeInt, value)
+	if value, ok := tqcu.mutation.Points(); ok {
+		_spec.SetField(testquestioncount.FieldPoints, field.TypeInt, value)
 	}
-	if value, ok := tqcu.mutation.AddedPointsPerQuestion(); ok {
-		_spec.AddField(testquestioncount.FieldPointsPerQuestion, field.TypeInt, value)
+	if value, ok := tqcu.mutation.AddedPoints(); ok {
+		_spec.AddField(testquestioncount.FieldPoints, field.TypeInt, value)
 	}
 	if tqcu.mutation.TestCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -352,24 +352,24 @@ func (tqcuo *TestQuestionCountUpdateOne) AddNumberOfQuestions(i int) *TestQuesti
 	return tqcuo
 }
 
-// SetPointsPerQuestion sets the "points_per_question" field.
-func (tqcuo *TestQuestionCountUpdateOne) SetPointsPerQuestion(i int) *TestQuestionCountUpdateOne {
-	tqcuo.mutation.ResetPointsPerQuestion()
-	tqcuo.mutation.SetPointsPerQuestion(i)
+// SetPoints sets the "points" field.
+func (tqcuo *TestQuestionCountUpdateOne) SetPoints(i int) *TestQuestionCountUpdateOne {
+	tqcuo.mutation.ResetPoints()
+	tqcuo.mutation.SetPoints(i)
 	return tqcuo
 }
 
-// SetNillablePointsPerQuestion sets the "points_per_question" field if the given value is not nil.
-func (tqcuo *TestQuestionCountUpdateOne) SetNillablePointsPerQuestion(i *int) *TestQuestionCountUpdateOne {
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (tqcuo *TestQuestionCountUpdateOne) SetNillablePoints(i *int) *TestQuestionCountUpdateOne {
 	if i != nil {
-		tqcuo.SetPointsPerQuestion(*i)
+		tqcuo.SetPoints(*i)
 	}
 	return tqcuo
 }
 
-// AddPointsPerQuestion adds i to the "points_per_question" field.
-func (tqcuo *TestQuestionCountUpdateOne) AddPointsPerQuestion(i int) *TestQuestionCountUpdateOne {
-	tqcuo.mutation.AddPointsPerQuestion(i)
+// AddPoints adds i to the "points" field.
+func (tqcuo *TestQuestionCountUpdateOne) AddPoints(i int) *TestQuestionCountUpdateOne {
+	tqcuo.mutation.AddPoints(i)
 	return tqcuo
 }
 
@@ -499,11 +499,11 @@ func (tqcuo *TestQuestionCountUpdateOne) sqlSave(ctx context.Context) (_node *Te
 	if value, ok := tqcuo.mutation.AddedNumberOfQuestions(); ok {
 		_spec.AddField(testquestioncount.FieldNumberOfQuestions, field.TypeInt, value)
 	}
-	if value, ok := tqcuo.mutation.PointsPerQuestion(); ok {
-		_spec.SetField(testquestioncount.FieldPointsPerQuestion, field.TypeInt, value)
+	if value, ok := tqcuo.mutation.Points(); ok {
+		_spec.SetField(testquestioncount.FieldPoints, field.TypeInt, value)
 	}
-	if value, ok := tqcuo.mutation.AddedPointsPerQuestion(); ok {
-		_spec.AddField(testquestioncount.FieldPointsPerQuestion, field.TypeInt, value)
+	if value, ok := tqcuo.mutation.AddedPoints(); ok {
+		_spec.AddField(testquestioncount.FieldPoints, field.TypeInt, value)
 	}
 	if tqcuo.mutation.TestCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -273,7 +273,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "number_of_questions", Type: field.TypeInt, Default: 0},
-		{Name: "points_per_question", Type: field.TypeInt, Default: 0},
+		{Name: "points", Type: field.TypeInt, Default: 0},
 		{Name: "test_id", Type: field.TypeUUID},
 	}
 	// TestQuestionCountsTable holds the schema information for the "test_question_counts" table.

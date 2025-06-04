@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/test"
 	"template/internal/graph/model"
 
@@ -33,6 +34,31 @@ func (r *mutationResolver) UpdateTest(ctx context.Context, id uuid.UUID, input m
 // DeleteTest is the resolver for the deleteTest field.
 func (r *mutationResolver) DeleteTest(ctx context.Context, id uuid.UUID) (bool, error) {
 	return test.DeleteTest(ctx, id)
+}
+
+// AddMultiCollectionToTest is the resolver for the addMultiCollectionToTest field.
+func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: AddMultiCollectionToTest - addMultiCollectionToTest"))
+}
+
+// UpdateQuestionPoints is the resolver for the updateQuestionPoints field.
+func (r *mutationResolver) UpdateQuestionPoints(ctx context.Context, input model.UpdateQuestionPointsInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateQuestionPoints - updateQuestionPoints"))
+}
+
+// UpdateQuestionPointsByCollection is the resolver for the updateQuestionPointsByCollection field.
+func (r *mutationResolver) UpdateQuestionPointsByCollection(ctx context.Context, input model.UpdateQuestionPointsByCollectionInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateQuestionPointsByCollection - updateQuestionPointsByCollection"))
+}
+
+// UpdateTestQuestionRequirement is the resolver for the updateTestQuestionRequirement field.
+func (r *mutationResolver) UpdateTestQuestionRequirement(ctx context.Context, input model.UpdateTestQuestionRequirementInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: UpdateTestQuestionRequirement - updateTestQuestionRequirement"))
+}
+
+// BatchIgnoreQuestions is the resolver for the batchIgnoreQuestions field.
+func (r *mutationResolver) BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: BatchIgnoreQuestions - batchIgnoreQuestions"))
 }
 
 // Test is the resolver for the test field.
@@ -70,3 +96,38 @@ func (r *queryResolver) PaginatedTests(ctx context.Context, paginationInput *mod
 		Items:      items,
 	}, nil
 }
+
+// CourseSection is the resolver for the courseSection field.
+func (r *testResolver) CourseSection(ctx context.Context, obj *model.Test) (*model.CourseSection, error) {
+	panic(fmt.Errorf("not implemented: CourseSection - courseSection"))
+}
+
+// Course is the resolver for the course field.
+func (r *testResolver) Course(ctx context.Context, obj *model.Test) (*model.Course, error) {
+	panic(fmt.Errorf("not implemented: Course - course"))
+}
+
+// QuestionCollections is the resolver for the questionCollections field.
+func (r *testResolver) QuestionCollections(ctx context.Context, obj *model.Test) ([]*model.QuestionCollection, error) {
+	panic(fmt.Errorf("not implemented: QuestionCollections - questionCollections"))
+}
+
+// TestQuestionCounts is the resolver for the testQuestionCounts field.
+func (r *testResolver) TestQuestionCounts(ctx context.Context, obj *model.Test) ([]*model.TestQuestionCount, error) {
+	panic(fmt.Errorf("not implemented: TestQuestionCounts - testQuestionCounts"))
+}
+
+// TestQuestionPoints is the resolver for the testQuestionPoints field.
+func (r *testResolver) TestQuestionPoints(ctx context.Context, obj *model.Test) ([]*model.TestQuestionPoint, error) {
+	panic(fmt.Errorf("not implemented: TestQuestionPoints - testQuestionPoints"))
+}
+
+// TestIgnoreQuestions is the resolver for the testIgnoreQuestions field.
+func (r *testResolver) TestIgnoreQuestions(ctx context.Context, obj *model.Test) ([]*model.TestIgnoreQuestion, error) {
+	panic(fmt.Errorf("not implemented: TestIgnoreQuestions - testIgnoreQuestions"))
+}
+
+// Test returns TestResolver implementation.
+func (r *Resolver) Test() TestResolver { return &testResolver{r} }
+
+type testResolver struct{ *Resolver }

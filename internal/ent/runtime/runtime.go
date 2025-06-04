@@ -340,10 +340,10 @@ func init() {
 	testquestioncountDescNumberOfQuestions := testquestioncountFields[1].Descriptor()
 	// testquestioncount.DefaultNumberOfQuestions holds the default value on creation for the number_of_questions field.
 	testquestioncount.DefaultNumberOfQuestions = testquestioncountDescNumberOfQuestions.Default.(int)
-	// testquestioncountDescPointsPerQuestion is the schema descriptor for points_per_question field.
-	testquestioncountDescPointsPerQuestion := testquestioncountFields[2].Descriptor()
-	// testquestioncount.DefaultPointsPerQuestion holds the default value on creation for the points_per_question field.
-	testquestioncount.DefaultPointsPerQuestion = testquestioncountDescPointsPerQuestion.Default.(int)
+	// testquestioncountDescPoints is the schema descriptor for points field.
+	testquestioncountDescPoints := testquestioncountFields[2].Descriptor()
+	// testquestioncount.DefaultPoints holds the default value on creation for the points field.
+	testquestioncount.DefaultPoints = testquestioncountDescPoints.Default.(int)
 	// testquestioncountDescID is the schema descriptor for id field.
 	testquestioncountDescID := testquestioncountMixinFields0[0].Descriptor()
 	// testquestioncount.DefaultID holds the default value on creation for the id field.

@@ -81,9 +81,9 @@ func NumberOfQuestions(v int) predicate.TestQuestionCount {
 	return predicate.TestQuestionCount(sql.FieldEQ(FieldNumberOfQuestions, v))
 }
 
-// PointsPerQuestion applies equality check predicate on the "points_per_question" field. It's identical to PointsPerQuestionEQ.
-func PointsPerQuestion(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldEQ(FieldPointsPerQuestion, v))
+// Points applies equality check predicate on the "points" field. It's identical to PointsEQ.
+func Points(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldEQ(FieldPoints, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -276,44 +276,44 @@ func NumberOfQuestionsLTE(v int) predicate.TestQuestionCount {
 	return predicate.TestQuestionCount(sql.FieldLTE(FieldNumberOfQuestions, v))
 }
 
-// PointsPerQuestionEQ applies the EQ predicate on the "points_per_question" field.
-func PointsPerQuestionEQ(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldEQ(FieldPointsPerQuestion, v))
+// PointsEQ applies the EQ predicate on the "points" field.
+func PointsEQ(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldEQ(FieldPoints, v))
 }
 
-// PointsPerQuestionNEQ applies the NEQ predicate on the "points_per_question" field.
-func PointsPerQuestionNEQ(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldNEQ(FieldPointsPerQuestion, v))
+// PointsNEQ applies the NEQ predicate on the "points" field.
+func PointsNEQ(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldNEQ(FieldPoints, v))
 }
 
-// PointsPerQuestionIn applies the In predicate on the "points_per_question" field.
-func PointsPerQuestionIn(vs ...int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldIn(FieldPointsPerQuestion, vs...))
+// PointsIn applies the In predicate on the "points" field.
+func PointsIn(vs ...int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldIn(FieldPoints, vs...))
 }
 
-// PointsPerQuestionNotIn applies the NotIn predicate on the "points_per_question" field.
-func PointsPerQuestionNotIn(vs ...int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldNotIn(FieldPointsPerQuestion, vs...))
+// PointsNotIn applies the NotIn predicate on the "points" field.
+func PointsNotIn(vs ...int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldNotIn(FieldPoints, vs...))
 }
 
-// PointsPerQuestionGT applies the GT predicate on the "points_per_question" field.
-func PointsPerQuestionGT(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldGT(FieldPointsPerQuestion, v))
+// PointsGT applies the GT predicate on the "points" field.
+func PointsGT(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldGT(FieldPoints, v))
 }
 
-// PointsPerQuestionGTE applies the GTE predicate on the "points_per_question" field.
-func PointsPerQuestionGTE(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldGTE(FieldPointsPerQuestion, v))
+// PointsGTE applies the GTE predicate on the "points" field.
+func PointsGTE(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldGTE(FieldPoints, v))
 }
 
-// PointsPerQuestionLT applies the LT predicate on the "points_per_question" field.
-func PointsPerQuestionLT(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldLT(FieldPointsPerQuestion, v))
+// PointsLT applies the LT predicate on the "points" field.
+func PointsLT(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldLT(FieldPoints, v))
 }
 
-// PointsPerQuestionLTE applies the LTE predicate on the "points_per_question" field.
-func PointsPerQuestionLTE(v int) predicate.TestQuestionCount {
-	return predicate.TestQuestionCount(sql.FieldLTE(FieldPointsPerQuestion, v))
+// PointsLTE applies the LTE predicate on the "points" field.
+func PointsLTE(v int) predicate.TestQuestionCount {
+	return predicate.TestQuestionCount(sql.FieldLTE(FieldPoints, v))
 }
 
 // HasTest applies the HasEdge predicate on the "test" edge.

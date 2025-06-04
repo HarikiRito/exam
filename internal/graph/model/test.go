@@ -2,6 +2,8 @@ package model
 
 import (
 	"template/internal/ent"
+
+	"github.com/google/uuid"
 )
 
 // ConvertTestToModel converts an ent.Test to a model.Test
@@ -12,6 +14,10 @@ func ConvertTestToModel(entTest *ent.Test) *Test {
 	return &Test{
 		ID:   entTest.ID,
 		Name: entTest.Name,
-		// Convert additional fields if necessary
 	}
+}
+
+type Test struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }

@@ -115,6 +115,9 @@ models:
   Question:
     model:
       - template/internal/graph/model.Question
+  Test:
+    model:
+      - template/internal/graph/model.Test
   TestSession:
     model:
       - template/internal/graph/model.TestSession

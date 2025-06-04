@@ -26,8 +26,8 @@ const (
 	FieldTestID = "test_id"
 	// FieldNumberOfQuestions holds the string denoting the number_of_questions field in the database.
 	FieldNumberOfQuestions = "number_of_questions"
-	// FieldPointsPerQuestion holds the string denoting the points_per_question field in the database.
-	FieldPointsPerQuestion = "points_per_question"
+	// FieldPoints holds the string denoting the points field in the database.
+	FieldPoints = "points"
 	// EdgeTest holds the string denoting the test edge name in mutations.
 	EdgeTest = "test"
 	// Table holds the table name of the testquestioncount in the database.
@@ -49,7 +49,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldTestID,
 	FieldNumberOfQuestions,
-	FieldPointsPerQuestion,
+	FieldPoints,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -78,8 +78,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultNumberOfQuestions holds the default value on creation for the "number_of_questions" field.
 	DefaultNumberOfQuestions int
-	// DefaultPointsPerQuestion holds the default value on creation for the "points_per_question" field.
-	DefaultPointsPerQuestion int
+	// DefaultPoints holds the default value on creation for the "points" field.
+	DefaultPoints int
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -117,9 +117,9 @@ func ByNumberOfQuestions(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNumberOfQuestions, opts...).ToFunc()
 }
 
-// ByPointsPerQuestion orders the results by the points_per_question field.
-func ByPointsPerQuestion(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPointsPerQuestion, opts...).ToFunc()
+// ByPoints orders the results by the points field.
+func ByPoints(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPoints, opts...).ToFunc()
 }
 
 // ByTestField orders the results by test field.
