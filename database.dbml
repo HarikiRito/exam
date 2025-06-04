@@ -191,6 +191,7 @@ Table tests {
   name varchar [not null]
   course_section_id varchar
   course_id varchar
+  total_points integer [not null, default: 0, note: 'Computed field for total points from test_question_counts']
 }
 
 // Join table to link tests to questions (each test has multiple questions)
@@ -198,8 +199,50 @@ Table test_questions {
   id varchar [pk]
   test_id varchar [not null]
   question_id varchar [not null]
+}
+
+// Test Question Management
+Table test_collection {
+  test_id varchar [not null]
+  collection_id varchar [not null]
+
+  Indexes {
+    (test_id, collection_id) [pk]
+  }
+}
+
+Table test_question_counts {
+  test_id varchar [not null]
+  number_of_questions integer [not null, default: 1]
+  points_per_question integer [not null, default: 1]
+
+  Indexes {
+    (test_id) [pk]
+  }
+}
+
+Table test_ignore_questions {
+  id varchar [pk]
+  test_id varchar [not null]
+  question_id varchar [not null]
+  reason text // Optional: Reason for ignoring
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
+
+  Indexes {
+    (test_id, question_id) [unique]
+  }
+}
+
+Table test_question_points {
+  id varchar [pk]
+  test_id varchar [not null]
+  question_id varchar [not null]
+  points integer [not null, default: 1] // Points for this question in this test
+
+  Indexes {
+    (test_id, question_id) [unique]
+  }
 }
 
 // Relationships
@@ -246,3 +289,11 @@ Ref: user_question_answers.test_session_id > test_sessions.id [delete: cascade]
 // Relationships for test_questions
 Ref: test_questions.test_id > tests.id [delete: cascade]
 Ref: test_questions.question_id > questions.id [delete: cascade]
+
+// Relationships for Test Question Management
+Ref: test_collection.test_id > tests.id [delete: cascade]
+Ref: test_collection.collection_id > question_collections.id [delete: cascade]
+Ref: test_question_counts.test_id > tests.id [delete: cascade]
+Ref: test_question_points.test_id > tests.id [delete: cascade]
+Ref: test_ignore_questions.test_id > tests.id [delete: cascade]
+Ref: test_ignore_questions.question_id > questions.id [delete: cascade]

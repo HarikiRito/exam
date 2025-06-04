@@ -19,8 +19,9 @@ func (UserQuestionAnswer) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("question_id", uuid.UUID{}),
-		field.UUID("selected_option_id", uuid.UUID{}),
+		field.UUID("selected_option_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("session_id", uuid.UUID{}),
+		field.String("selected_option_text").Optional().Nillable(),
 	}
 }
 
@@ -40,8 +41,7 @@ func (UserQuestionAnswer) Edges() []ent.Edge {
 		edge.From("selected_option", QuestionOption.Type).
 			Ref("user_question_answers").
 			Field("selected_option_id").
-			Unique().
-			Required(),
+			Unique(),
 		edge.From("test_session", TestSession.Type).
 			Ref("user_question_answers").
 			Field("session_id").

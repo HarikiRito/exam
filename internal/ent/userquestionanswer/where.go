@@ -91,6 +91,11 @@ func SessionID(v uuid.UUID) predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(sql.FieldEQ(FieldSessionID, v))
 }
 
+// SelectedOptionText applies equality check predicate on the "selected_option_text" field. It's identical to SelectedOptionTextEQ.
+func SelectedOptionText(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldEQ(FieldSelectedOptionText, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(sql.FieldEQ(FieldCreatedAt, v))
@@ -281,6 +286,16 @@ func SelectedOptionIDNotIn(vs ...uuid.UUID) predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(sql.FieldNotIn(FieldSelectedOptionID, vs...))
 }
 
+// SelectedOptionIDIsNil applies the IsNil predicate on the "selected_option_id" field.
+func SelectedOptionIDIsNil() predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldIsNull(FieldSelectedOptionID))
+}
+
+// SelectedOptionIDNotNil applies the NotNil predicate on the "selected_option_id" field.
+func SelectedOptionIDNotNil() predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldNotNull(FieldSelectedOptionID))
+}
+
 // SessionIDEQ applies the EQ predicate on the "session_id" field.
 func SessionIDEQ(v uuid.UUID) predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(sql.FieldEQ(FieldSessionID, v))
@@ -299,6 +314,81 @@ func SessionIDIn(vs ...uuid.UUID) predicate.UserQuestionAnswer {
 // SessionIDNotIn applies the NotIn predicate on the "session_id" field.
 func SessionIDNotIn(vs ...uuid.UUID) predicate.UserQuestionAnswer {
 	return predicate.UserQuestionAnswer(sql.FieldNotIn(FieldSessionID, vs...))
+}
+
+// SelectedOptionTextEQ applies the EQ predicate on the "selected_option_text" field.
+func SelectedOptionTextEQ(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldEQ(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextNEQ applies the NEQ predicate on the "selected_option_text" field.
+func SelectedOptionTextNEQ(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldNEQ(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextIn applies the In predicate on the "selected_option_text" field.
+func SelectedOptionTextIn(vs ...string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldIn(FieldSelectedOptionText, vs...))
+}
+
+// SelectedOptionTextNotIn applies the NotIn predicate on the "selected_option_text" field.
+func SelectedOptionTextNotIn(vs ...string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldNotIn(FieldSelectedOptionText, vs...))
+}
+
+// SelectedOptionTextGT applies the GT predicate on the "selected_option_text" field.
+func SelectedOptionTextGT(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldGT(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextGTE applies the GTE predicate on the "selected_option_text" field.
+func SelectedOptionTextGTE(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldGTE(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextLT applies the LT predicate on the "selected_option_text" field.
+func SelectedOptionTextLT(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldLT(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextLTE applies the LTE predicate on the "selected_option_text" field.
+func SelectedOptionTextLTE(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldLTE(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextContains applies the Contains predicate on the "selected_option_text" field.
+func SelectedOptionTextContains(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldContains(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextHasPrefix applies the HasPrefix predicate on the "selected_option_text" field.
+func SelectedOptionTextHasPrefix(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldHasPrefix(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextHasSuffix applies the HasSuffix predicate on the "selected_option_text" field.
+func SelectedOptionTextHasSuffix(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldHasSuffix(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextIsNil applies the IsNil predicate on the "selected_option_text" field.
+func SelectedOptionTextIsNil() predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldIsNull(FieldSelectedOptionText))
+}
+
+// SelectedOptionTextNotNil applies the NotNil predicate on the "selected_option_text" field.
+func SelectedOptionTextNotNil() predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldNotNull(FieldSelectedOptionText))
+}
+
+// SelectedOptionTextEqualFold applies the EqualFold predicate on the "selected_option_text" field.
+func SelectedOptionTextEqualFold(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldEqualFold(FieldSelectedOptionText, v))
+}
+
+// SelectedOptionTextContainsFold applies the ContainsFold predicate on the "selected_option_text" field.
+func SelectedOptionTextContainsFold(v string) predicate.UserQuestionAnswer {
+	return predicate.UserQuestionAnswer(sql.FieldContainsFold(FieldSelectedOptionText, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

@@ -323,8 +323,9 @@ var (
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "selected_option_text", Type: field.TypeString, Nullable: true},
 		{Name: "question_id", Type: field.TypeUUID},
-		{Name: "selected_option_id", Type: field.TypeUUID},
+		{Name: "selected_option_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "session_id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
 	}
@@ -336,25 +337,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "user_question_answers_questions_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[4]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[5]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_question_answers_question_options_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[5]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[6]},
 				RefColumns: []*schema.Column{QuestionOptionsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "user_question_answers_test_sessions_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[6]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[7]},
 				RefColumns: []*schema.Column{TestSessionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "user_question_answers_users_user_question_answers",
-				Columns:    []*schema.Column{UserQuestionAnswersColumns[7]},
+				Columns:    []*schema.Column{UserQuestionAnswersColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

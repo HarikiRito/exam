@@ -11867,6 +11867,7 @@ type UserQuestionAnswerMutation struct {
 	created_at             *time.Time
 	updated_at             *time.Time
 	deleted_at             *time.Time
+	selected_option_text   *string
 	clearedFields          map[string]struct{}
 	user                   *uuid.UUID
 	cleareduser            bool
@@ -12195,7 +12196,7 @@ func (m *UserQuestionAnswerMutation) SelectedOptionID() (r uuid.UUID, exists boo
 // OldSelectedOptionID returns the old "selected_option_id" field's value of the UserQuestionAnswer entity.
 // If the UserQuestionAnswer object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserQuestionAnswerMutation) OldSelectedOptionID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *UserQuestionAnswerMutation) OldSelectedOptionID(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSelectedOptionID is only allowed on UpdateOne operations")
 	}
@@ -12209,9 +12210,22 @@ func (m *UserQuestionAnswerMutation) OldSelectedOptionID(ctx context.Context) (v
 	return oldValue.SelectedOptionID, nil
 }
 
+// ClearSelectedOptionID clears the value of the "selected_option_id" field.
+func (m *UserQuestionAnswerMutation) ClearSelectedOptionID() {
+	m.selected_option = nil
+	m.clearedFields[userquestionanswer.FieldSelectedOptionID] = struct{}{}
+}
+
+// SelectedOptionIDCleared returns if the "selected_option_id" field was cleared in this mutation.
+func (m *UserQuestionAnswerMutation) SelectedOptionIDCleared() bool {
+	_, ok := m.clearedFields[userquestionanswer.FieldSelectedOptionID]
+	return ok
+}
+
 // ResetSelectedOptionID resets all changes to the "selected_option_id" field.
 func (m *UserQuestionAnswerMutation) ResetSelectedOptionID() {
 	m.selected_option = nil
+	delete(m.clearedFields, userquestionanswer.FieldSelectedOptionID)
 }
 
 // SetSessionID sets the "session_id" field.
@@ -12248,6 +12262,55 @@ func (m *UserQuestionAnswerMutation) OldSessionID(ctx context.Context) (v uuid.U
 // ResetSessionID resets all changes to the "session_id" field.
 func (m *UserQuestionAnswerMutation) ResetSessionID() {
 	m.test_session = nil
+}
+
+// SetSelectedOptionText sets the "selected_option_text" field.
+func (m *UserQuestionAnswerMutation) SetSelectedOptionText(s string) {
+	m.selected_option_text = &s
+}
+
+// SelectedOptionText returns the value of the "selected_option_text" field in the mutation.
+func (m *UserQuestionAnswerMutation) SelectedOptionText() (r string, exists bool) {
+	v := m.selected_option_text
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSelectedOptionText returns the old "selected_option_text" field's value of the UserQuestionAnswer entity.
+// If the UserQuestionAnswer object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserQuestionAnswerMutation) OldSelectedOptionText(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSelectedOptionText is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSelectedOptionText requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSelectedOptionText: %w", err)
+	}
+	return oldValue.SelectedOptionText, nil
+}
+
+// ClearSelectedOptionText clears the value of the "selected_option_text" field.
+func (m *UserQuestionAnswerMutation) ClearSelectedOptionText() {
+	m.selected_option_text = nil
+	m.clearedFields[userquestionanswer.FieldSelectedOptionText] = struct{}{}
+}
+
+// SelectedOptionTextCleared returns if the "selected_option_text" field was cleared in this mutation.
+func (m *UserQuestionAnswerMutation) SelectedOptionTextCleared() bool {
+	_, ok := m.clearedFields[userquestionanswer.FieldSelectedOptionText]
+	return ok
+}
+
+// ResetSelectedOptionText resets all changes to the "selected_option_text" field.
+func (m *UserQuestionAnswerMutation) ResetSelectedOptionText() {
+	m.selected_option_text = nil
+	delete(m.clearedFields, userquestionanswer.FieldSelectedOptionText)
 }
 
 // ClearUser clears the "user" edge to the User entity.
@@ -12312,7 +12375,7 @@ func (m *UserQuestionAnswerMutation) ClearSelectedOption() {
 
 // SelectedOptionCleared reports if the "selected_option" edge to the QuestionOption entity was cleared.
 func (m *UserQuestionAnswerMutation) SelectedOptionCleared() bool {
-	return m.clearedselected_option
+	return m.SelectedOptionIDCleared() || m.clearedselected_option
 }
 
 // SelectedOptionIDs returns the "selected_option" edge IDs in the mutation.
@@ -12405,7 +12468,7 @@ func (m *UserQuestionAnswerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserQuestionAnswerMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, userquestionanswer.FieldCreatedAt)
 	}
@@ -12426,6 +12489,9 @@ func (m *UserQuestionAnswerMutation) Fields() []string {
 	}
 	if m.test_session != nil {
 		fields = append(fields, userquestionanswer.FieldSessionID)
+	}
+	if m.selected_option_text != nil {
+		fields = append(fields, userquestionanswer.FieldSelectedOptionText)
 	}
 	return fields
 }
@@ -12449,6 +12515,8 @@ func (m *UserQuestionAnswerMutation) Field(name string) (ent.Value, bool) {
 		return m.SelectedOptionID()
 	case userquestionanswer.FieldSessionID:
 		return m.SessionID()
+	case userquestionanswer.FieldSelectedOptionText:
+		return m.SelectedOptionText()
 	}
 	return nil, false
 }
@@ -12472,6 +12540,8 @@ func (m *UserQuestionAnswerMutation) OldField(ctx context.Context, name string) 
 		return m.OldSelectedOptionID(ctx)
 	case userquestionanswer.FieldSessionID:
 		return m.OldSessionID(ctx)
+	case userquestionanswer.FieldSelectedOptionText:
+		return m.OldSelectedOptionText(ctx)
 	}
 	return nil, fmt.Errorf("unknown UserQuestionAnswer field %s", name)
 }
@@ -12530,6 +12600,13 @@ func (m *UserQuestionAnswerMutation) SetField(name string, value ent.Value) erro
 		}
 		m.SetSessionID(v)
 		return nil
+	case userquestionanswer.FieldSelectedOptionText:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSelectedOptionText(v)
+		return nil
 	}
 	return fmt.Errorf("unknown UserQuestionAnswer field %s", name)
 }
@@ -12563,6 +12640,12 @@ func (m *UserQuestionAnswerMutation) ClearedFields() []string {
 	if m.FieldCleared(userquestionanswer.FieldDeletedAt) {
 		fields = append(fields, userquestionanswer.FieldDeletedAt)
 	}
+	if m.FieldCleared(userquestionanswer.FieldSelectedOptionID) {
+		fields = append(fields, userquestionanswer.FieldSelectedOptionID)
+	}
+	if m.FieldCleared(userquestionanswer.FieldSelectedOptionText) {
+		fields = append(fields, userquestionanswer.FieldSelectedOptionText)
+	}
 	return fields
 }
 
@@ -12579,6 +12662,12 @@ func (m *UserQuestionAnswerMutation) ClearField(name string) error {
 	switch name {
 	case userquestionanswer.FieldDeletedAt:
 		m.ClearDeletedAt()
+		return nil
+	case userquestionanswer.FieldSelectedOptionID:
+		m.ClearSelectedOptionID()
+		return nil
+	case userquestionanswer.FieldSelectedOptionText:
+		m.ClearSelectedOptionText()
 		return nil
 	}
 	return fmt.Errorf("unknown UserQuestionAnswer nullable field %s", name)
@@ -12608,6 +12697,9 @@ func (m *UserQuestionAnswerMutation) ResetField(name string) error {
 		return nil
 	case userquestionanswer.FieldSessionID:
 		m.ResetSessionID()
+		return nil
+	case userquestionanswer.FieldSelectedOptionText:
+		m.ResetSelectedOptionText()
 		return nil
 	}
 	return fmt.Errorf("unknown UserQuestionAnswer field %s", name)

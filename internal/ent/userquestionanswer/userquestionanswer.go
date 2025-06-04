@@ -30,6 +30,8 @@ const (
 	FieldSelectedOptionID = "selected_option_id"
 	// FieldSessionID holds the string denoting the session_id field in the database.
 	FieldSessionID = "session_id"
+	// FieldSelectedOptionText holds the string denoting the selected_option_text field in the database.
+	FieldSelectedOptionText = "selected_option_text"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
@@ -80,6 +82,7 @@ var Columns = []string{
 	FieldQuestionID,
 	FieldSelectedOptionID,
 	FieldSessionID,
+	FieldSelectedOptionText,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -151,6 +154,11 @@ func BySelectedOptionID(opts ...sql.OrderTermOption) OrderOption {
 // BySessionID orders the results by the session_id field.
 func BySessionID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSessionID, opts...).ToFunc()
+}
+
+// BySelectedOptionText orders the results by the selected_option_text field.
+func BySelectedOptionText(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSelectedOptionText, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

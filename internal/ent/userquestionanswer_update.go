@@ -115,6 +115,12 @@ func (uqau *UserQuestionAnswerUpdate) SetNillableSelectedOptionID(u *uuid.UUID) 
 	return uqau
 }
 
+// ClearSelectedOptionID clears the value of the "selected_option_id" field.
+func (uqau *UserQuestionAnswerUpdate) ClearSelectedOptionID() *UserQuestionAnswerUpdate {
+	uqau.mutation.ClearSelectedOptionID()
+	return uqau
+}
+
 // SetSessionID sets the "session_id" field.
 func (uqau *UserQuestionAnswerUpdate) SetSessionID(u uuid.UUID) *UserQuestionAnswerUpdate {
 	uqau.mutation.SetSessionID(u)
@@ -126,6 +132,26 @@ func (uqau *UserQuestionAnswerUpdate) SetNillableSessionID(u *uuid.UUID) *UserQu
 	if u != nil {
 		uqau.SetSessionID(*u)
 	}
+	return uqau
+}
+
+// SetSelectedOptionText sets the "selected_option_text" field.
+func (uqau *UserQuestionAnswerUpdate) SetSelectedOptionText(s string) *UserQuestionAnswerUpdate {
+	uqau.mutation.SetSelectedOptionText(s)
+	return uqau
+}
+
+// SetNillableSelectedOptionText sets the "selected_option_text" field if the given value is not nil.
+func (uqau *UserQuestionAnswerUpdate) SetNillableSelectedOptionText(s *string) *UserQuestionAnswerUpdate {
+	if s != nil {
+		uqau.SetSelectedOptionText(*s)
+	}
+	return uqau
+}
+
+// ClearSelectedOptionText clears the value of the "selected_option_text" field.
+func (uqau *UserQuestionAnswerUpdate) ClearSelectedOptionText() *UserQuestionAnswerUpdate {
+	uqau.mutation.ClearSelectedOptionText()
 	return uqau
 }
 
@@ -234,9 +260,6 @@ func (uqau *UserQuestionAnswerUpdate) check() error {
 	if uqau.mutation.QuestionCleared() && len(uqau.mutation.QuestionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.question"`)
 	}
-	if uqau.mutation.SelectedOptionCleared() && len(uqau.mutation.SelectedOptionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.selected_option"`)
-	}
 	if uqau.mutation.TestSessionCleared() && len(uqau.mutation.TestSessionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.test_session"`)
 	}
@@ -266,6 +289,12 @@ func (uqau *UserQuestionAnswerUpdate) sqlSave(ctx context.Context) (n int, err e
 	}
 	if uqau.mutation.DeletedAtCleared() {
 		_spec.ClearField(userquestionanswer.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := uqau.mutation.SelectedOptionText(); ok {
+		_spec.SetField(userquestionanswer.FieldSelectedOptionText, field.TypeString, value)
+	}
+	if uqau.mutation.SelectedOptionTextCleared() {
+		_spec.ClearField(userquestionanswer.FieldSelectedOptionText, field.TypeString)
 	}
 	if uqau.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -485,6 +514,12 @@ func (uqauo *UserQuestionAnswerUpdateOne) SetNillableSelectedOptionID(u *uuid.UU
 	return uqauo
 }
 
+// ClearSelectedOptionID clears the value of the "selected_option_id" field.
+func (uqauo *UserQuestionAnswerUpdateOne) ClearSelectedOptionID() *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.ClearSelectedOptionID()
+	return uqauo
+}
+
 // SetSessionID sets the "session_id" field.
 func (uqauo *UserQuestionAnswerUpdateOne) SetSessionID(u uuid.UUID) *UserQuestionAnswerUpdateOne {
 	uqauo.mutation.SetSessionID(u)
@@ -496,6 +531,26 @@ func (uqauo *UserQuestionAnswerUpdateOne) SetNillableSessionID(u *uuid.UUID) *Us
 	if u != nil {
 		uqauo.SetSessionID(*u)
 	}
+	return uqauo
+}
+
+// SetSelectedOptionText sets the "selected_option_text" field.
+func (uqauo *UserQuestionAnswerUpdateOne) SetSelectedOptionText(s string) *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.SetSelectedOptionText(s)
+	return uqauo
+}
+
+// SetNillableSelectedOptionText sets the "selected_option_text" field if the given value is not nil.
+func (uqauo *UserQuestionAnswerUpdateOne) SetNillableSelectedOptionText(s *string) *UserQuestionAnswerUpdateOne {
+	if s != nil {
+		uqauo.SetSelectedOptionText(*s)
+	}
+	return uqauo
+}
+
+// ClearSelectedOptionText clears the value of the "selected_option_text" field.
+func (uqauo *UserQuestionAnswerUpdateOne) ClearSelectedOptionText() *UserQuestionAnswerUpdateOne {
+	uqauo.mutation.ClearSelectedOptionText()
 	return uqauo
 }
 
@@ -617,9 +672,6 @@ func (uqauo *UserQuestionAnswerUpdateOne) check() error {
 	if uqauo.mutation.QuestionCleared() && len(uqauo.mutation.QuestionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.question"`)
 	}
-	if uqauo.mutation.SelectedOptionCleared() && len(uqauo.mutation.SelectedOptionIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.selected_option"`)
-	}
 	if uqauo.mutation.TestSessionCleared() && len(uqauo.mutation.TestSessionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "UserQuestionAnswer.test_session"`)
 	}
@@ -666,6 +718,12 @@ func (uqauo *UserQuestionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *U
 	}
 	if uqauo.mutation.DeletedAtCleared() {
 		_spec.ClearField(userquestionanswer.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := uqauo.mutation.SelectedOptionText(); ok {
+		_spec.SetField(userquestionanswer.FieldSelectedOptionText, field.TypeString, value)
+	}
+	if uqauo.mutation.SelectedOptionTextCleared() {
+		_spec.ClearField(userquestionanswer.FieldSelectedOptionText, field.TypeString)
 	}
 	if uqauo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

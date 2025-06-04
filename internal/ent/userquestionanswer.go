@@ -33,9 +33,11 @@ type UserQuestionAnswer struct {
 	// QuestionID holds the value of the "question_id" field.
 	QuestionID uuid.UUID `json:"question_id,omitempty"`
 	// SelectedOptionID holds the value of the "selected_option_id" field.
-	SelectedOptionID uuid.UUID `json:"selected_option_id,omitempty"`
+	SelectedOptionID *uuid.UUID `json:"selected_option_id,omitempty"`
 	// SessionID holds the value of the "session_id" field.
 	SessionID uuid.UUID `json:"session_id,omitempty"`
+	// SelectedOptionText holds the value of the "selected_option_text" field.
+	SelectedOptionText *string `json:"selected_option_text,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuestionAnswerQuery when eager-loading is set.
 	Edges        UserQuestionAnswerEdges `json:"edges"`
@@ -106,9 +108,13 @@ func (*UserQuestionAnswer) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case userquestionanswer.FieldSelectedOptionID:
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case userquestionanswer.FieldSelectedOptionText:
+			values[i] = new(sql.NullString)
 		case userquestionanswer.FieldCreatedAt, userquestionanswer.FieldUpdatedAt, userquestionanswer.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case userquestionanswer.FieldID, userquestionanswer.FieldUserID, userquestionanswer.FieldQuestionID, userquestionanswer.FieldSelectedOptionID, userquestionanswer.FieldSessionID:
+		case userquestionanswer.FieldID, userquestionanswer.FieldUserID, userquestionanswer.FieldQuestionID, userquestionanswer.FieldSessionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -163,16 +169,24 @@ func (uqa *UserQuestionAnswer) assignValues(columns []string, values []any) erro
 				uqa.QuestionID = *value
 			}
 		case userquestionanswer.FieldSelectedOptionID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field selected_option_id", values[i])
-			} else if value != nil {
-				uqa.SelectedOptionID = *value
+			} else if value.Valid {
+				uqa.SelectedOptionID = new(uuid.UUID)
+				*uqa.SelectedOptionID = *value.S.(*uuid.UUID)
 			}
 		case userquestionanswer.FieldSessionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field session_id", values[i])
 			} else if value != nil {
 				uqa.SessionID = *value
+			}
+		case userquestionanswer.FieldSelectedOptionText:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field selected_option_text", values[i])
+			} else if value.Valid {
+				uqa.SelectedOptionText = new(string)
+				*uqa.SelectedOptionText = value.String
 			}
 		default:
 			uqa.selectValues.Set(columns[i], values[i])
@@ -247,11 +261,18 @@ func (uqa *UserQuestionAnswer) String() string {
 	builder.WriteString("question_id=")
 	builder.WriteString(fmt.Sprintf("%v", uqa.QuestionID))
 	builder.WriteString(", ")
-	builder.WriteString("selected_option_id=")
-	builder.WriteString(fmt.Sprintf("%v", uqa.SelectedOptionID))
+	if v := uqa.SelectedOptionID; v != nil {
+		builder.WriteString("selected_option_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("session_id=")
 	builder.WriteString(fmt.Sprintf("%v", uqa.SessionID))
+	builder.WriteString(", ")
+	if v := uqa.SelectedOptionText; v != nil {
+		builder.WriteString("selected_option_text=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

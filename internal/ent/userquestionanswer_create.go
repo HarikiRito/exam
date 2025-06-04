@@ -85,9 +85,31 @@ func (uqac *UserQuestionAnswerCreate) SetSelectedOptionID(u uuid.UUID) *UserQues
 	return uqac
 }
 
+// SetNillableSelectedOptionID sets the "selected_option_id" field if the given value is not nil.
+func (uqac *UserQuestionAnswerCreate) SetNillableSelectedOptionID(u *uuid.UUID) *UserQuestionAnswerCreate {
+	if u != nil {
+		uqac.SetSelectedOptionID(*u)
+	}
+	return uqac
+}
+
 // SetSessionID sets the "session_id" field.
 func (uqac *UserQuestionAnswerCreate) SetSessionID(u uuid.UUID) *UserQuestionAnswerCreate {
 	uqac.mutation.SetSessionID(u)
+	return uqac
+}
+
+// SetSelectedOptionText sets the "selected_option_text" field.
+func (uqac *UserQuestionAnswerCreate) SetSelectedOptionText(s string) *UserQuestionAnswerCreate {
+	uqac.mutation.SetSelectedOptionText(s)
+	return uqac
+}
+
+// SetNillableSelectedOptionText sets the "selected_option_text" field if the given value is not nil.
+func (uqac *UserQuestionAnswerCreate) SetNillableSelectedOptionText(s *string) *UserQuestionAnswerCreate {
+	if s != nil {
+		uqac.SetSelectedOptionText(*s)
+	}
 	return uqac
 }
 
@@ -206,9 +228,6 @@ func (uqac *UserQuestionAnswerCreate) check() error {
 	if _, ok := uqac.mutation.QuestionID(); !ok {
 		return &ValidationError{Name: "question_id", err: errors.New(`ent: missing required field "UserQuestionAnswer.question_id"`)}
 	}
-	if _, ok := uqac.mutation.SelectedOptionID(); !ok {
-		return &ValidationError{Name: "selected_option_id", err: errors.New(`ent: missing required field "UserQuestionAnswer.selected_option_id"`)}
-	}
 	if _, ok := uqac.mutation.SessionID(); !ok {
 		return &ValidationError{Name: "session_id", err: errors.New(`ent: missing required field "UserQuestionAnswer.session_id"`)}
 	}
@@ -217,9 +236,6 @@ func (uqac *UserQuestionAnswerCreate) check() error {
 	}
 	if len(uqac.mutation.QuestionIDs()) == 0 {
 		return &ValidationError{Name: "question", err: errors.New(`ent: missing required edge "UserQuestionAnswer.question"`)}
-	}
-	if len(uqac.mutation.SelectedOptionIDs()) == 0 {
-		return &ValidationError{Name: "selected_option", err: errors.New(`ent: missing required edge "UserQuestionAnswer.selected_option"`)}
 	}
 	if len(uqac.mutation.TestSessionIDs()) == 0 {
 		return &ValidationError{Name: "test_session", err: errors.New(`ent: missing required edge "UserQuestionAnswer.test_session"`)}
@@ -271,6 +287,10 @@ func (uqac *UserQuestionAnswerCreate) createSpec() (*UserQuestionAnswer, *sqlgra
 		_spec.SetField(userquestionanswer.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
+	if value, ok := uqac.mutation.SelectedOptionText(); ok {
+		_spec.SetField(userquestionanswer.FieldSelectedOptionText, field.TypeString, value)
+		_node.SelectedOptionText = &value
+	}
 	if nodes := uqac.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -319,7 +339,7 @@ func (uqac *UserQuestionAnswerCreate) createSpec() (*UserQuestionAnswer, *sqlgra
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.SelectedOptionID = nodes[0]
+		_node.SelectedOptionID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uqac.mutation.TestSessionIDs(); len(nodes) > 0 {

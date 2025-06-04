@@ -593,7 +593,10 @@ func (uqaq *UserQuestionAnswerQuery) loadSelectedOption(ctx context.Context, que
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*UserQuestionAnswer)
 	for i := range nodes {
-		fk := nodes[i].SelectedOptionID
+		if nodes[i].SelectedOptionID == nil {
+			continue
+		}
+		fk := *nodes[i].SelectedOptionID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
