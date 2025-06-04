@@ -12,6 +12,8 @@ import (
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
 	"template/internal/ent/test"
+	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/videoquestiontimestamp"
 
@@ -34,6 +36,8 @@ type QuestionQuery struct {
 	withVideoQuestionTimestampsQuestion *VideoQuestionTimestampQuery
 	withUserQuestionAnswers             *UserQuestionAnswerQuery
 	withTests                           *TestQuery
+	withTestIgnoreQuestions             *TestIgnoreQuestionQuery
+	withTestQuestionPoints              *TestQuestionPointQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -173,6 +177,50 @@ func (qq *QuestionQuery) QueryTests() *TestQuery {
 			sqlgraph.From(question.Table, question.FieldID, selector),
 			sqlgraph.To(test.Table, test.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, question.TestsTable, question.TestsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTestIgnoreQuestions chains the current query on the "test_ignore_questions" edge.
+func (qq *QuestionQuery) QueryTestIgnoreQuestions() *TestIgnoreQuestionQuery {
+	query := (&TestIgnoreQuestionClient{config: qq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := qq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := qq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, selector),
+			sqlgraph.To(testignorequestion.Table, testignorequestion.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, question.TestIgnoreQuestionsTable, question.TestIgnoreQuestionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTestQuestionPoints chains the current query on the "test_question_points" edge.
+func (qq *QuestionQuery) QueryTestQuestionPoints() *TestQuestionPointQuery {
+	query := (&TestQuestionPointClient{config: qq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := qq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := qq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(question.Table, question.FieldID, selector),
+			sqlgraph.To(testquestionpoint.Table, testquestionpoint.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, question.TestQuestionPointsTable, question.TestQuestionPointsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
 		return fromU, nil
@@ -377,6 +425,8 @@ func (qq *QuestionQuery) Clone() *QuestionQuery {
 		withVideoQuestionTimestampsQuestion: qq.withVideoQuestionTimestampsQuestion.Clone(),
 		withUserQuestionAnswers:             qq.withUserQuestionAnswers.Clone(),
 		withTests:                           qq.withTests.Clone(),
+		withTestIgnoreQuestions:             qq.withTestIgnoreQuestions.Clone(),
+		withTestQuestionPoints:              qq.withTestQuestionPoints.Clone(),
 		// clone intermediate query.
 		sql:  qq.sql.Clone(),
 		path: qq.path,
@@ -435,6 +485,28 @@ func (qq *QuestionQuery) WithTests(opts ...func(*TestQuery)) *QuestionQuery {
 		opt(query)
 	}
 	qq.withTests = query
+	return qq
+}
+
+// WithTestIgnoreQuestions tells the query-builder to eager-load the nodes that are connected to
+// the "test_ignore_questions" edge. The optional arguments are used to configure the query builder of the edge.
+func (qq *QuestionQuery) WithTestIgnoreQuestions(opts ...func(*TestIgnoreQuestionQuery)) *QuestionQuery {
+	query := (&TestIgnoreQuestionClient{config: qq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	qq.withTestIgnoreQuestions = query
+	return qq
+}
+
+// WithTestQuestionPoints tells the query-builder to eager-load the nodes that are connected to
+// the "test_question_points" edge. The optional arguments are used to configure the query builder of the edge.
+func (qq *QuestionQuery) WithTestQuestionPoints(opts ...func(*TestQuestionPointQuery)) *QuestionQuery {
+	query := (&TestQuestionPointClient{config: qq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	qq.withTestQuestionPoints = query
 	return qq
 }
 
@@ -516,12 +588,14 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 	var (
 		nodes       = []*Question{}
 		_spec       = qq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [7]bool{
 			qq.withCollection != nil,
 			qq.withQuestionOptions != nil,
 			qq.withVideoQuestionTimestampsQuestion != nil,
 			qq.withUserQuestionAnswers != nil,
 			qq.withTests != nil,
+			qq.withTestIgnoreQuestions != nil,
+			qq.withTestQuestionPoints != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -577,6 +651,24 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 		if err := qq.loadTests(ctx, query, nodes,
 			func(n *Question) { n.Edges.Tests = []*Test{} },
 			func(n *Question, e *Test) { n.Edges.Tests = append(n.Edges.Tests, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := qq.withTestIgnoreQuestions; query != nil {
+		if err := qq.loadTestIgnoreQuestions(ctx, query, nodes,
+			func(n *Question) { n.Edges.TestIgnoreQuestions = []*TestIgnoreQuestion{} },
+			func(n *Question, e *TestIgnoreQuestion) {
+				n.Edges.TestIgnoreQuestions = append(n.Edges.TestIgnoreQuestions, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := qq.withTestQuestionPoints; query != nil {
+		if err := qq.loadTestQuestionPoints(ctx, query, nodes,
+			func(n *Question) { n.Edges.TestQuestionPoints = []*TestQuestionPoint{} },
+			func(n *Question, e *TestQuestionPoint) {
+				n.Edges.TestQuestionPoints = append(n.Edges.TestQuestionPoints, e)
+			}); err != nil {
 			return nil, err
 		}
 	}
@@ -760,6 +852,66 @@ func (qq *QuestionQuery) loadTests(ctx context.Context, query *TestQuery, nodes 
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (qq *QuestionQuery) loadTestIgnoreQuestions(ctx context.Context, query *TestIgnoreQuestionQuery, nodes []*Question, init func(*Question), assign func(*Question, *TestIgnoreQuestion)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Question)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(testignorequestion.FieldQuestionID)
+	}
+	query.Where(predicate.TestIgnoreQuestion(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(question.TestIgnoreQuestionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.QuestionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "question_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (qq *QuestionQuery) loadTestQuestionPoints(ctx context.Context, query *TestQuestionPointQuery, nodes []*Question, init func(*Question), assign func(*Question, *TestQuestionPoint)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Question)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(testquestionpoint.FieldQuestionID)
+	}
+	query.Where(predicate.TestQuestionPoint(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(question.TestQuestionPointsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.QuestionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "question_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

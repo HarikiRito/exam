@@ -33,6 +33,15 @@ type Role func(*sql.Selector)
 // Test is the predicate function for test builders.
 type Test func(*sql.Selector)
 
+// TestIgnoreQuestion is the predicate function for testignorequestion builders.
+type TestIgnoreQuestion func(*sql.Selector)
+
+// TestQuestionCount is the predicate function for testquestioncount builders.
+type TestQuestionCount func(*sql.Selector)
+
+// TestQuestionPoint is the predicate function for testquestionpoint builders.
+type TestQuestionPoint func(*sql.Selector)
+
 // TestSession is the predicate function for testsession builders.
 type TestSession func(*sql.Selector)
 
@@ -44,9 +53,6 @@ type User func(*sql.Selector)
 
 // UserQuestionAnswer is the predicate function for userquestionanswer builders.
 type UserQuestionAnswer func(*sql.Selector)
-
-// UserRole is the predicate function for userrole builders.
-type UserRole func(*sql.Selector)
 
 // Video is the predicate function for video builders.
 type Video func(*sql.Selector)

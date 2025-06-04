@@ -17,11 +17,13 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/test"
+	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestioncount"
+	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
-	"template/internal/ent/userrole"
 	"template/internal/ent/video"
 	"template/internal/ent/videoquestiontimestamp"
 
@@ -327,6 +329,87 @@ func (f TraverseTest) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.TestQuery", q)
 }
 
+// The TestIgnoreQuestionFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TestIgnoreQuestionFunc func(context.Context, *ent.TestIgnoreQuestionQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f TestIgnoreQuestionFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.TestIgnoreQuestionQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.TestIgnoreQuestionQuery", q)
+}
+
+// The TraverseTestIgnoreQuestion type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTestIgnoreQuestion func(context.Context, *ent.TestIgnoreQuestionQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTestIgnoreQuestion) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTestIgnoreQuestion) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TestIgnoreQuestionQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.TestIgnoreQuestionQuery", q)
+}
+
+// The TestQuestionCountFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TestQuestionCountFunc func(context.Context, *ent.TestQuestionCountQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f TestQuestionCountFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.TestQuestionCountQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionCountQuery", q)
+}
+
+// The TraverseTestQuestionCount type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTestQuestionCount func(context.Context, *ent.TestQuestionCountQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTestQuestionCount) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTestQuestionCount) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TestQuestionCountQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionCountQuery", q)
+}
+
+// The TestQuestionPointFunc type is an adapter to allow the use of ordinary function as a Querier.
+type TestQuestionPointFunc func(context.Context, *ent.TestQuestionPointQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f TestQuestionPointFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.TestQuestionPointQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionPointQuery", q)
+}
+
+// The TraverseTestQuestionPoint type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseTestQuestionPoint func(context.Context, *ent.TestQuestionPointQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseTestQuestionPoint) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseTestQuestionPoint) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TestQuestionPointQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionPointQuery", q)
+}
+
 // The TestSessionFunc type is an adapter to allow the use of ordinary function as a Querier.
 type TestSessionFunc func(context.Context, *ent.TestSessionQuery) (ent.Value, error)
 
@@ -435,33 +518,6 @@ func (f TraverseUserQuestionAnswer) Traverse(ctx context.Context, q ent.Query) e
 	return fmt.Errorf("unexpected query type %T. expect *ent.UserQuestionAnswerQuery", q)
 }
 
-// The UserRoleFunc type is an adapter to allow the use of ordinary function as a Querier.
-type UserRoleFunc func(context.Context, *ent.UserRoleQuery) (ent.Value, error)
-
-// Query calls f(ctx, q).
-func (f UserRoleFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
-	if q, ok := q.(*ent.UserRoleQuery); ok {
-		return f(ctx, q)
-	}
-	return nil, fmt.Errorf("unexpected query type %T. expect *ent.UserRoleQuery", q)
-}
-
-// The TraverseUserRole type is an adapter to allow the use of ordinary function as Traverser.
-type TraverseUserRole func(context.Context, *ent.UserRoleQuery) error
-
-// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
-func (f TraverseUserRole) Intercept(next ent.Querier) ent.Querier {
-	return next
-}
-
-// Traverse calls f(ctx, q).
-func (f TraverseUserRole) Traverse(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.UserRoleQuery); ok {
-		return f(ctx, q)
-	}
-	return fmt.Errorf("unexpected query type %T. expect *ent.UserRoleQuery", q)
-}
-
 // The VideoFunc type is an adapter to allow the use of ordinary function as a Querier.
 type VideoFunc func(context.Context, *ent.VideoQuery) (ent.Value, error)
 
@@ -537,6 +593,12 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.RoleQuery, predicate.Role, role.OrderOption]{typ: ent.TypeRole, tq: q}, nil
 	case *ent.TestQuery:
 		return &query[*ent.TestQuery, predicate.Test, test.OrderOption]{typ: ent.TypeTest, tq: q}, nil
+	case *ent.TestIgnoreQuestionQuery:
+		return &query[*ent.TestIgnoreQuestionQuery, predicate.TestIgnoreQuestion, testignorequestion.OrderOption]{typ: ent.TypeTestIgnoreQuestion, tq: q}, nil
+	case *ent.TestQuestionCountQuery:
+		return &query[*ent.TestQuestionCountQuery, predicate.TestQuestionCount, testquestioncount.OrderOption]{typ: ent.TypeTestQuestionCount, tq: q}, nil
+	case *ent.TestQuestionPointQuery:
+		return &query[*ent.TestQuestionPointQuery, predicate.TestQuestionPoint, testquestionpoint.OrderOption]{typ: ent.TypeTestQuestionPoint, tq: q}, nil
 	case *ent.TestSessionQuery:
 		return &query[*ent.TestSessionQuery, predicate.TestSession, testsession.OrderOption]{typ: ent.TypeTestSession, tq: q}, nil
 	case *ent.TodoQuery:
@@ -545,8 +607,6 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.UserQuery, predicate.User, user.OrderOption]{typ: ent.TypeUser, tq: q}, nil
 	case *ent.UserQuestionAnswerQuery:
 		return &query[*ent.UserQuestionAnswerQuery, predicate.UserQuestionAnswer, userquestionanswer.OrderOption]{typ: ent.TypeUserQuestionAnswer, tq: q}, nil
-	case *ent.UserRoleQuery:
-		return &query[*ent.UserRoleQuery, predicate.UserRole, userrole.OrderOption]{typ: ent.TypeUserRole, tq: q}, nil
 	case *ent.VideoQuery:
 		return &query[*ent.VideoQuery, predicate.Video, video.OrderOption]{typ: ent.TypeVideo, tq: q}, nil
 	case *ent.VideoQuestionTimestampQuery:

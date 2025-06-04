@@ -10,6 +10,7 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
+	"template/internal/ent/test"
 	"template/internal/ent/user"
 	"time"
 
@@ -165,6 +166,21 @@ func (qcu *QuestionCollectionUpdate) SetCourseSection(c *CourseSection) *Questio
 	return qcu.SetCourseSectionID(c.ID)
 }
 
+// AddTestIDs adds the "test" edge to the Test entity by IDs.
+func (qcu *QuestionCollectionUpdate) AddTestIDs(ids ...uuid.UUID) *QuestionCollectionUpdate {
+	qcu.mutation.AddTestIDs(ids...)
+	return qcu
+}
+
+// AddTest adds the "test" edges to the Test entity.
+func (qcu *QuestionCollectionUpdate) AddTest(t ...*Test) *QuestionCollectionUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return qcu.AddTestIDs(ids...)
+}
+
 // Mutation returns the QuestionCollectionMutation object of the builder.
 func (qcu *QuestionCollectionUpdate) Mutation() *QuestionCollectionMutation {
 	return qcu.mutation
@@ -201,6 +217,27 @@ func (qcu *QuestionCollectionUpdate) RemoveQuestions(q ...*Question) *QuestionCo
 func (qcu *QuestionCollectionUpdate) ClearCourseSection() *QuestionCollectionUpdate {
 	qcu.mutation.ClearCourseSection()
 	return qcu
+}
+
+// ClearTest clears all "test" edges to the Test entity.
+func (qcu *QuestionCollectionUpdate) ClearTest() *QuestionCollectionUpdate {
+	qcu.mutation.ClearTest()
+	return qcu
+}
+
+// RemoveTestIDs removes the "test" edge to Test entities by IDs.
+func (qcu *QuestionCollectionUpdate) RemoveTestIDs(ids ...uuid.UUID) *QuestionCollectionUpdate {
+	qcu.mutation.RemoveTestIDs(ids...)
+	return qcu
+}
+
+// RemoveTest removes "test" edges to Test entities.
+func (qcu *QuestionCollectionUpdate) RemoveTest(t ...*Test) *QuestionCollectionUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return qcu.RemoveTestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -394,6 +431,51 @@ func (qcu *QuestionCollectionUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if qcu.mutation.TestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := qcu.mutation.RemovedTestIDs(); len(nodes) > 0 && !qcu.mutation.TestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := qcu.mutation.TestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, qcu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{questioncollection.Label}
@@ -547,6 +629,21 @@ func (qcuo *QuestionCollectionUpdateOne) SetCourseSection(c *CourseSection) *Que
 	return qcuo.SetCourseSectionID(c.ID)
 }
 
+// AddTestIDs adds the "test" edge to the Test entity by IDs.
+func (qcuo *QuestionCollectionUpdateOne) AddTestIDs(ids ...uuid.UUID) *QuestionCollectionUpdateOne {
+	qcuo.mutation.AddTestIDs(ids...)
+	return qcuo
+}
+
+// AddTest adds the "test" edges to the Test entity.
+func (qcuo *QuestionCollectionUpdateOne) AddTest(t ...*Test) *QuestionCollectionUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return qcuo.AddTestIDs(ids...)
+}
+
 // Mutation returns the QuestionCollectionMutation object of the builder.
 func (qcuo *QuestionCollectionUpdateOne) Mutation() *QuestionCollectionMutation {
 	return qcuo.mutation
@@ -583,6 +680,27 @@ func (qcuo *QuestionCollectionUpdateOne) RemoveQuestions(q ...*Question) *Questi
 func (qcuo *QuestionCollectionUpdateOne) ClearCourseSection() *QuestionCollectionUpdateOne {
 	qcuo.mutation.ClearCourseSection()
 	return qcuo
+}
+
+// ClearTest clears all "test" edges to the Test entity.
+func (qcuo *QuestionCollectionUpdateOne) ClearTest() *QuestionCollectionUpdateOne {
+	qcuo.mutation.ClearTest()
+	return qcuo
+}
+
+// RemoveTestIDs removes the "test" edge to Test entities by IDs.
+func (qcuo *QuestionCollectionUpdateOne) RemoveTestIDs(ids ...uuid.UUID) *QuestionCollectionUpdateOne {
+	qcuo.mutation.RemoveTestIDs(ids...)
+	return qcuo
+}
+
+// RemoveTest removes "test" edges to Test entities.
+func (qcuo *QuestionCollectionUpdateOne) RemoveTest(t ...*Test) *QuestionCollectionUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return qcuo.RemoveTestIDs(ids...)
 }
 
 // Where appends a list predicates to the QuestionCollectionUpdate builder.
@@ -799,6 +917,51 @@ func (qcuo *QuestionCollectionUpdateOne) sqlSave(ctx context.Context) (_node *Qu
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(coursesection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if qcuo.mutation.TestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := qcuo.mutation.RemovedTestIDs(); len(nodes) > 0 && !qcuo.mutation.TestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := qcuo.mutation.TestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

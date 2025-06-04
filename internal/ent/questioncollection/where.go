@@ -480,6 +480,29 @@ func HasCourseSectionWith(preds ...predicate.CourseSection) predicate.QuestionCo
 	})
 }
 
+// HasTest applies the HasEdge predicate on the "test" edge.
+func HasTest() predicate.QuestionCollection {
+	return predicate.QuestionCollection(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, TestTable, TestPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTestWith applies the HasEdge predicate on the "test" edge with a given conditions (other predicates).
+func HasTestWith(preds ...predicate.Test) predicate.QuestionCollection {
+	return predicate.QuestionCollection(func(s *sql.Selector) {
+		step := newTestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.QuestionCollection) predicate.QuestionCollection {
 	return predicate.QuestionCollection(sql.AndPredicates(predicates...))

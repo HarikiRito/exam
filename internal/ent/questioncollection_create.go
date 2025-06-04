@@ -9,6 +9,7 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
+	"template/internal/ent/test"
 	"template/internal/ent/user"
 	"time"
 
@@ -143,6 +144,21 @@ func (qcc *QuestionCollectionCreate) AddQuestions(q ...*Question) *QuestionColle
 // SetCourseSection sets the "course_section" edge to the CourseSection entity.
 func (qcc *QuestionCollectionCreate) SetCourseSection(c *CourseSection) *QuestionCollectionCreate {
 	return qcc.SetCourseSectionID(c.ID)
+}
+
+// AddTestIDs adds the "test" edge to the Test entity by IDs.
+func (qcc *QuestionCollectionCreate) AddTestIDs(ids ...uuid.UUID) *QuestionCollectionCreate {
+	qcc.mutation.AddTestIDs(ids...)
+	return qcc
+}
+
+// AddTest adds the "test" edges to the Test entity.
+func (qcc *QuestionCollectionCreate) AddTest(t ...*Test) *QuestionCollectionCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return qcc.AddTestIDs(ids...)
 }
 
 // Mutation returns the QuestionCollectionMutation object of the builder.
@@ -331,6 +347,22 @@ func (qcc *QuestionCollectionCreate) createSpec() (*QuestionCollection, *sqlgrap
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.CourseSectionID = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := qcc.mutation.TestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   questioncollection.TestTable,
+			Columns: questioncollection.TestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(test.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

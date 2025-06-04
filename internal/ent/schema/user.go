@@ -34,9 +34,7 @@ func (User) Edges() []ent.Edge {
 		edge.From("media", Media.Type).
 			Ref("user_media").Field("avatar_id").Unique(),
 		edge.To("media_uploader", Media.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
-		edge.From("roles", Role.Type).
-			Ref("users").
-			Through("user_roles", UserRole.Type),
+		edge.To("roles", Role.Type),
 		edge.To("course_creator", Course.Type),
 		edge.To("question_collections", QuestionCollection.Type),
 		edge.To("user_question_answers", UserQuestionAnswer.Type),

@@ -40,6 +40,8 @@ func (QuestionCollection) Edges() []ent.Edge {
 			Field("course_section_id").
 			Unique().
 			Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.From("test", Test.Type).
+			Ref("question_collections"),
 	}
 }
 

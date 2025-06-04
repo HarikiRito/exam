@@ -36,6 +36,8 @@ const (
 	EdgeQuestions = "questions"
 	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
 	EdgeCourseSection = "course_section"
+	// EdgeTest holds the string denoting the test edge name in mutations.
+	EdgeTest = "test"
 	// Table holds the table name of the questioncollection in the database.
 	Table = "question_collections"
 	// CreatorTable is the table that holds the creator relation/edge.
@@ -59,6 +61,11 @@ const (
 	CourseSectionInverseTable = "course_sections"
 	// CourseSectionColumn is the table column denoting the course_section relation/edge.
 	CourseSectionColumn = "course_section_id"
+	// TestTable is the table that holds the test relation/edge. The primary key declared below.
+	TestTable = "test_question_collections"
+	// TestInverseTable is the table name for the Test entity.
+	// It exists in this package in order to avoid circular dependency with the "test" package.
+	TestInverseTable = "tests"
 )
 
 // Columns holds all SQL columns for questioncollection fields.
@@ -72,6 +79,12 @@ var Columns = []string{
 	FieldCreatorID,
 	FieldCourseSectionID,
 }
+
+var (
+	// TestPrimaryKey and TestColumn2 are the table columns denoting the
+	// primary key for the test relation (M2M).
+	TestPrimaryKey = []string{"test_id", "question_collection_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -173,6 +186,20 @@ func ByCourseSectionField(field string, opts ...sql.OrderTermOption) OrderOption
 		sqlgraph.OrderByNeighborTerms(s, newCourseSectionStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByTestCount orders the results by test count.
+func ByTestCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestStep(), opts...)
+	}
+}
+
+// ByTest orders the results by test terms.
+func ByTest(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCreatorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -192,5 +219,12 @@ func newCourseSectionStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CourseSectionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, CourseSectionTable, CourseSectionColumn),
+	)
+}
+func newTestStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, TestTable, TestPrimaryKey...),
 	)
 }

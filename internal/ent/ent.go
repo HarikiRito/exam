@@ -17,11 +17,13 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/role"
 	"template/internal/ent/test"
+	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestioncount"
+	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/userquestionanswer"
-	"template/internal/ent/userrole"
 	"template/internal/ent/video"
 	"template/internal/ent/videoquestiontimestamp"
 
@@ -97,11 +99,13 @@ func checkColumn(table, column string) error {
 			questionoption.Table:         questionoption.ValidColumn,
 			role.Table:                   role.ValidColumn,
 			test.Table:                   test.ValidColumn,
+			testignorequestion.Table:     testignorequestion.ValidColumn,
+			testquestioncount.Table:      testquestioncount.ValidColumn,
+			testquestionpoint.Table:      testquestionpoint.ValidColumn,
 			testsession.Table:            testsession.ValidColumn,
 			todo.Table:                   todo.ValidColumn,
 			user.Table:                   user.ValidColumn,
 			userquestionanswer.Table:     userquestionanswer.ValidColumn,
-			userrole.Table:               userrole.ValidColumn,
 			video.Table:                  video.ValidColumn,
 			videoquestiontimestamp.Table: videoquestiontimestamp.ValidColumn,
 		})

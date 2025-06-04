@@ -10,7 +10,11 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
+	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestioncount"
+	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"time"
 
@@ -167,6 +171,66 @@ func (tu *TestUpdate) AddQuestions(q ...*Question) *TestUpdate {
 	return tu.AddQuestionIDs(ids...)
 }
 
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (tu *TestUpdate) AddQuestionCollectionIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.AddQuestionCollectionIDs(ids...)
+	return tu
+}
+
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (tu *TestUpdate) AddQuestionCollections(q ...*QuestionCollection) *TestUpdate {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return tu.AddQuestionCollectionIDs(ids...)
+}
+
+// AddTestQuestionCountIDs adds the "test_question_counts" edge to the TestQuestionCount entity by IDs.
+func (tu *TestUpdate) AddTestQuestionCountIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.AddTestQuestionCountIDs(ids...)
+	return tu
+}
+
+// AddTestQuestionCounts adds the "test_question_counts" edges to the TestQuestionCount entity.
+func (tu *TestUpdate) AddTestQuestionCounts(t ...*TestQuestionCount) *TestUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tu.AddTestQuestionCountIDs(ids...)
+}
+
+// AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by IDs.
+func (tu *TestUpdate) AddTestIgnoreQuestionIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.AddTestIgnoreQuestionIDs(ids...)
+	return tu
+}
+
+// AddTestIgnoreQuestions adds the "test_ignore_questions" edges to the TestIgnoreQuestion entity.
+func (tu *TestUpdate) AddTestIgnoreQuestions(t ...*TestIgnoreQuestion) *TestUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tu.AddTestIgnoreQuestionIDs(ids...)
+}
+
+// AddTestQuestionPointIDs adds the "test_question_points" edge to the TestQuestionPoint entity by IDs.
+func (tu *TestUpdate) AddTestQuestionPointIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.AddTestQuestionPointIDs(ids...)
+	return tu
+}
+
+// AddTestQuestionPoints adds the "test_question_points" edges to the TestQuestionPoint entity.
+func (tu *TestUpdate) AddTestQuestionPoints(t ...*TestQuestionPoint) *TestUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tu.AddTestQuestionPointIDs(ids...)
+}
+
 // Mutation returns the TestMutation object of the builder.
 func (tu *TestUpdate) Mutation() *TestMutation {
 	return tu.mutation
@@ -224,6 +288,90 @@ func (tu *TestUpdate) RemoveQuestions(q ...*Question) *TestUpdate {
 		ids[i] = q[i].ID
 	}
 	return tu.RemoveQuestionIDs(ids...)
+}
+
+// ClearQuestionCollections clears all "question_collections" edges to the QuestionCollection entity.
+func (tu *TestUpdate) ClearQuestionCollections() *TestUpdate {
+	tu.mutation.ClearQuestionCollections()
+	return tu
+}
+
+// RemoveQuestionCollectionIDs removes the "question_collections" edge to QuestionCollection entities by IDs.
+func (tu *TestUpdate) RemoveQuestionCollectionIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.RemoveQuestionCollectionIDs(ids...)
+	return tu
+}
+
+// RemoveQuestionCollections removes "question_collections" edges to QuestionCollection entities.
+func (tu *TestUpdate) RemoveQuestionCollections(q ...*QuestionCollection) *TestUpdate {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return tu.RemoveQuestionCollectionIDs(ids...)
+}
+
+// ClearTestQuestionCounts clears all "test_question_counts" edges to the TestQuestionCount entity.
+func (tu *TestUpdate) ClearTestQuestionCounts() *TestUpdate {
+	tu.mutation.ClearTestQuestionCounts()
+	return tu
+}
+
+// RemoveTestQuestionCountIDs removes the "test_question_counts" edge to TestQuestionCount entities by IDs.
+func (tu *TestUpdate) RemoveTestQuestionCountIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.RemoveTestQuestionCountIDs(ids...)
+	return tu
+}
+
+// RemoveTestQuestionCounts removes "test_question_counts" edges to TestQuestionCount entities.
+func (tu *TestUpdate) RemoveTestQuestionCounts(t ...*TestQuestionCount) *TestUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tu.RemoveTestQuestionCountIDs(ids...)
+}
+
+// ClearTestIgnoreQuestions clears all "test_ignore_questions" edges to the TestIgnoreQuestion entity.
+func (tu *TestUpdate) ClearTestIgnoreQuestions() *TestUpdate {
+	tu.mutation.ClearTestIgnoreQuestions()
+	return tu
+}
+
+// RemoveTestIgnoreQuestionIDs removes the "test_ignore_questions" edge to TestIgnoreQuestion entities by IDs.
+func (tu *TestUpdate) RemoveTestIgnoreQuestionIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.RemoveTestIgnoreQuestionIDs(ids...)
+	return tu
+}
+
+// RemoveTestIgnoreQuestions removes "test_ignore_questions" edges to TestIgnoreQuestion entities.
+func (tu *TestUpdate) RemoveTestIgnoreQuestions(t ...*TestIgnoreQuestion) *TestUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tu.RemoveTestIgnoreQuestionIDs(ids...)
+}
+
+// ClearTestQuestionPoints clears all "test_question_points" edges to the TestQuestionPoint entity.
+func (tu *TestUpdate) ClearTestQuestionPoints() *TestUpdate {
+	tu.mutation.ClearTestQuestionPoints()
+	return tu
+}
+
+// RemoveTestQuestionPointIDs removes the "test_question_points" edge to TestQuestionPoint entities by IDs.
+func (tu *TestUpdate) RemoveTestQuestionPointIDs(ids ...uuid.UUID) *TestUpdate {
+	tu.mutation.RemoveTestQuestionPointIDs(ids...)
+	return tu
+}
+
+// RemoveTestQuestionPoints removes "test_question_points" edges to TestQuestionPoint entities.
+func (tu *TestUpdate) RemoveTestQuestionPoints(t ...*TestQuestionPoint) *TestUpdate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tu.RemoveTestQuestionPointIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -453,6 +601,186 @@ func (tu *TestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if tu.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedQuestionCollectionsIDs(); len(nodes) > 0 && !tu.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.TestQuestionCountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedTestQuestionCountsIDs(); len(nodes) > 0 && !tu.mutation.TestQuestionCountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.TestQuestionCountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.TestIgnoreQuestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedTestIgnoreQuestionsIDs(); len(nodes) > 0 && !tu.mutation.TestIgnoreQuestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.TestIgnoreQuestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.TestQuestionPointsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedTestQuestionPointsIDs(); len(nodes) > 0 && !tu.mutation.TestQuestionPointsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.TestQuestionPointsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{test.Label}
@@ -607,6 +935,66 @@ func (tuo *TestUpdateOne) AddQuestions(q ...*Question) *TestUpdateOne {
 	return tuo.AddQuestionIDs(ids...)
 }
 
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (tuo *TestUpdateOne) AddQuestionCollectionIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.AddQuestionCollectionIDs(ids...)
+	return tuo
+}
+
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (tuo *TestUpdateOne) AddQuestionCollections(q ...*QuestionCollection) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return tuo.AddQuestionCollectionIDs(ids...)
+}
+
+// AddTestQuestionCountIDs adds the "test_question_counts" edge to the TestQuestionCount entity by IDs.
+func (tuo *TestUpdateOne) AddTestQuestionCountIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.AddTestQuestionCountIDs(ids...)
+	return tuo
+}
+
+// AddTestQuestionCounts adds the "test_question_counts" edges to the TestQuestionCount entity.
+func (tuo *TestUpdateOne) AddTestQuestionCounts(t ...*TestQuestionCount) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tuo.AddTestQuestionCountIDs(ids...)
+}
+
+// AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by IDs.
+func (tuo *TestUpdateOne) AddTestIgnoreQuestionIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.AddTestIgnoreQuestionIDs(ids...)
+	return tuo
+}
+
+// AddTestIgnoreQuestions adds the "test_ignore_questions" edges to the TestIgnoreQuestion entity.
+func (tuo *TestUpdateOne) AddTestIgnoreQuestions(t ...*TestIgnoreQuestion) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tuo.AddTestIgnoreQuestionIDs(ids...)
+}
+
+// AddTestQuestionPointIDs adds the "test_question_points" edge to the TestQuestionPoint entity by IDs.
+func (tuo *TestUpdateOne) AddTestQuestionPointIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.AddTestQuestionPointIDs(ids...)
+	return tuo
+}
+
+// AddTestQuestionPoints adds the "test_question_points" edges to the TestQuestionPoint entity.
+func (tuo *TestUpdateOne) AddTestQuestionPoints(t ...*TestQuestionPoint) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tuo.AddTestQuestionPointIDs(ids...)
+}
+
 // Mutation returns the TestMutation object of the builder.
 func (tuo *TestUpdateOne) Mutation() *TestMutation {
 	return tuo.mutation
@@ -664,6 +1052,90 @@ func (tuo *TestUpdateOne) RemoveQuestions(q ...*Question) *TestUpdateOne {
 		ids[i] = q[i].ID
 	}
 	return tuo.RemoveQuestionIDs(ids...)
+}
+
+// ClearQuestionCollections clears all "question_collections" edges to the QuestionCollection entity.
+func (tuo *TestUpdateOne) ClearQuestionCollections() *TestUpdateOne {
+	tuo.mutation.ClearQuestionCollections()
+	return tuo
+}
+
+// RemoveQuestionCollectionIDs removes the "question_collections" edge to QuestionCollection entities by IDs.
+func (tuo *TestUpdateOne) RemoveQuestionCollectionIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.RemoveQuestionCollectionIDs(ids...)
+	return tuo
+}
+
+// RemoveQuestionCollections removes "question_collections" edges to QuestionCollection entities.
+func (tuo *TestUpdateOne) RemoveQuestionCollections(q ...*QuestionCollection) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return tuo.RemoveQuestionCollectionIDs(ids...)
+}
+
+// ClearTestQuestionCounts clears all "test_question_counts" edges to the TestQuestionCount entity.
+func (tuo *TestUpdateOne) ClearTestQuestionCounts() *TestUpdateOne {
+	tuo.mutation.ClearTestQuestionCounts()
+	return tuo
+}
+
+// RemoveTestQuestionCountIDs removes the "test_question_counts" edge to TestQuestionCount entities by IDs.
+func (tuo *TestUpdateOne) RemoveTestQuestionCountIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.RemoveTestQuestionCountIDs(ids...)
+	return tuo
+}
+
+// RemoveTestQuestionCounts removes "test_question_counts" edges to TestQuestionCount entities.
+func (tuo *TestUpdateOne) RemoveTestQuestionCounts(t ...*TestQuestionCount) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tuo.RemoveTestQuestionCountIDs(ids...)
+}
+
+// ClearTestIgnoreQuestions clears all "test_ignore_questions" edges to the TestIgnoreQuestion entity.
+func (tuo *TestUpdateOne) ClearTestIgnoreQuestions() *TestUpdateOne {
+	tuo.mutation.ClearTestIgnoreQuestions()
+	return tuo
+}
+
+// RemoveTestIgnoreQuestionIDs removes the "test_ignore_questions" edge to TestIgnoreQuestion entities by IDs.
+func (tuo *TestUpdateOne) RemoveTestIgnoreQuestionIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.RemoveTestIgnoreQuestionIDs(ids...)
+	return tuo
+}
+
+// RemoveTestIgnoreQuestions removes "test_ignore_questions" edges to TestIgnoreQuestion entities.
+func (tuo *TestUpdateOne) RemoveTestIgnoreQuestions(t ...*TestIgnoreQuestion) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tuo.RemoveTestIgnoreQuestionIDs(ids...)
+}
+
+// ClearTestQuestionPoints clears all "test_question_points" edges to the TestQuestionPoint entity.
+func (tuo *TestUpdateOne) ClearTestQuestionPoints() *TestUpdateOne {
+	tuo.mutation.ClearTestQuestionPoints()
+	return tuo
+}
+
+// RemoveTestQuestionPointIDs removes the "test_question_points" edge to TestQuestionPoint entities by IDs.
+func (tuo *TestUpdateOne) RemoveTestQuestionPointIDs(ids ...uuid.UUID) *TestUpdateOne {
+	tuo.mutation.RemoveTestQuestionPointIDs(ids...)
+	return tuo
+}
+
+// RemoveTestQuestionPoints removes "test_question_points" edges to TestQuestionPoint entities.
+func (tuo *TestUpdateOne) RemoveTestQuestionPoints(t ...*TestQuestionPoint) *TestUpdateOne {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tuo.RemoveTestQuestionPointIDs(ids...)
 }
 
 // Where appends a list predicates to the TestUpdate builder.
@@ -916,6 +1388,186 @@ func (tuo *TestUpdateOne) sqlSave(ctx context.Context) (_node *Test, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedQuestionCollectionsIDs(); len(nodes) > 0 && !tuo.mutation.QuestionCollectionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.TestQuestionCountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedTestQuestionCountsIDs(); len(nodes) > 0 && !tuo.mutation.TestQuestionCountsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.TestQuestionCountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.TestIgnoreQuestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedTestIgnoreQuestionsIDs(); len(nodes) > 0 && !tuo.mutation.TestIgnoreQuestionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.TestIgnoreQuestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.TestQuestionPointsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedTestQuestionPointsIDs(); len(nodes) > 0 && !tuo.mutation.TestQuestionPointsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.TestQuestionPointsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

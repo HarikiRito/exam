@@ -236,6 +236,90 @@ var (
 			},
 		},
 	}
+	// TestIgnoreQuestionsColumns holds the columns for the "test_ignore_questions" table.
+	TestIgnoreQuestionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "reason", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "test_id", Type: field.TypeUUID},
+		{Name: "question_id", Type: field.TypeUUID},
+	}
+	// TestIgnoreQuestionsTable holds the schema information for the "test_ignore_questions" table.
+	TestIgnoreQuestionsTable = &schema.Table{
+		Name:       "test_ignore_questions",
+		Columns:    TestIgnoreQuestionsColumns,
+		PrimaryKey: []*schema.Column{TestIgnoreQuestionsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_ignore_questions_tests_test",
+				Columns:    []*schema.Column{TestIgnoreQuestionsColumns[5]},
+				RefColumns: []*schema.Column{TestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "test_ignore_questions_questions_question",
+				Columns:    []*schema.Column{TestIgnoreQuestionsColumns[6]},
+				RefColumns: []*schema.Column{QuestionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// TestQuestionCountsColumns holds the columns for the "test_question_counts" table.
+	TestQuestionCountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "number_of_questions", Type: field.TypeInt, Default: 0},
+		{Name: "points_per_question", Type: field.TypeInt, Default: 0},
+		{Name: "test_id", Type: field.TypeUUID},
+	}
+	// TestQuestionCountsTable holds the schema information for the "test_question_counts" table.
+	TestQuestionCountsTable = &schema.Table{
+		Name:       "test_question_counts",
+		Columns:    TestQuestionCountsColumns,
+		PrimaryKey: []*schema.Column{TestQuestionCountsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_question_counts_tests_test",
+				Columns:    []*schema.Column{TestQuestionCountsColumns[6]},
+				RefColumns: []*schema.Column{TestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// TestQuestionPointsColumns holds the columns for the "test_question_points" table.
+	TestQuestionPointsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "points", Type: field.TypeInt, Default: 0},
+		{Name: "test_id", Type: field.TypeUUID},
+		{Name: "question_id", Type: field.TypeUUID},
+	}
+	// TestQuestionPointsTable holds the schema information for the "test_question_points" table.
+	TestQuestionPointsTable = &schema.Table{
+		Name:       "test_question_points",
+		Columns:    TestQuestionPointsColumns,
+		PrimaryKey: []*schema.Column{TestQuestionPointsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_question_points_tests_test",
+				Columns:    []*schema.Column{TestQuestionPointsColumns[5]},
+				RefColumns: []*schema.Column{TestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "test_question_points_questions_question",
+				Columns:    []*schema.Column{TestQuestionPointsColumns[6]},
+				RefColumns: []*schema.Column{QuestionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// TestSessionsColumns holds the columns for the "test_sessions" table.
 	TestSessionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -361,42 +445,6 @@ var (
 			},
 		},
 	}
-	// UserRolesColumns holds the columns for the "user_roles" table.
-	UserRolesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "user_id", Type: field.TypeUUID},
-		{Name: "role_id", Type: field.TypeUUID},
-	}
-	// UserRolesTable holds the schema information for the "user_roles" table.
-	UserRolesTable = &schema.Table{
-		Name:       "user_roles",
-		Columns:    UserRolesColumns,
-		PrimaryKey: []*schema.Column{UserRolesColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "user_roles_users_user",
-				Columns:    []*schema.Column{UserRolesColumns[4]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "user_roles_roles_role",
-				Columns:    []*schema.Column{UserRolesColumns[5]},
-				RefColumns: []*schema.Column{RolesColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "userrole_role_id_user_id",
-				Unique:  true,
-				Columns: []*schema.Column{UserRolesColumns[5], UserRolesColumns[4]},
-			},
-		},
-	}
 	// VideosColumns holds the columns for the "videos" table.
 	VideosColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -516,6 +564,56 @@ var (
 			},
 		},
 	}
+	// TestQuestionCollectionsColumns holds the columns for the "test_question_collections" table.
+	TestQuestionCollectionsColumns = []*schema.Column{
+		{Name: "test_id", Type: field.TypeUUID},
+		{Name: "question_collection_id", Type: field.TypeUUID},
+	}
+	// TestQuestionCollectionsTable holds the schema information for the "test_question_collections" table.
+	TestQuestionCollectionsTable = &schema.Table{
+		Name:       "test_question_collections",
+		Columns:    TestQuestionCollectionsColumns,
+		PrimaryKey: []*schema.Column{TestQuestionCollectionsColumns[0], TestQuestionCollectionsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_question_collections_test_id",
+				Columns:    []*schema.Column{TestQuestionCollectionsColumns[0]},
+				RefColumns: []*schema.Column{TestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "test_question_collections_question_collection_id",
+				Columns:    []*schema.Column{TestQuestionCollectionsColumns[1]},
+				RefColumns: []*schema.Column{QuestionCollectionsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// UserRolesColumns holds the columns for the "user_roles" table.
+	UserRolesColumns = []*schema.Column{
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "role_id", Type: field.TypeUUID},
+	}
+	// UserRolesTable holds the schema information for the "user_roles" table.
+	UserRolesTable = &schema.Table{
+		Name:       "user_roles",
+		Columns:    UserRolesColumns,
+		PrimaryKey: []*schema.Column{UserRolesColumns[0], UserRolesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "user_roles_user_id",
+				Columns:    []*schema.Column{UserRolesColumns[0]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "user_roles_role_id",
+				Columns:    []*schema.Column{UserRolesColumns[1]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CoursesTable,
@@ -527,15 +625,19 @@ var (
 		QuestionOptionsTable,
 		RolesTable,
 		TestsTable,
+		TestIgnoreQuestionsTable,
+		TestQuestionCountsTable,
+		TestQuestionPointsTable,
 		TestSessionsTable,
 		TodosTable,
 		UsersTable,
 		UserQuestionAnswersTable,
-		UserRolesTable,
 		VideosTable,
 		VideoQuestionTimestampsTable,
 		RolePermissionsTable,
 		TestQuestionsTable,
+		TestQuestionCollectionsTable,
+		UserRolesTable,
 	}
 )
 
@@ -551,6 +653,11 @@ func init() {
 	QuestionOptionsTable.ForeignKeys[0].RefTable = QuestionsTable
 	TestsTable.ForeignKeys[0].RefTable = CoursesTable
 	TestsTable.ForeignKeys[1].RefTable = CourseSectionsTable
+	TestIgnoreQuestionsTable.ForeignKeys[0].RefTable = TestsTable
+	TestIgnoreQuestionsTable.ForeignKeys[1].RefTable = QuestionsTable
+	TestQuestionCountsTable.ForeignKeys[0].RefTable = TestsTable
+	TestQuestionPointsTable.ForeignKeys[0].RefTable = TestsTable
+	TestQuestionPointsTable.ForeignKeys[1].RefTable = QuestionsTable
 	TestSessionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
 	TestSessionsTable.ForeignKeys[1].RefTable = TestsTable
 	TestSessionsTable.ForeignKeys[2].RefTable = UsersTable
@@ -559,8 +666,6 @@ func init() {
 	UserQuestionAnswersTable.ForeignKeys[1].RefTable = QuestionOptionsTable
 	UserQuestionAnswersTable.ForeignKeys[2].RefTable = TestSessionsTable
 	UserQuestionAnswersTable.ForeignKeys[3].RefTable = UsersTable
-	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
-	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
 	VideosTable.ForeignKeys[0].RefTable = CoursesTable
 	VideosTable.ForeignKeys[1].RefTable = CourseSectionsTable
 	VideosTable.ForeignKeys[2].RefTable = MediaTable
@@ -570,4 +675,8 @@ func init() {
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	TestQuestionsTable.ForeignKeys[0].RefTable = TestsTable
 	TestQuestionsTable.ForeignKeys[1].RefTable = QuestionsTable
+	TestQuestionCollectionsTable.ForeignKeys[0].RefTable = TestsTable
+	TestQuestionCollectionsTable.ForeignKeys[1].RefTable = QuestionCollectionsTable
+	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
+	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
 }

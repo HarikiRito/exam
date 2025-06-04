@@ -35,6 +35,13 @@ func (Test) Edges() []ent.Edge {
 		edge.To("test_sessions", TestSession.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("questions", Question.Type),
+		edge.To("question_collections", QuestionCollection.Type),
+		edge.From("test_question_counts", TestQuestionCount.Type).
+			Ref("test"),
+		edge.From("test_ignore_questions", TestIgnoreQuestion.Type).
+			Ref("test"),
+		edge.From("test_question_points", TestQuestionPoint.Type).
+			Ref("test"),
 	}
 }
 

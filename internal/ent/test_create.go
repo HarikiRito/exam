@@ -9,7 +9,11 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/question"
+	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
+	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestioncount"
+	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"time"
 
@@ -153,6 +157,66 @@ func (tc *TestCreate) AddQuestions(q ...*Question) *TestCreate {
 		ids[i] = q[i].ID
 	}
 	return tc.AddQuestionIDs(ids...)
+}
+
+// AddQuestionCollectionIDs adds the "question_collections" edge to the QuestionCollection entity by IDs.
+func (tc *TestCreate) AddQuestionCollectionIDs(ids ...uuid.UUID) *TestCreate {
+	tc.mutation.AddQuestionCollectionIDs(ids...)
+	return tc
+}
+
+// AddQuestionCollections adds the "question_collections" edges to the QuestionCollection entity.
+func (tc *TestCreate) AddQuestionCollections(q ...*QuestionCollection) *TestCreate {
+	ids := make([]uuid.UUID, len(q))
+	for i := range q {
+		ids[i] = q[i].ID
+	}
+	return tc.AddQuestionCollectionIDs(ids...)
+}
+
+// AddTestQuestionCountIDs adds the "test_question_counts" edge to the TestQuestionCount entity by IDs.
+func (tc *TestCreate) AddTestQuestionCountIDs(ids ...uuid.UUID) *TestCreate {
+	tc.mutation.AddTestQuestionCountIDs(ids...)
+	return tc
+}
+
+// AddTestQuestionCounts adds the "test_question_counts" edges to the TestQuestionCount entity.
+func (tc *TestCreate) AddTestQuestionCounts(t ...*TestQuestionCount) *TestCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tc.AddTestQuestionCountIDs(ids...)
+}
+
+// AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by IDs.
+func (tc *TestCreate) AddTestIgnoreQuestionIDs(ids ...uuid.UUID) *TestCreate {
+	tc.mutation.AddTestIgnoreQuestionIDs(ids...)
+	return tc
+}
+
+// AddTestIgnoreQuestions adds the "test_ignore_questions" edges to the TestIgnoreQuestion entity.
+func (tc *TestCreate) AddTestIgnoreQuestions(t ...*TestIgnoreQuestion) *TestCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tc.AddTestIgnoreQuestionIDs(ids...)
+}
+
+// AddTestQuestionPointIDs adds the "test_question_points" edge to the TestQuestionPoint entity by IDs.
+func (tc *TestCreate) AddTestQuestionPointIDs(ids ...uuid.UUID) *TestCreate {
+	tc.mutation.AddTestQuestionPointIDs(ids...)
+	return tc
+}
+
+// AddTestQuestionPoints adds the "test_question_points" edges to the TestQuestionPoint entity.
+func (tc *TestCreate) AddTestQuestionPoints(t ...*TestQuestionPoint) *TestCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return tc.AddTestQuestionPointIDs(ids...)
 }
 
 // Mutation returns the TestMutation object of the builder.
@@ -342,6 +406,70 @@ func (tc *TestCreate) createSpec() (*Test, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.QuestionCollectionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   test.QuestionCollectionsTable,
+			Columns: test.QuestionCollectionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.TestQuestionCountsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionCountsTable,
+			Columns: []string{test.TestQuestionCountsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestioncount.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.TestIgnoreQuestionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestIgnoreQuestionsTable,
+			Columns: []string{test.TestIgnoreQuestionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := tc.mutation.TestQuestionPointsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   test.TestQuestionPointsTable,
+			Columns: []string{test.TestQuestionPointsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

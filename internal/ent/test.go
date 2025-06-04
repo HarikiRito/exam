@@ -48,9 +48,17 @@ type TestEdges struct {
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
 	// Questions holds the value of the questions edge.
 	Questions []*Question `json:"questions,omitempty"`
+	// QuestionCollections holds the value of the question_collections edge.
+	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
+	// TestQuestionCounts holds the value of the test_question_counts edge.
+	TestQuestionCounts []*TestQuestionCount `json:"test_question_counts,omitempty"`
+	// TestIgnoreQuestions holds the value of the test_ignore_questions edge.
+	TestIgnoreQuestions []*TestIgnoreQuestion `json:"test_ignore_questions,omitempty"`
+	// TestQuestionPoints holds the value of the test_question_points edge.
+	TestQuestionPoints []*TestQuestionPoint `json:"test_question_points,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [8]bool
 }
 
 // CourseSectionOrErr returns the CourseSection value or an error if the edge
@@ -91,6 +99,42 @@ func (e TestEdges) QuestionsOrErr() ([]*Question, error) {
 		return e.Questions, nil
 	}
 	return nil, &NotLoadedError{edge: "questions"}
+}
+
+// QuestionCollectionsOrErr returns the QuestionCollections value or an error if the edge
+// was not loaded in eager-loading.
+func (e TestEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
+	if e.loadedTypes[4] {
+		return e.QuestionCollections, nil
+	}
+	return nil, &NotLoadedError{edge: "question_collections"}
+}
+
+// TestQuestionCountsOrErr returns the TestQuestionCounts value or an error if the edge
+// was not loaded in eager-loading.
+func (e TestEdges) TestQuestionCountsOrErr() ([]*TestQuestionCount, error) {
+	if e.loadedTypes[5] {
+		return e.TestQuestionCounts, nil
+	}
+	return nil, &NotLoadedError{edge: "test_question_counts"}
+}
+
+// TestIgnoreQuestionsOrErr returns the TestIgnoreQuestions value or an error if the edge
+// was not loaded in eager-loading.
+func (e TestEdges) TestIgnoreQuestionsOrErr() ([]*TestIgnoreQuestion, error) {
+	if e.loadedTypes[6] {
+		return e.TestIgnoreQuestions, nil
+	}
+	return nil, &NotLoadedError{edge: "test_ignore_questions"}
+}
+
+// TestQuestionPointsOrErr returns the TestQuestionPoints value or an error if the edge
+// was not loaded in eager-loading.
+func (e TestEdges) TestQuestionPointsOrErr() ([]*TestQuestionPoint, error) {
+	if e.loadedTypes[7] {
+		return e.TestQuestionPoints, nil
+	}
+	return nil, &NotLoadedError{edge: "test_question_points"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -197,6 +241,26 @@ func (t *Test) QueryTestSessions() *TestSessionQuery {
 // QueryQuestions queries the "questions" edge of the Test entity.
 func (t *Test) QueryQuestions() *QuestionQuery {
 	return NewTestClient(t.config).QueryQuestions(t)
+}
+
+// QueryQuestionCollections queries the "question_collections" edge of the Test entity.
+func (t *Test) QueryQuestionCollections() *QuestionCollectionQuery {
+	return NewTestClient(t.config).QueryQuestionCollections(t)
+}
+
+// QueryTestQuestionCounts queries the "test_question_counts" edge of the Test entity.
+func (t *Test) QueryTestQuestionCounts() *TestQuestionCountQuery {
+	return NewTestClient(t.config).QueryTestQuestionCounts(t)
+}
+
+// QueryTestIgnoreQuestions queries the "test_ignore_questions" edge of the Test entity.
+func (t *Test) QueryTestIgnoreQuestions() *TestIgnoreQuestionQuery {
+	return NewTestClient(t.config).QueryTestIgnoreQuestions(t)
+}
+
+// QueryTestQuestionPoints queries the "test_question_points" edge of the Test entity.
+func (t *Test) QueryTestQuestionPoints() *TestQuestionPointQuery {
+	return NewTestClient(t.config).QueryTestQuestionPoints(t)
 }
 
 // Update returns a builder for updating this Test.

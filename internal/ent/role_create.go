@@ -9,7 +9,6 @@ import (
 	"template/internal/ent/permission"
 	"template/internal/ent/role"
 	"template/internal/ent/user"
-	"template/internal/ent/userrole"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -128,21 +127,6 @@ func (rc *RoleCreate) AddPermissions(p ...*Permission) *RoleCreate {
 		ids[i] = p[i].ID
 	}
 	return rc.AddPermissionIDs(ids...)
-}
-
-// AddUserRoleIDs adds the "user_roles" edge to the UserRole entity by IDs.
-func (rc *RoleCreate) AddUserRoleIDs(ids ...uuid.UUID) *RoleCreate {
-	rc.mutation.AddUserRoleIDs(ids...)
-	return rc
-}
-
-// AddUserRoles adds the "user_roles" edges to the UserRole entity.
-func (rc *RoleCreate) AddUserRoles(u ...*UserRole) *RoleCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return rc.AddUserRoleIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -280,7 +264,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   role.UsersTable,
 			Columns: role.UsersPrimaryKey,
 			Bidi:    false,
@@ -290,13 +274,6 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &UserRoleCreate{config: rc.config, mutation: newUserRoleMutation(rc.config, OpCreate)}
-		_ = createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		if specE.ID.Value != nil {
-			edge.Target.Fields = append(edge.Target.Fields, specE.ID)
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
@@ -309,22 +286,6 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := rc.mutation.UserRolesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   role.UserRolesTable,
-			Columns: []string{role.UserRolesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userrole.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

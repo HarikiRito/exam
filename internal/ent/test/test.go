@@ -36,6 +36,14 @@ const (
 	EdgeTestSessions = "test_sessions"
 	// EdgeQuestions holds the string denoting the questions edge name in mutations.
 	EdgeQuestions = "questions"
+	// EdgeQuestionCollections holds the string denoting the question_collections edge name in mutations.
+	EdgeQuestionCollections = "question_collections"
+	// EdgeTestQuestionCounts holds the string denoting the test_question_counts edge name in mutations.
+	EdgeTestQuestionCounts = "test_question_counts"
+	// EdgeTestIgnoreQuestions holds the string denoting the test_ignore_questions edge name in mutations.
+	EdgeTestIgnoreQuestions = "test_ignore_questions"
+	// EdgeTestQuestionPoints holds the string denoting the test_question_points edge name in mutations.
+	EdgeTestQuestionPoints = "test_question_points"
 	// Table holds the table name of the test in the database.
 	Table = "tests"
 	// CourseSectionTable is the table that holds the course_section relation/edge.
@@ -64,6 +72,32 @@ const (
 	// QuestionsInverseTable is the table name for the Question entity.
 	// It exists in this package in order to avoid circular dependency with the "question" package.
 	QuestionsInverseTable = "questions"
+	// QuestionCollectionsTable is the table that holds the question_collections relation/edge. The primary key declared below.
+	QuestionCollectionsTable = "test_question_collections"
+	// QuestionCollectionsInverseTable is the table name for the QuestionCollection entity.
+	// It exists in this package in order to avoid circular dependency with the "questioncollection" package.
+	QuestionCollectionsInverseTable = "question_collections"
+	// TestQuestionCountsTable is the table that holds the test_question_counts relation/edge.
+	TestQuestionCountsTable = "test_question_counts"
+	// TestQuestionCountsInverseTable is the table name for the TestQuestionCount entity.
+	// It exists in this package in order to avoid circular dependency with the "testquestioncount" package.
+	TestQuestionCountsInverseTable = "test_question_counts"
+	// TestQuestionCountsColumn is the table column denoting the test_question_counts relation/edge.
+	TestQuestionCountsColumn = "test_id"
+	// TestIgnoreQuestionsTable is the table that holds the test_ignore_questions relation/edge.
+	TestIgnoreQuestionsTable = "test_ignore_questions"
+	// TestIgnoreQuestionsInverseTable is the table name for the TestIgnoreQuestion entity.
+	// It exists in this package in order to avoid circular dependency with the "testignorequestion" package.
+	TestIgnoreQuestionsInverseTable = "test_ignore_questions"
+	// TestIgnoreQuestionsColumn is the table column denoting the test_ignore_questions relation/edge.
+	TestIgnoreQuestionsColumn = "test_id"
+	// TestQuestionPointsTable is the table that holds the test_question_points relation/edge.
+	TestQuestionPointsTable = "test_question_points"
+	// TestQuestionPointsInverseTable is the table name for the TestQuestionPoint entity.
+	// It exists in this package in order to avoid circular dependency with the "testquestionpoint" package.
+	TestQuestionPointsInverseTable = "test_question_points"
+	// TestQuestionPointsColumn is the table column denoting the test_question_points relation/edge.
+	TestQuestionPointsColumn = "test_id"
 )
 
 // Columns holds all SQL columns for test fields.
@@ -81,6 +115,9 @@ var (
 	// QuestionsPrimaryKey and QuestionsColumn2 are the table columns denoting the
 	// primary key for the questions relation (M2M).
 	QuestionsPrimaryKey = []string{"test_id", "question_id"}
+	// QuestionCollectionsPrimaryKey and QuestionCollectionsColumn2 are the table columns denoting the
+	// primary key for the question_collections relation (M2M).
+	QuestionCollectionsPrimaryKey = []string{"test_id", "question_collection_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -192,6 +229,62 @@ func ByQuestions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newQuestionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByQuestionCollectionsCount orders the results by question_collections count.
+func ByQuestionCollectionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newQuestionCollectionsStep(), opts...)
+	}
+}
+
+// ByQuestionCollections orders the results by question_collections terms.
+func ByQuestionCollections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newQuestionCollectionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTestQuestionCountsCount orders the results by test_question_counts count.
+func ByTestQuestionCountsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestQuestionCountsStep(), opts...)
+	}
+}
+
+// ByTestQuestionCounts orders the results by test_question_counts terms.
+func ByTestQuestionCounts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestQuestionCountsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTestIgnoreQuestionsCount orders the results by test_ignore_questions count.
+func ByTestIgnoreQuestionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestIgnoreQuestionsStep(), opts...)
+	}
+}
+
+// ByTestIgnoreQuestions orders the results by test_ignore_questions terms.
+func ByTestIgnoreQuestions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestIgnoreQuestionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTestQuestionPointsCount orders the results by test_question_points count.
+func ByTestQuestionPointsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestQuestionPointsStep(), opts...)
+	}
+}
+
+// ByTestQuestionPoints orders the results by test_question_points terms.
+func ByTestQuestionPoints(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestQuestionPointsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCourseSectionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -218,5 +311,33 @@ func newQuestionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(QuestionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, QuestionsTable, QuestionsPrimaryKey...),
+	)
+}
+func newQuestionCollectionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(QuestionCollectionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, QuestionCollectionsTable, QuestionCollectionsPrimaryKey...),
+	)
+}
+func newTestQuestionCountsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestQuestionCountsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TestQuestionCountsTable, TestQuestionCountsColumn),
+	)
+}
+func newTestIgnoreQuestionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestIgnoreQuestionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TestIgnoreQuestionsTable, TestIgnoreQuestionsColumn),
+	)
+}
+func newTestQuestionPointsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestQuestionPointsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TestQuestionPointsTable, TestQuestionPointsColumn),
 	)
 }

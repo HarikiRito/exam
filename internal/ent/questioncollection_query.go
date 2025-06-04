@@ -11,6 +11,7 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
+	"template/internal/ent/test"
 	"template/internal/ent/user"
 
 	"entgo.io/ent"
@@ -30,6 +31,7 @@ type QuestionCollectionQuery struct {
 	withCreator       *UserQuery
 	withQuestions     *QuestionQuery
 	withCourseSection *CourseSectionQuery
+	withTest          *TestQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -125,6 +127,28 @@ func (qcq *QuestionCollectionQuery) QueryCourseSection() *CourseSectionQuery {
 			sqlgraph.From(questioncollection.Table, questioncollection.FieldID, selector),
 			sqlgraph.To(coursesection.Table, coursesection.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, questioncollection.CourseSectionTable, questioncollection.CourseSectionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(qcq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTest chains the current query on the "test" edge.
+func (qcq *QuestionCollectionQuery) QueryTest() *TestQuery {
+	query := (&TestClient{config: qcq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := qcq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := qcq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(questioncollection.Table, questioncollection.FieldID, selector),
+			sqlgraph.To(test.Table, test.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, questioncollection.TestTable, questioncollection.TestPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(qcq.driver.Dialect(), step)
 		return fromU, nil
@@ -327,6 +351,7 @@ func (qcq *QuestionCollectionQuery) Clone() *QuestionCollectionQuery {
 		withCreator:       qcq.withCreator.Clone(),
 		withQuestions:     qcq.withQuestions.Clone(),
 		withCourseSection: qcq.withCourseSection.Clone(),
+		withTest:          qcq.withTest.Clone(),
 		// clone intermediate query.
 		sql:  qcq.sql.Clone(),
 		path: qcq.path,
@@ -363,6 +388,17 @@ func (qcq *QuestionCollectionQuery) WithCourseSection(opts ...func(*CourseSectio
 		opt(query)
 	}
 	qcq.withCourseSection = query
+	return qcq
+}
+
+// WithTest tells the query-builder to eager-load the nodes that are connected to
+// the "test" edge. The optional arguments are used to configure the query builder of the edge.
+func (qcq *QuestionCollectionQuery) WithTest(opts ...func(*TestQuery)) *QuestionCollectionQuery {
+	query := (&TestClient{config: qcq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	qcq.withTest = query
 	return qcq
 }
 
@@ -444,10 +480,11 @@ func (qcq *QuestionCollectionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	var (
 		nodes       = []*QuestionCollection{}
 		_spec       = qcq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			qcq.withCreator != nil,
 			qcq.withQuestions != nil,
 			qcq.withCourseSection != nil,
+			qcq.withTest != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -484,6 +521,13 @@ func (qcq *QuestionCollectionQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	if query := qcq.withCourseSection; query != nil {
 		if err := qcq.loadCourseSection(ctx, query, nodes, nil,
 			func(n *QuestionCollection, e *CourseSection) { n.Edges.CourseSection = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := qcq.withTest; query != nil {
+		if err := qcq.loadTest(ctx, query, nodes,
+			func(n *QuestionCollection) { n.Edges.Test = []*Test{} },
+			func(n *QuestionCollection, e *Test) { n.Edges.Test = append(n.Edges.Test, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -577,6 +621,67 @@ func (qcq *QuestionCollectionQuery) loadCourseSection(ctx context.Context, query
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (qcq *QuestionCollectionQuery) loadTest(ctx context.Context, query *TestQuery, nodes []*QuestionCollection, init func(*QuestionCollection), assign func(*QuestionCollection, *Test)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*QuestionCollection)
+	nids := make(map[uuid.UUID]map[*QuestionCollection]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(questioncollection.TestTable)
+		s.Join(joinT).On(s.C(test.FieldID), joinT.C(questioncollection.TestPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(questioncollection.TestPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(questioncollection.TestPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*QuestionCollection]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Test](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "test" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
 		}
 	}
 	return nil

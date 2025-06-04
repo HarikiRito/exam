@@ -48,9 +48,11 @@ type QuestionCollectionEdges struct {
 	Questions []*Question `json:"questions,omitempty"`
 	// CourseSection holds the value of the course_section edge.
 	CourseSection *CourseSection `json:"course_section,omitempty"`
+	// Test holds the value of the test edge.
+	Test []*Test `json:"test,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // CreatorOrErr returns the Creator value or an error if the edge
@@ -82,6 +84,15 @@ func (e QuestionCollectionEdges) CourseSectionOrErr() (*CourseSection, error) {
 		return nil, &NotFoundError{label: coursesection.Label}
 	}
 	return nil, &NotLoadedError{edge: "course_section"}
+}
+
+// TestOrErr returns the Test value or an error if the edge
+// was not loaded in eager-loading.
+func (e QuestionCollectionEdges) TestOrErr() ([]*Test, error) {
+	if e.loadedTypes[3] {
+		return e.Test, nil
+	}
+	return nil, &NotLoadedError{edge: "test"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -189,6 +200,11 @@ func (qc *QuestionCollection) QueryQuestions() *QuestionQuery {
 // QueryCourseSection queries the "course_section" edge of the QuestionCollection entity.
 func (qc *QuestionCollection) QueryCourseSection() *CourseSectionQuery {
 	return NewQuestionCollectionClient(qc.config).QueryCourseSection(qc)
+}
+
+// QueryTest queries the "test" edge of the QuestionCollection entity.
+func (qc *QuestionCollection) QueryTest() *TestQuery {
+	return NewQuestionCollectionClient(qc.config).QueryTest(qc)
 }
 
 // Update returns a builder for updating this QuestionCollection.

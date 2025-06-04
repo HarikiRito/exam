@@ -36,6 +36,10 @@ const (
 	EdgeUserQuestionAnswers = "user_question_answers"
 	// EdgeTests holds the string denoting the tests edge name in mutations.
 	EdgeTests = "tests"
+	// EdgeTestIgnoreQuestions holds the string denoting the test_ignore_questions edge name in mutations.
+	EdgeTestIgnoreQuestions = "test_ignore_questions"
+	// EdgeTestQuestionPoints holds the string denoting the test_question_points edge name in mutations.
+	EdgeTestQuestionPoints = "test_question_points"
 	// Table holds the table name of the question in the database.
 	Table = "questions"
 	// CollectionTable is the table that holds the collection relation/edge.
@@ -71,6 +75,20 @@ const (
 	// TestsInverseTable is the table name for the Test entity.
 	// It exists in this package in order to avoid circular dependency with the "test" package.
 	TestsInverseTable = "tests"
+	// TestIgnoreQuestionsTable is the table that holds the test_ignore_questions relation/edge.
+	TestIgnoreQuestionsTable = "test_ignore_questions"
+	// TestIgnoreQuestionsInverseTable is the table name for the TestIgnoreQuestion entity.
+	// It exists in this package in order to avoid circular dependency with the "testignorequestion" package.
+	TestIgnoreQuestionsInverseTable = "test_ignore_questions"
+	// TestIgnoreQuestionsColumn is the table column denoting the test_ignore_questions relation/edge.
+	TestIgnoreQuestionsColumn = "question_id"
+	// TestQuestionPointsTable is the table that holds the test_question_points relation/edge.
+	TestQuestionPointsTable = "test_question_points"
+	// TestQuestionPointsInverseTable is the table name for the TestQuestionPoint entity.
+	// It exists in this package in order to avoid circular dependency with the "testquestionpoint" package.
+	TestQuestionPointsInverseTable = "test_question_points"
+	// TestQuestionPointsColumn is the table column denoting the test_question_points relation/edge.
+	TestQuestionPointsColumn = "question_id"
 )
 
 // Columns holds all SQL columns for question fields.
@@ -214,6 +232,34 @@ func ByTests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTestsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByTestIgnoreQuestionsCount orders the results by test_ignore_questions count.
+func ByTestIgnoreQuestionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestIgnoreQuestionsStep(), opts...)
+	}
+}
+
+// ByTestIgnoreQuestions orders the results by test_ignore_questions terms.
+func ByTestIgnoreQuestions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestIgnoreQuestionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByTestQuestionPointsCount orders the results by test_question_points count.
+func ByTestQuestionPointsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTestQuestionPointsStep(), opts...)
+	}
+}
+
+// ByTestQuestionPoints orders the results by test_question_points terms.
+func ByTestQuestionPoints(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTestQuestionPointsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCollectionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -247,5 +293,19 @@ func newTestsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TestsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, TestsTable, TestsPrimaryKey...),
+	)
+}
+func newTestIgnoreQuestionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestIgnoreQuestionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TestIgnoreQuestionsTable, TestIgnoreQuestionsColumn),
+	)
+}
+func newTestQuestionPointsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TestQuestionPointsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, TestQuestionPointsTable, TestQuestionPointsColumn),
 	)
 }

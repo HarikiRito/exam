@@ -11,7 +11,6 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/role"
 	"template/internal/ent/user"
-	"template/internal/ent/userrole"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -29,7 +28,6 @@ type RoleQuery struct {
 	predicates      []predicate.Role
 	withUsers       *UserQuery
 	withPermissions *PermissionQuery
-	withUserRoles   *UserRoleQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -80,7 +78,7 @@ func (rq *RoleQuery) QueryUsers() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(role.Table, role.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, role.UsersTable, role.UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, role.UsersTable, role.UsersPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -103,28 +101,6 @@ func (rq *RoleQuery) QueryPermissions() *PermissionQuery {
 			sqlgraph.From(role.Table, role.FieldID, selector),
 			sqlgraph.To(permission.Table, permission.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, role.PermissionsTable, role.PermissionsPrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryUserRoles chains the current query on the "user_roles" edge.
-func (rq *RoleQuery) QueryUserRoles() *UserRoleQuery {
-	query := (&UserRoleClient{config: rq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(role.Table, role.FieldID, selector),
-			sqlgraph.To(userrole.Table, userrole.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, role.UserRolesTable, role.UserRolesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -326,7 +302,6 @@ func (rq *RoleQuery) Clone() *RoleQuery {
 		predicates:      append([]predicate.Role{}, rq.predicates...),
 		withUsers:       rq.withUsers.Clone(),
 		withPermissions: rq.withPermissions.Clone(),
-		withUserRoles:   rq.withUserRoles.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
 		path: rq.path,
@@ -352,17 +327,6 @@ func (rq *RoleQuery) WithPermissions(opts ...func(*PermissionQuery)) *RoleQuery 
 		opt(query)
 	}
 	rq.withPermissions = query
-	return rq
-}
-
-// WithUserRoles tells the query-builder to eager-load the nodes that are connected to
-// the "user_roles" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RoleQuery) WithUserRoles(opts ...func(*UserRoleQuery)) *RoleQuery {
-	query := (&UserRoleClient{config: rq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	rq.withUserRoles = query
 	return rq
 }
 
@@ -444,10 +408,9 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 	var (
 		nodes       = []*Role{}
 		_spec       = rq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [2]bool{
 			rq.withUsers != nil,
 			rq.withPermissions != nil,
-			rq.withUserRoles != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -482,13 +445,6 @@ func (rq *RoleQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Role, e
 			return nil, err
 		}
 	}
-	if query := rq.withUserRoles; query != nil {
-		if err := rq.loadUserRoles(ctx, query, nodes,
-			func(n *Role) { n.Edges.UserRoles = []*UserRole{} },
-			func(n *Role, e *UserRole) { n.Edges.UserRoles = append(n.Edges.UserRoles, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
@@ -505,10 +461,10 @@ func (rq *RoleQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*R
 	}
 	query.Where(func(s *sql.Selector) {
 		joinT := sql.Table(role.UsersTable)
-		s.Join(joinT).On(s.C(user.FieldID), joinT.C(role.UsersPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(role.UsersPrimaryKey[0]), edgeIDs...))
+		s.Join(joinT).On(s.C(user.FieldID), joinT.C(role.UsersPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(role.UsersPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(role.UsersPrimaryKey[0]))
+		s.Select(joinT.C(role.UsersPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -611,36 +567,6 @@ func (rq *RoleQuery) loadPermissions(ctx context.Context, query *PermissionQuery
 		for kn := range nodes {
 			assign(kn, n)
 		}
-	}
-	return nil
-}
-func (rq *RoleQuery) loadUserRoles(ctx context.Context, query *UserRoleQuery, nodes []*Role, init func(*Role), assign func(*Role, *UserRole)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Role)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(userrole.FieldRoleID)
-	}
-	query.Where(predicate.UserRole(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(role.UserRolesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.RoleID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "role_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }

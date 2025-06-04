@@ -116,6 +116,42 @@ func (f TestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestMutation", m)
 }
 
+// The TestIgnoreQuestionFunc type is an adapter to allow the use of ordinary
+// function as TestIgnoreQuestion mutator.
+type TestIgnoreQuestionFunc func(context.Context, *ent.TestIgnoreQuestionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestIgnoreQuestionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestIgnoreQuestionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestIgnoreQuestionMutation", m)
+}
+
+// The TestQuestionCountFunc type is an adapter to allow the use of ordinary
+// function as TestQuestionCount mutator.
+type TestQuestionCountFunc func(context.Context, *ent.TestQuestionCountMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestQuestionCountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestQuestionCountMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestQuestionCountMutation", m)
+}
+
+// The TestQuestionPointFunc type is an adapter to allow the use of ordinary
+// function as TestQuestionPoint mutator.
+type TestQuestionPointFunc func(context.Context, *ent.TestQuestionPointMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestQuestionPointFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestQuestionPointMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestQuestionPointMutation", m)
+}
+
 // The TestSessionFunc type is an adapter to allow the use of ordinary
 // function as TestSession mutator.
 type TestSessionFunc func(context.Context, *ent.TestSessionMutation) (ent.Value, error)
@@ -162,18 +198,6 @@ func (f UserQuestionAnswerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserQuestionAnswerMutation", m)
-}
-
-// The UserRoleFunc type is an adapter to allow the use of ordinary
-// function as UserRole mutator.
-type UserRoleFunc func(context.Context, *ent.UserRoleMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UserRoleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UserRoleMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserRoleMutation", m)
 }
 
 // The VideoFunc type is an adapter to allow the use of ordinary

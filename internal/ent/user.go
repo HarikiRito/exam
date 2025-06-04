@@ -61,11 +61,9 @@ type UserEdges struct {
 	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
-	// UserRoles holds the value of the user_roles edge.
-	UserRoles []*UserRole `json:"user_roles,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [7]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -131,15 +129,6 @@ func (e UserEdges) TestSessionsOrErr() ([]*TestSession, error) {
 		return e.TestSessions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_sessions"}
-}
-
-// UserRolesOrErr returns the UserRoles value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) UserRolesOrErr() ([]*UserRole, error) {
-	if e.loadedTypes[7] {
-		return e.UserRoles, nil
-	}
-	return nil, &NotLoadedError{edge: "user_roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -288,11 +277,6 @@ func (u *User) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
 // QueryTestSessions queries the "test_sessions" edge of the User entity.
 func (u *User) QueryTestSessions() *TestSessionQuery {
 	return NewUserClient(u.config).QueryTestSessions(u)
-}
-
-// QueryUserRoles queries the "user_roles" edge of the User entity.
-func (u *User) QueryUserRoles() *UserRoleQuery {
-	return NewUserClient(u.config).QueryUserRoles(u)
 }
 
 // Update returns a builder for updating this User.
