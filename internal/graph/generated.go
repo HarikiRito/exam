@@ -13558,7 +13558,7 @@ func (ec *executionContext) unmarshalInputUpdateTestInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId", "questionIds"}
+	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13586,13 +13586,6 @@ func (ec *executionContext) unmarshalInputUpdateTestInput(ctx context.Context, o
 				return it, err
 			}
 			it.CourseID = data
-		case "questionIds":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
-			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.QuestionIds = data
 		}
 	}
 

@@ -1333,22 +1333,6 @@ func (c *QuestionClient) QueryUserQuestionAnswers(q *Question) *TestQuestionAnsw
 	return query
 }
 
-// QueryTests queries the tests edge of a Question.
-func (c *QuestionClient) QueryTests(q *Question) *TestQuery {
-	query := (&TestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := q.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(question.Table, question.FieldID, id),
-			sqlgraph.To(test.Table, test.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, question.TestsTable, question.TestsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryTestIgnoreQuestions queries the test_ignore_questions edge of a Question.
 func (c *QuestionClient) QueryTestIgnoreQuestions(q *Question) *TestIgnoreQuestionQuery {
 	query := (&TestIgnoreQuestionClient{config: c.config}).Query()
@@ -2090,22 +2074,6 @@ func (c *TestClient) QueryTestSessions(t *Test) *TestSessionQuery {
 			sqlgraph.From(test.Table, test.FieldID, id),
 			sqlgraph.To(testsession.Table, testsession.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, test.TestSessionsTable, test.TestSessionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryQuestions queries the questions edge of a Test.
-func (c *TestClient) QueryQuestions(t *Test) *QuestionQuery {
-	query := (&QuestionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(test.Table, test.FieldID, id),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, test.QuestionsTable, test.QuestionsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil

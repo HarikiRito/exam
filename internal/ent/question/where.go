@@ -388,29 +388,6 @@ func HasUserQuestionAnswersWith(preds ...predicate.TestQuestionAnswer) predicate
 	})
 }
 
-// HasTests applies the HasEdge predicate on the "tests" edge.
-func HasTests() predicate.Question {
-	return predicate.Question(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, TestsTable, TestsPrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTestsWith applies the HasEdge predicate on the "tests" edge with a given conditions (other predicates).
-func HasTestsWith(preds ...predicate.Test) predicate.Question {
-	return predicate.Question(func(s *sql.Selector) {
-		step := newTestsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasTestIgnoreQuestions applies the HasEdge predicate on the "test_ignore_questions" edge.
 func HasTestIgnoreQuestions() predicate.Question {
 	return predicate.Question(func(s *sql.Selector) {

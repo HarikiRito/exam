@@ -10,7 +10,6 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
-	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
@@ -35,7 +34,6 @@ type TestQuery struct {
 	withCourseSection       *CourseSectionQuery
 	withCourse              *CourseQuery
 	withTestSessions        *TestSessionQuery
-	withQuestions           *QuestionQuery
 	withQuestionCollections *QuestionCollectionQuery
 	withTestQuestionCounts  *TestQuestionCountQuery
 	withTestIgnoreQuestions *TestIgnoreQuestionQuery
@@ -135,28 +133,6 @@ func (tq *TestQuery) QueryTestSessions() *TestSessionQuery {
 			sqlgraph.From(test.Table, test.FieldID, selector),
 			sqlgraph.To(testsession.Table, testsession.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, test.TestSessionsTable, test.TestSessionsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryQuestions chains the current query on the "questions" edge.
-func (tq *TestQuery) QueryQuestions() *QuestionQuery {
-	query := (&QuestionClient{config: tq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := tq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := tq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(test.Table, test.FieldID, selector),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, test.QuestionsTable, test.QuestionsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -447,7 +423,6 @@ func (tq *TestQuery) Clone() *TestQuery {
 		withCourseSection:       tq.withCourseSection.Clone(),
 		withCourse:              tq.withCourse.Clone(),
 		withTestSessions:        tq.withTestSessions.Clone(),
-		withQuestions:           tq.withQuestions.Clone(),
 		withQuestionCollections: tq.withQuestionCollections.Clone(),
 		withTestQuestionCounts:  tq.withTestQuestionCounts.Clone(),
 		withTestIgnoreQuestions: tq.withTestIgnoreQuestions.Clone(),
@@ -488,17 +463,6 @@ func (tq *TestQuery) WithTestSessions(opts ...func(*TestSessionQuery)) *TestQuer
 		opt(query)
 	}
 	tq.withTestSessions = query
-	return tq
-}
-
-// WithQuestions tells the query-builder to eager-load the nodes that are connected to
-// the "questions" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TestQuery) WithQuestions(opts ...func(*QuestionQuery)) *TestQuery {
-	query := (&QuestionClient{config: tq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	tq.withQuestions = query
 	return tq
 }
 
@@ -624,11 +588,10 @@ func (tq *TestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Test, e
 	var (
 		nodes       = []*Test{}
 		_spec       = tq.querySpec()
-		loadedTypes = [8]bool{
+		loadedTypes = [7]bool{
 			tq.withCourseSection != nil,
 			tq.withCourse != nil,
 			tq.withTestSessions != nil,
-			tq.withQuestions != nil,
 			tq.withQuestionCollections != nil,
 			tq.withTestQuestionCounts != nil,
 			tq.withTestIgnoreQuestions != nil,
@@ -669,13 +632,6 @@ func (tq *TestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Test, e
 		if err := tq.loadTestSessions(ctx, query, nodes,
 			func(n *Test) { n.Edges.TestSessions = []*TestSession{} },
 			func(n *Test, e *TestSession) { n.Edges.TestSessions = append(n.Edges.TestSessions, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := tq.withQuestions; query != nil {
-		if err := tq.loadQuestions(ctx, query, nodes,
-			func(n *Test) { n.Edges.Questions = []*Question{} },
-			func(n *Test, e *Question) { n.Edges.Questions = append(n.Edges.Questions, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -809,67 +765,6 @@ func (tq *TestQuery) loadTestSessions(ctx context.Context, query *TestSessionQue
 			return fmt.Errorf(`unexpected referenced foreign-key "test_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
-	}
-	return nil
-}
-func (tq *TestQuery) loadQuestions(ctx context.Context, query *QuestionQuery, nodes []*Test, init func(*Test), assign func(*Test, *Question)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*Test)
-	nids := make(map[uuid.UUID]map[*Test]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
-		}
-	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(test.QuestionsTable)
-		s.Join(joinT).On(s.C(question.FieldID), joinT.C(test.QuestionsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(test.QuestionsPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(test.QuestionsPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := *values[1].(*uuid.UUID)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*Test]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Question](ctx, query, qr, query.inters)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected "questions" node returned %v`, n.ID)
-		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
 	}
 	return nil
 }

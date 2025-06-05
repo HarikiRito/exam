@@ -540,31 +540,6 @@ var (
 			},
 		},
 	}
-	// TestQuestionsColumns holds the columns for the "test_questions" table.
-	TestQuestionsColumns = []*schema.Column{
-		{Name: "test_id", Type: field.TypeUUID},
-		{Name: "question_id", Type: field.TypeUUID},
-	}
-	// TestQuestionsTable holds the schema information for the "test_questions" table.
-	TestQuestionsTable = &schema.Table{
-		Name:       "test_questions",
-		Columns:    TestQuestionsColumns,
-		PrimaryKey: []*schema.Column{TestQuestionsColumns[0], TestQuestionsColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "test_questions_test_id",
-				Columns:    []*schema.Column{TestQuestionsColumns[0]},
-				RefColumns: []*schema.Column{TestsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "test_questions_question_id",
-				Columns:    []*schema.Column{TestQuestionsColumns[1]},
-				RefColumns: []*schema.Column{QuestionsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// TestQuestionCollectionsColumns holds the columns for the "test_question_collections" table.
 	TestQuestionCollectionsColumns = []*schema.Column{
 		{Name: "test_id", Type: field.TypeUUID},
@@ -636,7 +611,6 @@ var (
 		VideosTable,
 		VideoQuestionTimestampsTable,
 		RolePermissionsTable,
-		TestQuestionsTable,
 		TestQuestionCollectionsTable,
 		UserRolesTable,
 	}
@@ -674,8 +648,6 @@ func init() {
 	VideoQuestionTimestampsTable.ForeignKeys[1].RefTable = VideosTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
-	TestQuestionsTable.ForeignKeys[0].RefTable = TestsTable
-	TestQuestionsTable.ForeignKeys[1].RefTable = QuestionsTable
 	TestQuestionCollectionsTable.ForeignKeys[0].RefTable = TestsTable
 	TestQuestionCollectionsTable.ForeignKeys[1].RefTable = QuestionCollectionsTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable

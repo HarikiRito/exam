@@ -48,8 +48,6 @@ type TestEdges struct {
 	Course *Course `json:"course,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
-	// Questions holds the value of the questions edge.
-	Questions []*Question `json:"questions,omitempty"`
 	// QuestionCollections holds the value of the question_collections edge.
 	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
 	// TestQuestionCounts holds the value of the test_question_counts edge.
@@ -60,7 +58,7 @@ type TestEdges struct {
 	TestQuestionPoints []*TestQuestionPoint `json:"test_question_points,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [8]bool
+	loadedTypes [7]bool
 }
 
 // CourseSectionOrErr returns the CourseSection value or an error if the edge
@@ -94,19 +92,10 @@ func (e TestEdges) TestSessionsOrErr() ([]*TestSession, error) {
 	return nil, &NotLoadedError{edge: "test_sessions"}
 }
 
-// QuestionsOrErr returns the Questions value or an error if the edge
-// was not loaded in eager-loading.
-func (e TestEdges) QuestionsOrErr() ([]*Question, error) {
-	if e.loadedTypes[3] {
-		return e.Questions, nil
-	}
-	return nil, &NotLoadedError{edge: "questions"}
-}
-
 // QuestionCollectionsOrErr returns the QuestionCollections value or an error if the edge
 // was not loaded in eager-loading.
 func (e TestEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
-	if e.loadedTypes[4] {
+	if e.loadedTypes[3] {
 		return e.QuestionCollections, nil
 	}
 	return nil, &NotLoadedError{edge: "question_collections"}
@@ -115,7 +104,7 @@ func (e TestEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
 // TestQuestionCountsOrErr returns the TestQuestionCounts value or an error if the edge
 // was not loaded in eager-loading.
 func (e TestEdges) TestQuestionCountsOrErr() ([]*TestQuestionCount, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[4] {
 		return e.TestQuestionCounts, nil
 	}
 	return nil, &NotLoadedError{edge: "test_question_counts"}
@@ -124,7 +113,7 @@ func (e TestEdges) TestQuestionCountsOrErr() ([]*TestQuestionCount, error) {
 // TestIgnoreQuestionsOrErr returns the TestIgnoreQuestions value or an error if the edge
 // was not loaded in eager-loading.
 func (e TestEdges) TestIgnoreQuestionsOrErr() ([]*TestIgnoreQuestion, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[5] {
 		return e.TestIgnoreQuestions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_ignore_questions"}
@@ -133,7 +122,7 @@ func (e TestEdges) TestIgnoreQuestionsOrErr() ([]*TestIgnoreQuestion, error) {
 // TestQuestionPointsOrErr returns the TestQuestionPoints value or an error if the edge
 // was not loaded in eager-loading.
 func (e TestEdges) TestQuestionPointsOrErr() ([]*TestQuestionPoint, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[6] {
 		return e.TestQuestionPoints, nil
 	}
 	return nil, &NotLoadedError{edge: "test_question_points"}
@@ -246,11 +235,6 @@ func (t *Test) QueryCourse() *CourseQuery {
 // QueryTestSessions queries the "test_sessions" edge of the Test entity.
 func (t *Test) QueryTestSessions() *TestSessionQuery {
 	return NewTestClient(t.config).QueryTestSessions(t)
-}
-
-// QueryQuestions queries the "questions" edge of the Test entity.
-func (t *Test) QueryQuestions() *QuestionQuery {
-	return NewTestClient(t.config).QueryQuestions(t)
 }
 
 // QueryQuestionCollections queries the "question_collections" edge of the Test entity.

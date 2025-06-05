@@ -35,8 +35,6 @@ func (Question) Edges() []ent.Edge {
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.To("video_question_timestamps_question", VideoQuestionTimestamp.Type),
 		edge.To("user_question_answers", TestQuestionAnswer.Type),
-		edge.From("tests", Test.Type).
-			Ref("questions"),
 		edge.From("test_ignore_questions", TestIgnoreQuestion.Type).
 			Ref("question"),
 		edge.From("test_question_points", TestQuestionPoint.Type).

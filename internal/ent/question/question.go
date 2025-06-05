@@ -34,8 +34,6 @@ const (
 	EdgeVideoQuestionTimestampsQuestion = "video_question_timestamps_question"
 	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
 	EdgeUserQuestionAnswers = "user_question_answers"
-	// EdgeTests holds the string denoting the tests edge name in mutations.
-	EdgeTests = "tests"
 	// EdgeTestIgnoreQuestions holds the string denoting the test_ignore_questions edge name in mutations.
 	EdgeTestIgnoreQuestions = "test_ignore_questions"
 	// EdgeTestQuestionPoints holds the string denoting the test_question_points edge name in mutations.
@@ -70,11 +68,6 @@ const (
 	UserQuestionAnswersInverseTable = "test_question_answers"
 	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
 	UserQuestionAnswersColumn = "question_id"
-	// TestsTable is the table that holds the tests relation/edge. The primary key declared below.
-	TestsTable = "test_questions"
-	// TestsInverseTable is the table name for the Test entity.
-	// It exists in this package in order to avoid circular dependency with the "test" package.
-	TestsInverseTable = "tests"
 	// TestIgnoreQuestionsTable is the table that holds the test_ignore_questions relation/edge.
 	TestIgnoreQuestionsTable = "test_ignore_questions"
 	// TestIgnoreQuestionsInverseTable is the table name for the TestIgnoreQuestion entity.
@@ -100,12 +93,6 @@ var Columns = []string{
 	FieldCollectionID,
 	FieldQuestionText,
 }
-
-var (
-	// TestsPrimaryKey and TestsColumn2 are the table columns denoting the
-	// primary key for the tests relation (M2M).
-	TestsPrimaryKey = []string{"test_id", "question_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -219,20 +206,6 @@ func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpti
 	}
 }
 
-// ByTestsCount orders the results by tests count.
-func ByTestsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newTestsStep(), opts...)
-	}
-}
-
-// ByTests orders the results by tests terms.
-func ByTests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTestsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByTestIgnoreQuestionsCount orders the results by test_ignore_questions count.
 func ByTestIgnoreQuestionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -286,13 +259,6 @@ func newUserQuestionAnswersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
-	)
-}
-func newTestsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(TestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, TestsTable, TestsPrimaryKey...),
 	)
 }
 func newTestIgnoreQuestionsStep() *sqlgraph.Step {

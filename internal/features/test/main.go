@@ -50,11 +50,6 @@ func UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) 
 		SetNillableCourseSectionID(input.CourseSectionID).
 		SetNillableCourseID(input.CourseID)
 
-	if len(input.QuestionIds) > 0 {
-		// Clear existing questions and add the new ones
-		update = update.ClearQuestions().AddQuestionIDs(input.QuestionIds...)
-	}
-
 	updatedTest, err := update.Save(ctx)
 	if err != nil {
 		return nil, err

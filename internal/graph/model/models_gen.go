@@ -232,10 +232,9 @@ type UpdateQuestionPointsInput struct {
 }
 
 type UpdateTestInput struct {
-	Name            *string     `json:"name,omitempty"`
-	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
-	CourseID        *uuid.UUID  `json:"courseId,omitempty"`
-	QuestionIds     []uuid.UUID `json:"questionIds"`
+	Name            *string    `json:"name,omitempty"`
+	CourseSectionID *uuid.UUID `json:"courseSectionId,omitempty"`
+	CourseID        *uuid.UUID `json:"courseId,omitempty"`
 }
 
 type UpdateTestQuestionRequirementInput struct {

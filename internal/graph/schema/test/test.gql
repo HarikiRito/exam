@@ -74,7 +74,6 @@ input UpdateTestInput {
   name: String
   courseSectionId: ID
   courseId: ID
-  questionIds: [ID!]!
 }
 
 input AddMultiCollectionToTestInput {

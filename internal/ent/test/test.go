@@ -36,8 +36,6 @@ const (
 	EdgeCourse = "course"
 	// EdgeTestSessions holds the string denoting the test_sessions edge name in mutations.
 	EdgeTestSessions = "test_sessions"
-	// EdgeQuestions holds the string denoting the questions edge name in mutations.
-	EdgeQuestions = "questions"
 	// EdgeQuestionCollections holds the string denoting the question_collections edge name in mutations.
 	EdgeQuestionCollections = "question_collections"
 	// EdgeTestQuestionCounts holds the string denoting the test_question_counts edge name in mutations.
@@ -69,11 +67,6 @@ const (
 	TestSessionsInverseTable = "test_sessions"
 	// TestSessionsColumn is the table column denoting the test_sessions relation/edge.
 	TestSessionsColumn = "test_id"
-	// QuestionsTable is the table that holds the questions relation/edge. The primary key declared below.
-	QuestionsTable = "test_questions"
-	// QuestionsInverseTable is the table name for the Question entity.
-	// It exists in this package in order to avoid circular dependency with the "question" package.
-	QuestionsInverseTable = "questions"
 	// QuestionCollectionsTable is the table that holds the question_collections relation/edge. The primary key declared below.
 	QuestionCollectionsTable = "test_question_collections"
 	// QuestionCollectionsInverseTable is the table name for the QuestionCollection entity.
@@ -115,9 +108,6 @@ var Columns = []string{
 }
 
 var (
-	// QuestionsPrimaryKey and QuestionsColumn2 are the table columns denoting the
-	// primary key for the questions relation (M2M).
-	QuestionsPrimaryKey = []string{"test_id", "question_id"}
 	// QuestionCollectionsPrimaryKey and QuestionCollectionsColumn2 are the table columns denoting the
 	// primary key for the question_collections relation (M2M).
 	QuestionCollectionsPrimaryKey = []string{"test_id", "question_collection_id"}
@@ -228,20 +218,6 @@ func ByTestSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByQuestionsCount orders the results by questions count.
-func ByQuestionsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newQuestionsStep(), opts...)
-	}
-}
-
-// ByQuestions orders the results by questions terms.
-func ByQuestions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newQuestionsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // ByQuestionCollectionsCount orders the results by question_collections count.
 func ByQuestionCollectionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -316,13 +292,6 @@ func newTestSessionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TestSessionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionsTable, TestSessionsColumn),
-	)
-}
-func newQuestionsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(QuestionsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, QuestionsTable, QuestionsPrimaryKey...),
 	)
 }
 func newQuestionCollectionsStep() *sqlgraph.Step {

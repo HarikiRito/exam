@@ -45,15 +45,13 @@ type QuestionEdges struct {
 	VideoQuestionTimestampsQuestion []*VideoQuestionTimestamp `json:"video_question_timestamps_question,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
 	UserQuestionAnswers []*TestQuestionAnswer `json:"user_question_answers,omitempty"`
-	// Tests holds the value of the tests edge.
-	Tests []*Test `json:"tests,omitempty"`
 	// TestIgnoreQuestions holds the value of the test_ignore_questions edge.
 	TestIgnoreQuestions []*TestIgnoreQuestion `json:"test_ignore_questions,omitempty"`
 	// TestQuestionPoints holds the value of the test_question_points edge.
 	TestQuestionPoints []*TestQuestionPoint `json:"test_question_points,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [6]bool
 }
 
 // CollectionOrErr returns the Collection value or an error if the edge
@@ -94,19 +92,10 @@ func (e QuestionEdges) UserQuestionAnswersOrErr() ([]*TestQuestionAnswer, error)
 	return nil, &NotLoadedError{edge: "user_question_answers"}
 }
 
-// TestsOrErr returns the Tests value or an error if the edge
-// was not loaded in eager-loading.
-func (e QuestionEdges) TestsOrErr() ([]*Test, error) {
-	if e.loadedTypes[4] {
-		return e.Tests, nil
-	}
-	return nil, &NotLoadedError{edge: "tests"}
-}
-
 // TestIgnoreQuestionsOrErr returns the TestIgnoreQuestions value or an error if the edge
 // was not loaded in eager-loading.
 func (e QuestionEdges) TestIgnoreQuestionsOrErr() ([]*TestIgnoreQuestion, error) {
-	if e.loadedTypes[5] {
+	if e.loadedTypes[4] {
 		return e.TestIgnoreQuestions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_ignore_questions"}
@@ -115,7 +104,7 @@ func (e QuestionEdges) TestIgnoreQuestionsOrErr() ([]*TestIgnoreQuestion, error)
 // TestQuestionPointsOrErr returns the TestQuestionPoints value or an error if the edge
 // was not loaded in eager-loading.
 func (e QuestionEdges) TestQuestionPointsOrErr() ([]*TestQuestionPoint, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[5] {
 		return e.TestQuestionPoints, nil
 	}
 	return nil, &NotLoadedError{edge: "test_question_points"}
@@ -215,11 +204,6 @@ func (q *Question) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTimestam
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the Question entity.
 func (q *Question) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
 	return NewQuestionClient(q.config).QueryUserQuestionAnswers(q)
-}
-
-// QueryTests queries the "tests" edge of the Question entity.
-func (q *Question) QueryTests() *TestQuery {
-	return NewQuestionClient(q.config).QueryTests(q)
 }
 
 // QueryTestIgnoreQuestions queries the "test_ignore_questions" edge of the Question entity.
