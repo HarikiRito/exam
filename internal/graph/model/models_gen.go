@@ -18,6 +18,11 @@ type Auth struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type BatchDeleteQuestionPointsInput struct {
+	TestID      uuid.UUID   `json:"testId"`
+	QuestionIds []uuid.UUID `json:"questionIds"`
+}
+
 type BatchIgnoreQuestionsInput struct {
 	TestID             uuid.UUID             `json:"testId"`
 	QuestionIgnoreData []*QuestionIgnoreData `json:"questionIgnoreData"`

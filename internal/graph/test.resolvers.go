@@ -88,6 +88,15 @@ func (r *mutationResolver) BatchIgnoreQuestions(ctx context.Context, input model
 	return test.BatchIgnoreQuestions(ctx, userId, input)
 }
 
+// BatchDeleteQuestionPoints is the resolver for the batchDeleteQuestionPoints field.
+func (r *mutationResolver) BatchDeleteQuestionPoints(ctx context.Context, input model.BatchDeleteQuestionPointsInput) (bool, error) {
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return test.BatchDeleteQuestionPoints(ctx, userId, input)
+}
+
 // Test is the resolver for the test field.
 func (r *queryResolver) Test(ctx context.Context, id uuid.UUID) (*model.Test, error) {
 	entTest, err := test.GetTestByID(ctx, id)

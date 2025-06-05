@@ -17,6 +17,7 @@ extend type Mutation {
   
   # Batch ignore questions
   batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
+  batchDeleteQuestionPoints(input: BatchDeleteQuestionPointsInput!): Boolean!
 }
 
 extend type Query {
@@ -106,4 +107,9 @@ input BatchIgnoreQuestionsInput {
 input QuestionIgnoreData {
   questionId: ID!
   reason: String
+}
+
+input BatchDeleteQuestionPointsInput {
+  testId: ID!
+  questionIds: [ID!]!
 }

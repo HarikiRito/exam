@@ -81,6 +81,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddMultiCollectionToTest         func(childComplexity int, input model.AddMultiCollectionToTestInput) int
+		BatchDeleteQuestionPoints        func(childComplexity int, input model.BatchDeleteQuestionPointsInput) int
 		BatchIgnoreQuestions             func(childComplexity int, input model.BatchIgnoreQuestionsInput) int
 		CompleteTestSession              func(childComplexity int, id uuid.UUID) int
 		CreateCourse                     func(childComplexity int, input model.CreateCourseInput) int
@@ -300,6 +301,7 @@ type MutationResolver interface {
 	UpdateQuestionPointsByCollection(ctx context.Context, input model.UpdateQuestionPointsByCollectionInput) (bool, error)
 	UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error)
 	BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error)
+	BatchDeleteQuestionPoints(ctx context.Context, input model.BatchDeleteQuestionPointsInput) (bool, error)
 	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error)
 	DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error)
 	CompleteTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
@@ -483,6 +485,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddMultiCollectionToTest(childComplexity, args["input"].(model.AddMultiCollectionToTestInput)), true
+
+	case "Mutation.batchDeleteQuestionPoints":
+		if e.complexity.Mutation.BatchDeleteQuestionPoints == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_batchDeleteQuestionPoints_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.BatchDeleteQuestionPoints(childComplexity, args["input"].(model.BatchDeleteQuestionPointsInput)), true
 
 	case "Mutation.batchIgnoreQuestions":
 		if e.complexity.Mutation.BatchIgnoreQuestions == nil {
@@ -1610,6 +1624,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputAddMultiCollectionToTestInput,
+		ec.unmarshalInputBatchDeleteQuestionPointsInput,
 		ec.unmarshalInputBatchIgnoreQuestionsInput,
 		ec.unmarshalInputCourseSectionFilterInput,
 		ec.unmarshalInputCreateCourseInput,
@@ -1788,6 +1803,29 @@ func (ec *executionContext) field_Mutation_addMultiCollectionToTest_argsInput(
 	}
 
 	var zeroVal model.AddMultiCollectionToTestInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_batchDeleteQuestionPoints_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_batchDeleteQuestionPoints_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_batchDeleteQuestionPoints_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.BatchDeleteQuestionPointsInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNBatchDeleteQuestionPointsInput2templateᚋinternalᚋgraphᚋmodelᚐBatchDeleteQuestionPointsInput(ctx, tmp)
+	}
+
+	var zeroVal model.BatchDeleteQuestionPointsInput
 	return zeroVal, nil
 }
 
@@ -5327,6 +5365,61 @@ func (ec *executionContext) fieldContext_Mutation_batchIgnoreQuestions(ctx conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_batchIgnoreQuestions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_batchDeleteQuestionPoints(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_batchDeleteQuestionPoints(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().BatchDeleteQuestionPoints(rctx, fc.Args["input"].(model.BatchDeleteQuestionPointsInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_batchDeleteQuestionPoints(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_batchDeleteQuestionPoints_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -12624,6 +12717,40 @@ func (ec *executionContext) unmarshalInputAddMultiCollectionToTestInput(ctx cont
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputBatchDeleteQuestionPointsInput(ctx context.Context, obj interface{}) (model.BatchDeleteQuestionPointsInput, error) {
+	var it model.BatchDeleteQuestionPointsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"testId", "questionIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "testId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestID = data
+		case "questionIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionIds = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputBatchIgnoreQuestionsInput(ctx context.Context, obj interface{}) (model.BatchIgnoreQuestionsInput, error) {
 	var it model.BatchIgnoreQuestionsInput
 	asMap := map[string]interface{}{}
@@ -14089,6 +14216,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "batchIgnoreQuestions":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_batchIgnoreQuestions(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "batchDeleteQuestionPoints":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_batchDeleteQuestionPoints(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -16418,6 +16552,11 @@ func (ec *executionContext) marshalNAuth2ᚖtemplateᚋinternalᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._Auth(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNBatchDeleteQuestionPointsInput2templateᚋinternalᚋgraphᚋmodelᚐBatchDeleteQuestionPointsInput(ctx context.Context, v interface{}) (model.BatchDeleteQuestionPointsInput, error) {
+	res, err := ec.unmarshalInputBatchDeleteQuestionPointsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNBatchIgnoreQuestionsInput2templateᚋinternalᚋgraphᚋmodelᚐBatchIgnoreQuestionsInput(ctx context.Context, v interface{}) (model.BatchIgnoreQuestionsInput, error) {
