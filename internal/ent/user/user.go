@@ -86,10 +86,10 @@ const (
 	// QuestionCollectionsColumn is the table column denoting the question_collections relation/edge.
 	QuestionCollectionsColumn = "creator_id"
 	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "user_question_answers"
-	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
-	// It exists in this package in order to avoid circular dependency with the "userquestionanswer" package.
-	UserQuestionAnswersInverseTable = "user_question_answers"
+	UserQuestionAnswersTable = "test_question_answers"
+	// UserQuestionAnswersInverseTable is the table name for the TestQuestionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "testquestionanswer" package.
+	UserQuestionAnswersInverseTable = "test_question_answers"
 	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
 	UserQuestionAnswersColumn = "user_id"
 	// TestSessionsTable is the table that holds the test_sessions relation/edge.

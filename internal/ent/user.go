@@ -58,7 +58,7 @@ type UserEdges struct {
 	// QuestionCollections holds the value of the question_collections edge.
 	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
-	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
+	UserQuestionAnswers []*TestQuestionAnswer `json:"user_question_answers,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -115,7 +115,7 @@ func (e UserEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
 
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
+func (e UserEdges) UserQuestionAnswersOrErr() ([]*TestQuestionAnswer, error) {
 	if e.loadedTypes[5] {
 		return e.UserQuestionAnswers, nil
 	}
@@ -270,7 +270,7 @@ func (u *User) QueryQuestionCollections() *QuestionCollectionQuery {
 }
 
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the User entity.
-func (u *User) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+func (u *User) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
 	return NewUserClient(u.config).QueryUserQuestionAnswers(u)
 }
 

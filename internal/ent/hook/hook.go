@@ -128,6 +128,18 @@ func (f TestIgnoreQuestionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestIgnoreQuestionMutation", m)
 }
 
+// The TestQuestionAnswerFunc type is an adapter to allow the use of ordinary
+// function as TestQuestionAnswer mutator.
+type TestQuestionAnswerFunc func(context.Context, *ent.TestQuestionAnswerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestQuestionAnswerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestQuestionAnswerMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestQuestionAnswerMutation", m)
+}
+
 // The TestQuestionCountFunc type is an adapter to allow the use of ordinary
 // function as TestQuestionCount mutator.
 type TestQuestionCountFunc func(context.Context, *ent.TestQuestionCountMutation) (ent.Value, error)
@@ -186,18 +198,6 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
-}
-
-// The UserQuestionAnswerFunc type is an adapter to allow the use of ordinary
-// function as UserQuestionAnswer mutator.
-type UserQuestionAnswerFunc func(context.Context, *ent.UserQuestionAnswerMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UserQuestionAnswerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UserQuestionAnswerMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserQuestionAnswerMutation", m)
 }
 
 // The VideoFunc type is an adapter to allow the use of ordinary

@@ -161,7 +161,7 @@ Table user_video_progress {
   updated_at timestamp [default: `now()`]
 }
 
-Table user_question_answers {
+Table test_question_answers {
   id varchar [pk]
   user_id varchar [not null]
   test_session_id varchar [not null]
@@ -266,14 +266,14 @@ Ref: user_section_progress.user_id > users.id [delete: cascade]
 Ref: user_section_progress.section_id > course_sections.id [delete: cascade]
 Ref: user_video_progress.user_id > users.id [delete: cascade]
 Ref: user_video_progress.video_id > videos.id [delete: cascade]
-Ref: user_question_answers.user_id > users.id [delete: cascade]
-Ref: user_question_answers.question_id > questions.id [delete: cascade]
-Ref: user_question_answers.selected_option_id > question_options.id [delete: cascade]
+Ref: test_question_answers.user_id > users.id [delete: cascade]
+Ref: test_question_answers.question_id > questions.id [delete: cascade]
+Ref: test_question_answers.selected_option_id > question_options.id [delete: cascade]
 
 // Course Session Relationships
 Ref: test_sessions.user_id > users.id [delete: cascade]
 Ref: test_sessions.test_id > tests.id [delete: cascade]
-Ref: user_question_answers.test_session_id > test_sessions.id [delete: cascade]
+Ref: test_question_answers.test_session_id > test_sessions.id [delete: cascade]
 
 // Relationships for Test Question Management
 Ref: test_collection.test_id > tests.id [delete: cascade]

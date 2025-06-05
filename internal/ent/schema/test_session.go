@@ -42,7 +42,7 @@ func (TestSession) Edges() []ent.Edge {
 			Field("test_id").
 			Unique().
 			Required(),
-		edge.To("user_question_answers", UserQuestionAnswer.Type),
+		edge.To("user_question_answers", TestQuestionAnswer.Type),
 	}
 }
 

@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// UserQuestionAnswer holds the schema definition for the UserQuestionAnswer entity.
-type UserQuestionAnswer struct {
+// TestQuestionAnswer holds the schema definition for the TestQuestionAnswer entity.
+type TestQuestionAnswer struct {
 	ent.Schema
 }
 
 // Fields of the UserQuestionAnswer.
-func (UserQuestionAnswer) Fields() []ent.Field {
+func (TestQuestionAnswer) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("question_id", uuid.UUID{}),
@@ -26,7 +26,7 @@ func (UserQuestionAnswer) Fields() []ent.Field {
 }
 
 // Edges of the UserQuestionAnswer.
-func (UserQuestionAnswer) Edges() []ent.Edge {
+func (TestQuestionAnswer) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).
 			Ref("user_question_answers").
@@ -50,6 +50,6 @@ func (UserQuestionAnswer) Edges() []ent.Edge {
 	}
 }
 
-func (UserQuestionAnswer) Mixin() []ent.Mixin {
+func (TestQuestionAnswer) Mixin() []ent.Mixin {
 	return mixin.DefaultMixins()
 }

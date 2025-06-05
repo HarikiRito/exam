@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/test"
+	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
-	"template/internal/ent/userquestionanswer"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -150,17 +150,17 @@ func (tsc *TestSessionCreate) SetTest(t *Test) *TestSessionCreate {
 	return tsc.SetTestID(t.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
+// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
 func (tsc *TestSessionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionCreate {
 	tsc.mutation.AddUserQuestionAnswerIDs(ids...)
 	return tsc
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the UserQuestionAnswer entity.
-func (tsc *TestSessionCreate) AddUserQuestionAnswers(u ...*UserQuestionAnswer) *TestSessionCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
+func (tsc *TestSessionCreate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *TestSessionCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
 	}
 	return tsc.AddUserQuestionAnswerIDs(ids...)
 }
@@ -367,7 +367,7 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 			Columns: []string{testsession.UserQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

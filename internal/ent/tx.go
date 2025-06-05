@@ -32,6 +32,8 @@ type Tx struct {
 	Test *TestClient
 	// TestIgnoreQuestion is the client for interacting with the TestIgnoreQuestion builders.
 	TestIgnoreQuestion *TestIgnoreQuestionClient
+	// TestQuestionAnswer is the client for interacting with the TestQuestionAnswer builders.
+	TestQuestionAnswer *TestQuestionAnswerClient
 	// TestQuestionCount is the client for interacting with the TestQuestionCount builders.
 	TestQuestionCount *TestQuestionCountClient
 	// TestQuestionPoint is the client for interacting with the TestQuestionPoint builders.
@@ -42,8 +44,6 @@ type Tx struct {
 	Todo *TodoClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
-	// UserQuestionAnswer is the client for interacting with the UserQuestionAnswer builders.
-	UserQuestionAnswer *UserQuestionAnswerClient
 	// Video is the client for interacting with the Video builders.
 	Video *VideoClient
 	// VideoQuestionTimestamp is the client for interacting with the VideoQuestionTimestamp builders.
@@ -189,12 +189,12 @@ func (tx *Tx) init() {
 	tx.Role = NewRoleClient(tx.config)
 	tx.Test = NewTestClient(tx.config)
 	tx.TestIgnoreQuestion = NewTestIgnoreQuestionClient(tx.config)
+	tx.TestQuestionAnswer = NewTestQuestionAnswerClient(tx.config)
 	tx.TestQuestionCount = NewTestQuestionCountClient(tx.config)
 	tx.TestQuestionPoint = NewTestQuestionPointClient(tx.config)
 	tx.TestSession = NewTestSessionClient(tx.config)
 	tx.Todo = NewTodoClient(tx.config)
 	tx.User = NewUserClient(tx.config)
-	tx.UserQuestionAnswer = NewUserQuestionAnswerClient(tx.config)
 	tx.Video = NewVideoClient(tx.config)
 	tx.VideoQuestionTimestamp = NewVideoQuestionTimestampClient(tx.config)
 }

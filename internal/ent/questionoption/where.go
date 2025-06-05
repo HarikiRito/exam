@@ -346,7 +346,7 @@ func HasUserQuestionAnswers() predicate.QuestionOption {
 }
 
 // HasUserQuestionAnswersWith applies the HasEdge predicate on the "user_question_answers" edge with a given conditions (other predicates).
-func HasUserQuestionAnswersWith(preds ...predicate.UserQuestionAnswer) predicate.QuestionOption {
+func HasUserQuestionAnswersWith(preds ...predicate.TestQuestionAnswer) predicate.QuestionOption {
 	return predicate.QuestionOption(func(s *sql.Selector) {
 		step := newUserQuestionAnswersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {

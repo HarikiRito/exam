@@ -11,8 +11,8 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestionpoint"
-	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/videoquestiontimestamp"
 	"time"
 
@@ -131,17 +131,17 @@ func (qc *QuestionCreate) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestion
 	return qc.AddVideoQuestionTimestampsQuestionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the UserQuestionAnswer entity by IDs.
+// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
 func (qc *QuestionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionCreate {
 	qc.mutation.AddUserQuestionAnswerIDs(ids...)
 	return qc
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the UserQuestionAnswer entity.
-func (qc *QuestionCreate) AddUserQuestionAnswers(u ...*UserQuestionAnswer) *QuestionCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
+func (qc *QuestionCreate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *QuestionCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
 	}
 	return qc.AddUserQuestionAnswerIDs(ids...)
 }
@@ -382,7 +382,7 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 			Columns: []string{question.UserQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(userquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

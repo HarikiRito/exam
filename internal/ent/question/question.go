@@ -64,10 +64,10 @@ const (
 	// VideoQuestionTimestampsQuestionColumn is the table column denoting the video_question_timestamps_question relation/edge.
 	VideoQuestionTimestampsQuestionColumn = "question_id"
 	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "user_question_answers"
-	// UserQuestionAnswersInverseTable is the table name for the UserQuestionAnswer entity.
-	// It exists in this package in order to avoid circular dependency with the "userquestionanswer" package.
-	UserQuestionAnswersInverseTable = "user_question_answers"
+	UserQuestionAnswersTable = "test_question_answers"
+	// UserQuestionAnswersInverseTable is the table name for the TestQuestionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "testquestionanswer" package.
+	UserQuestionAnswersInverseTable = "test_question_answers"
 	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
 	UserQuestionAnswersColumn = "question_id"
 	// TestsTable is the table that holds the tests relation/edge. The primary key declared below.

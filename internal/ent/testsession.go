@@ -52,7 +52,7 @@ type TestSessionEdges struct {
 	// Test holds the value of the test edge.
 	Test *Test `json:"test,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
-	UserQuestionAnswers []*UserQuestionAnswer `json:"user_question_answers,omitempty"`
+	UserQuestionAnswers []*TestQuestionAnswer `json:"user_question_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -93,7 +93,7 @@ func (e TestSessionEdges) TestOrErr() (*Test, error) {
 
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e TestSessionEdges) UserQuestionAnswersOrErr() ([]*UserQuestionAnswer, error) {
+func (e TestSessionEdges) UserQuestionAnswersOrErr() ([]*TestQuestionAnswer, error) {
 	if e.loadedTypes[3] {
 		return e.UserQuestionAnswers, nil
 	}
@@ -214,7 +214,7 @@ func (ts *TestSession) QueryTest() *TestQuery {
 }
 
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the TestSession entity.
-func (ts *TestSession) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
+func (ts *TestSession) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
 	return NewTestSessionClient(ts.config).QueryUserQuestionAnswers(ts)
 }
 

@@ -12,9 +12,9 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
+	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
 	"template/internal/ent/user"
-	"template/internal/ent/userquestionanswer"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -35,7 +35,7 @@ type UserQuery struct {
 	withRoles               *RoleQuery
 	withCourseCreator       *CourseQuery
 	withQuestionCollections *QuestionCollectionQuery
-	withUserQuestionAnswers *UserQuestionAnswerQuery
+	withUserQuestionAnswers *TestQuestionAnswerQuery
 	withTestSessions        *TestSessionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -184,8 +184,8 @@ func (uq *UserQuery) QueryQuestionCollections() *QuestionCollectionQuery {
 }
 
 // QueryUserQuestionAnswers chains the current query on the "user_question_answers" edge.
-func (uq *UserQuery) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
-	query := (&UserQuestionAnswerClient{config: uq.config}).Query()
+func (uq *UserQuery) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
+	query := (&TestQuestionAnswerClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -196,7 +196,7 @@ func (uq *UserQuery) QueryUserQuestionAnswers() *UserQuestionAnswerQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(userquestionanswer.Table, userquestionanswer.FieldID),
+			sqlgraph.To(testquestionanswer.Table, testquestionanswer.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UserQuestionAnswersTable, user.UserQuestionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
@@ -489,8 +489,8 @@ func (uq *UserQuery) WithQuestionCollections(opts ...func(*QuestionCollectionQue
 
 // WithUserQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
 // the "user_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithUserQuestionAnswers(opts ...func(*UserQuestionAnswerQuery)) *UserQuery {
-	query := (&UserQuestionAnswerClient{config: uq.config}).Query()
+func (uq *UserQuery) WithUserQuestionAnswers(opts ...func(*TestQuestionAnswerQuery)) *UserQuery {
+	query := (&TestQuestionAnswerClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -653,8 +653,8 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if query := uq.withUserQuestionAnswers; query != nil {
 		if err := uq.loadUserQuestionAnswers(ctx, query, nodes,
-			func(n *User) { n.Edges.UserQuestionAnswers = []*UserQuestionAnswer{} },
-			func(n *User, e *UserQuestionAnswer) {
+			func(n *User) { n.Edges.UserQuestionAnswers = []*TestQuestionAnswer{} },
+			func(n *User, e *TestQuestionAnswer) {
 				n.Edges.UserQuestionAnswers = append(n.Edges.UserQuestionAnswers, e)
 			}); err != nil {
 			return nil, err
@@ -856,7 +856,7 @@ func (uq *UserQuery) loadQuestionCollections(ctx context.Context, query *Questio
 	}
 	return nil
 }
-func (uq *UserQuery) loadUserQuestionAnswers(ctx context.Context, query *UserQuestionAnswerQuery, nodes []*User, init func(*User), assign func(*User, *UserQuestionAnswer)) error {
+func (uq *UserQuery) loadUserQuestionAnswers(ctx context.Context, query *TestQuestionAnswerQuery, nodes []*User, init func(*User), assign func(*User, *TestQuestionAnswer)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
@@ -867,9 +867,9 @@ func (uq *UserQuery) loadUserQuestionAnswers(ctx context.Context, query *UserQue
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(userquestionanswer.FieldUserID)
+		query.ctx.AppendFieldOnce(testquestionanswer.FieldUserID)
 	}
-	query.Where(predicate.UserQuestionAnswer(func(s *sql.Selector) {
+	query.Where(predicate.TestQuestionAnswer(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.UserQuestionAnswersColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)

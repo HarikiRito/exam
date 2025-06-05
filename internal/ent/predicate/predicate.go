@@ -36,6 +36,9 @@ type Test func(*sql.Selector)
 // TestIgnoreQuestion is the predicate function for testignorequestion builders.
 type TestIgnoreQuestion func(*sql.Selector)
 
+// TestQuestionAnswer is the predicate function for testquestionanswer builders.
+type TestQuestionAnswer func(*sql.Selector)
+
 // TestQuestionCount is the predicate function for testquestioncount builders.
 type TestQuestionCount func(*sql.Selector)
 
@@ -50,9 +53,6 @@ type Todo func(*sql.Selector)
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
-
-// UserQuestionAnswer is the predicate function for userquestionanswer builders.
-type UserQuestionAnswer func(*sql.Selector)
 
 // Video is the predicate function for video builders.
 type Video func(*sql.Selector)

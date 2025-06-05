@@ -14,12 +14,12 @@ import (
 	"template/internal/ent/schema"
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
+	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
 	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
-	"template/internal/ent/userquestionanswer"
 	"template/internal/ent/video"
 	"template/internal/ent/videoquestiontimestamp"
 	"time"
@@ -323,6 +323,29 @@ func init() {
 	testignorequestionDescID := testignorequestionMixinFields0[0].Descriptor()
 	// testignorequestion.DefaultID holds the default value on creation for the id field.
 	testignorequestion.DefaultID = testignorequestionDescID.Default.(func() uuid.UUID)
+	testquestionanswerMixin := schema.TestQuestionAnswer{}.Mixin()
+	testquestionanswerMixinHooks1 := testquestionanswerMixin[1].Hooks()
+	testquestionanswer.Hooks[0] = testquestionanswerMixinHooks1[0]
+	testquestionanswerMixinInters1 := testquestionanswerMixin[1].Interceptors()
+	testquestionanswer.Interceptors[0] = testquestionanswerMixinInters1[0]
+	testquestionanswerMixinFields0 := testquestionanswerMixin[0].Fields()
+	_ = testquestionanswerMixinFields0
+	testquestionanswerFields := schema.TestQuestionAnswer{}.Fields()
+	_ = testquestionanswerFields
+	// testquestionanswerDescCreatedAt is the schema descriptor for created_at field.
+	testquestionanswerDescCreatedAt := testquestionanswerMixinFields0[1].Descriptor()
+	// testquestionanswer.DefaultCreatedAt holds the default value on creation for the created_at field.
+	testquestionanswer.DefaultCreatedAt = testquestionanswerDescCreatedAt.Default.(func() time.Time)
+	// testquestionanswerDescUpdatedAt is the schema descriptor for updated_at field.
+	testquestionanswerDescUpdatedAt := testquestionanswerMixinFields0[2].Descriptor()
+	// testquestionanswer.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	testquestionanswer.DefaultUpdatedAt = testquestionanswerDescUpdatedAt.Default.(func() time.Time)
+	// testquestionanswer.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	testquestionanswer.UpdateDefaultUpdatedAt = testquestionanswerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// testquestionanswerDescID is the schema descriptor for id field.
+	testquestionanswerDescID := testquestionanswerMixinFields0[0].Descriptor()
+	// testquestionanswer.DefaultID holds the default value on creation for the id field.
+	testquestionanswer.DefaultID = testquestionanswerDescID.Default.(func() uuid.UUID)
 	testquestioncountMixin := schema.TestQuestionCount{}.Mixin()
 	testquestioncountMixinHooks1 := testquestioncountMixin[1].Hooks()
 	testquestioncount.Hooks[0] = testquestioncountMixinHooks1[0]
@@ -476,29 +499,6 @@ func init() {
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() uuid.UUID)
-	userquestionanswerMixin := schema.UserQuestionAnswer{}.Mixin()
-	userquestionanswerMixinHooks1 := userquestionanswerMixin[1].Hooks()
-	userquestionanswer.Hooks[0] = userquestionanswerMixinHooks1[0]
-	userquestionanswerMixinInters1 := userquestionanswerMixin[1].Interceptors()
-	userquestionanswer.Interceptors[0] = userquestionanswerMixinInters1[0]
-	userquestionanswerMixinFields0 := userquestionanswerMixin[0].Fields()
-	_ = userquestionanswerMixinFields0
-	userquestionanswerFields := schema.UserQuestionAnswer{}.Fields()
-	_ = userquestionanswerFields
-	// userquestionanswerDescCreatedAt is the schema descriptor for created_at field.
-	userquestionanswerDescCreatedAt := userquestionanswerMixinFields0[1].Descriptor()
-	// userquestionanswer.DefaultCreatedAt holds the default value on creation for the created_at field.
-	userquestionanswer.DefaultCreatedAt = userquestionanswerDescCreatedAt.Default.(func() time.Time)
-	// userquestionanswerDescUpdatedAt is the schema descriptor for updated_at field.
-	userquestionanswerDescUpdatedAt := userquestionanswerMixinFields0[2].Descriptor()
-	// userquestionanswer.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	userquestionanswer.DefaultUpdatedAt = userquestionanswerDescUpdatedAt.Default.(func() time.Time)
-	// userquestionanswer.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	userquestionanswer.UpdateDefaultUpdatedAt = userquestionanswerDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// userquestionanswerDescID is the schema descriptor for id field.
-	userquestionanswerDescID := userquestionanswerMixinFields0[0].Descriptor()
-	// userquestionanswer.DefaultID holds the default value on creation for the id field.
-	userquestionanswer.DefaultID = userquestionanswerDescID.Default.(func() uuid.UUID)
 	videoMixin := schema.Video{}.Mixin()
 	videoMixinHooks1 := videoMixin[1].Hooks()
 	video.Hooks[0] = videoMixinHooks1[0]
