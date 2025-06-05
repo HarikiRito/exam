@@ -7,7 +7,7 @@ extend type Mutation {
   addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
   
   # Update question points - individual question
-  updateQuestionPoints(input: UpdateQuestionPointsInput!): Boolean!
+  batchUpdateQuestionPoints(input: BatchUpdateQuestionPointsInput!): Boolean!
   
   # Update question points - batch by collection
   updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
@@ -82,8 +82,12 @@ input AddMultiCollectionToTestInput {
   collectionIds: [ID!]!
 }
 
-input UpdateQuestionPointsInput {
+input BatchUpdateQuestionPointsInput {
   testId: ID!
+  questionPoints: [QuestionPointsInput!]!
+}
+
+input QuestionPointsInput {
   questionId: ID!
   points: Int!
 }

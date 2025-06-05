@@ -45,13 +45,13 @@ func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input m
 	return test.AddMultiCollection(ctx, userId, input)
 }
 
-// UpdateQuestionPoints is the resolver for the updateQuestionPoints field.
-func (r *mutationResolver) UpdateQuestionPoints(ctx context.Context, input model.UpdateQuestionPointsInput) (bool, error) {
+// BatchUpdateQuestionPoints is the resolver for the batchUpdateQuestionPoints field.
+func (r *mutationResolver) BatchUpdateQuestionPoints(ctx context.Context, input model.BatchUpdateQuestionPointsInput) (bool, error) {
 	userId, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return false, err
 	}
-	return test.UpdateQuestionPoints(ctx, userId, input)
+	return test.BatchUpdateQuestionPoints(ctx, userId, input)
 }
 
 // UpdateQuestionPointsByCollection is the resolver for the updateQuestionPointsByCollection field.
@@ -167,3 +167,19 @@ func (r *testResolver) TestIgnoreQuestions(ctx context.Context, obj *model.Test)
 func (r *Resolver) Test() TestResolver { return &testResolver{r} }
 
 type testResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *mutationResolver) UpdateQuestionPoints(ctx context.Context, input model.UpdateQuestionPointsInput) (bool, error) {
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return test.UpdateQuestionPoints(ctx, userId, input)
+}
+*/

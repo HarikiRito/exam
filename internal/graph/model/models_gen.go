@@ -28,6 +28,11 @@ type BatchIgnoreQuestionsInput struct {
 	QuestionIgnoreData []*QuestionIgnoreData `json:"questionIgnoreData"`
 }
 
+type BatchUpdateQuestionPointsInput struct {
+	TestID         uuid.UUID              `json:"testId"`
+	QuestionPoints []*QuestionPointsInput `json:"questionPoints"`
+}
+
 type CourseSectionFilterInput struct {
 	OnlyRoot *bool `json:"onlyRoot,omitempty"`
 }
@@ -153,6 +158,11 @@ type QuestionOptionInput struct {
 	IsCorrect  bool   `json:"isCorrect"`
 }
 
+type QuestionPointsInput struct {
+	QuestionID uuid.UUID `json:"questionId"`
+	Points     int       `json:"points"`
+}
+
 type RegisterInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -228,12 +238,6 @@ type UpdateQuestionPointsByCollectionInput struct {
 	TestID       uuid.UUID `json:"testId"`
 	CollectionID uuid.UUID `json:"collectionId"`
 	Points       int       `json:"points"`
-}
-
-type UpdateQuestionPointsInput struct {
-	TestID     uuid.UUID `json:"testId"`
-	QuestionID uuid.UUID `json:"questionId"`
-	Points     int       `json:"points"`
 }
 
 type UpdateTestInput struct {

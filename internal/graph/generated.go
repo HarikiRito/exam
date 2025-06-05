@@ -83,6 +83,7 @@ type ComplexityRoot struct {
 		AddMultiCollectionToTest         func(childComplexity int, input model.AddMultiCollectionToTestInput) int
 		BatchDeleteQuestionPoints        func(childComplexity int, input model.BatchDeleteQuestionPointsInput) int
 		BatchIgnoreQuestions             func(childComplexity int, input model.BatchIgnoreQuestionsInput) int
+		BatchUpdateQuestionPoints        func(childComplexity int, input model.BatchUpdateQuestionPointsInput) int
 		CompleteTestSession              func(childComplexity int, id uuid.UUID) int
 		CreateCourse                     func(childComplexity int, input model.CreateCourseInput) int
 		CreateCourseSection              func(childComplexity int, input model.CreateCourseSectionInput) int
@@ -109,7 +110,6 @@ type ComplexityRoot struct {
 		UpdateQuestion                   func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
 		UpdateQuestionCollection         func(childComplexity int, id uuid.UUID, input model.UpdateQuestionCollectionInput) int
 		UpdateQuestionOption             func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
-		UpdateQuestionPoints             func(childComplexity int, input model.UpdateQuestionPointsInput) int
 		UpdateQuestionPointsByCollection func(childComplexity int, input model.UpdateQuestionPointsByCollectionInput) int
 		UpdateTest                       func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
 		UpdateTestQuestionRequirement    func(childComplexity int, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) int
@@ -297,7 +297,7 @@ type MutationResolver interface {
 	UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error)
 	DeleteTest(ctx context.Context, id uuid.UUID) (bool, error)
 	AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error)
-	UpdateQuestionPoints(ctx context.Context, input model.UpdateQuestionPointsInput) (bool, error)
+	BatchUpdateQuestionPoints(ctx context.Context, input model.BatchUpdateQuestionPointsInput) (bool, error)
 	UpdateQuestionPointsByCollection(ctx context.Context, input model.UpdateQuestionPointsByCollectionInput) (bool, error)
 	UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error)
 	BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error)
@@ -509,6 +509,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.BatchIgnoreQuestions(childComplexity, args["input"].(model.BatchIgnoreQuestionsInput)), true
+
+	case "Mutation.batchUpdateQuestionPoints":
+		if e.complexity.Mutation.BatchUpdateQuestionPoints == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_batchUpdateQuestionPoints_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.BatchUpdateQuestionPoints(childComplexity, args["input"].(model.BatchUpdateQuestionPointsInput)), true
 
 	case "Mutation.completeTestSession":
 		if e.complexity.Mutation.CompleteTestSession == nil {
@@ -821,18 +833,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateQuestionOption(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateQuestionOptionInput)), true
-
-	case "Mutation.updateQuestionPoints":
-		if e.complexity.Mutation.UpdateQuestionPoints == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateQuestionPoints_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateQuestionPoints(childComplexity, args["input"].(model.UpdateQuestionPointsInput)), true
 
 	case "Mutation.updateQuestionPointsByCollection":
 		if e.complexity.Mutation.UpdateQuestionPointsByCollection == nil {
@@ -1626,6 +1626,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputAddMultiCollectionToTestInput,
 		ec.unmarshalInputBatchDeleteQuestionPointsInput,
 		ec.unmarshalInputBatchIgnoreQuestionsInput,
+		ec.unmarshalInputBatchUpdateQuestionPointsInput,
 		ec.unmarshalInputCourseSectionFilterInput,
 		ec.unmarshalInputCreateCourseInput,
 		ec.unmarshalInputCreateCourseSectionInput,
@@ -1640,6 +1641,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputQuestionIgnoreData,
 		ec.unmarshalInputQuestionOptionInput,
+		ec.unmarshalInputQuestionPointsInput,
 		ec.unmarshalInputRegisterInput,
 		ec.unmarshalInputUpdateBatchQuestionsByCollectionInput,
 		ec.unmarshalInputUpdateCourseInput,
@@ -1649,7 +1651,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateQuestionInput,
 		ec.unmarshalInputUpdateQuestionOptionInput,
 		ec.unmarshalInputUpdateQuestionPointsByCollectionInput,
-		ec.unmarshalInputUpdateQuestionPointsInput,
 		ec.unmarshalInputUpdateTestInput,
 		ec.unmarshalInputUpdateTestQuestionRequirementInput,
 		ec.unmarshalInputUpdateTestSessionInput,
@@ -1849,6 +1850,29 @@ func (ec *executionContext) field_Mutation_batchIgnoreQuestions_argsInput(
 	}
 
 	var zeroVal model.BatchIgnoreQuestionsInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_batchUpdateQuestionPoints_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_batchUpdateQuestionPoints_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_batchUpdateQuestionPoints_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.BatchUpdateQuestionPointsInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNBatchUpdateQuestionPointsInput2templateᚋinternalᚋgraphᚋmodelᚐBatchUpdateQuestionPointsInput(ctx, tmp)
+	}
+
+	var zeroVal model.BatchUpdateQuestionPointsInput
 	return zeroVal, nil
 }
 
@@ -2519,29 +2543,6 @@ func (ec *executionContext) field_Mutation_updateQuestionPointsByCollection_args
 	}
 
 	var zeroVal model.UpdateQuestionPointsByCollectionInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateQuestionPoints_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateQuestionPoints_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateQuestionPoints_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateQuestionPointsInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateQuestionPointsInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionPointsInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateQuestionPointsInput
 	return zeroVal, nil
 }
 
@@ -5151,8 +5152,8 @@ func (ec *executionContext) fieldContext_Mutation_addMultiCollectionToTest(ctx c
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateQuestionPoints(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateQuestionPoints(ctx, field)
+func (ec *executionContext) _Mutation_batchUpdateQuestionPoints(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_batchUpdateQuestionPoints(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5165,7 +5166,7 @@ func (ec *executionContext) _Mutation_updateQuestionPoints(ctx context.Context, 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateQuestionPoints(rctx, fc.Args["input"].(model.UpdateQuestionPointsInput))
+		return ec.resolvers.Mutation().BatchUpdateQuestionPoints(rctx, fc.Args["input"].(model.BatchUpdateQuestionPointsInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5182,7 +5183,7 @@ func (ec *executionContext) _Mutation_updateQuestionPoints(ctx context.Context, 
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateQuestionPoints(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_batchUpdateQuestionPoints(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5199,7 +5200,7 @@ func (ec *executionContext) fieldContext_Mutation_updateQuestionPoints(ctx conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateQuestionPoints_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_batchUpdateQuestionPoints_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -12785,6 +12786,40 @@ func (ec *executionContext) unmarshalInputBatchIgnoreQuestionsInput(ctx context.
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputBatchUpdateQuestionPointsInput(ctx context.Context, obj interface{}) (model.BatchUpdateQuestionPointsInput, error) {
+	var it model.BatchUpdateQuestionPointsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"testId", "questionPoints"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "testId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestID = data
+		case "questionPoints":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionPoints"))
+			data, err := ec.unmarshalNQuestionPointsInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionPoints = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCourseSectionFilterInput(ctx context.Context, obj interface{}) (model.CourseSectionFilterInput, error) {
 	var it model.CourseSectionFilterInput
 	asMap := map[string]interface{}{}
@@ -13303,6 +13338,40 @@ func (ec *executionContext) unmarshalInputQuestionOptionInput(ctx context.Contex
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputQuestionPointsInput(ctx context.Context, obj interface{}) (model.QuestionPointsInput, error) {
+	var it model.QuestionPointsInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"questionId", "points"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "questionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionID = data
+		case "points":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Points = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj interface{}) (model.RegisterInput, error) {
 	var it model.RegisterInput
 	asMap := map[string]interface{}{}
@@ -13624,47 +13693,6 @@ func (ec *executionContext) unmarshalInputUpdateQuestionPointsByCollectionInput(
 				return it, err
 			}
 			it.CollectionID = data
-		case "points":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Points = data
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUpdateQuestionPointsInput(ctx context.Context, obj interface{}) (model.UpdateQuestionPointsInput, error) {
-	var it model.UpdateQuestionPointsInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"testId", "questionId", "points"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "testId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TestID = data
-		case "questionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.QuestionID = data
 		case "points":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
@@ -14192,9 +14220,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateQuestionPoints":
+		case "batchUpdateQuestionPoints":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateQuestionPoints(ctx, field)
+				return ec._Mutation_batchUpdateQuestionPoints(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -16564,6 +16592,11 @@ func (ec *executionContext) unmarshalNBatchIgnoreQuestionsInput2templateᚋinter
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNBatchUpdateQuestionPointsInput2templateᚋinternalᚋgraphᚋmodelᚐBatchUpdateQuestionPointsInput(ctx context.Context, v interface{}) (model.BatchUpdateQuestionPointsInput, error) {
+	res, err := ec.unmarshalInputBatchUpdateQuestionPointsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -17120,6 +17153,28 @@ func (ec *executionContext) unmarshalNQuestionOptionInput2ᚖtemplateᚋinternal
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNQuestionPointsInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsInputᚄ(ctx context.Context, v interface{}) ([]*model.QuestionPointsInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.QuestionPointsInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNQuestionPointsInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNQuestionPointsInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsInput(ctx context.Context, v interface{}) (*model.QuestionPointsInput, error) {
+	res, err := ec.unmarshalInputQuestionPointsInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNRegisterInput2templateᚋinternalᚋgraphᚋmodelᚐRegisterInput(ctx context.Context, v interface{}) (model.RegisterInput, error) {
 	res, err := ec.unmarshalInputRegisterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -17573,11 +17628,6 @@ func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2ᚖtemplateᚋin
 
 func (ec *executionContext) unmarshalNUpdateQuestionPointsByCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionPointsByCollectionInput(ctx context.Context, v interface{}) (model.UpdateQuestionPointsByCollectionInput, error) {
 	res, err := ec.unmarshalInputUpdateQuestionPointsByCollectionInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateQuestionPointsInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionPointsInput(ctx context.Context, v interface{}) (model.UpdateQuestionPointsInput, error) {
-	res, err := ec.unmarshalInputUpdateQuestionPointsInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
