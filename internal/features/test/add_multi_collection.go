@@ -13,7 +13,7 @@ import (
 
 // AddMultiCollectionToTest adds multiple question collections to a test.
 // Requires user authentication and authorization (user must own the course containing the test).
-func AddMultiCollectionToTest(ctx context.Context, userId uuid.UUID, input model.AddMultiCollectionToTestInput) (bool, error) {
+func AddMultiCollection(ctx context.Context, userId uuid.UUID, input model.AddMultiCollectionToTestInput) (bool, error) {
 	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return false, err

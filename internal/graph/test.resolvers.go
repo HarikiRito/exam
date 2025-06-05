@@ -38,27 +38,54 @@ func (r *mutationResolver) DeleteTest(ctx context.Context, id uuid.UUID) (bool, 
 
 // AddMultiCollectionToTest is the resolver for the addMultiCollectionToTest field.
 func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: AddMultiCollectionToTest - addMultiCollectionToTest"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return test.AddMultiCollection(ctx, userId, input)
 }
 
 // UpdateQuestionPoints is the resolver for the updateQuestionPoints field.
 func (r *mutationResolver) UpdateQuestionPoints(ctx context.Context, input model.UpdateQuestionPointsInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: UpdateQuestionPoints - updateQuestionPoints"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return test.UpdateQuestionPoints(ctx, userId, input)
 }
 
 // UpdateQuestionPointsByCollection is the resolver for the updateQuestionPointsByCollection field.
 func (r *mutationResolver) UpdateQuestionPointsByCollection(ctx context.Context, input model.UpdateQuestionPointsByCollectionInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: UpdateQuestionPointsByCollection - updateQuestionPointsByCollection"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return test.UpdateQuestionPointsByCollection(ctx, userId, input)
 }
 
 // UpdateTestQuestionRequirement is the resolver for the updateTestQuestionRequirement field.
 func (r *mutationResolver) UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: UpdateTestQuestionRequirement - updateTestQuestionRequirement"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	// Convert []*model.UpdateTestQuestionRequirementInput to []model.UpdateTestQuestionRequirementInput
+	convertedInput := make([]model.UpdateTestQuestionRequirementInput, len(input))
+	for i, item := range input {
+		if item != nil {
+			convertedInput[i] = *item
+		}
+	}
+	return test.UpdateTestQuestionRequirement(ctx, userId, testID, convertedInput)
 }
 
 // BatchIgnoreQuestions is the resolver for the batchIgnoreQuestions field.
 func (r *mutationResolver) BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: BatchIgnoreQuestions - batchIgnoreQuestions"))
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return test.BatchIgnoreQuestions(ctx, userId, input)
 }
 
 // Test is the resolver for the test field.

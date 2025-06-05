@@ -4,8 +4,8 @@ import (
 	"context"
 	"template/internal/ent"
 	"template/internal/ent/db"
+	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
-	"template/internal/ent/userquestionanswer"
 	"template/internal/graph/model"
 	"time"
 
@@ -66,9 +66,9 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 	}
 
 	// Get all user answers for this session within the transaction
-	answers, err := tx.UserQuestionAnswer.Query().
+	answers, err := tx.TestQuestionAnswer.Query().
 		Where(
-			userquestionanswer.SessionID(sessionID),
+			testquestionanswer.SessionID(sessionID),
 		).
 		All(ctx)
 	if err != nil {
