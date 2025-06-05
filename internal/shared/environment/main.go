@@ -16,8 +16,8 @@ var JWT_SECRET string
 var JWT_REFRESH_SECRET string
 var DEBUG string
 
-func LoadEnvironment() error {
-	err := godotenv.Load()
+func LoadEnvironment(filename ...string) error {
+	err := godotenv.Load(filename...)
 
 	if err != nil {
 		return err

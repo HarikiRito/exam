@@ -12,13 +12,13 @@ func OpenClient() (*ent.Client, error) {
 	if environment.IsDebug() {
 		options = append(options, ent.Debug())
 	}
-	return ent.Open("postgres", connectionString(), options...)
+	return ent.Open("postgres", ConnectionString(), options...)
 }
 
 func OpenClientWithoutDebug() (*ent.Client, error) {
-	return ent.Open("postgres", connectionString())
+	return ent.Open("postgres", ConnectionString())
 }
 
-func connectionString() string {
+func ConnectionString() string {
 	return fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", environment.DB_HOST, environment.DB_PORT, environment.DB_USER, environment.DB_NAME, environment.DB_PASSWORD)
 }
