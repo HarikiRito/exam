@@ -111,7 +111,7 @@ type ComplexityRoot struct {
 		UpdateQuestionPoints             func(childComplexity int, input model.UpdateQuestionPointsInput) int
 		UpdateQuestionPointsByCollection func(childComplexity int, input model.UpdateQuestionPointsByCollectionInput) int
 		UpdateTest                       func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
-		UpdateTestQuestionRequirement    func(childComplexity int, input model.UpdateTestQuestionRequirementInput) int
+		UpdateTestQuestionRequirement    func(childComplexity int, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) int
 		UpdateUserQuestionAnswer         func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
 	}
 
@@ -298,7 +298,7 @@ type MutationResolver interface {
 	AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error)
 	UpdateQuestionPoints(ctx context.Context, input model.UpdateQuestionPointsInput) (bool, error)
 	UpdateQuestionPointsByCollection(ctx context.Context, input model.UpdateQuestionPointsByCollectionInput) (bool, error)
-	UpdateTestQuestionRequirement(ctx context.Context, input model.UpdateTestQuestionRequirementInput) (bool, error)
+	UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error)
 	BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error)
 	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error)
 	DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error)
@@ -854,7 +854,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTestQuestionRequirement(childComplexity, args["input"].(model.UpdateTestQuestionRequirementInput)), true
+		return e.complexity.Mutation.UpdateTestQuestionRequirement(childComplexity, args["testId"].(uuid.UUID), args["input"].([]*model.UpdateTestQuestionRequirementInput)), true
 
 	case "Mutation.updateUserQuestionAnswer":
 		if e.complexity.Mutation.UpdateUserQuestionAnswer == nil {
@@ -1735,7 +1735,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql" "schema/user_question_answer.gql"
+//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql" "schema/user_question_answer.gql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1755,7 +1755,7 @@ var sources = []*ast.Source{
 	{Name: "schema/question_collection.gql", Input: sourceData("schema/question_collection.gql"), BuiltIn: false},
 	{Name: "schema/question_option.gql", Input: sourceData("schema/question_option.gql"), BuiltIn: false},
 	{Name: "schema/schema.gql", Input: sourceData("schema/schema.gql"), BuiltIn: false},
-	{Name: "schema/test.gql", Input: sourceData("schema/test.gql"), BuiltIn: false},
+	{Name: "schema/test/test.gql", Input: sourceData("schema/test/test.gql"), BuiltIn: false},
 	{Name: "schema/test_session.gql", Input: sourceData("schema/test_session.gql"), BuiltIn: false},
 	{Name: "schema/todo/models.gql", Input: sourceData("schema/todo/models.gql"), BuiltIn: false},
 	{Name: "schema/todo/todo.gql", Input: sourceData("schema/todo/todo.gql"), BuiltIn: false},
@@ -2551,23 +2551,41 @@ func (ec *executionContext) field_Mutation_updateQuestion_argsInput(
 func (ec *executionContext) field_Mutation_updateTestQuestionRequirement_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateTestQuestionRequirement_argsInput(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_updateTestQuestionRequirement_argsTestID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["input"] = arg0
+	args["testId"] = arg0
+	arg1, err := ec.field_Mutation_updateTestQuestionRequirement_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
 	return args, nil
 }
+func (ec *executionContext) field_Mutation_updateTestQuestionRequirement_argsTestID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("testId"))
+	if tmp, ok := rawArgs["testId"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_updateTestQuestionRequirement_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (model.UpdateTestQuestionRequirementInput, error) {
+) ([]*model.UpdateTestQuestionRequirementInput, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateTestQuestionRequirementInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestQuestionRequirementInput(ctx, tmp)
+		return ec.unmarshalNUpdateTestQuestionRequirementInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateTestQuestionRequirementInputᚄ(ctx, tmp)
 	}
 
-	var zeroVal model.UpdateTestQuestionRequirementInput
+	var zeroVal []*model.UpdateTestQuestionRequirementInput
 	return zeroVal, nil
 }
 
@@ -5219,7 +5237,7 @@ func (ec *executionContext) _Mutation_updateTestQuestionRequirement(ctx context.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTestQuestionRequirement(rctx, fc.Args["input"].(model.UpdateTestQuestionRequirementInput))
+		return ec.resolvers.Mutation().UpdateTestQuestionRequirement(rctx, fc.Args["testId"].(uuid.UUID), fc.Args["input"].([]*model.UpdateTestQuestionRequirementInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12872,7 +12890,7 @@ func (ec *executionContext) unmarshalInputCreateTestInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId", "questionIds"}
+	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12900,13 +12918,6 @@ func (ec *executionContext) unmarshalInputCreateTestInput(ctx context.Context, o
 				return it, err
 			}
 			it.CourseID = data
-		case "questionIds":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionIds"))
-			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.QuestionIds = data
 		}
 	}
 
@@ -13595,20 +13606,13 @@ func (ec *executionContext) unmarshalInputUpdateTestQuestionRequirementInput(ctx
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"testId", "numberOfQuestions", "pointsPerQuestion"}
+	fieldsInOrder := [...]string{"numberOfQuestions", "pointsPerQuestion"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "testId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TestID = data
 		case "numberOfQuestions":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numberOfQuestions"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
@@ -17450,9 +17454,26 @@ func (ec *executionContext) unmarshalNUpdateTestInput2templateᚋinternalᚋgrap
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateTestQuestionRequirementInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestQuestionRequirementInput(ctx context.Context, v interface{}) (model.UpdateTestQuestionRequirementInput, error) {
+func (ec *executionContext) unmarshalNUpdateTestQuestionRequirementInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateTestQuestionRequirementInputᚄ(ctx context.Context, v interface{}) ([]*model.UpdateTestQuestionRequirementInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.UpdateTestQuestionRequirementInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUpdateTestQuestionRequirementInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateTestQuestionRequirementInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNUpdateTestQuestionRequirementInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateTestQuestionRequirementInput(ctx context.Context, v interface{}) (*model.UpdateTestQuestionRequirementInput, error) {
 	res, err := ec.unmarshalInputUpdateTestQuestionRequirementInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateUserQuestionAnswerInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateUserQuestionAnswerInput(ctx context.Context, v interface{}) (model.UpdateUserQuestionAnswerInput, error) {

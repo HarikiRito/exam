@@ -23,11 +23,6 @@ func CreateTest(ctx context.Context, input model.CreateTestInput) (*ent.Test, er
 		SetNillableCourseSectionID(input.CourseSectionID).
 		SetNillableCourseID(input.CourseID)
 
-	// Optionally add QuestionIds if any are provided
-	if len(input.QuestionIds) > 0 {
-		query = query.AddQuestionIDs(input.QuestionIds...)
-	}
-
 	testEntity, err := query.Save(ctx)
 	if err != nil {
 		return nil, err

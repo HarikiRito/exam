@@ -86,6 +86,11 @@ func CourseID(v uuid.UUID) predicate.Test {
 	return predicate.Test(sql.FieldEQ(FieldCourseID, v))
 }
 
+// TotalPoints applies equality check predicate on the "total_points" field. It's identical to TotalPointsEQ.
+func TotalPoints(v int) predicate.Test {
+	return predicate.Test(sql.FieldEQ(FieldTotalPoints, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Test {
 	return predicate.Test(sql.FieldEQ(FieldCreatedAt, v))
@@ -339,6 +344,46 @@ func CourseIDIsNil() predicate.Test {
 // CourseIDNotNil applies the NotNil predicate on the "course_id" field.
 func CourseIDNotNil() predicate.Test {
 	return predicate.Test(sql.FieldNotNull(FieldCourseID))
+}
+
+// TotalPointsEQ applies the EQ predicate on the "total_points" field.
+func TotalPointsEQ(v int) predicate.Test {
+	return predicate.Test(sql.FieldEQ(FieldTotalPoints, v))
+}
+
+// TotalPointsNEQ applies the NEQ predicate on the "total_points" field.
+func TotalPointsNEQ(v int) predicate.Test {
+	return predicate.Test(sql.FieldNEQ(FieldTotalPoints, v))
+}
+
+// TotalPointsIn applies the In predicate on the "total_points" field.
+func TotalPointsIn(vs ...int) predicate.Test {
+	return predicate.Test(sql.FieldIn(FieldTotalPoints, vs...))
+}
+
+// TotalPointsNotIn applies the NotIn predicate on the "total_points" field.
+func TotalPointsNotIn(vs ...int) predicate.Test {
+	return predicate.Test(sql.FieldNotIn(FieldTotalPoints, vs...))
+}
+
+// TotalPointsGT applies the GT predicate on the "total_points" field.
+func TotalPointsGT(v int) predicate.Test {
+	return predicate.Test(sql.FieldGT(FieldTotalPoints, v))
+}
+
+// TotalPointsGTE applies the GTE predicate on the "total_points" field.
+func TotalPointsGTE(v int) predicate.Test {
+	return predicate.Test(sql.FieldGTE(FieldTotalPoints, v))
+}
+
+// TotalPointsLT applies the LT predicate on the "total_points" field.
+func TotalPointsLT(v int) predicate.Test {
+	return predicate.Test(sql.FieldLT(FieldTotalPoints, v))
+}
+
+// TotalPointsLTE applies the LTE predicate on the "total_points" field.
+func TotalPointsLTE(v int) predicate.Test {
+	return predicate.Test(sql.FieldLTE(FieldTotalPoints, v))
 }
 
 // HasCourseSection applies the HasEdge predicate on the "course_section" edge.

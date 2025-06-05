@@ -20,7 +20,7 @@ func (TestQuestionPoint) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("test_id", uuid.UUID{}),
 		field.UUID("question_id", uuid.UUID{}),
-		field.Int("points").Default(0),
+		field.Int("points").Default(0).NonNegative(),
 	}
 }
 

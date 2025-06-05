@@ -105,6 +105,20 @@ func (tc *TestCreate) SetNillableCourseID(u *uuid.UUID) *TestCreate {
 	return tc
 }
 
+// SetTotalPoints sets the "total_points" field.
+func (tc *TestCreate) SetTotalPoints(i int) *TestCreate {
+	tc.mutation.SetTotalPoints(i)
+	return tc
+}
+
+// SetNillableTotalPoints sets the "total_points" field if the given value is not nil.
+func (tc *TestCreate) SetNillableTotalPoints(i *int) *TestCreate {
+	if i != nil {
+		tc.SetTotalPoints(*i)
+	}
+	return tc
+}
+
 // SetID sets the "id" field.
 func (tc *TestCreate) SetID(u uuid.UUID) *TestCreate {
 	tc.mutation.SetID(u)
@@ -270,6 +284,10 @@ func (tc *TestCreate) defaults() error {
 		v := test.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := tc.mutation.TotalPoints(); !ok {
+		v := test.DefaultTotalPoints
+		tc.mutation.SetTotalPoints(v)
+	}
 	if _, ok := tc.mutation.ID(); !ok {
 		if test.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized test.DefaultID (forgotten import ent/runtime?)")
@@ -294,6 +312,14 @@ func (tc *TestCreate) check() error {
 	if v, ok := tc.mutation.Name(); ok {
 		if err := test.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Test.name": %w`, err)}
+		}
+	}
+	if _, ok := tc.mutation.TotalPoints(); !ok {
+		return &ValidationError{Name: "total_points", err: errors.New(`ent: missing required field "Test.total_points"`)}
+	}
+	if v, ok := tc.mutation.TotalPoints(); ok {
+		if err := test.TotalPointsValidator(v); err != nil {
+			return &ValidationError{Name: "total_points", err: fmt.Errorf(`ent: validator failed for field "Test.total_points": %w`, err)}
 		}
 	}
 	return nil
@@ -346,6 +372,10 @@ func (tc *TestCreate) createSpec() (*Test, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.Name(); ok {
 		_spec.SetField(test.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := tc.mutation.TotalPoints(); ok {
+		_spec.SetField(test.FieldTotalPoints, field.TypeInt, value)
+		_node.TotalPoints = value
 	}
 	if nodes := tc.mutation.CourseSectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

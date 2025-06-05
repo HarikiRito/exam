@@ -32,6 +32,8 @@ type Test struct {
 	CourseSectionID *uuid.UUID `json:"course_section_id,omitempty"`
 	// CourseID holds the value of the "course_id" field.
 	CourseID *uuid.UUID `json:"course_id,omitempty"`
+	// TotalPoints holds the value of the "total_points" field.
+	TotalPoints int `json:"total_points,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestQuery when eager-loading is set.
 	Edges        TestEdges `json:"edges"`
@@ -144,6 +146,8 @@ func (*Test) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case test.FieldCourseSectionID, test.FieldCourseID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case test.FieldTotalPoints:
+			values[i] = new(sql.NullInt64)
 		case test.FieldName:
 			values[i] = new(sql.NullString)
 		case test.FieldCreatedAt, test.FieldUpdatedAt, test.FieldDeletedAt:
@@ -209,6 +213,12 @@ func (t *Test) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				t.CourseID = new(uuid.UUID)
 				*t.CourseID = *value.S.(*uuid.UUID)
+			}
+		case test.FieldTotalPoints:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field total_points", values[i])
+			} else if value.Valid {
+				t.TotalPoints = int(value.Int64)
 			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
@@ -309,6 +319,9 @@ func (t *Test) String() string {
 		builder.WriteString("course_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("total_points=")
+	builder.WriteString(fmt.Sprintf("%v", t.TotalPoints))
 	builder.WriteByte(')')
 	return builder.String()
 }

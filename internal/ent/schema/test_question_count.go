@@ -19,8 +19,8 @@ type TestQuestionCount struct {
 func (TestQuestionCount) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("test_id", uuid.UUID{}),
-		field.Int("number_of_questions").Default(0),
-		field.Int("points").Default(0),
+		field.Int("number_of_questions").Default(0).NonNegative(),
+		field.Int("points").Default(0).NonNegative(),
 	}
 }
 

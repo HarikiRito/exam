@@ -213,6 +213,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "name", Type: field.TypeString},
+		{Name: "total_points", Type: field.TypeInt, Default: 0},
 		{Name: "course_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
 	}
@@ -224,13 +225,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tests_courses_tests",
-				Columns:    []*schema.Column{TestsColumns[5]},
+				Columns:    []*schema.Column{TestsColumns[6]},
 				RefColumns: []*schema.Column{CoursesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "tests_course_sections_tests",
-				Columns:    []*schema.Column{TestsColumns[6]},
+				Columns:    []*schema.Column{TestsColumns[7]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

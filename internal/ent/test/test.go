@@ -28,6 +28,8 @@ const (
 	FieldCourseSectionID = "course_section_id"
 	// FieldCourseID holds the string denoting the course_id field in the database.
 	FieldCourseID = "course_id"
+	// FieldTotalPoints holds the string denoting the total_points field in the database.
+	FieldTotalPoints = "total_points"
 	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
 	EdgeCourseSection = "course_section"
 	// EdgeCourse holds the string denoting the course edge name in mutations.
@@ -109,6 +111,7 @@ var Columns = []string{
 	FieldName,
 	FieldCourseSectionID,
 	FieldCourseID,
+	FieldTotalPoints,
 }
 
 var (
@@ -146,6 +149,10 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultTotalPoints holds the default value on creation for the "total_points" field.
+	DefaultTotalPoints int
+	// TotalPointsValidator is a validator for the "total_points" field. It is called by the builders before save.
+	TotalPointsValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -186,6 +193,11 @@ func ByCourseSectionID(opts ...sql.OrderTermOption) OrderOption {
 // ByCourseID orders the results by the course_id field.
 func ByCourseID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCourseID, opts...).ToFunc()
+}
+
+// ByTotalPoints orders the results by the total_points field.
+func ByTotalPoints(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotalPoints, opts...).ToFunc()
 }
 
 // ByCourseSectionField orders the results by course_section field.

@@ -197,6 +197,11 @@ func (tqpc *TestQuestionPointCreate) check() error {
 	if _, ok := tqpc.mutation.Points(); !ok {
 		return &ValidationError{Name: "points", err: errors.New(`ent: missing required field "TestQuestionPoint.points"`)}
 	}
+	if v, ok := tqpc.mutation.Points(); ok {
+		if err := testquestionpoint.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "TestQuestionPoint.points": %w`, err)}
+		}
+	}
 	if len(tqpc.mutation.TestIDs()) == 0 {
 		return &ValidationError{Name: "test", err: errors.New(`ent: missing required edge "TestQuestionPoint.test"`)}
 	}

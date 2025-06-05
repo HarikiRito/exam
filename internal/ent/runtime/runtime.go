@@ -290,6 +290,12 @@ func init() {
 	testDescName := testFields[0].Descriptor()
 	// test.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	test.NameValidator = testDescName.Validators[0].(func(string) error)
+	// testDescTotalPoints is the schema descriptor for total_points field.
+	testDescTotalPoints := testFields[3].Descriptor()
+	// test.DefaultTotalPoints holds the default value on creation for the total_points field.
+	test.DefaultTotalPoints = testDescTotalPoints.Default.(int)
+	// test.TotalPointsValidator is a validator for the "total_points" field. It is called by the builders before save.
+	test.TotalPointsValidator = testDescTotalPoints.Validators[0].(func(int) error)
 	// testDescID is the schema descriptor for id field.
 	testDescID := testMixinFields0[0].Descriptor()
 	// test.DefaultID holds the default value on creation for the id field.
@@ -340,10 +346,14 @@ func init() {
 	testquestioncountDescNumberOfQuestions := testquestioncountFields[1].Descriptor()
 	// testquestioncount.DefaultNumberOfQuestions holds the default value on creation for the number_of_questions field.
 	testquestioncount.DefaultNumberOfQuestions = testquestioncountDescNumberOfQuestions.Default.(int)
+	// testquestioncount.NumberOfQuestionsValidator is a validator for the "number_of_questions" field. It is called by the builders before save.
+	testquestioncount.NumberOfQuestionsValidator = testquestioncountDescNumberOfQuestions.Validators[0].(func(int) error)
 	// testquestioncountDescPoints is the schema descriptor for points field.
 	testquestioncountDescPoints := testquestioncountFields[2].Descriptor()
 	// testquestioncount.DefaultPoints holds the default value on creation for the points field.
 	testquestioncount.DefaultPoints = testquestioncountDescPoints.Default.(int)
+	// testquestioncount.PointsValidator is a validator for the "points" field. It is called by the builders before save.
+	testquestioncount.PointsValidator = testquestioncountDescPoints.Validators[0].(func(int) error)
 	// testquestioncountDescID is the schema descriptor for id field.
 	testquestioncountDescID := testquestioncountMixinFields0[0].Descriptor()
 	// testquestioncount.DefaultID holds the default value on creation for the id field.
@@ -371,6 +381,8 @@ func init() {
 	testquestionpointDescPoints := testquestionpointFields[2].Descriptor()
 	// testquestionpoint.DefaultPoints holds the default value on creation for the points field.
 	testquestionpoint.DefaultPoints = testquestionpointDescPoints.Default.(int)
+	// testquestionpoint.PointsValidator is a validator for the "points" field. It is called by the builders before save.
+	testquestionpoint.PointsValidator = testquestionpointDescPoints.Validators[0].(func(int) error)
 	// testquestionpointDescID is the schema descriptor for id field.
 	testquestionpointDescID := testquestionpointMixinFields0[0].Descriptor()
 	// testquestionpoint.DefaultID holds the default value on creation for the id field.

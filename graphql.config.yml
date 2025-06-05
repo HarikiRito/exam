@@ -1,2 +1,2 @@
-schema: 'graph/schema/schema.gql'
-documents: 'graph/**/*.{graphql,gql}'
+schema: 'internal/graph/schema/schema.gql'
+documents: 'internal/graph/schema/**/*.{graphql,gql}'

@@ -78,8 +78,12 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultNumberOfQuestions holds the default value on creation for the "number_of_questions" field.
 	DefaultNumberOfQuestions int
+	// NumberOfQuestionsValidator is a validator for the "number_of_questions" field. It is called by the builders before save.
+	NumberOfQuestionsValidator func(int) error
 	// DefaultPoints holds the default value on creation for the "points" field.
 	DefaultPoints int
+	// PointsValidator is a validator for the "points" field. It is called by the builders before save.
+	PointsValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )

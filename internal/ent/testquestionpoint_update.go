@@ -191,6 +191,11 @@ func (tqpu *TestQuestionPointUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tqpu *TestQuestionPointUpdate) check() error {
+	if v, ok := tqpu.mutation.Points(); ok {
+		if err := testquestionpoint.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "TestQuestionPoint.points": %w`, err)}
+		}
+	}
 	if tqpu.mutation.TestCleared() && len(tqpu.mutation.TestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestQuestionPoint.test"`)
 	}
@@ -481,6 +486,11 @@ func (tqpuo *TestQuestionPointUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tqpuo *TestQuestionPointUpdateOne) check() error {
+	if v, ok := tqpuo.mutation.Points(); ok {
+		if err := testquestionpoint.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "TestQuestionPoint.points": %w`, err)}
+		}
+	}
 	if tqpuo.mutation.TestCleared() && len(tqpuo.mutation.TestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestQuestionPoint.test"`)
 	}

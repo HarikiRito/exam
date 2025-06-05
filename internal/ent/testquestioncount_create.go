@@ -200,8 +200,18 @@ func (tqcc *TestQuestionCountCreate) check() error {
 	if _, ok := tqcc.mutation.NumberOfQuestions(); !ok {
 		return &ValidationError{Name: "number_of_questions", err: errors.New(`ent: missing required field "TestQuestionCount.number_of_questions"`)}
 	}
+	if v, ok := tqcc.mutation.NumberOfQuestions(); ok {
+		if err := testquestioncount.NumberOfQuestionsValidator(v); err != nil {
+			return &ValidationError{Name: "number_of_questions", err: fmt.Errorf(`ent: validator failed for field "TestQuestionCount.number_of_questions": %w`, err)}
+		}
+	}
 	if _, ok := tqcc.mutation.Points(); !ok {
 		return &ValidationError{Name: "points", err: errors.New(`ent: missing required field "TestQuestionCount.points"`)}
+	}
+	if v, ok := tqcc.mutation.Points(); ok {
+		if err := testquestioncount.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "TestQuestionCount.points": %w`, err)}
+		}
 	}
 	if len(tqcc.mutation.TestIDs()) == 0 {
 		return &ValidationError{Name: "test", err: errors.New(`ent: missing required edge "TestQuestionCount.test"`)}

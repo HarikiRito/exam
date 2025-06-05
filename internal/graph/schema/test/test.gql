@@ -13,7 +13,7 @@ extend type Mutation {
   updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
   
   # Update number of questions requirement based on points per question
-  updateTestQuestionRequirement(input: UpdateTestQuestionRequirementInput!): Boolean!
+  updateTestQuestionRequirement(testId: ID!, input: [UpdateTestQuestionRequirementInput!]!): Boolean!
   
   # Batch ignore questions
   batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
@@ -68,7 +68,6 @@ input CreateTestInput {
   name: String!
   courseSectionId: ID
   courseId: ID
-  questionIds: [ID!]!
 }
 
 input UpdateTestInput {
@@ -96,7 +95,6 @@ input UpdateQuestionPointsByCollectionInput {
 }
 
 input UpdateTestQuestionRequirementInput {
-  testId: ID!
   numberOfQuestions: Int!
   pointsPerQuestion: Int!
 }

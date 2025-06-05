@@ -57,10 +57,9 @@ type CreateQuestionOptionInput struct {
 }
 
 type CreateTestInput struct {
-	Name            string      `json:"name"`
-	CourseSectionID *uuid.UUID  `json:"courseSectionId,omitempty"`
-	CourseID        *uuid.UUID  `json:"courseId,omitempty"`
-	QuestionIds     []uuid.UUID `json:"questionIds"`
+	Name            string     `json:"name"`
+	CourseSectionID *uuid.UUID `json:"courseSectionId,omitempty"`
+	CourseID        *uuid.UUID `json:"courseId,omitempty"`
 }
 
 type CreateTestSessionInput struct {
@@ -240,9 +239,8 @@ type UpdateTestInput struct {
 }
 
 type UpdateTestQuestionRequirementInput struct {
-	TestID            uuid.UUID `json:"testId"`
-	NumberOfQuestions int       `json:"numberOfQuestions"`
-	PointsPerQuestion int       `json:"pointsPerQuestion"`
+	NumberOfQuestions int `json:"numberOfQuestions"`
+	PointsPerQuestion int `json:"pointsPerQuestion"`
 }
 
 type UpdateTestSessionInput struct {

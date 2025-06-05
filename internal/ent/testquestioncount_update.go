@@ -186,6 +186,16 @@ func (tqcu *TestQuestionCountUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tqcu *TestQuestionCountUpdate) check() error {
+	if v, ok := tqcu.mutation.NumberOfQuestions(); ok {
+		if err := testquestioncount.NumberOfQuestionsValidator(v); err != nil {
+			return &ValidationError{Name: "number_of_questions", err: fmt.Errorf(`ent: validator failed for field "TestQuestionCount.number_of_questions": %w`, err)}
+		}
+	}
+	if v, ok := tqcu.mutation.Points(); ok {
+		if err := testquestioncount.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "TestQuestionCount.points": %w`, err)}
+		}
+	}
 	if tqcu.mutation.TestCleared() && len(tqcu.mutation.TestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestQuestionCount.test"`)
 	}
@@ -446,6 +456,16 @@ func (tqcuo *TestQuestionCountUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tqcuo *TestQuestionCountUpdateOne) check() error {
+	if v, ok := tqcuo.mutation.NumberOfQuestions(); ok {
+		if err := testquestioncount.NumberOfQuestionsValidator(v); err != nil {
+			return &ValidationError{Name: "number_of_questions", err: fmt.Errorf(`ent: validator failed for field "TestQuestionCount.number_of_questions": %w`, err)}
+		}
+	}
+	if v, ok := tqcuo.mutation.Points(); ok {
+		if err := testquestioncount.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "TestQuestionCount.points": %w`, err)}
+		}
+	}
 	if tqcuo.mutation.TestCleared() && len(tqcuo.mutation.TestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestQuestionCount.test"`)
 	}

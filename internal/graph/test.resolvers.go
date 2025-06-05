@@ -52,7 +52,7 @@ func (r *mutationResolver) UpdateQuestionPointsByCollection(ctx context.Context,
 }
 
 // UpdateTestQuestionRequirement is the resolver for the updateTestQuestionRequirement field.
-func (r *mutationResolver) UpdateTestQuestionRequirement(ctx context.Context, input model.UpdateTestQuestionRequirementInput) (bool, error) {
+func (r *mutationResolver) UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error) {
 	panic(fmt.Errorf("not implemented: UpdateTestQuestionRequirement - updateTestQuestionRequirement"))
 }
 

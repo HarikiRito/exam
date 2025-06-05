@@ -131,6 +131,27 @@ func (tu *TestUpdate) ClearCourseID() *TestUpdate {
 	return tu
 }
 
+// SetTotalPoints sets the "total_points" field.
+func (tu *TestUpdate) SetTotalPoints(i int) *TestUpdate {
+	tu.mutation.ResetTotalPoints()
+	tu.mutation.SetTotalPoints(i)
+	return tu
+}
+
+// SetNillableTotalPoints sets the "total_points" field if the given value is not nil.
+func (tu *TestUpdate) SetNillableTotalPoints(i *int) *TestUpdate {
+	if i != nil {
+		tu.SetTotalPoints(*i)
+	}
+	return tu
+}
+
+// AddTotalPoints adds i to the "total_points" field.
+func (tu *TestUpdate) AddTotalPoints(i int) *TestUpdate {
+	tu.mutation.AddTotalPoints(i)
+	return tu
+}
+
 // SetCourseSection sets the "course_section" edge to the CourseSection entity.
 func (tu *TestUpdate) SetCourseSection(c *CourseSection) *TestUpdate {
 	return tu.SetCourseSectionID(c.ID)
@@ -423,6 +444,11 @@ func (tu *TestUpdate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Test.name": %w`, err)}
 		}
 	}
+	if v, ok := tu.mutation.TotalPoints(); ok {
+		if err := test.TotalPointsValidator(v); err != nil {
+			return &ValidationError{Name: "total_points", err: fmt.Errorf(`ent: validator failed for field "Test.total_points": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -452,6 +478,12 @@ func (tu *TestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.Name(); ok {
 		_spec.SetField(test.FieldName, field.TypeString, value)
+	}
+	if value, ok := tu.mutation.TotalPoints(); ok {
+		_spec.SetField(test.FieldTotalPoints, field.TypeInt, value)
+	}
+	if value, ok := tu.mutation.AddedTotalPoints(); ok {
+		_spec.AddField(test.FieldTotalPoints, field.TypeInt, value)
 	}
 	if tu.mutation.CourseSectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -895,6 +927,27 @@ func (tuo *TestUpdateOne) ClearCourseID() *TestUpdateOne {
 	return tuo
 }
 
+// SetTotalPoints sets the "total_points" field.
+func (tuo *TestUpdateOne) SetTotalPoints(i int) *TestUpdateOne {
+	tuo.mutation.ResetTotalPoints()
+	tuo.mutation.SetTotalPoints(i)
+	return tuo
+}
+
+// SetNillableTotalPoints sets the "total_points" field if the given value is not nil.
+func (tuo *TestUpdateOne) SetNillableTotalPoints(i *int) *TestUpdateOne {
+	if i != nil {
+		tuo.SetTotalPoints(*i)
+	}
+	return tuo
+}
+
+// AddTotalPoints adds i to the "total_points" field.
+func (tuo *TestUpdateOne) AddTotalPoints(i int) *TestUpdateOne {
+	tuo.mutation.AddTotalPoints(i)
+	return tuo
+}
+
 // SetCourseSection sets the "course_section" edge to the CourseSection entity.
 func (tuo *TestUpdateOne) SetCourseSection(c *CourseSection) *TestUpdateOne {
 	return tuo.SetCourseSectionID(c.ID)
@@ -1200,6 +1253,11 @@ func (tuo *TestUpdateOne) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Test.name": %w`, err)}
 		}
 	}
+	if v, ok := tuo.mutation.TotalPoints(); ok {
+		if err := test.TotalPointsValidator(v); err != nil {
+			return &ValidationError{Name: "total_points", err: fmt.Errorf(`ent: validator failed for field "Test.total_points": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1246,6 +1304,12 @@ func (tuo *TestUpdateOne) sqlSave(ctx context.Context) (_node *Test, err error) 
 	}
 	if value, ok := tuo.mutation.Name(); ok {
 		_spec.SetField(test.FieldName, field.TypeString, value)
+	}
+	if value, ok := tuo.mutation.TotalPoints(); ok {
+		_spec.SetField(test.FieldTotalPoints, field.TypeInt, value)
+	}
+	if value, ok := tuo.mutation.AddedTotalPoints(); ok {
+		_spec.AddField(test.FieldTotalPoints, field.TypeInt, value)
 	}
 	if tuo.mutation.CourseSectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
