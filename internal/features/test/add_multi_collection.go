@@ -42,7 +42,7 @@ func AddMultiCollection(ctx context.Context, userId uuid.UUID, input model.AddMu
 	}
 
 	// Add collections to the test
-	_, err = tx.Test.UpdateOneID(input.TestID).
+	_, err = tx.Test.UpdateOneID(input.TestID).ClearQuestionCollections().
 		AddQuestionCollectionIDs(input.CollectionIds...).
 		Save(ctx)
 	if err != nil {
