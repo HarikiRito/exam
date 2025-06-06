@@ -47,7 +47,6 @@ func initDatabase(t *testing.T, schema string) {
 	CreateTestSchema(t, schema)
 	dbClient := PrepareDbClient(t, schema)
 	defer dbClient.Close()
-	fmt.Println("Initializing database", db.DatabaseURL())
 	err := db.InitDatabase()
 	if err != nil {
 		t.Fatalf("Failed to initialize database: %v", err)

@@ -11,7 +11,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	dbSchema := "testabc"
+	dbSchema := setup.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
 	t.Run("CreateUser", func(t *testing.T) {
 		tokenPair, err := auth.Register(context.Background(), model.RegisterInput{
