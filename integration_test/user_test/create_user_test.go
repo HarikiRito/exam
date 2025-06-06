@@ -14,13 +14,22 @@ func TestCreateUser(t *testing.T) {
 	dbSchema := setup.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
 	t.Run("CreateUser", func(t *testing.T) {
-		tokenPair, err := auth.Register(context.Background(), model.RegisterInput{
+		input := model.RegisterInput{
 			Email:    "test@test.com",
 			Password: "test",
-		})
+		}
+		tokenPair, err := auth.Register(context.Background(), input)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, tokenPair.AccessToken)
 		assert.NotEmpty(t, tokenPair.RefreshToken)
+
+		t.Run("Login", func(t *testing.T) {
+			_, err := auth.Login(context.Background(), model.LoginInput{
+				Email:    input.Email,
+				Password: input.Password,
+			})
+			assert.NoError(t, err)
+		})
 
 		t.Run("DuplicateUser", func(t *testing.T) {
 			_, err := auth.Register(context.Background(), model.RegisterInput{
