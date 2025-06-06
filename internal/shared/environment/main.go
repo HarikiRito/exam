@@ -11,6 +11,7 @@ var DB_USER string
 var DB_PASSWORD string
 var DB_HOST string
 var DB_PORT string
+var DB_SCHEMA string
 var PORT string
 var JWT_SECRET string
 var JWT_REFRESH_SECRET string
@@ -28,6 +29,10 @@ func LoadEnvironment(filename ...string) error {
 	DB_PASSWORD = os.Getenv("DB_PASSWORD")
 	DB_HOST = os.Getenv("DB_HOST")
 	DB_PORT = os.Getenv("DB_PORT")
+	DB_SCHEMA = os.Getenv("DB_SCHEMA")
+	if DB_SCHEMA == "" {
+		DB_SCHEMA = "public"
+	}
 	PORT = os.Getenv("PORT")
 	JWT_SECRET = os.Getenv("JWT_SECRET")
 	JWT_REFRESH_SECRET = os.Getenv("JWT_REFRESH_SECRET")

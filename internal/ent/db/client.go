@@ -41,7 +41,7 @@ func OpenClientWithoutDebug() (*ent.Client, error) {
 }
 
 func DatabaseURL() string {
-	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", environment.DB_USER, environment.DB_PASSWORD, environment.DB_HOST, environment.DB_PORT, environment.DB_NAME)
+	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?search_path=%s", environment.DB_USER, environment.DB_PASSWORD, environment.DB_HOST, environment.DB_PORT, environment.DB_NAME, environment.DB_SCHEMA)
 }
 
 func OpenDB() (*sql.DB, error) {
