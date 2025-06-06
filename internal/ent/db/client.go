@@ -1,24 +1,55 @@
 package db
 
 import (
+	"database/sql"
 	"fmt"
 	"template/internal/ent"
 	_ "template/internal/ent/runtime"
 	"template/internal/shared/environment"
+
+	"entgo.io/ent/dialect"
+	entsql "entgo.io/ent/dialect/sql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func OpenClient() (*ent.Client, error) {
-	options := []ent.Option{}
-	if environment.IsDebug() {
-		options = append(options, ent.Debug())
+	db, err := OpenDB()
+	if err != nil {
+		return nil, err
 	}
-	return ent.Open("postgres", ConnectionString(), options...)
+	// Create an ent.Driver from `db`.
+	drv := entsql.OpenDB(dialect.Postgres, db)
+
+	var client *ent.Client
+	if environment.IsDebug() {
+		client = ent.NewClient(ent.Driver(drv), ent.Debug())
+	} else {
+		client = ent.NewClient(ent.Driver(drv))
+	}
+
+	return client, nil
 }
 
 func OpenClientWithoutDebug() (*ent.Client, error) {
-	return ent.Open("postgres", ConnectionString())
+	db, err := OpenDB()
+	if err != nil {
+		return nil, err
+	}
+	// Create an ent.Driver from `db`.
+	drv := entsql.OpenDB(dialect.Postgres, db)
+	return ent.NewClient(ent.Driver(drv)), nil
 }
 
-func ConnectionString() string {
-	return fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable", environment.DB_HOST, environment.DB_PORT, environment.DB_USER, environment.DB_NAME, environment.DB_PASSWORD)
+func DatabaseURL() string {
+	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", environment.DB_USER, environment.DB_PASSWORD, environment.DB_HOST, environment.DB_PORT, environment.DB_NAME)
+}
+
+func OpenDB() (*sql.DB, error) {
+	db, err := sql.Open("pgx", DatabaseURL())
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+
 }
