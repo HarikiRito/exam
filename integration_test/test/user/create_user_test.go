@@ -1,4 +1,4 @@
-package user_test
+package user
 
 import (
 	"context"
@@ -13,6 +13,8 @@ import (
 func TestCreateUser(t *testing.T) {
 	dbSchema := setup.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
+	defer setup.DeleteTestSchema(t, dbSchema)
+
 	t.Run("CreateUser", func(t *testing.T) {
 		input := model.RegisterInput{
 			Email:    "test@test.com",
@@ -41,5 +43,4 @@ func TestCreateUser(t *testing.T) {
 		setup.ResetTestSchema(t, dbSchema)
 	})
 
-	setup.DeleteTestSchema(t, dbSchema)
 }
