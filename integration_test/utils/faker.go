@@ -1,4 +1,4 @@
-package setup
+package utils
 
 import (
 	fakerPkg "github.com/jaswdr/faker/v2"

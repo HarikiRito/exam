@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"template/integration_test/setup"
+	"template/integration_test/utils"
 	"template/internal/features/auth"
 	"template/internal/graph/model"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	dbSchema := setup.RandomDbSchema()
+	dbSchema := utils.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
 	defer setup.DeleteTestSchema(t, dbSchema)
 

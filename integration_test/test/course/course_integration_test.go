@@ -2,9 +2,9 @@ package course
 
 import (
 	"context"
+	"template/integration_test/prepare"
 	"template/integration_test/setup"
 	"template/internal/ent"
-	"template/internal/features/auth"
 	"template/internal/features/course"
 	"template/internal/graph/model"
 	"testing"
@@ -18,47 +18,28 @@ import (
 
 func TestCourseIntegration(t *testing.T) {
 	// Setup test database
-	dbSchema := setup.RandomDbSchema()
+	dbSchema := utils.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
 	defer setup.DeleteTestSchema(t, dbSchema)
 
 	// Create test users
 	ctx := context.Background()
 
-	// User 1 (course creator)
 	user1Input := model.RegisterInput{
 		Email:    "user1@test.com",
 		Password: "testpassword123",
 	}
-	_, err := auth.Register(ctx, user1Input)
-	require.NoError(t, err, "Failed to register user1")
-
-	// Login to get the user entity with ID
-	user1Entity, err := auth.Login(ctx, model.LoginInput{
-		Email:    user1Input.Email,
-		Password: user1Input.Password,
-	})
-	require.NoError(t, err, "Failed to login user1")
+	user1Entity := prepare.CreateUser(t, user1Input)
 	user1ID := user1Entity.ID
 
-	// User 2 (unauthorized user)
 	user2Input := model.RegisterInput{
 		Email:    "user2@test.com",
 		Password: "testpassword456",
 	}
-	_, err = auth.Register(ctx, user2Input)
-	require.NoError(t, err, "Failed to register user2")
-
-	// Login to get the user entity with ID
-	user2Entity, err := auth.Login(ctx, model.LoginInput{
-		Email:    user2Input.Email,
-		Password: user2Input.Password,
-	})
-	require.NoError(t, err, "Failed to login user2")
+	user2Entity := prepare.CreateUser(t, user2Input)
 	user2ID := user2Entity.ID
 
 	var createdCourse *ent.Course
-
 	t.Run("CreateCourse_Success", func(t *testing.T) {
 		// Test successful course creation
 		createInput := model.CreateCourseInput{
@@ -93,6 +74,7 @@ func TestCourseIntegration(t *testing.T) {
 		assert.Equal(t, createdCourse.CreatorID, retrievedCourse.CreatorID, "Course creator IDs should match")
 	})
 
+	// AI: Separate this test
 	t.Run("GetCourse_InvalidID_Error", func(t *testing.T) {
 		// Test course retrieval with invalid/non-existent ID
 		nonExistentID := uuid.New()
@@ -177,6 +159,7 @@ func TestCourseIntegration(t *testing.T) {
 		assert.NotNil(t, existingCourse, "Course should not be nil after failed deletion")
 	})
 
+	// AI: Separate this test
 	t.Run("RemoveCourse_InvalidID_Error", func(t *testing.T) {
 		// Test course deletion with invalid/non-existent ID
 		nonExistentID := uuid.New()
@@ -206,6 +189,7 @@ func TestCourseIntegration(t *testing.T) {
 		assert.Contains(t, err.Error(), "not found", "Error should indicate course was not found")
 	})
 
+	// AI: Separate this test
 	t.Run("CreateCourse_EdgeCases", func(t *testing.T) {
 		// Test course creation with minimal data (no description)
 		minimalInput := model.CreateCourseInput{
@@ -224,6 +208,7 @@ func TestCourseIntegration(t *testing.T) {
 		assert.NoError(t, err, "Cleanup should succeed")
 	})
 
+	// AI: Separate this test
 	t.Run("UpdateCourse_PartialUpdate", func(t *testing.T) {
 		// Create a new course for partial update test
 		createInput := model.CreateCourseInput{
