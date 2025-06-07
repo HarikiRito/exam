@@ -20,7 +20,9 @@ func TestCourseIntegration(t *testing.T) {
 	// Setup test database
 	dbSchema := utils.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
-	defer setup.DeleteTestSchema(t, dbSchema)
+	t.Cleanup(func() {
+		setup.DeleteTestSchema(t, dbSchema)
+	})
 
 	// Create test users
 	ctx := context.Background()

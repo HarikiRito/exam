@@ -14,7 +14,9 @@ import (
 func TestCreateUser(t *testing.T) {
 	dbSchema := utils.RandomDbSchema()
 	setup.ResetTestSchema(t, dbSchema)
-	defer setup.DeleteTestSchema(t, dbSchema)
+	t.Cleanup(func() {
+		setup.DeleteTestSchema(t, dbSchema)
+	})
 
 	t.Run("CreateUser", func(t *testing.T) {
 		input := model.RegisterInput{

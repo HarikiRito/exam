@@ -139,11 +139,14 @@ func PaginatedQuestions(ctx context.Context, userId uuid.UUID, input *model.Pagi
 		query = query.Where(question.QuestionTextContainsFold(*input.Search))
 	}
 
+	paginationInput := common.FallbackValue(input, common.DefaultPaginationInput)
+
 	// Use the default pagination input if none is provided
-	newInput := common.FallbackValue(input, common.DefaultPaginationInput)
+	page := common.FallbackValue(paginationInput.Page, common.DefaultPage)
+	limit := common.FallbackValue(paginationInput.Limit, common.DefaultLimit)
 
 	// Paginate the results
-	return common.EntQueryPaginated(ctx, query, *newInput.Page, *newInput.Limit)
+	return common.EntQueryPaginated(ctx, query, page, limit)
 }
 
 // GetQuestionOptionsByQuestionIDs fetches question options for multiple question IDs.

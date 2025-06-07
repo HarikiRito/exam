@@ -6,11 +6,11 @@ import (
 	"template/internal/graph/model"
 )
 
-var defaultLimit = 20
-var defaultPage = 1
+var DefaultLimit = 20
+var DefaultPage = 1
 var DefaultPaginationInput = model.PaginationInput{
-	Page:   &defaultPage,
-	Limit:  &defaultLimit,
+	Page:   &DefaultPage,
+	Limit:  &DefaultLimit,
 	Search: nil,
 }
 
@@ -36,7 +36,7 @@ func EntQueryPaginated[T any, Q query[T, Q]](ctx context.Context, query Q, page,
 		page = 1
 	}
 	if limit < 1 {
-		limit = defaultLimit
+		limit = DefaultLimit
 	}
 	offset := (page - 1) * limit
 	totalItems, err := query.Count(ctx)
