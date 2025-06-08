@@ -33,7 +33,6 @@ func UpdateBatchQuestionsByCollection(ctx context.Context, userId uuid.UUID, inp
 	if err != nil {
 		return err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Verify the collection exists and user has access to it
 	collection, err := tx.QuestionCollection.Query().

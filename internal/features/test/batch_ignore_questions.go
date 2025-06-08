@@ -23,7 +23,6 @@ func BatchIgnoreQuestions(ctx context.Context, userId uuid.UUID, input model.Bat
 	if err != nil {
 		return false, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Get the test and verify ownership through course or course_section
 	testExists, err := tx.Test.Query().

@@ -44,3 +44,15 @@ func Find[T any](slice []T, fn func(T) bool) *T {
 	}
 	return nil
 }
+
+func Unique[T comparable](slice []T) []T {
+	seen := make(map[T]bool)
+	result := make([]T, 0)
+	for _, v := range slice {
+		if !seen[v] {
+			seen[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
+}

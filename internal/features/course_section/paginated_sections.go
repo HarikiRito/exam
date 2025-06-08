@@ -15,7 +15,6 @@ func PaginatedCourseSections(ctx context.Context, userId uuid.UUID, page, limit 
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	query := client.CourseSection.Query()
 	return common.EntQueryPaginated(ctx, query, page, limit)

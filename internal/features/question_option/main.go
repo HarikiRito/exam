@@ -19,7 +19,6 @@ func CreateQuestionOption(ctx context.Context, userId uuid.UUID, input model.Cre
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Verify that the question exists and the user has access to it
 	q, err := client.Question.Query().
@@ -58,7 +57,6 @@ func GetQuestionOptionByID(ctx context.Context, userId uuid.UUID, optionID uuid.
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Get the option with its associated question and collection
 	option, err := client.QuestionOption.Query().
@@ -77,7 +75,6 @@ func UpdateQuestionOption(ctx context.Context, userId uuid.UUID, optionID uuid.U
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Verify the option exists and user has access to it
 	exists, err := client.QuestionOption.Query().
@@ -111,7 +108,6 @@ func DeleteQuestionOption(ctx context.Context, userId uuid.UUID, optionID uuid.U
 	if err != nil {
 		return false, err
 	}
-	defer client.Close()
 
 	// Get the option with its associated question and collection
 	exists, err := client.QuestionOption.Query().
@@ -139,7 +135,6 @@ func GetQuestionOptionsByQuestionIDs(ctx context.Context, questionIDs []uuid.UUI
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	options, err := client.QuestionOption.Query().
 		Where(questionoption.QuestionIDIn(questionIDs...)).

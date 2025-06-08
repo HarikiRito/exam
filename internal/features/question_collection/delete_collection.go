@@ -16,7 +16,6 @@ func DeleteQuestionCollection(ctx context.Context, userId uuid.UUID, collectionI
 	if err != nil {
 		return false, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Check if the collection exists and the user is the creator
 	exists, err := tx.QuestionCollection.Query().

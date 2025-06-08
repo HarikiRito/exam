@@ -15,7 +15,6 @@ func GetQuestionCollectionByID(ctx context.Context, userId uuid.UUID, collection
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	collection, err := client.QuestionCollection.Query().
 		Where(questioncollection.ID(collectionId), questioncollection.CreatorID(userId)).

@@ -15,7 +15,6 @@ func GetUserByID(ctx context.Context, userID uuid.UUID) (*ent.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	return client.User.Get(ctx, userID)
 }
@@ -25,7 +24,6 @@ func GetUsersByIDs(ctx context.Context, userIDs []uuid.UUID) ([]*ent.User, error
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	return client.User.Query().Where(user.IDIn(userIDs...)).All(ctx)
 }

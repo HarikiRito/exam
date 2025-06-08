@@ -15,10 +15,6 @@ func OpenTransaction(ctx context.Context) (*ent.Tx, error) {
 	return client.Tx(ctx)
 }
 
-func CloseTransaction(tx *ent.Tx) error {
-	return tx.Client().Close()
-}
-
 // rollback calls to tx.Rollback and wraps the given error
 // with the rollback error if occurred.
 func Rollback(tx *ent.Tx, customError error) error {

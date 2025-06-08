@@ -24,8 +24,6 @@ func BatchDeleteQuestionPoints(ctx context.Context, userId uuid.UUID, input mode
 		return false, err
 	}
 
-	defer db.CloseTransaction(tx)
-
 	_, err = tx.Test.Query().
 		Where(test.ID(input.TestID)).
 		Exist(ctx)

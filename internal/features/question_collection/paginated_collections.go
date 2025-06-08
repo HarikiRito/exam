@@ -17,7 +17,6 @@ func PaginatedQuestionCollections(ctx context.Context, userId uuid.UUID, paginat
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Build the query with authorization filter
 	query := client.QuestionCollection.Query().

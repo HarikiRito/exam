@@ -17,7 +17,6 @@ func RemoveCourseSection(ctx context.Context, userId uuid.UUID, sectionId uuid.U
 	if err != nil {
 		return false, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Validate root section ownership
 	exists, err := tx.CourseSection.Query().

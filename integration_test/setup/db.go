@@ -20,7 +20,6 @@ func PrepareDbClient(t *testing.T, schema string) *sql.DB {
 
 func CreateTestSchema(t *testing.T, schema string) {
 	dbClient := PrepareDbClient(t, schema)
-	defer dbClient.Close()
 
 	_, err := dbClient.Exec(fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS %s;", schema))
 	if err != nil {
@@ -35,7 +34,6 @@ func ResetTestSchema(t *testing.T, schema string) {
 
 func DeleteTestSchema(t *testing.T, schema string) {
 	dbClient := PrepareDbClient(t, schema)
-	defer dbClient.Close()
 
 	_, err := dbClient.Exec(fmt.Sprintf("DROP SCHEMA IF EXISTS %s CASCADE;", schema))
 	if err != nil {
@@ -45,8 +43,7 @@ func DeleteTestSchema(t *testing.T, schema string) {
 
 func initDatabase(t *testing.T, schema string) {
 	CreateTestSchema(t, schema)
-	dbClient := PrepareDbClient(t, schema)
-	defer dbClient.Close()
+	PrepareDbClient(t, schema)
 	err := db.InitDatabase()
 	if err != nil {
 		t.Fatalf("Failed to initialize database: %v", err)

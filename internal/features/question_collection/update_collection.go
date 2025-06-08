@@ -17,7 +17,6 @@ func UpdateQuestionCollection(ctx context.Context, userId uuid.UUID, collectionI
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Check if the collection exists and the user is the creator
 	collection, err := tx.QuestionCollection.Query().

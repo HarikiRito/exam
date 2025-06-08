@@ -20,7 +20,6 @@ func GetCourseSectionsByCourseID(ctx context.Context, userId uuid.UUID, courseId
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Check if the user is the course creator
 	crs, err := client.Course.Query().Select(course.FieldCreatorID).Where(course.ID(courseId)).First(ctx)

@@ -13,7 +13,7 @@ func CreateTodo(ctx context.Context, input model.NewTodo) (*ent.Todo, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+
 	todo, err := client.Todo.Create().SetTitle(input.Text).Save(ctx)
 	if err != nil {
 		return nil, err

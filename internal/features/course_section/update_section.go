@@ -18,7 +18,6 @@ func UpdateCourseSection(ctx context.Context, userId uuid.UUID, sectionId uuid.U
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	section, err := tx.CourseSection.Query().Where(coursesection.ID(sectionId), coursesection.HasCourseWith(course.CreatorID(userId))).First(ctx)
 	if err != nil {

@@ -17,7 +17,6 @@ func CreateCourseSection(ctx context.Context, userId uuid.UUID, courseId uuid.UU
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Check if the user is the course creator
 	crs, err := tx.Course.Get(ctx, courseId)

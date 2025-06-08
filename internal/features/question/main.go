@@ -22,7 +22,6 @@ func CreateQuestion(ctx context.Context, userId uuid.UUID, input model.CreateQue
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Check if the collection exists and the user has access to it (now required)
 	collection, err := tx.QuestionCollection.Query().
@@ -73,7 +72,6 @@ func GetQuestionByID(ctx context.Context, userId uuid.UUID, questionID uuid.UUID
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	q, err := client.Question.Query().
 		Where(question.ID(questionID), question.HasCollectionWith(questioncollection.CreatorID(userId))).
@@ -91,7 +89,6 @@ func DeleteQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID)
 	if err != nil {
 		return false, err
 	}
-	defer client.Close()
 
 	// Verify the question exists and user has access to it
 	exists, err := client.Question.Query().
@@ -120,7 +117,6 @@ func PaginatedQuestions(ctx context.Context, userId uuid.UUID, input *model.Pagi
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Start building the query
 	query := client.Question.Query()
@@ -155,7 +151,6 @@ func GetQuestionOptionsByQuestionIDs(ctx context.Context, questionIDs []uuid.UUI
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	options, err := client.QuestionOption.Query().
 		Where(questionoption.QuestionIDIn(questionIDs...)).

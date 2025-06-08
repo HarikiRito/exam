@@ -3,9 +3,11 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 	"template/internal/ent"
 	_ "template/internal/ent/runtime"
 	"template/internal/shared/environment"
+	"time"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -15,11 +17,34 @@ import (
 var pgxDb *sql.DB
 var databaseURL string
 
-func OpenClient() (*ent.Client, error) {
+// Client caching variables
+var (
+	cachedClient       *ent.Client
+	clientTimer        *time.Timer
+	clientMutex        sync.Mutex
+	clientDebounceTime = 120 * time.Second
+)
+
+// getOrCreateClient returns a cached client or creates a new one with debounce mechanism
+func getOrCreateClient() (*ent.Client, error) {
+	clientMutex.Lock()
+	defer clientMutex.Unlock()
+
+	// If we have a cached client and it matches the debug mode, reset timer and return it
+	if cachedClient != nil {
+		resetClientTimer()
+		if environment.IsDebug() {
+			return cachedClient.Debug(), nil
+		}
+		return cachedClient, nil
+	}
+
+	// Create new client
 	db, err := OpenDB()
 	if err != nil {
 		return nil, err
 	}
+
 	// Create an ent.Driver from `db`.
 	drv := entsql.OpenDB(dialect.Postgres, db)
 
@@ -30,17 +55,36 @@ func OpenClient() (*ent.Client, error) {
 		client = ent.NewClient(ent.Driver(drv))
 	}
 
-	return client, nil
+	// Cache the client and set up timer
+	cachedClient = client
+	resetClientTimer()
+
+	return cachedClient, nil
+}
+
+// resetClientTimer resets the debounce timer for client cleanup
+func resetClientTimer() {
+	if clientTimer != nil {
+		clientTimer.Stop()
+	}
+
+	clientTimer = time.AfterFunc(clientDebounceTime, func() {
+		clientMutex.Lock()
+		defer clientMutex.Unlock()
+
+		if cachedClient != nil {
+			cachedClient.Close()
+			cachedClient = nil
+		}
+	})
+}
+
+func OpenClient() (*ent.Client, error) {
+	return getOrCreateClient()
 }
 
 func OpenClientWithoutDebug() (*ent.Client, error) {
-	db, err := OpenDB()
-	if err != nil {
-		return nil, err
-	}
-	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.Postgres, db)
-	return ent.NewClient(ent.Driver(drv)), nil
+	return getOrCreateClient()
 }
 
 func DatabaseURL() string {

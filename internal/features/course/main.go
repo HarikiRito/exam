@@ -18,7 +18,6 @@ func CreateCourse(ctx context.Context, userId uuid.UUID, input model.CreateCours
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	course, err := client.Course.Create().
 		SetTitle(input.Title).
@@ -38,7 +37,6 @@ func GetCourseByID(ctx context.Context, courseID uuid.UUID) (*ent.Course, error)
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	return client.Course.Get(ctx, courseID)
 }
@@ -49,7 +47,6 @@ func UpdateCourse(ctx context.Context, userId uuid.UUID, courseID uuid.UUID, inp
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	course, err := client.Course.Get(ctx, courseID)
 	if err != nil {
@@ -71,7 +68,6 @@ func RemoveCourse(ctx context.Context, userId uuid.UUID, courseID uuid.UUID) (bo
 	if err != nil {
 		return false, err
 	}
-	defer client.Close()
 
 	crs, err := client.Course.Get(ctx, courseID)
 	if err != nil {
@@ -94,7 +90,6 @@ func PaginatedCourses(ctx context.Context, userId uuid.UUID, input *model.Pagina
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	query := client.Course.Query()
 	query = query.Where(course.CreatorID(userId))

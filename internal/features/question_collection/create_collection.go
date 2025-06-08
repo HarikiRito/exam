@@ -15,7 +15,6 @@ func CreateQuestionCollection(ctx context.Context, userId uuid.UUID, input model
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	collection, err := tx.QuestionCollection.Create().
 		SetTitle(input.Title).

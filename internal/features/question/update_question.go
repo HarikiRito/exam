@@ -20,7 +20,6 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Verify the question exists and user has access to it
 	exists, err := tx.Question.Query().

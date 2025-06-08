@@ -7,6 +7,7 @@ import (
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -18,32 +19,37 @@ func AddMultiCollection(ctx context.Context, userId uuid.UUID, input model.AddMu
 	if err != nil {
 		return false, err
 	}
-	defer db.CloseTransaction(tx)
 
-	_, err = tx.Test.Query().
+	testExists, err := tx.Test.Query().
 		Where(test.ID(input.TestID)).
 		Exist(ctx)
-	if err != nil {
+	if err != nil || !testExists {
 		return false, db.Rollback(tx, errors.New("test not found"))
+	}
+
+	collectionIds := slice.Unique(input.CollectionIds)
+
+	if len(collectionIds) == 0 {
+		return false, db.Rollback(tx, errors.New("no collections provided"))
 	}
 
 	// Get the count of collections that are owned by the user
 	collectionCount, err := tx.QuestionCollection.Query().
 		Where(
-			questioncollection.IDIn(input.CollectionIds...),
+			questioncollection.IDIn(collectionIds...),
 			questioncollection.CreatorID(userId),
 		).Count(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)
 	}
 
-	if collectionCount != len(input.CollectionIds) {
+	if collectionCount != len(collectionIds) {
 		return false, db.Rollback(tx, errors.New("one or more collections not found or unauthorized"))
 	}
 
 	// Add collections to the test
 	_, err = tx.Test.UpdateOneID(input.TestID).ClearQuestionCollections().
-		AddQuestionCollectionIDs(input.CollectionIds...).
+		AddQuestionCollectionIDs(collectionIds...).
 		Save(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)

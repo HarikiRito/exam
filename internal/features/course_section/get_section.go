@@ -16,7 +16,6 @@ func GetCourseSectionByID(ctx context.Context, userId uuid.UUID, sectionId uuid.
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	section, err := client.CourseSection.Query().
 		Where(coursesection.ID(sectionId), coursesection.HasCourseWith(course.CreatorID(userId))).
@@ -34,7 +33,6 @@ func GetCourseSectionsByIDs(ctx context.Context, sectionIDs []uuid.UUID) ([]*ent
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	sections, err := client.CourseSection.Query().
 		Where(coursesection.IDIn(sectionIDs...)).

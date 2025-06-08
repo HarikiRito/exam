@@ -16,7 +16,6 @@ func CreateTest(ctx context.Context, input model.CreateTestInput) (*ent.Test, er
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Build the creation with required Name field
 	query := client.Test.Create().SetName(input.Name).
@@ -37,7 +36,6 @@ func UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) 
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Verify the test exists
 	_, err = client.Test.Get(ctx, id)
@@ -64,7 +62,6 @@ func DeleteTest(ctx context.Context, id uuid.UUID) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer client.Close()
 
 	// Check if the test exists
 	_, err = client.Test.Get(ctx, id)
@@ -87,7 +84,6 @@ func GetTestByID(ctx context.Context, id uuid.UUID) (*ent.Test, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	return client.Test.Get(ctx, id)
 }
@@ -98,7 +94,6 @@ func PaginatedTests(ctx context.Context, input *model.PaginationInput) (*common.
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	query := client.Test.Query()
 

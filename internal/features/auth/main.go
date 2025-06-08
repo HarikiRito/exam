@@ -18,7 +18,6 @@ func Login(ctx context.Context, input model.LoginInput) (*ent.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Find user by email or username
 	userQuery, err := client.User.Query().
@@ -44,7 +43,6 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Check if email already exists
 	existingUserQuery, err := tx.User.Query().

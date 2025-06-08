@@ -18,7 +18,6 @@ func CreateTestSession(ctx context.Context, userID uuid.UUID, input model.Create
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	builder := client.TestSession.Create().
 		SetUserID(userID).
@@ -39,7 +38,6 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
 
 	// Start with the base query
 	query := client.TestSession.Query().
@@ -57,7 +55,6 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 	if err != nil {
 		return nil, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Verify the session exists within the transaction
 	_, err = tx.TestSession.Get(ctx, sessionID)
@@ -111,7 +108,6 @@ func DeleteTestSession(ctx context.Context, sessionID uuid.UUID) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer db.CloseTransaction(tx)
 
 	// Delete the test session within the transaction
 	err = tx.TestSession.DeleteOneID(sessionID).Exec(ctx)
