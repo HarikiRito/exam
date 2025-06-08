@@ -12,6 +12,9 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+var pgxDb *sql.DB
+var databaseURL string
+
 func OpenClient() (*ent.Client, error) {
 	db, err := OpenDB()
 	if err != nil {
@@ -45,11 +48,19 @@ func DatabaseURL() string {
 }
 
 func OpenDB() (*sql.DB, error) {
-	db, err := sql.Open("pgx", DatabaseURL())
+	// Only open a new db connection if the database URL has changed. Otherwise, use the cached connection.
+	// This is to avoid opening too many concurrent connections to the database, which cause the max open connections error.
+	if pgxDb != nil && pgxDb.Ping() == nil && databaseURL == DatabaseURL() {
+		return pgxDb, nil
+	}
+
+	databaseURL = DatabaseURL()
+	db, err := sql.Open("pgx", databaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	return db, nil
+	pgxDb = db
 
+	return pgxDb, nil
 }
