@@ -30,9 +30,7 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 	}
 
 	// Start building the update
-	update := tx.Question.UpdateOneID(questionID)
-
-	update.SetNillableQuestionText(input.QuestionText)
+	update := tx.Question.UpdateOneID(questionID).SetNillableQuestionText(input.QuestionText).SetPoints(input.Points)
 
 	// Update collection ID if provided
 	if input.QuestionCollectionID != nil {

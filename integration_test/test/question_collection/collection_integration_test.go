@@ -78,6 +78,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("5"), IsCorrect: utils.Ptr(false)},
 						{OptionText: utils.Ptr("6"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 				{
 					QuestionText: utils.Ptr("What is 3 × 4?"),
@@ -87,6 +88,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("12"), IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("13"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 				{
 					QuestionText: utils.Ptr("What is the square root of 16?"),
@@ -96,6 +98,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("4"), IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("5"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 			},
 		}
@@ -118,6 +121,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("CO2"), IsCorrect: utils.Ptr(false)},
 						{OptionText: utils.Ptr("O2"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 				{
 					QuestionText: utils.Ptr("How many bones are in the human body?"),
@@ -126,6 +130,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("205"), IsCorrect: utils.Ptr(false)},
 						{OptionText: utils.Ptr("207"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 			},
 		}
@@ -167,11 +172,13 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("4"), IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("Not 4"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 				// Delete second question
 				{
 					ID:      &mathQuestions[1].ID,
 					Options: []*model.UpdateQuestionOptionInput{},
+					Points:  10,
 				},
 				// Keep third question unchanged (not included in update)
 				// Add new question
@@ -182,6 +189,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("25"), IsCorrect: utils.Ptr(false)},
 						{OptionText: utils.Ptr("35"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 			},
 		}
@@ -263,6 +271,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 					{OptionText: utils.Ptr(fmt.Sprintf("Wrong answer 2 %d", i+1)), IsCorrect: utils.Ptr(false)},
 					{OptionText: utils.Ptr(fmt.Sprintf("Wrong answer 3 %d", i+1)), IsCorrect: utils.Ptr(false)},
 				},
+				Points: 10,
 			})
 		}
 
@@ -321,6 +330,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option"), IsCorrect: utils.Ptr(true)},
 					},
+					Points: 10,
 				},
 			},
 		}
@@ -337,6 +347,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Valid option"), IsCorrect: utils.Ptr(true)},
 					},
+					Points: 10,
 				},
 				{
 					QuestionText: utils.Ptr("Invalid question - no correct answer"),
@@ -344,12 +355,14 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 						{OptionText: utils.Ptr("Wrong option 1"), IsCorrect: utils.Ptr(false)},
 						{OptionText: utils.Ptr("Wrong option 2"), IsCorrect: utils.Ptr(false)},
 					},
+					Points: 10,
 				},
 				{
 					QuestionText: utils.Ptr("Valid question 2"),
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Another valid option"), IsCorrect: utils.Ptr(true)},
 					},
+					Points: 10,
 				},
 			},
 		}
@@ -375,6 +388,7 @@ func TestQuestionCollectionIntegration(t *testing.T) {
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option"), IsCorrect: utils.Ptr(true)},
 					},
+					Points: 10,
 				},
 			},
 		}

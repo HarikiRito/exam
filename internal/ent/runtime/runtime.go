@@ -178,6 +178,12 @@ func init() {
 	questionDescQuestionText := questionFields[1].Descriptor()
 	// question.QuestionTextValidator is a validator for the "question_text" field. It is called by the builders before save.
 	question.QuestionTextValidator = questionDescQuestionText.Validators[0].(func(string) error)
+	// questionDescPoints is the schema descriptor for points field.
+	questionDescPoints := questionFields[2].Descriptor()
+	// question.DefaultPoints holds the default value on creation for the points field.
+	question.DefaultPoints = questionDescPoints.Default.(int)
+	// question.PointsValidator is a validator for the "points" field. It is called by the builders before save.
+	question.PointsValidator = questionDescPoints.Validators[0].(func(int) error)
 	// questionDescID is the schema descriptor for id field.
 	questionDescID := questionMixinFields0[0].Descriptor()
 	// question.DefaultID holds the default value on creation for the id field.

@@ -81,6 +81,20 @@ func (qc *QuestionCreate) SetQuestionText(s string) *QuestionCreate {
 	return qc
 }
 
+// SetPoints sets the "points" field.
+func (qc *QuestionCreate) SetPoints(i int) *QuestionCreate {
+	qc.mutation.SetPoints(i)
+	return qc
+}
+
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (qc *QuestionCreate) SetNillablePoints(i *int) *QuestionCreate {
+	if i != nil {
+		qc.SetPoints(*i)
+	}
+	return qc
+}
+
 // SetID sets the "id" field.
 func (qc *QuestionCreate) SetID(u uuid.UUID) *QuestionCreate {
 	qc.mutation.SetID(u)
@@ -226,6 +240,10 @@ func (qc *QuestionCreate) defaults() error {
 		v := question.DefaultUpdatedAt()
 		qc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := qc.mutation.Points(); !ok {
+		v := question.DefaultPoints
+		qc.mutation.SetPoints(v)
+	}
 	if _, ok := qc.mutation.ID(); !ok {
 		if question.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized question.DefaultID (forgotten import ent/runtime?)")
@@ -253,6 +271,14 @@ func (qc *QuestionCreate) check() error {
 	if v, ok := qc.mutation.QuestionText(); ok {
 		if err := question.QuestionTextValidator(v); err != nil {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
+		}
+	}
+	if _, ok := qc.mutation.Points(); !ok {
+		return &ValidationError{Name: "points", err: errors.New(`ent: missing required field "Question.points"`)}
+	}
+	if v, ok := qc.mutation.Points(); ok {
+		if err := question.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "Question.points": %w`, err)}
 		}
 	}
 	if len(qc.mutation.CollectionIDs()) == 0 {
@@ -308,6 +334,10 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 	if value, ok := qc.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
 		_node.QuestionText = value
+	}
+	if value, ok := qc.mutation.Points(); ok {
+		_spec.SetField(question.FieldPoints, field.TypeInt, value)
+		_node.Points = value
 	}
 	if nodes := qc.mutation.CollectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

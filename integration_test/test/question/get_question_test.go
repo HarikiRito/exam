@@ -45,6 +45,7 @@ func TestGetQuestionByID(t *testing.T) {
 	questionInput := model.CreateQuestionInput{
 		QuestionText:         "What is the capital of France?",
 		QuestionCollectionID: collection.ID,
+		Points:               15,
 		Options: []*model.QuestionOptionInput{
 			{
 				OptionText: "Paris",
@@ -66,6 +67,7 @@ func TestGetQuestionByID(t *testing.T) {
 		assert.Equal(t, createdQuestion.ID, retrievedQuestion.ID)
 		assert.Equal(t, createdQuestion.QuestionText, retrievedQuestion.QuestionText)
 		assert.Equal(t, createdQuestion.CollectionID, retrievedQuestion.CollectionID)
+		assert.Equal(t, createdQuestion.Points, retrievedQuestion.Points)
 	})
 
 	t.Run("GetQuestionByID_NotFound", func(t *testing.T) {

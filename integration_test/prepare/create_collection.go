@@ -43,6 +43,7 @@ func CreateCollectionWithQuestions(t *testing.T, userID uuid.UUID, questionCount
 		questionInputs[i] = &model.UpdateQuestionData{
 			QuestionText: utils.Ptr(utils.Faker.Lorem().Sentence(10)),
 			Options:      options,
+			Points:       utils.Faker.IntBetween(1, 10),
 		}
 	}
 

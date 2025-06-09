@@ -29,6 +29,8 @@ type Question struct {
 	CollectionID uuid.UUID `json:"collection_id,omitempty"`
 	// QuestionText holds the value of the "question_text" field.
 	QuestionText string `json:"question_text,omitempty"`
+	// Points holds the value of the "points" field.
+	Points int `json:"points,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the QuestionQuery when eager-loading is set.
 	Edges        QuestionEdges `json:"edges"`
@@ -115,6 +117,8 @@ func (*Question) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case question.FieldPoints:
+			values[i] = new(sql.NullInt64)
 		case question.FieldQuestionText:
 			values[i] = new(sql.NullString)
 		case question.FieldCreatedAt, question.FieldUpdatedAt, question.FieldDeletedAt:
@@ -172,6 +176,12 @@ func (q *Question) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field question_text", values[i])
 			} else if value.Valid {
 				q.QuestionText = value.String
+			}
+		case question.FieldPoints:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field points", values[i])
+			} else if value.Valid {
+				q.Points = int(value.Int64)
 			}
 		default:
 			q.selectValues.Set(columns[i], values[i])
@@ -255,6 +265,9 @@ func (q *Question) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("question_text=")
 	builder.WriteString(q.QuestionText)
+	builder.WriteString(", ")
+	builder.WriteString("points=")
+	builder.WriteString(fmt.Sprintf("%v", q.Points))
 	builder.WriteByte(')')
 	return builder.String()
 }

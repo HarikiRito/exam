@@ -58,6 +58,7 @@ func TestPaginatedQuestions(t *testing.T) {
 		questionInput := model.CreateQuestionInput{
 			QuestionText:         text,
 			QuestionCollectionID: collection.ID,
+			Points:               (i + 1) * 5, // Different points for each question
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Option A",

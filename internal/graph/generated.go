@@ -184,6 +184,7 @@ type ComplexityRoot struct {
 		Collection   func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Options      func(childComplexity int) int
+		Points       func(childComplexity int) int
 		QuestionText func(childComplexity int) int
 	}
 
@@ -1236,6 +1237,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Question.Options(childComplexity), true
+
+	case "Question.points":
+		if e.complexity.Question.Points == nil {
+			break
+		}
+
+		return e.complexity.Question.Points(childComplexity), true
 
 	case "Question.questionText":
 		if e.complexity.Question.QuestionText == nil {
@@ -4321,6 +4329,8 @@ func (ec *executionContext) fieldContext_Mutation_createQuestion(ctx context.Con
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -4386,6 +4396,8 @@ func (ec *executionContext) fieldContext_Mutation_updateQuestion(ctx context.Con
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -6107,6 +6119,8 @@ func (ec *executionContext) fieldContext_PaginatedQuestion_items(_ context.Conte
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -7384,6 +7398,8 @@ func (ec *executionContext) fieldContext_Query_question(ctx context.Context, fie
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -8379,6 +8395,50 @@ func (ec *executionContext) fieldContext_Question_options(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Question_points(ctx context.Context, field graphql.CollectedField, obj *model.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_points(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Points, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Question_points(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Question",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QuestionCollection_id(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QuestionCollection_id(ctx, field)
 	if err != nil {
@@ -8605,6 +8665,8 @@ func (ec *executionContext) fieldContext_QuestionCollection_questions(_ context.
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -8791,6 +8853,8 @@ func (ec *executionContext) fieldContext_QuestionOption_question(_ context.Conte
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -9527,6 +9591,8 @@ func (ec *executionContext) fieldContext_TestIgnoreQuestion_question(_ context.C
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -9930,6 +9996,8 @@ func (ec *executionContext) fieldContext_TestQuestionPoint_question(_ context.Co
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -10698,6 +10766,8 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_question(_ context.C
 				return ec.fieldContext_Question_collection(ctx, field)
 			case "options":
 				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -12970,7 +13040,7 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionText", "questionCollectionId", "options"}
+	fieldsInOrder := [...]string{"questionText", "questionCollectionId", "options", "points"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12998,6 +13068,13 @@ func (ec *executionContext) unmarshalInputCreateQuestionInput(ctx context.Contex
 				return it, err
 			}
 			it.Options = data
+		case "points":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Points = data
 		}
 	}
 
@@ -13556,7 +13633,7 @@ func (ec *executionContext) unmarshalInputUpdateQuestionData(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "questionText", "options"}
+	fieldsInOrder := [...]string{"id", "questionText", "options", "points"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13584,6 +13661,13 @@ func (ec *executionContext) unmarshalInputUpdateQuestionData(ctx context.Context
 				return it, err
 			}
 			it.Options = data
+		case "points":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Points = data
 		}
 	}
 
@@ -13597,7 +13681,7 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionText", "questionCollectionId", "options"}
+	fieldsInOrder := [...]string{"questionText", "questionCollectionId", "options", "points"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13625,6 +13709,13 @@ func (ec *executionContext) unmarshalInputUpdateQuestionInput(ctx context.Contex
 				return it, err
 			}
 			it.Options = data
+		case "points":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Points = data
 		}
 	}
 
@@ -15230,6 +15321,11 @@ func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "points":
+			out.Values[i] = ec._Question_points(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

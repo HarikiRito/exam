@@ -47,4 +47,5 @@ input UpdateQuestionData {
   id: ID
   questionText: String
   options: [UpdateQuestionOptionInput!]!
+  points: Int!
 }

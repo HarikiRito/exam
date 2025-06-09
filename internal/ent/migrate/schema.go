@@ -120,6 +120,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "question_text", Type: field.TypeString, Size: 2147483647},
+		{Name: "points", Type: field.TypeInt, Default: 0},
 		{Name: "collection_id", Type: field.TypeUUID},
 	}
 	// QuestionsTable holds the schema information for the "questions" table.
@@ -130,7 +131,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "questions_question_collections_questions",
-				Columns:    []*schema.Column{QuestionsColumns[5]},
+				Columns:    []*schema.Column{QuestionsColumns[6]},
 				RefColumns: []*schema.Column{QuestionCollectionsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

@@ -20,11 +20,13 @@ type questionUpdateData struct {
 	ID           uuid.UUID
 	QuestionText string
 	Options      []*model.UpdateQuestionOptionInput
+	Points       int
 }
 
 type questionCreateData struct {
 	QuestionText string
 	Options      []*model.UpdateQuestionOptionInput
+	Points       int
 }
 
 // UpdateBatchQuestionsByCollection handles batch updates of questions within a collection
@@ -62,6 +64,7 @@ func UpdateBatchQuestionsByCollection(ctx context.Context, userId uuid.UUID, inp
 					ID:           *questionData.ID,
 					QuestionText: *questionData.QuestionText,
 					Options:      questionData.Options,
+					Points:       questionData.Points,
 				})
 			}
 		} else if questionData.QuestionText != nil {
@@ -69,6 +72,7 @@ func UpdateBatchQuestionsByCollection(ctx context.Context, userId uuid.UUID, inp
 			questionsToCreate = append(questionsToCreate, questionCreateData{
 				QuestionText: *questionData.QuestionText,
 				Options:      questionData.Options,
+				Points:       questionData.Points,
 			})
 		}
 	}
@@ -152,6 +156,7 @@ func handleBatchQuestionsUpdate(ctx context.Context, tx *ent.Tx, questionsToUpda
 	for _, questionData := range questionsToUpdate {
 		_, err = tx.Question.UpdateOneID(questionData.ID).
 			SetQuestionText(questionData.QuestionText).
+			SetPoints(questionData.Points).
 			Save(ctx)
 		if err != nil {
 			return err
@@ -189,6 +194,7 @@ func handleBatchQuestionsCreation(ctx context.Context, tx *ent.Tx, collectionID 
 	questionCreateQueries := slice.Map(questionsToCreate, func(questionData questionCreateData) *ent.QuestionCreate {
 		return tx.Question.Create().
 			SetQuestionText(questionData.QuestionText).
+			SetPoints(questionData.Points).
 			SetCollectionID(collectionID)
 	})
 

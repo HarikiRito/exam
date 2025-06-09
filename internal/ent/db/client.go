@@ -7,7 +7,6 @@ import (
 	"template/internal/ent"
 	_ "template/internal/ent/runtime"
 	"template/internal/shared/environment"
-	"time"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -19,10 +18,8 @@ var databaseURL string
 
 // Client caching variables
 var (
-	cachedClient       *ent.Client
-	clientTimer        *time.Timer
-	clientMutex        sync.Mutex
-	clientDebounceTime = 120 * time.Second
+	cachedClient *ent.Client
+	clientMutex  sync.Mutex
 )
 
 // getOrCreateClient returns a cached client or creates a new one with debounce mechanism
@@ -35,7 +32,6 @@ func getOrCreateClient() (*ent.Client, error) {
 		if environment.IsDebug() {
 			return cachedClient.Debug(), nil
 		}
-		resetClientTimer()
 		return cachedClient, nil
 	}
 
@@ -57,26 +53,8 @@ func getOrCreateClient() (*ent.Client, error) {
 
 	// Cache the client and set up timer
 	cachedClient = client
-	resetClientTimer()
 
 	return cachedClient, nil
-}
-
-// resetClientTimer resets the debounce timer for client cleanup
-func resetClientTimer() {
-	if clientTimer != nil {
-		clientTimer.Stop()
-	}
-
-	clientTimer = time.AfterFunc(clientDebounceTime, func() {
-		clientMutex.Lock()
-		defer clientMutex.Unlock()
-
-		if cachedClient != nil {
-			cachedClient.Close()
-			cachedClient = nil
-		}
-	})
 }
 
 func OpenClient() (*ent.Client, error) {

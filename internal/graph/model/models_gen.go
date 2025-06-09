@@ -58,6 +58,7 @@ type CreateQuestionInput struct {
 	QuestionText         string                 `json:"questionText"`
 	QuestionCollectionID uuid.UUID              `json:"questionCollectionId"`
 	Options              []*QuestionOptionInput `json:"options"`
+	Points               int                    `json:"points"`
 }
 
 type CreateQuestionOptionInput struct {
@@ -221,12 +222,14 @@ type UpdateQuestionData struct {
 	ID           *uuid.UUID                   `json:"id,omitempty"`
 	QuestionText *string                      `json:"questionText,omitempty"`
 	Options      []*UpdateQuestionOptionInput `json:"options"`
+	Points       int                          `json:"points"`
 }
 
 type UpdateQuestionInput struct {
 	QuestionText         *string                `json:"questionText,omitempty"`
 	QuestionCollectionID *uuid.UUID             `json:"questionCollectionId,omitempty"`
 	Options              []*QuestionOptionInput `json:"options,omitempty"`
+	Points               int                    `json:"points"`
 }
 
 type UpdateQuestionOptionInput struct {

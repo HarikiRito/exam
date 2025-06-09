@@ -48,6 +48,7 @@ func TestDeleteQuestion(t *testing.T) {
 		questionInput := model.CreateQuestionInput{
 			QuestionText:         "What is the capital of France?",
 			QuestionCollectionID: collection.ID,
+			Points:               10,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Paris",
@@ -78,6 +79,7 @@ func TestDeleteQuestion(t *testing.T) {
 		questionInput := model.CreateQuestionInput{
 			QuestionText:         "Which are programming languages?",
 			QuestionCollectionID: collection.ID,
+			Points:               20,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Go",
@@ -124,6 +126,7 @@ func TestDeleteQuestion(t *testing.T) {
 		questionInput := model.CreateQuestionInput{
 			QuestionText:         "Test question for unauthorized delete",
 			QuestionCollectionID: collection.ID,
+			Points:               15,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Option 1",
@@ -173,6 +176,7 @@ func TestDeleteQuestion(t *testing.T) {
 			questionInput := model.CreateQuestionInput{
 				QuestionText:         fmt.Sprintf("Test question %d", i+1),
 				QuestionCollectionID: collection.ID,
+				Points:               5 + i,
 				Options: []*model.QuestionOptionInput{
 					{
 						OptionText: fmt.Sprintf("Option %d", i+1),
@@ -203,6 +207,7 @@ func TestDeleteQuestion(t *testing.T) {
 		question1Input := model.CreateQuestionInput{
 			QuestionText:         "Question to be deleted",
 			QuestionCollectionID: collection.ID,
+			Points:               10,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Option 1",
@@ -216,6 +221,7 @@ func TestDeleteQuestion(t *testing.T) {
 		question2Input := model.CreateQuestionInput{
 			QuestionText:         "Question to be kept",
 			QuestionCollectionID: collection.ID,
+			Points:               15,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Option 2",

@@ -50,6 +50,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("What is 2 + 2?"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{
 							OptionText: utils.Ptr("3"),
@@ -67,6 +68,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				},
 				{
 					QuestionText: utils.Ptr("What is the capital of France?"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{
 							OptionText: utils.Ptr("London"),
@@ -123,6 +125,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				{
 					ID:           &existingQuestions[0].ID,
 					QuestionText: utils.Ptr("Updated: What is 2 + 2?"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{
 							OptionText: utils.Ptr("Updated: 3"),
@@ -137,6 +140,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				{
 					ID:           &existingQuestions[1].ID,
 					QuestionText: utils.Ptr("Updated: What is the capital of France?"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{
 							OptionText: utils.Ptr("Updated: Paris"),
@@ -183,6 +187,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				{
 					ID: &existingQuestions[0].ID,
 					// No QuestionText means delete
+					Points:  10,
 					Options: []*model.UpdateQuestionOptionInput{},
 				},
 			},
@@ -213,6 +218,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Initial question 1"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option 1"), IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("Option 2"), IsCorrect: utils.Ptr(false)},
@@ -220,6 +226,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				},
 				{
 					QuestionText: utils.Ptr("Initial question 2"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option A"), IsCorrect: utils.Ptr(true)},
 					},
@@ -242,6 +249,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				{
 					ID:           &createdQuestions[0].ID,
 					QuestionText: utils.Ptr("Updated question 1"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Updated Option 1"), IsCorrect: utils.Ptr(true)},
 					},
@@ -250,11 +258,13 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				{
 					ID: &createdQuestions[1].ID,
 					// No QuestionText means delete
+					Points:  10,
 					Options: []*model.UpdateQuestionOptionInput{},
 				},
 				// Create new question
 				{
 					QuestionText: utils.Ptr("New question 3"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("New Option 1"), IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("New Option 2"), IsCorrect: utils.Ptr(false)},
@@ -294,6 +304,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Unauthorized question"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option"), IsCorrect: utils.Ptr(true)},
 					},
@@ -313,6 +324,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Question for non-existent collection"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option"), IsCorrect: utils.Ptr(true)},
 					},
@@ -331,6 +343,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Question with no correct option"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Wrong option 1"), IsCorrect: utils.Ptr(false)},
 						{OptionText: utils.Ptr("Wrong option 2"), IsCorrect: utils.Ptr(false)},
@@ -350,6 +363,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Question with empty options"),
+					Points:       10,
 					Options:      []*model.UpdateQuestionOptionInput{},
 				},
 			},
@@ -368,6 +382,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 				{
 					ID:           &invalidID,
 					QuestionText: utils.Ptr("Update non-existent question"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option"), IsCorrect: utils.Ptr(true)},
 					},
@@ -386,6 +401,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Question with multiple correct options"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Correct option 1"), IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("Correct option 2"), IsCorrect: utils.Ptr(true)},
@@ -405,6 +421,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Question with nil option text"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: nil, IsCorrect: utils.Ptr(true)},
 						{OptionText: utils.Ptr("Valid option"), IsCorrect: utils.Ptr(false)},
@@ -423,6 +440,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Question with nil IsCorrect"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Option 1"), IsCorrect: nil},
 						{OptionText: utils.Ptr("Option 2"), IsCorrect: utils.Ptr(true)},
@@ -458,6 +476,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 		for i := 0; i < 50; i++ {
 			questions = append(questions, &model.UpdateQuestionData{
 				QuestionText: utils.Ptr(fmt.Sprintf("Question %d", i+1)),
+				Points:       10,
 				Options: []*model.UpdateQuestionOptionInput{
 					{OptionText: utils.Ptr(fmt.Sprintf("Option A %d", i+1)), IsCorrect: utils.Ptr(true)},
 					{OptionText: utils.Ptr(fmt.Sprintf("Option B %d", i+1)), IsCorrect: utils.Ptr(false)},
@@ -493,6 +512,7 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Valid question"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Valid option"), IsCorrect: utils.Ptr(true)},
 					},
@@ -514,12 +534,14 @@ func TestUpdateBatchQuestionsByCollection(t *testing.T) {
 			Questions: []*model.UpdateQuestionData{
 				{
 					QuestionText: utils.Ptr("Valid question 2"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Valid option"), IsCorrect: utils.Ptr(true)},
 					},
 				},
 				{
 					QuestionText: utils.Ptr("Invalid question - no correct option"),
+					Points:       10,
 					Options: []*model.UpdateQuestionOptionInput{
 						{OptionText: utils.Ptr("Wrong option"), IsCorrect: utils.Ptr(false)},
 					},

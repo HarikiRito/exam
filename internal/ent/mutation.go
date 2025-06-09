@@ -4299,6 +4299,8 @@ type QuestionMutation struct {
 	updated_at                                *time.Time
 	deleted_at                                *time.Time
 	question_text                             *string
+	points                                    *int
+	addpoints                                 *int
 	clearedFields                             map[string]struct{}
 	collection                                *uuid.UUID
 	clearedcollection                         bool
@@ -4617,6 +4619,62 @@ func (m *QuestionMutation) OldQuestionText(ctx context.Context) (v string, err e
 // ResetQuestionText resets all changes to the "question_text" field.
 func (m *QuestionMutation) ResetQuestionText() {
 	m.question_text = nil
+}
+
+// SetPoints sets the "points" field.
+func (m *QuestionMutation) SetPoints(i int) {
+	m.points = &i
+	m.addpoints = nil
+}
+
+// Points returns the value of the "points" field in the mutation.
+func (m *QuestionMutation) Points() (r int, exists bool) {
+	v := m.points
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPoints returns the old "points" field's value of the Question entity.
+// If the Question object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuestionMutation) OldPoints(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPoints is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPoints requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPoints: %w", err)
+	}
+	return oldValue.Points, nil
+}
+
+// AddPoints adds i to the "points" field.
+func (m *QuestionMutation) AddPoints(i int) {
+	if m.addpoints != nil {
+		*m.addpoints += i
+	} else {
+		m.addpoints = &i
+	}
+}
+
+// AddedPoints returns the value that was added to the "points" field in this mutation.
+func (m *QuestionMutation) AddedPoints() (r int, exists bool) {
+	v := m.addpoints
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPoints resets all changes to the "points" field.
+func (m *QuestionMutation) ResetPoints() {
+	m.points = nil
+	m.addpoints = nil
 }
 
 // ClearCollection clears the "collection" edge to the QuestionCollection entity.
@@ -4950,7 +5008,7 @@ func (m *QuestionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *QuestionMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, question.FieldCreatedAt)
 	}
@@ -4965,6 +5023,9 @@ func (m *QuestionMutation) Fields() []string {
 	}
 	if m.question_text != nil {
 		fields = append(fields, question.FieldQuestionText)
+	}
+	if m.points != nil {
+		fields = append(fields, question.FieldPoints)
 	}
 	return fields
 }
@@ -4984,6 +5045,8 @@ func (m *QuestionMutation) Field(name string) (ent.Value, bool) {
 		return m.CollectionID()
 	case question.FieldQuestionText:
 		return m.QuestionText()
+	case question.FieldPoints:
+		return m.Points()
 	}
 	return nil, false
 }
@@ -5003,6 +5066,8 @@ func (m *QuestionMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldCollectionID(ctx)
 	case question.FieldQuestionText:
 		return m.OldQuestionText(ctx)
+	case question.FieldPoints:
+		return m.OldPoints(ctx)
 	}
 	return nil, fmt.Errorf("unknown Question field %s", name)
 }
@@ -5047,6 +5112,13 @@ func (m *QuestionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetQuestionText(v)
 		return nil
+	case question.FieldPoints:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPoints(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Question field %s", name)
 }
@@ -5054,13 +5126,21 @@ func (m *QuestionMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *QuestionMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addpoints != nil {
+		fields = append(fields, question.FieldPoints)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *QuestionMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case question.FieldPoints:
+		return m.AddedPoints()
+	}
 	return nil, false
 }
 
@@ -5069,6 +5149,13 @@ func (m *QuestionMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *QuestionMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case question.FieldPoints:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPoints(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Question numeric field %s", name)
 }
@@ -5119,6 +5206,9 @@ func (m *QuestionMutation) ResetField(name string) error {
 		return nil
 	case question.FieldQuestionText:
 		m.ResetQuestionText()
+		return nil
+	case question.FieldPoints:
+		m.ResetPoints()
 		return nil
 	}
 	return fmt.Errorf("unknown Question field %s", name)

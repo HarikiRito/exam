@@ -51,6 +51,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         "What is the capital of France?",
 			QuestionCollectionID: collection.ID,
+			Points:               10,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Paris",
@@ -76,6 +77,7 @@ func TestCreateQuestion(t *testing.T) {
 		assert.NotNil(t, createdQuestion)
 		assert.Equal(t, input.QuestionText, createdQuestion.QuestionText)
 		assert.Equal(t, collection.ID, createdQuestion.CollectionID)
+		assert.Equal(t, input.Points, createdQuestion.Points)
 		assert.NotEqual(t, uuid.Nil, createdQuestion.ID)
 	})
 
@@ -83,6 +85,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         "What is 2+2?",
 			QuestionCollectionID: collection.ID,
+			Points:               5,
 			Options:              []*model.QuestionOptionInput{},
 		}
 
@@ -90,6 +93,71 @@ func TestCreateQuestion(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, createdQuestion)
 		assert.Equal(t, input.QuestionText, createdQuestion.QuestionText)
+		assert.Equal(t, input.Points, createdQuestion.Points)
+	})
+
+	t.Run("CreateQuestion_ZeroPoints", func(t *testing.T) {
+		input := model.CreateQuestionInput{
+			QuestionText:         "Question with zero points?",
+			QuestionCollectionID: collection.ID,
+			Points:               0,
+			Options: []*model.QuestionOptionInput{
+				{
+					OptionText: "Answer",
+					IsCorrect:  true,
+				},
+			},
+		}
+
+		createdQuestion, err := question.CreateQuestion(context.Background(), userID, input)
+		// Zero points should fail due to schema validation (Positive() constraint)
+		assert.Error(t, err)
+		assert.Nil(t, createdQuestion)
+		assert.Contains(t, err.Error(), "value out of range")
+	})
+
+	t.Run("CreateQuestion_NegativePoints", func(t *testing.T) {
+		input := model.CreateQuestionInput{
+			QuestionText:         "Question with negative points?",
+			QuestionCollectionID: collection.ID,
+			Points:               -5,
+			Options: []*model.QuestionOptionInput{
+				{
+					OptionText: "Answer",
+					IsCorrect:  true,
+				},
+			},
+		}
+
+		createdQuestion, err := question.CreateQuestion(context.Background(), userID, input)
+		// Negative points should fail due to schema validation (Positive() constraint)
+		assert.Error(t, err)
+		assert.Nil(t, createdQuestion)
+		assert.Contains(t, err.Error(), "value out of range")
+	})
+
+	t.Run("CreateQuestion_HighPoints", func(t *testing.T) {
+		input := model.CreateQuestionInput{
+			QuestionText:         "High-value question?",
+			QuestionCollectionID: collection.ID,
+			Points:               100,
+			Options: []*model.QuestionOptionInput{
+				{
+					OptionText: "Correct answer",
+					IsCorrect:  true,
+				},
+				{
+					OptionText: "Wrong answer",
+					IsCorrect:  false,
+				},
+			},
+		}
+
+		createdQuestion, err := question.CreateQuestion(context.Background(), userID, input)
+		assert.NoError(t, err)
+		assert.NotNil(t, createdQuestion)
+		assert.Equal(t, input.Points, createdQuestion.Points)
+		assert.Equal(t, 100, createdQuestion.Points)
 	})
 
 	t.Run("CreateQuestion_InvalidCollection", func(t *testing.T) {
@@ -97,6 +165,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         "Test question",
 			QuestionCollectionID: invalidCollectionID,
+			Points:               10,
 			Options:              []*model.QuestionOptionInput{},
 		}
 
@@ -125,6 +194,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         "Unauthorized question",
 			QuestionCollectionID: collection.ID,
+			Points:               10,
 			Options:              []*model.QuestionOptionInput{},
 		}
 
@@ -138,6 +208,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         "",
 			QuestionCollectionID: collection.ID,
+			Points:               10,
 			Options:              []*model.QuestionOptionInput{},
 		}
 
@@ -150,6 +221,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         "Which are programming languages?",
 			QuestionCollectionID: collection.ID,
+			Points:               15,
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: "Go",
@@ -169,6 +241,7 @@ func TestCreateQuestion(t *testing.T) {
 		createdQuestion, err := question.CreateQuestion(context.Background(), userID, input)
 		assert.NoError(t, err)
 		assert.NotNil(t, createdQuestion)
+		assert.Equal(t, input.Points, createdQuestion.Points)
 	})
 
 	t.Run("CreateQuestion_LongQuestionText", func(t *testing.T) {
@@ -176,6 +249,7 @@ func TestCreateQuestion(t *testing.T) {
 		input := model.CreateQuestionInput{
 			QuestionText:         longText,
 			QuestionCollectionID: collection.ID,
+			Points:               20,
 			Options:              []*model.QuestionOptionInput{},
 		}
 
@@ -183,5 +257,80 @@ func TestCreateQuestion(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, createdQuestion)
 		assert.Equal(t, longText, createdQuestion.QuestionText)
+		assert.Equal(t, input.Points, createdQuestion.Points)
+	})
+
+	t.Run("CreateQuestion_PointsValidation", func(t *testing.T) {
+		testCases := []struct {
+			name           string
+			points         int
+			expectedPoints int
+			shouldSucceed  bool
+		}{
+			{
+				name:           "Valid positive points",
+				points:         50,
+				expectedPoints: 50,
+				shouldSucceed:  true,
+			},
+			{
+				name:           "Minimum valid points (1)",
+				points:         1,
+				expectedPoints: 1,
+				shouldSucceed:  true,
+			},
+			{
+				name:           "Zero points (should fail)",
+				points:         0,
+				expectedPoints: 0,
+				shouldSucceed:  false,
+			},
+			{
+				name:           "Negative points (should fail)",
+				points:         -25,
+				expectedPoints: -25,
+				shouldSucceed:  false,
+			},
+			{
+				name:           "Large points value",
+				points:         999999,
+				expectedPoints: 999999,
+				shouldSucceed:  true,
+			},
+			{
+				name:           "Very negative points (should fail)",
+				points:         -999999,
+				expectedPoints: -999999,
+				shouldSucceed:  false,
+			},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				input := model.CreateQuestionInput{
+					QuestionText:         "Points validation test: " + tc.name,
+					QuestionCollectionID: collection.ID,
+					Points:               tc.points,
+					Options: []*model.QuestionOptionInput{
+						{
+							OptionText: "Test option",
+							IsCorrect:  true,
+						},
+					},
+				}
+
+				createdQuestion, err := question.CreateQuestion(context.Background(), userID, input)
+
+				if tc.shouldSucceed {
+					assert.NoError(t, err)
+					assert.NotNil(t, createdQuestion)
+					assert.Equal(t, tc.expectedPoints, createdQuestion.Points)
+				} else {
+					assert.Error(t, err)
+					assert.Nil(t, createdQuestion)
+					assert.Contains(t, err.Error(), "value out of range")
+				}
+			})
+		}
 	})
 }

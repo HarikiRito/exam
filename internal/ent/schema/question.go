@@ -20,6 +20,7 @@ func (Question) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("collection_id", uuid.UUID{}),
 		field.Text("question_text").NotEmpty(),
+		field.Int("points").Default(0).Positive(),
 	}
 }
 

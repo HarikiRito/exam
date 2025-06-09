@@ -14,6 +14,7 @@ type Question {
   questionText: String!
   collection: QuestionCollection
   options: [QuestionOption!]!
+  points: Int!
 }
 
 type PaginatedQuestion {
@@ -25,6 +26,7 @@ input CreateQuestionInput {
   questionText: String!
   questionCollectionId: ID!
   options: [QuestionOptionInput!]!
+  points: Int!
 }
 
 input QuestionOptionInput {
@@ -36,4 +38,5 @@ input UpdateQuestionInput {
   questionText: String  
   questionCollectionId: ID
   options: [QuestionOptionInput!]
+  points: Int!
 }

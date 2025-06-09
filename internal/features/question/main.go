@@ -38,6 +38,7 @@ func CreateQuestion(ctx context.Context, userId uuid.UUID, input model.CreateQue
 	newQuestion, err := tx.Question.Create().
 		SetQuestionText(input.QuestionText).
 		SetCollectionID(collection.ID).
+		SetPoints(input.Points).
 		Save(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)

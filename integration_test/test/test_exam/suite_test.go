@@ -3,7 +3,6 @@ package test_exam
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/test"
 	"template/internal/graph/model"
@@ -99,11 +98,7 @@ func TestFullTestWorkflow(t *testing.T) {
 
 // TestConcurrentTestOperations tests concurrent operations on the same test
 func TestConcurrentTestOperations(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 
@@ -160,11 +155,7 @@ func TestConcurrentTestOperations(t *testing.T) {
 
 // TestEdgeCasesAndBoundaries tests various edge cases and boundary conditions
 func TestEdgeCasesAndBoundaries(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 
@@ -226,11 +217,7 @@ func TestEdgeCasesAndBoundaries(t *testing.T) {
 
 // TestTestReconfiguration tests the reconfiguration of a test through various phases
 func TestTestReconfiguration(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 

@@ -81,6 +81,11 @@ func QuestionText(v string) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldQuestionText, v))
 }
 
+// Points applies equality check predicate on the "points" field. It's identical to PointsEQ.
+func Points(v int) predicate.Question {
+	return predicate.Question(sql.FieldEQ(FieldPoints, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Question {
 	return predicate.Question(sql.FieldEQ(FieldCreatedAt, v))
@@ -294,6 +299,46 @@ func QuestionTextEqualFold(v string) predicate.Question {
 // QuestionTextContainsFold applies the ContainsFold predicate on the "question_text" field.
 func QuestionTextContainsFold(v string) predicate.Question {
 	return predicate.Question(sql.FieldContainsFold(FieldQuestionText, v))
+}
+
+// PointsEQ applies the EQ predicate on the "points" field.
+func PointsEQ(v int) predicate.Question {
+	return predicate.Question(sql.FieldEQ(FieldPoints, v))
+}
+
+// PointsNEQ applies the NEQ predicate on the "points" field.
+func PointsNEQ(v int) predicate.Question {
+	return predicate.Question(sql.FieldNEQ(FieldPoints, v))
+}
+
+// PointsIn applies the In predicate on the "points" field.
+func PointsIn(vs ...int) predicate.Question {
+	return predicate.Question(sql.FieldIn(FieldPoints, vs...))
+}
+
+// PointsNotIn applies the NotIn predicate on the "points" field.
+func PointsNotIn(vs ...int) predicate.Question {
+	return predicate.Question(sql.FieldNotIn(FieldPoints, vs...))
+}
+
+// PointsGT applies the GT predicate on the "points" field.
+func PointsGT(v int) predicate.Question {
+	return predicate.Question(sql.FieldGT(FieldPoints, v))
+}
+
+// PointsGTE applies the GTE predicate on the "points" field.
+func PointsGTE(v int) predicate.Question {
+	return predicate.Question(sql.FieldGTE(FieldPoints, v))
+}
+
+// PointsLT applies the LT predicate on the "points" field.
+func PointsLT(v int) predicate.Question {
+	return predicate.Question(sql.FieldLT(FieldPoints, v))
+}
+
+// PointsLTE applies the LTE predicate on the "points" field.
+func PointsLTE(v int) predicate.Question {
+	return predicate.Question(sql.FieldLTE(FieldPoints, v))
 }
 
 // HasCollection applies the HasEdge predicate on the "collection" edge.

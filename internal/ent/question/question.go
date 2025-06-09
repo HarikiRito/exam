@@ -26,6 +26,8 @@ const (
 	FieldCollectionID = "collection_id"
 	// FieldQuestionText holds the string denoting the question_text field in the database.
 	FieldQuestionText = "question_text"
+	// FieldPoints holds the string denoting the points field in the database.
+	FieldPoints = "points"
 	// EdgeCollection holds the string denoting the collection edge name in mutations.
 	EdgeCollection = "collection"
 	// EdgeQuestionOptions holds the string denoting the question_options edge name in mutations.
@@ -92,6 +94,7 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldCollectionID,
 	FieldQuestionText,
+	FieldPoints,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -120,6 +123,10 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// QuestionTextValidator is a validator for the "question_text" field. It is called by the builders before save.
 	QuestionTextValidator func(string) error
+	// DefaultPoints holds the default value on creation for the "points" field.
+	DefaultPoints int
+	// PointsValidator is a validator for the "points" field. It is called by the builders before save.
+	PointsValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -155,6 +162,11 @@ func ByCollectionID(opts ...sql.OrderTermOption) OrderOption {
 // ByQuestionText orders the results by the question_text field.
 func ByQuestionText(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldQuestionText, opts...).ToFunc()
+}
+
+// ByPoints orders the results by the points field.
+func ByPoints(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPoints, opts...).ToFunc()
 }
 
 // ByCollectionField orders the results by collection field.

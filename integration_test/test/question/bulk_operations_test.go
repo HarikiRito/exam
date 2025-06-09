@@ -67,6 +67,7 @@ func TestBulkQuestionOperations(t *testing.T) {
 		questionInput := model.CreateQuestionInput{
 			QuestionText:         fmt.Sprintf("Collection 1 Question %d", i+1),
 			QuestionCollectionID: collection1.ID,
+			Points:               10 + i, // Different points for each question
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: fmt.Sprintf("Option A%d", i+1),
@@ -89,6 +90,7 @@ func TestBulkQuestionOperations(t *testing.T) {
 		questionInput := model.CreateQuestionInput{
 			QuestionText:         fmt.Sprintf("Collection 2 Question %d", i+1),
 			QuestionCollectionID: collection2.ID,
+			Points:               20 + (i * 5), // Different points for each question
 			Options: []*model.QuestionOptionInput{
 				{
 					OptionText: fmt.Sprintf("Option X%d", i+1),

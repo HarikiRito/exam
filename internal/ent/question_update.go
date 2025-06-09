@@ -103,6 +103,27 @@ func (qu *QuestionUpdate) SetNillableQuestionText(s *string) *QuestionUpdate {
 	return qu
 }
 
+// SetPoints sets the "points" field.
+func (qu *QuestionUpdate) SetPoints(i int) *QuestionUpdate {
+	qu.mutation.ResetPoints()
+	qu.mutation.SetPoints(i)
+	return qu
+}
+
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (qu *QuestionUpdate) SetNillablePoints(i *int) *QuestionUpdate {
+	if i != nil {
+		qu.SetPoints(*i)
+	}
+	return qu
+}
+
+// AddPoints adds i to the "points" field.
+func (qu *QuestionUpdate) AddPoints(i int) *QuestionUpdate {
+	qu.mutation.AddPoints(i)
+	return qu
+}
+
 // SetCollection sets the "collection" edge to the QuestionCollection entity.
 func (qu *QuestionUpdate) SetCollection(q *QuestionCollection) *QuestionUpdate {
 	return qu.SetCollectionID(q.ID)
@@ -348,6 +369,11 @@ func (qu *QuestionUpdate) check() error {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
 	}
+	if v, ok := qu.mutation.Points(); ok {
+		if err := question.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "Question.points": %w`, err)}
+		}
+	}
 	if qu.mutation.CollectionCleared() && len(qu.mutation.CollectionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Question.collection"`)
 	}
@@ -380,6 +406,12 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := qu.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
+	}
+	if value, ok := qu.mutation.Points(); ok {
+		_spec.SetField(question.FieldPoints, field.TypeInt, value)
+	}
+	if value, ok := qu.mutation.AddedPoints(); ok {
+		_spec.AddField(question.FieldPoints, field.TypeInt, value)
 	}
 	if qu.mutation.CollectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -723,6 +755,27 @@ func (quo *QuestionUpdateOne) SetNillableQuestionText(s *string) *QuestionUpdate
 	return quo
 }
 
+// SetPoints sets the "points" field.
+func (quo *QuestionUpdateOne) SetPoints(i int) *QuestionUpdateOne {
+	quo.mutation.ResetPoints()
+	quo.mutation.SetPoints(i)
+	return quo
+}
+
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (quo *QuestionUpdateOne) SetNillablePoints(i *int) *QuestionUpdateOne {
+	if i != nil {
+		quo.SetPoints(*i)
+	}
+	return quo
+}
+
+// AddPoints adds i to the "points" field.
+func (quo *QuestionUpdateOne) AddPoints(i int) *QuestionUpdateOne {
+	quo.mutation.AddPoints(i)
+	return quo
+}
+
 // SetCollection sets the "collection" edge to the QuestionCollection entity.
 func (quo *QuestionUpdateOne) SetCollection(q *QuestionCollection) *QuestionUpdateOne {
 	return quo.SetCollectionID(q.ID)
@@ -981,6 +1034,11 @@ func (quo *QuestionUpdateOne) check() error {
 			return &ValidationError{Name: "question_text", err: fmt.Errorf(`ent: validator failed for field "Question.question_text": %w`, err)}
 		}
 	}
+	if v, ok := quo.mutation.Points(); ok {
+		if err := question.PointsValidator(v); err != nil {
+			return &ValidationError{Name: "points", err: fmt.Errorf(`ent: validator failed for field "Question.points": %w`, err)}
+		}
+	}
 	if quo.mutation.CollectionCleared() && len(quo.mutation.CollectionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Question.collection"`)
 	}
@@ -1030,6 +1088,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 	}
 	if value, ok := quo.mutation.QuestionText(); ok {
 		_spec.SetField(question.FieldQuestionText, field.TypeString, value)
+	}
+	if value, ok := quo.mutation.Points(); ok {
+		_spec.SetField(question.FieldPoints, field.TypeInt, value)
+	}
+	if value, ok := quo.mutation.AddedPoints(); ok {
+		_spec.AddField(question.FieldPoints, field.TypeInt, value)
 	}
 	if quo.mutation.CollectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
