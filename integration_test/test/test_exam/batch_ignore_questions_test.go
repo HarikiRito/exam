@@ -3,7 +3,6 @@ package test_exam
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/test"
 	"template/internal/graph/model"
@@ -14,15 +13,11 @@ import (
 )
 
 func TestBatchIgnoreQuestions(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
-
+	prepare.SetupTestDb(t)
 	ctx := context.Background()
 
 	t.Run("BatchIgnoreQuestions_Success_WithReasons", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 5)
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -49,6 +44,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_Success_WithoutReasons", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -65,6 +61,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_Success_MixedReasons", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 4)
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -88,6 +85,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_UpdateExistingIgnores", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// First ignore some questions
@@ -130,6 +128,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_SingleQuestion", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -148,6 +147,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_TestNotFound", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentTestID := uuid.New()
 
@@ -165,6 +165,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_EmptyQuestionData", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -180,6 +181,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 
 	t.Run("BatchIgnoreQuestions_UnauthorizedQuestions", func(t *testing.T) {
 		// Create first user with test
+		t.Parallel()
 		scenario1 := prepare.CreateTestScenario(t, 3)
 
 		// Create second user with questions
@@ -209,6 +211,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 
 	t.Run("BatchIgnoreQuestions_MixedAuthorizedUnauthorized", func(t *testing.T) {
 		// Create first user with test and questions
+		t.Parallel()
 		scenario1 := prepare.CreateTestScenario(t, 3)
 
 		// Create second user with questions
@@ -241,6 +244,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_NonExistentQuestion", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentQuestionID := uuid.New()
 
@@ -261,6 +265,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_DuplicateQuestionIds", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -285,6 +290,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_VeryLongReason", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		longReason := utils.Faker.Lorem().Text(500) // Very long reason
@@ -309,6 +315,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_LargeNumberOfQuestions", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 2)
 
 		// Create a collection with many questions
@@ -337,6 +344,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_ClearAllIgnores", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// First ignore some questions

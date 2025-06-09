@@ -2,7 +2,7 @@ package question
 
 import (
 	"context"
-	"template/integration_test/setup"
+	"template/integration_test/prepare"
 	"template/integration_test/utils"
 	"template/internal/features/auth"
 	"template/internal/features/question"
@@ -16,11 +16,7 @@ import (
 )
 
 func TestGetQuestionByID(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	// Create test user
 	userInput := model.RegisterInput{

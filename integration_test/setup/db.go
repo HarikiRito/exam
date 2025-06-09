@@ -44,7 +44,7 @@ func DeleteTestSchema(t *testing.T, schema string) {
 	if err != nil {
 		t.Fatalf("Failed to drop schema: %v", err)
 	}
-	db.ClearCache()
+	db.RemoveCachedClient()
 }
 
 func initDatabase(t *testing.T, schema string) {

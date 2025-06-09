@@ -3,7 +3,6 @@ package test_exam
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/test"
 	"template/internal/graph/model"
@@ -14,15 +13,12 @@ import (
 )
 
 func TestBatchDeleteQuestionPoints(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 
 	t.Run("BatchDeleteQuestionPoints_Success", func(t *testing.T) {
+		t.Parallel()
 		// Create test scenario with user, course, test, collection and questions
 		scenario := prepare.CreateTestScenario(t, 5)
 
@@ -50,6 +46,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_SingleQuestion", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Set up a question point
@@ -74,6 +71,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_AllQuestions", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Set up question points for all questions
@@ -109,6 +107,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_TestNotFound", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentTestID := uuid.New()
 
@@ -124,6 +123,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_EmptyQuestionIds", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.BatchDeleteQuestionPointsInput{
@@ -138,6 +138,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_UnauthorizedQuestions", func(t *testing.T) {
+		t.Parallel()
 		// Create first user with test and questions
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -162,6 +163,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_MixedAuthorizedUnauthorized", func(t *testing.T) {
+		t.Parallel()
 		// Create first user with test and questions
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -186,6 +188,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_NonExistentQuestion", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentQuestionID := uuid.New()
 
@@ -201,6 +204,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_DuplicateQuestionIds", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Set up question points
@@ -226,6 +230,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_NoExistingPoints", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Try to delete question points that don't exist
@@ -241,6 +246,7 @@ func TestBatchDeleteQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchDeleteQuestionPoints_LargeNumberOfQuestions", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 2)
 
 		// Create a collection with many questions

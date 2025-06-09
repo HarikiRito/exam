@@ -15,15 +15,12 @@ import (
 
 // TestFullTestWorkflow tests a complete workflow of test operations
 func TestFullTestWorkflow(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 
 	t.Run("CompleteTestWorkflow", func(t *testing.T) {
+		t.Parallel()
 		// Step 1: Create test scenario with user, course, test, and questions
 		scenario1 := prepare.CreateTestScenario(t, 5)
 		collection2, questions2 := prepare.CreateCollectionWithQuestions(t, scenario1.User.ID, 4)
@@ -111,6 +108,7 @@ func TestConcurrentTestOperations(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("ConcurrentOperations", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 10)
 
 		// Add collection to test first
@@ -171,6 +169,7 @@ func TestEdgeCasesAndBoundaries(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("EdgeCases", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Add collection to test
@@ -236,6 +235,7 @@ func TestTestReconfiguration(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("TestReconfiguration", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		collection2, questions2 := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 3)
 		collection3, questions3 := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 3)

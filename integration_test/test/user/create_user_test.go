@@ -2,8 +2,7 @@ package user
 
 import (
 	"context"
-	"template/integration_test/setup"
-	"template/integration_test/utils"
+	"template/integration_test/prepare"
 	"template/internal/features/auth"
 	"template/internal/graph/model"
 	"testing"
@@ -12,11 +11,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	t.Run("CreateUser", func(t *testing.T) {
 		input := model.RegisterInput{
@@ -43,7 +38,6 @@ func TestCreateUser(t *testing.T) {
 			})
 			assert.Error(t, err)
 		})
-		setup.ResetTestSchema(t, dbSchema)
 	})
 
 }

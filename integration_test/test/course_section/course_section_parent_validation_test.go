@@ -3,7 +3,6 @@ package course_section
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/course"
 	"template/internal/features/course_section"
@@ -18,11 +17,7 @@ import (
 // TestCourseSectionParentValidation tests complex parent-child relationship validation
 func TestCourseSectionParentValidation(t *testing.T) {
 	// Setup test database
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 

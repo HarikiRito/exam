@@ -3,7 +3,6 @@ package course_section
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/ent"
 	"template/internal/features/course"
@@ -18,11 +17,7 @@ import (
 
 func TestCourseSectionIntegration(t *testing.T) {
 	// Setup test database
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	// Create test users
 	ctx := context.Background()

@@ -3,7 +3,6 @@ package course_section
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/course"
 	"template/internal/features/course_section"
@@ -17,11 +16,7 @@ import (
 // TestCourseSectionUnauthorizedAccess tests that non-course-owners cannot access course sections
 func TestCourseSectionUnauthorizedAccess(t *testing.T) {
 	// Setup test database
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 

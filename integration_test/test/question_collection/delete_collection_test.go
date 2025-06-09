@@ -3,7 +3,6 @@ package question_collection
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/question_collection"
 	"template/internal/graph/model"
@@ -15,11 +14,7 @@ import (
 )
 
 func TestDeleteQuestionCollection(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 

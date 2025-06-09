@@ -3,7 +3,6 @@ package test_exam
 import (
 	"context"
 	"template/integration_test/prepare"
-	"template/integration_test/setup"
 	"template/integration_test/utils"
 	"template/internal/features/test"
 	"template/internal/graph/model"
@@ -14,15 +13,12 @@ import (
 )
 
 func TestBatchUpdateQuestionPoints(t *testing.T) {
-	dbSchema := utils.RandomDbSchema()
-	setup.ResetTestSchema(t, dbSchema)
-	t.Cleanup(func() {
-		setup.DeleteTestSchema(t, dbSchema)
-	})
+	prepare.SetupTestDb(t)
 
 	ctx := context.Background()
 
 	t.Run("BatchUpdateQuestionPoints_Success", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 5)
 
 		// Add collection to test first
@@ -49,6 +45,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_SingleQuestion", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Add collection to test first
@@ -72,6 +69,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_UpdateExisting", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 4)
 
 		// Add collection to test first
@@ -110,6 +108,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_VariousPointValues", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 5)
 
 		// Add collection to test first
@@ -135,6 +134,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_TestNotFound", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentTestID := uuid.New()
 
@@ -152,6 +152,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_UnauthorizedQuestions", func(t *testing.T) {
+		t.Parallel()
 		// Create first user with test
 		scenario1 := prepare.CreateTestScenario(t, 3)
 
@@ -178,6 +179,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_QuestionsNotInTest", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Create another collection not added to test
@@ -199,6 +201,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_MixedAuthorizedUnauthorized", func(t *testing.T) {
+		t.Parallel()
 		// Create first user with test and questions
 		scenario1 := prepare.CreateTestScenario(t, 3)
 
@@ -234,6 +237,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_NonExistentQuestion", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentQuestionID := uuid.New()
 
@@ -251,6 +255,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_DuplicateQuestionIds", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Add collection to test first
@@ -277,6 +282,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_ZeroPoints", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Add collection to test first
@@ -301,6 +307,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_LargeNumberOfQuestions", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 2)
 
 		// Create a collection with many questions
@@ -333,6 +340,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_EmptyQuestionPoints", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.BatchUpdateQuestionPointsInput{
@@ -347,6 +355,7 @@ func TestBatchUpdateQuestionPoints(t *testing.T) {
 	})
 
 	t.Run("BatchUpdateQuestionPoints_MultipleCollections", func(t *testing.T) {
+		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		collection2, questions2 := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 3)
 
