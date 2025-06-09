@@ -32,10 +32,10 @@ func getOrCreateClient() (*ent.Client, error) {
 
 	// If we have a cached client and it matches the debug mode, reset timer and return it
 	if cachedClient != nil {
-		resetClientTimer()
 		if environment.IsDebug() {
 			return cachedClient.Debug(), nil
 		}
+		resetClientTimer()
 		return cachedClient, nil
 	}
 
@@ -107,4 +107,17 @@ func OpenDB() (*sql.DB, error) {
 	pgxDb = db
 
 	return pgxDb, nil
+}
+
+func RemoveCachedClient() {
+	cachedClient = nil
+}
+
+func RemoveCachedDB() {
+	pgxDb = nil
+}
+
+func ClearCache() {
+	RemoveCachedClient()
+	RemoveCachedDB()
 }

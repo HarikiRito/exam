@@ -7,7 +7,7 @@ import (
 var Faker = fakerPkg.New()
 
 func RandomDbSchema() string {
-	totalChars := 20
+	totalChars := 8
 	questionMarks := "schema_"
 	for i := 0; i < totalChars; i++ {
 		// Random between ? and #

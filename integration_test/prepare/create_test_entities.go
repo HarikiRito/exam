@@ -77,6 +77,15 @@ func CreateTestScenario(t *testing.T, questionCount int) TestScenario {
 	})
 	collectionEntity, questions := CreateCollectionWithQuestions(t, userEntity.ID, questionCount)
 
+	_, err := test.AddMultiCollection(context.Background(), userEntity.ID, model.AddMultiCollectionToTestInput{
+		TestID:        testEntity.ID,
+		CollectionIds: []uuid.UUID{collectionEntity.ID},
+	})
+
+	if err != nil {
+		t.Fatalf("Failed to add multi collection to test: %v", err)
+	}
+
 	return TestScenario{
 		User:       userEntity,
 		Test:       testEntity,

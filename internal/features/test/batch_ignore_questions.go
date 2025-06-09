@@ -41,6 +41,10 @@ func BatchIgnoreQuestions(ctx context.Context, userId uuid.UUID, input model.Bat
 		return data.QuestionID
 	})
 
+	if slice.HasDuplicates(questionIDs) {
+		return false, db.Rollback(tx, errors.New("duplicate question IDs provided"))
+	}
+
 	// Verify all questionCount exist and are owned by the user
 	questionCount, err := tx.Question.Query().
 		Where(

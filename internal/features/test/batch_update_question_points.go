@@ -36,6 +36,8 @@ func BatchUpdateQuestionPoints(ctx context.Context, userId uuid.UUID, input mode
 		return q.QuestionID
 	})
 
+	questionIds = slice.Unique(questionIds)
+
 	// Verify the question exists and is owned by the user
 	questions, err := tx.Question.Query().
 		Where(

@@ -46,10 +46,13 @@ func CreateCollectionWithQuestions(t *testing.T, userID uuid.UUID, questionCount
 		}
 	}
 
-	question_collection.UpdateBatchQuestionsByCollection(context.Background(), collectionEntity.ID, model.UpdateBatchQuestionsByCollectionInput{
+	err := question_collection.UpdateBatchQuestionsByCollection(context.Background(), userID, model.UpdateBatchQuestionsByCollectionInput{
 		CollectionID: collectionEntity.ID,
 		Questions:    questionInputs,
 	})
+	if err != nil {
+		t.Fatalf("Failed to update batch questions by collection: %v", err)
+	}
 
 	questions, err := question.GetQuestionsByCollectionIDs(context.Background(), []uuid.UUID{collectionEntity.ID})
 	if err != nil {

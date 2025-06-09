@@ -24,12 +24,14 @@ func BatchDeleteQuestionPoints(ctx context.Context, userId uuid.UUID, input mode
 		return false, err
 	}
 
-	_, err = tx.Test.Query().
+	testExists, err := tx.Test.Query().
 		Where(test.ID(input.TestID)).
 		Exist(ctx)
-	if err != nil {
+	if err != nil || !testExists {
 		return false, db.Rollback(tx, errors.New("test not found"))
 	}
+
+	questionIds := slice.Unique(input.QuestionIds)
 
 	if len(input.QuestionIds) == 0 {
 		return false, db.Rollback(tx, errors.New("no question ids provided"))
@@ -40,7 +42,7 @@ func BatchDeleteQuestionPoints(ctx context.Context, userId uuid.UUID, input mode
 		question.HasCollectionWith(
 			questioncollection.HasCreatorWith(user.ID(userId)),
 		),
-		question.IDIn(input.QuestionIds...),
+		question.IDIn(questionIds...),
 	).All(ctx)
 
 	if err != nil {
@@ -51,7 +53,7 @@ func BatchDeleteQuestionPoints(ctx context.Context, userId uuid.UUID, input mode
 		return q.ID
 	})
 
-	if len(accessedQuestionIds) != len(input.QuestionIds) {
+	if len(accessedQuestionIds) != len(questionIds) {
 		return false, db.Rollback(tx, errors.New("some questions are not accessible"))
 	}
 

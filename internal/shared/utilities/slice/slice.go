@@ -56,3 +56,14 @@ func Unique[T comparable](slice []T) []T {
 	}
 	return result
 }
+
+func HasDuplicates[T comparable](slice []T) bool {
+	seen := make(map[T]bool)
+	for _, v := range slice {
+		if seen[v] {
+			return true
+		}
+		seen[v] = true
+	}
+	return false
+}

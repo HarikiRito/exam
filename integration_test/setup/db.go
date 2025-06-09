@@ -25,6 +25,11 @@ func CreateTestSchema(t *testing.T, schema string) {
 	if err != nil {
 		t.Fatalf("Failed to create schema: %v", err)
 	}
+
+	err = db.InitDatabase()
+	if err != nil {
+		t.Fatalf("Failed to initialize database: %v", err)
+	}
 }
 
 func ResetTestSchema(t *testing.T, schema string) {
@@ -39,6 +44,7 @@ func DeleteTestSchema(t *testing.T, schema string) {
 	if err != nil {
 		t.Fatalf("Failed to drop schema: %v", err)
 	}
+	db.ClearCache()
 }
 
 func initDatabase(t *testing.T, schema string) {
