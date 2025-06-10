@@ -47,11 +47,8 @@ func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input m
 
 // BatchUpdateQuestionPoints is the resolver for the batchUpdateQuestionPoints field.
 func (r *mutationResolver) BatchUpdateQuestionPoints(ctx context.Context, input model.BatchUpdateQuestionPointsInput) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
-	if err != nil {
-		return false, err
-	}
-	return test.BatchUpdateQuestionPoints(ctx, userId, input)
+	// Mark this as not implemented since it not gonna be used anymore
+	panic("not implemented")
 }
 
 // UpdateQuestionPointsByCollection is the resolver for the updateQuestionPointsByCollection field.
