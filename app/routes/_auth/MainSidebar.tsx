@@ -46,6 +46,10 @@ const navMain: NavItem[] = [
         title: 'Question Collections',
         url: APP_ROUTES.adminCollections,
       },
+      {
+        title: 'Tests',
+        url: APP_ROUTES.adminTests,
+      },
     ],
   },
 ];

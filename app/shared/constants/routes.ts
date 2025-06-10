@@ -15,4 +15,8 @@ export const APP_ROUTES = {
   adminCollectionDetail: (collectionId: string) => `/admin/collections/${collectionId}`,
   adminCollectionEdit: (collectionId: string) => `/admin/collections/${collectionId}/edit`,
   adminCollectionCreate: '/admin/collections/create',
+  adminTests: '/admin/tests',
+  adminTestDetail: (testId: string) => `/admin/tests/${testId}`,
+  adminTestEdit: (testId: string) => `/admin/tests/${testId}/edit`,
+  adminTestCreate: '/admin/tests/create',
 };

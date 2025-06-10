@@ -122,9 +122,7 @@ export type LoginInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addMultiCollectionToTest: Scalars['Boolean']['output'];
-  batchDeleteQuestionPoints: Scalars['Boolean']['output'];
   batchIgnoreQuestions: Scalars['Boolean']['output'];
-  batchUpdateQuestionPoints: Scalars['Boolean']['output'];
   completeTestSession: TestSession;
   createCourse: Course;
   createCourseSection: CourseSection;
@@ -163,18 +161,8 @@ export type MutationAddMultiCollectionToTestArgs = {
 };
 
 
-export type MutationBatchDeleteQuestionPointsArgs = {
-  input: BatchDeleteQuestionPointsInput;
-};
-
-
 export type MutationBatchIgnoreQuestionsArgs = {
   input: BatchIgnoreQuestionsInput;
-};
-
-
-export type MutationBatchUpdateQuestionPointsArgs = {
-  input: BatchUpdateQuestionPointsInput;
 };
 
 

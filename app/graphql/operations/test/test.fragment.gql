@@ -1,0 +1,4 @@
+fragment TestFragment on Test {
+  id
+  name
+} 

@@ -112,9 +112,7 @@ input LoginInput {
 
 type Mutation {
   addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
-  batchDeleteQuestionPoints(input: BatchDeleteQuestionPointsInput!): Boolean!
   batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
-  batchUpdateQuestionPoints(input: BatchUpdateQuestionPointsInput!): Boolean!
   completeTestSession(id: ID!): TestSession!
   createCourse(input: CreateCourseInput!): Course!
   createCourseSection(input: CreateCourseSectionInput!): CourseSection!

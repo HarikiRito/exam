@@ -1,0 +1,7 @@
+#import "./test.fragment.gql"
+
+query GetTest($id: ID!) {
+  test(id: $id) {
+    ...TestFragment
+  }
+} 

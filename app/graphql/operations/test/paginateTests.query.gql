@@ -1,0 +1,10 @@
+query PaginateTests($paginationInput: PaginationInput) {
+  paginatedTests(paginationInput: $paginationInput) {
+    pagination {
+      ...Pagination
+    }
+    items {
+      ...TestFragment
+    }
+  }
+} 

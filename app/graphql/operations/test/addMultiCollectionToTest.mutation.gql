@@ -1,0 +1,3 @@
+mutation AddMultiCollectionToTest($input: AddMultiCollectionToTestInput!) {
+  addMultiCollectionToTest(input: $input)
+} 
