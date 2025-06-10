@@ -6,9 +6,6 @@ extend type Mutation {
   # Add multiple collections to a test
   addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
   
-  # Update question points - individual question
-  batchUpdateQuestionPoints(input: BatchUpdateQuestionPointsInput!): Boolean!
-  
   # Update question points - batch by collection
   updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
   
@@ -17,7 +14,6 @@ extend type Mutation {
   
   # Batch ignore questions
   batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
-  batchDeleteQuestionPoints(input: BatchDeleteQuestionPointsInput!): Boolean!
 }
 
 extend type Query {

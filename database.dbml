@@ -223,17 +223,6 @@ Table test_ignore_questions {
   }
 }
 
-Table test_question_points {
-  id varchar [pk]
-  test_id varchar [not null]
-  question_id varchar [not null]
-  points integer [not null, default: 1] // Points for this question in this test
-
-  Indexes {
-    (test_id, question_id) [unique]
-  }
-}
-
 // Relationships
 
 // User Management Relationships
@@ -279,6 +268,5 @@ Ref: test_question_answers.test_session_id > test_sessions.id [delete: cascade]
 Ref: test_collection.test_id > tests.id [delete: cascade]
 Ref: test_collection.collection_id > question_collections.id [delete: cascade]
 Ref: test_question_counts.test_id > tests.id [delete: cascade]
-Ref: test_question_points.test_id > tests.id [delete: cascade]
 Ref: test_ignore_questions.test_id > tests.id [delete: cascade]
 Ref: test_ignore_questions.question_id > questions.id [delete: cascade]

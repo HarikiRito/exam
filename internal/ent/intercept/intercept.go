@@ -20,7 +20,6 @@ import (
 	"template/internal/ent/testignorequestion"
 	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
-	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -410,33 +409,6 @@ func (f TraverseTestQuestionCount) Traverse(ctx context.Context, q ent.Query) er
 	return fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionCountQuery", q)
 }
 
-// The TestQuestionPointFunc type is an adapter to allow the use of ordinary function as a Querier.
-type TestQuestionPointFunc func(context.Context, *ent.TestQuestionPointQuery) (ent.Value, error)
-
-// Query calls f(ctx, q).
-func (f TestQuestionPointFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
-	if q, ok := q.(*ent.TestQuestionPointQuery); ok {
-		return f(ctx, q)
-	}
-	return nil, fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionPointQuery", q)
-}
-
-// The TraverseTestQuestionPoint type is an adapter to allow the use of ordinary function as Traverser.
-type TraverseTestQuestionPoint func(context.Context, *ent.TestQuestionPointQuery) error
-
-// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
-func (f TraverseTestQuestionPoint) Intercept(next ent.Querier) ent.Querier {
-	return next
-}
-
-// Traverse calls f(ctx, q).
-func (f TraverseTestQuestionPoint) Traverse(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.TestQuestionPointQuery); ok {
-		return f(ctx, q)
-	}
-	return fmt.Errorf("unexpected query type %T. expect *ent.TestQuestionPointQuery", q)
-}
-
 // The TestSessionFunc type is an adapter to allow the use of ordinary function as a Querier.
 type TestSessionFunc func(context.Context, *ent.TestSessionQuery) (ent.Value, error)
 
@@ -599,8 +571,6 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.TestQuestionAnswerQuery, predicate.TestQuestionAnswer, testquestionanswer.OrderOption]{typ: ent.TypeTestQuestionAnswer, tq: q}, nil
 	case *ent.TestQuestionCountQuery:
 		return &query[*ent.TestQuestionCountQuery, predicate.TestQuestionCount, testquestioncount.OrderOption]{typ: ent.TypeTestQuestionCount, tq: q}, nil
-	case *ent.TestQuestionPointQuery:
-		return &query[*ent.TestQuestionPointQuery, predicate.TestQuestionPoint, testquestionpoint.OrderOption]{typ: ent.TypeTestQuestionPoint, tq: q}, nil
 	case *ent.TestSessionQuery:
 		return &query[*ent.TestSessionQuery, predicate.TestSession, testsession.OrderOption]{typ: ent.TypeTestSession, tq: q}, nil
 	case *ent.TodoQuery:

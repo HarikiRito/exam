@@ -16,7 +16,6 @@ import (
 	"template/internal/ent/testignorequestion"
 	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
-	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -387,35 +386,6 @@ func init() {
 	testquestioncountDescID := testquestioncountMixinFields0[0].Descriptor()
 	// testquestioncount.DefaultID holds the default value on creation for the id field.
 	testquestioncount.DefaultID = testquestioncountDescID.Default.(func() uuid.UUID)
-	testquestionpointMixin := schema.TestQuestionPoint{}.Mixin()
-	testquestionpointMixinHooks1 := testquestionpointMixin[1].Hooks()
-	testquestionpoint.Hooks[0] = testquestionpointMixinHooks1[0]
-	testquestionpointMixinInters1 := testquestionpointMixin[1].Interceptors()
-	testquestionpoint.Interceptors[0] = testquestionpointMixinInters1[0]
-	testquestionpointMixinFields0 := testquestionpointMixin[0].Fields()
-	_ = testquestionpointMixinFields0
-	testquestionpointFields := schema.TestQuestionPoint{}.Fields()
-	_ = testquestionpointFields
-	// testquestionpointDescCreatedAt is the schema descriptor for created_at field.
-	testquestionpointDescCreatedAt := testquestionpointMixinFields0[1].Descriptor()
-	// testquestionpoint.DefaultCreatedAt holds the default value on creation for the created_at field.
-	testquestionpoint.DefaultCreatedAt = testquestionpointDescCreatedAt.Default.(func() time.Time)
-	// testquestionpointDescUpdatedAt is the schema descriptor for updated_at field.
-	testquestionpointDescUpdatedAt := testquestionpointMixinFields0[2].Descriptor()
-	// testquestionpoint.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	testquestionpoint.DefaultUpdatedAt = testquestionpointDescUpdatedAt.Default.(func() time.Time)
-	// testquestionpoint.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	testquestionpoint.UpdateDefaultUpdatedAt = testquestionpointDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// testquestionpointDescPoints is the schema descriptor for points field.
-	testquestionpointDescPoints := testquestionpointFields[2].Descriptor()
-	// testquestionpoint.DefaultPoints holds the default value on creation for the points field.
-	testquestionpoint.DefaultPoints = testquestionpointDescPoints.Default.(int)
-	// testquestionpoint.PointsValidator is a validator for the "points" field. It is called by the builders before save.
-	testquestionpoint.PointsValidator = testquestionpointDescPoints.Validators[0].(func(int) error)
-	// testquestionpointDescID is the schema descriptor for id field.
-	testquestionpointDescID := testquestionpointMixinFields0[0].Descriptor()
-	// testquestionpoint.DefaultID holds the default value on creation for the id field.
-	testquestionpoint.DefaultID = testquestionpointDescID.Default.(func() uuid.UUID)
 	testsessionMixin := schema.TestSession{}.Mixin()
 	testsessionMixinHooks1 := testsessionMixin[1].Hooks()
 	testsession.Hooks[0] = testsessionMixinHooks1[0]

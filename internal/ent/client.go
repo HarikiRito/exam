@@ -23,7 +23,6 @@ import (
 	"template/internal/ent/testignorequestion"
 	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
-	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -66,8 +65,6 @@ type Client struct {
 	TestQuestionAnswer *TestQuestionAnswerClient
 	// TestQuestionCount is the client for interacting with the TestQuestionCount builders.
 	TestQuestionCount *TestQuestionCountClient
-	// TestQuestionPoint is the client for interacting with the TestQuestionPoint builders.
-	TestQuestionPoint *TestQuestionPointClient
 	// TestSession is the client for interacting with the TestSession builders.
 	TestSession *TestSessionClient
 	// Todo is the client for interacting with the Todo builders.
@@ -101,7 +98,6 @@ func (c *Client) init() {
 	c.TestIgnoreQuestion = NewTestIgnoreQuestionClient(c.config)
 	c.TestQuestionAnswer = NewTestQuestionAnswerClient(c.config)
 	c.TestQuestionCount = NewTestQuestionCountClient(c.config)
-	c.TestQuestionPoint = NewTestQuestionPointClient(c.config)
 	c.TestSession = NewTestSessionClient(c.config)
 	c.Todo = NewTodoClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -211,7 +207,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		TestIgnoreQuestion:     NewTestIgnoreQuestionClient(cfg),
 		TestQuestionAnswer:     NewTestQuestionAnswerClient(cfg),
 		TestQuestionCount:      NewTestQuestionCountClient(cfg),
-		TestQuestionPoint:      NewTestQuestionPointClient(cfg),
 		TestSession:            NewTestSessionClient(cfg),
 		Todo:                   NewTodoClient(cfg),
 		User:                   NewUserClient(cfg),
@@ -248,7 +243,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		TestIgnoreQuestion:     NewTestIgnoreQuestionClient(cfg),
 		TestQuestionAnswer:     NewTestQuestionAnswerClient(cfg),
 		TestQuestionCount:      NewTestQuestionCountClient(cfg),
-		TestQuestionPoint:      NewTestQuestionPointClient(cfg),
 		TestSession:            NewTestSessionClient(cfg),
 		Todo:                   NewTodoClient(cfg),
 		User:                   NewUserClient(cfg),
@@ -285,8 +279,8 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
 		c.QuestionCollection, c.QuestionOption, c.Role, c.Test, c.TestIgnoreQuestion,
-		c.TestQuestionAnswer, c.TestQuestionCount, c.TestQuestionPoint, c.TestSession,
-		c.Todo, c.User, c.Video, c.VideoQuestionTimestamp,
+		c.TestQuestionAnswer, c.TestQuestionCount, c.TestSession, c.Todo, c.User,
+		c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Use(hooks...)
 	}
@@ -298,8 +292,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
 		c.QuestionCollection, c.QuestionOption, c.Role, c.Test, c.TestIgnoreQuestion,
-		c.TestQuestionAnswer, c.TestQuestionCount, c.TestQuestionPoint, c.TestSession,
-		c.Todo, c.User, c.Video, c.VideoQuestionTimestamp,
+		c.TestQuestionAnswer, c.TestQuestionCount, c.TestSession, c.Todo, c.User,
+		c.Video, c.VideoQuestionTimestamp,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -332,8 +326,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.TestQuestionAnswer.mutate(ctx, m)
 	case *TestQuestionCountMutation:
 		return c.TestQuestionCount.mutate(ctx, m)
-	case *TestQuestionPointMutation:
-		return c.TestQuestionPoint.mutate(ctx, m)
 	case *TestSessionMutation:
 		return c.TestSession.mutate(ctx, m)
 	case *TodoMutation:
@@ -1349,22 +1341,6 @@ func (c *QuestionClient) QueryTestIgnoreQuestions(q *Question) *TestIgnoreQuesti
 	return query
 }
 
-// QueryTestQuestionPoints queries the test_question_points edge of a Question.
-func (c *QuestionClient) QueryTestQuestionPoints(q *Question) *TestQuestionPointQuery {
-	query := (&TestQuestionPointClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := q.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(question.Table, question.FieldID, id),
-			sqlgraph.To(testquestionpoint.Table, testquestionpoint.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, question.TestQuestionPointsTable, question.TestQuestionPointsColumn),
-		)
-		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *QuestionClient) Hooks() []Hook {
 	hooks := c.hooks.Question
@@ -2129,22 +2105,6 @@ func (c *TestClient) QueryTestIgnoreQuestions(t *Test) *TestIgnoreQuestionQuery 
 	return query
 }
 
-// QueryTestQuestionPoints queries the test_question_points edge of a Test.
-func (c *TestClient) QueryTestQuestionPoints(t *Test) *TestQuestionPointQuery {
-	query := (&TestQuestionPointClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(test.Table, test.FieldID, id),
-			sqlgraph.To(testquestionpoint.Table, testquestionpoint.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, test.TestQuestionPointsTable, test.TestQuestionPointsColumn),
-		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *TestClient) Hooks() []Hook {
 	hooks := c.hooks.Test
@@ -2686,173 +2646,6 @@ func (c *TestQuestionCountClient) mutate(ctx context.Context, m *TestQuestionCou
 		return (&TestQuestionCountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown TestQuestionCount mutation op: %q", m.Op())
-	}
-}
-
-// TestQuestionPointClient is a client for the TestQuestionPoint schema.
-type TestQuestionPointClient struct {
-	config
-}
-
-// NewTestQuestionPointClient returns a client for the TestQuestionPoint from the given config.
-func NewTestQuestionPointClient(c config) *TestQuestionPointClient {
-	return &TestQuestionPointClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `testquestionpoint.Hooks(f(g(h())))`.
-func (c *TestQuestionPointClient) Use(hooks ...Hook) {
-	c.hooks.TestQuestionPoint = append(c.hooks.TestQuestionPoint, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `testquestionpoint.Intercept(f(g(h())))`.
-func (c *TestQuestionPointClient) Intercept(interceptors ...Interceptor) {
-	c.inters.TestQuestionPoint = append(c.inters.TestQuestionPoint, interceptors...)
-}
-
-// Create returns a builder for creating a TestQuestionPoint entity.
-func (c *TestQuestionPointClient) Create() *TestQuestionPointCreate {
-	mutation := newTestQuestionPointMutation(c.config, OpCreate)
-	return &TestQuestionPointCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of TestQuestionPoint entities.
-func (c *TestQuestionPointClient) CreateBulk(builders ...*TestQuestionPointCreate) *TestQuestionPointCreateBulk {
-	return &TestQuestionPointCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *TestQuestionPointClient) MapCreateBulk(slice any, setFunc func(*TestQuestionPointCreate, int)) *TestQuestionPointCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &TestQuestionPointCreateBulk{err: fmt.Errorf("calling to TestQuestionPointClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*TestQuestionPointCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &TestQuestionPointCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for TestQuestionPoint.
-func (c *TestQuestionPointClient) Update() *TestQuestionPointUpdate {
-	mutation := newTestQuestionPointMutation(c.config, OpUpdate)
-	return &TestQuestionPointUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *TestQuestionPointClient) UpdateOne(tqp *TestQuestionPoint) *TestQuestionPointUpdateOne {
-	mutation := newTestQuestionPointMutation(c.config, OpUpdateOne, withTestQuestionPoint(tqp))
-	return &TestQuestionPointUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *TestQuestionPointClient) UpdateOneID(id uuid.UUID) *TestQuestionPointUpdateOne {
-	mutation := newTestQuestionPointMutation(c.config, OpUpdateOne, withTestQuestionPointID(id))
-	return &TestQuestionPointUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for TestQuestionPoint.
-func (c *TestQuestionPointClient) Delete() *TestQuestionPointDelete {
-	mutation := newTestQuestionPointMutation(c.config, OpDelete)
-	return &TestQuestionPointDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *TestQuestionPointClient) DeleteOne(tqp *TestQuestionPoint) *TestQuestionPointDeleteOne {
-	return c.DeleteOneID(tqp.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TestQuestionPointClient) DeleteOneID(id uuid.UUID) *TestQuestionPointDeleteOne {
-	builder := c.Delete().Where(testquestionpoint.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &TestQuestionPointDeleteOne{builder}
-}
-
-// Query returns a query builder for TestQuestionPoint.
-func (c *TestQuestionPointClient) Query() *TestQuestionPointQuery {
-	return &TestQuestionPointQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeTestQuestionPoint},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a TestQuestionPoint entity by its id.
-func (c *TestQuestionPointClient) Get(ctx context.Context, id uuid.UUID) (*TestQuestionPoint, error) {
-	return c.Query().Where(testquestionpoint.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *TestQuestionPointClient) GetX(ctx context.Context, id uuid.UUID) *TestQuestionPoint {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTest queries the test edge of a TestQuestionPoint.
-func (c *TestQuestionPointClient) QueryTest(tqp *TestQuestionPoint) *TestQuery {
-	query := (&TestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := tqp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(testquestionpoint.Table, testquestionpoint.FieldID, id),
-			sqlgraph.To(test.Table, test.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, testquestionpoint.TestTable, testquestionpoint.TestColumn),
-		)
-		fromV = sqlgraph.Neighbors(tqp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryQuestion queries the question edge of a TestQuestionPoint.
-func (c *TestQuestionPointClient) QueryQuestion(tqp *TestQuestionPoint) *QuestionQuery {
-	query := (&QuestionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := tqp.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(testquestionpoint.Table, testquestionpoint.FieldID, id),
-			sqlgraph.To(question.Table, question.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, testquestionpoint.QuestionTable, testquestionpoint.QuestionColumn),
-		)
-		fromV = sqlgraph.Neighbors(tqp.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *TestQuestionPointClient) Hooks() []Hook {
-	hooks := c.hooks.TestQuestionPoint
-	return append(hooks[:len(hooks):len(hooks)], testquestionpoint.Hooks[:]...)
-}
-
-// Interceptors returns the client interceptors.
-func (c *TestQuestionPointClient) Interceptors() []Interceptor {
-	inters := c.inters.TestQuestionPoint
-	return append(inters[:len(inters):len(inters)], testquestionpoint.Interceptors[:]...)
-}
-
-func (c *TestQuestionPointClient) mutate(ctx context.Context, m *TestQuestionPointMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&TestQuestionPointCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&TestQuestionPointUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&TestQuestionPointUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&TestQuestionPointDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown TestQuestionPoint mutation op: %q", m.Op())
 	}
 }
 
@@ -3808,13 +3601,13 @@ type (
 	hooks struct {
 		Course, CourseSection, Media, Permission, Question, QuestionCollection,
 		QuestionOption, Role, Test, TestIgnoreQuestion, TestQuestionAnswer,
-		TestQuestionCount, TestQuestionPoint, TestSession, Todo, User, Video,
+		TestQuestionCount, TestSession, Todo, User, Video,
 		VideoQuestionTimestamp []ent.Hook
 	}
 	inters struct {
 		Course, CourseSection, Media, Permission, Question, QuestionCollection,
 		QuestionOption, Role, Test, TestIgnoreQuestion, TestQuestionAnswer,
-		TestQuestionCount, TestQuestionPoint, TestSession, Todo, User, Video,
+		TestQuestionCount, TestSession, Todo, User, Video,
 		VideoQuestionTimestamp []ent.Interceptor
 	}
 )

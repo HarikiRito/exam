@@ -152,18 +152,6 @@ func (f TestQuestionCountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestQuestionCountMutation", m)
 }
 
-// The TestQuestionPointFunc type is an adapter to allow the use of ordinary
-// function as TestQuestionPoint mutator.
-type TestQuestionPointFunc func(context.Context, *ent.TestQuestionPointMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f TestQuestionPointFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TestQuestionPointMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestQuestionPointMutation", m)
-}
-
 // The TestSessionFunc type is an adapter to allow the use of ordinary
 // function as TestSession mutator.
 type TestSessionFunc func(context.Context, *ent.TestSessionMutation) (ent.Value, error)

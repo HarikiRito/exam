@@ -20,7 +20,6 @@ import (
 	"template/internal/ent/testignorequestion"
 	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
-	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
@@ -54,7 +53,6 @@ const (
 	TypeTestIgnoreQuestion     = "TestIgnoreQuestion"
 	TypeTestQuestionAnswer     = "TestQuestionAnswer"
 	TypeTestQuestionCount      = "TestQuestionCount"
-	TypeTestQuestionPoint      = "TestQuestionPoint"
 	TypeTestSession            = "TestSession"
 	TypeTodo                   = "Todo"
 	TypeUser                   = "User"
@@ -4316,9 +4314,6 @@ type QuestionMutation struct {
 	test_ignore_questions                     map[uuid.UUID]struct{}
 	removedtest_ignore_questions              map[uuid.UUID]struct{}
 	clearedtest_ignore_questions              bool
-	test_question_points                      map[uuid.UUID]struct{}
-	removedtest_question_points               map[uuid.UUID]struct{}
-	clearedtest_question_points               bool
 	done                                      bool
 	oldValue                                  func(context.Context) (*Question, error)
 	predicates                                []predicate.Question
@@ -4920,60 +4915,6 @@ func (m *QuestionMutation) ResetTestIgnoreQuestions() {
 	m.removedtest_ignore_questions = nil
 }
 
-// AddTestQuestionPointIDs adds the "test_question_points" edge to the TestQuestionPoint entity by ids.
-func (m *QuestionMutation) AddTestQuestionPointIDs(ids ...uuid.UUID) {
-	if m.test_question_points == nil {
-		m.test_question_points = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.test_question_points[ids[i]] = struct{}{}
-	}
-}
-
-// ClearTestQuestionPoints clears the "test_question_points" edge to the TestQuestionPoint entity.
-func (m *QuestionMutation) ClearTestQuestionPoints() {
-	m.clearedtest_question_points = true
-}
-
-// TestQuestionPointsCleared reports if the "test_question_points" edge to the TestQuestionPoint entity was cleared.
-func (m *QuestionMutation) TestQuestionPointsCleared() bool {
-	return m.clearedtest_question_points
-}
-
-// RemoveTestQuestionPointIDs removes the "test_question_points" edge to the TestQuestionPoint entity by IDs.
-func (m *QuestionMutation) RemoveTestQuestionPointIDs(ids ...uuid.UUID) {
-	if m.removedtest_question_points == nil {
-		m.removedtest_question_points = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.test_question_points, ids[i])
-		m.removedtest_question_points[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedTestQuestionPoints returns the removed IDs of the "test_question_points" edge to the TestQuestionPoint entity.
-func (m *QuestionMutation) RemovedTestQuestionPointsIDs() (ids []uuid.UUID) {
-	for id := range m.removedtest_question_points {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// TestQuestionPointsIDs returns the "test_question_points" edge IDs in the mutation.
-func (m *QuestionMutation) TestQuestionPointsIDs() (ids []uuid.UUID) {
-	for id := range m.test_question_points {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetTestQuestionPoints resets all changes to the "test_question_points" edge.
-func (m *QuestionMutation) ResetTestQuestionPoints() {
-	m.test_question_points = nil
-	m.clearedtest_question_points = false
-	m.removedtest_question_points = nil
-}
-
 // Where appends a list predicates to the QuestionMutation builder.
 func (m *QuestionMutation) Where(ps ...predicate.Question) {
 	m.predicates = append(m.predicates, ps...)
@@ -5216,7 +5157,7 @@ func (m *QuestionMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *QuestionMutation) AddedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 5)
 	if m.collection != nil {
 		edges = append(edges, question.EdgeCollection)
 	}
@@ -5231,9 +5172,6 @@ func (m *QuestionMutation) AddedEdges() []string {
 	}
 	if m.test_ignore_questions != nil {
 		edges = append(edges, question.EdgeTestIgnoreQuestions)
-	}
-	if m.test_question_points != nil {
-		edges = append(edges, question.EdgeTestQuestionPoints)
 	}
 	return edges
 }
@@ -5270,19 +5208,13 @@ func (m *QuestionMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case question.EdgeTestQuestionPoints:
-		ids := make([]ent.Value, 0, len(m.test_question_points))
-		for id := range m.test_question_points {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *QuestionMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 5)
 	if m.removedquestion_options != nil {
 		edges = append(edges, question.EdgeQuestionOptions)
 	}
@@ -5294,9 +5226,6 @@ func (m *QuestionMutation) RemovedEdges() []string {
 	}
 	if m.removedtest_ignore_questions != nil {
 		edges = append(edges, question.EdgeTestIgnoreQuestions)
-	}
-	if m.removedtest_question_points != nil {
-		edges = append(edges, question.EdgeTestQuestionPoints)
 	}
 	return edges
 }
@@ -5329,19 +5258,13 @@ func (m *QuestionMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case question.EdgeTestQuestionPoints:
-		ids := make([]ent.Value, 0, len(m.removedtest_question_points))
-		for id := range m.removedtest_question_points {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *QuestionMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 5)
 	if m.clearedcollection {
 		edges = append(edges, question.EdgeCollection)
 	}
@@ -5356,9 +5279,6 @@ func (m *QuestionMutation) ClearedEdges() []string {
 	}
 	if m.clearedtest_ignore_questions {
 		edges = append(edges, question.EdgeTestIgnoreQuestions)
-	}
-	if m.clearedtest_question_points {
-		edges = append(edges, question.EdgeTestQuestionPoints)
 	}
 	return edges
 }
@@ -5377,8 +5297,6 @@ func (m *QuestionMutation) EdgeCleared(name string) bool {
 		return m.cleareduser_question_answers
 	case question.EdgeTestIgnoreQuestions:
 		return m.clearedtest_ignore_questions
-	case question.EdgeTestQuestionPoints:
-		return m.clearedtest_question_points
 	}
 	return false
 }
@@ -5412,9 +5330,6 @@ func (m *QuestionMutation) ResetEdge(name string) error {
 		return nil
 	case question.EdgeTestIgnoreQuestions:
 		m.ResetTestIgnoreQuestions()
-		return nil
-	case question.EdgeTestQuestionPoints:
-		m.ResetTestQuestionPoints()
 		return nil
 	}
 	return fmt.Errorf("unknown Question edge %s", name)
@@ -7961,9 +7876,6 @@ type TestMutation struct {
 	test_ignore_questions        map[uuid.UUID]struct{}
 	removedtest_ignore_questions map[uuid.UUID]struct{}
 	clearedtest_ignore_questions bool
-	test_question_points         map[uuid.UUID]struct{}
-	removedtest_question_points  map[uuid.UUID]struct{}
-	clearedtest_question_points  bool
 	done                         bool
 	oldValue                     func(context.Context) (*Test, error)
 	predicates                   []predicate.Test
@@ -8654,60 +8566,6 @@ func (m *TestMutation) ResetTestIgnoreQuestions() {
 	m.removedtest_ignore_questions = nil
 }
 
-// AddTestQuestionPointIDs adds the "test_question_points" edge to the TestQuestionPoint entity by ids.
-func (m *TestMutation) AddTestQuestionPointIDs(ids ...uuid.UUID) {
-	if m.test_question_points == nil {
-		m.test_question_points = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.test_question_points[ids[i]] = struct{}{}
-	}
-}
-
-// ClearTestQuestionPoints clears the "test_question_points" edge to the TestQuestionPoint entity.
-func (m *TestMutation) ClearTestQuestionPoints() {
-	m.clearedtest_question_points = true
-}
-
-// TestQuestionPointsCleared reports if the "test_question_points" edge to the TestQuestionPoint entity was cleared.
-func (m *TestMutation) TestQuestionPointsCleared() bool {
-	return m.clearedtest_question_points
-}
-
-// RemoveTestQuestionPointIDs removes the "test_question_points" edge to the TestQuestionPoint entity by IDs.
-func (m *TestMutation) RemoveTestQuestionPointIDs(ids ...uuid.UUID) {
-	if m.removedtest_question_points == nil {
-		m.removedtest_question_points = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.test_question_points, ids[i])
-		m.removedtest_question_points[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedTestQuestionPoints returns the removed IDs of the "test_question_points" edge to the TestQuestionPoint entity.
-func (m *TestMutation) RemovedTestQuestionPointsIDs() (ids []uuid.UUID) {
-	for id := range m.removedtest_question_points {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// TestQuestionPointsIDs returns the "test_question_points" edge IDs in the mutation.
-func (m *TestMutation) TestQuestionPointsIDs() (ids []uuid.UUID) {
-	for id := range m.test_question_points {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetTestQuestionPoints resets all changes to the "test_question_points" edge.
-func (m *TestMutation) ResetTestQuestionPoints() {
-	m.test_question_points = nil
-	m.clearedtest_question_points = false
-	m.removedtest_question_points = nil
-}
-
 // Where appends a list predicates to the TestMutation builder.
 func (m *TestMutation) Where(ps ...predicate.Test) {
 	m.predicates = append(m.predicates, ps...)
@@ -8979,7 +8837,7 @@ func (m *TestMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TestMutation) AddedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 6)
 	if m.course_section != nil {
 		edges = append(edges, test.EdgeCourseSection)
 	}
@@ -8997,9 +8855,6 @@ func (m *TestMutation) AddedEdges() []string {
 	}
 	if m.test_ignore_questions != nil {
 		edges = append(edges, test.EdgeTestIgnoreQuestions)
-	}
-	if m.test_question_points != nil {
-		edges = append(edges, test.EdgeTestQuestionPoints)
 	}
 	return edges
 }
@@ -9040,19 +8895,13 @@ func (m *TestMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case test.EdgeTestQuestionPoints:
-		ids := make([]ent.Value, 0, len(m.test_question_points))
-		for id := range m.test_question_points {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TestMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 6)
 	if m.removedtest_sessions != nil {
 		edges = append(edges, test.EdgeTestSessions)
 	}
@@ -9064,9 +8913,6 @@ func (m *TestMutation) RemovedEdges() []string {
 	}
 	if m.removedtest_ignore_questions != nil {
 		edges = append(edges, test.EdgeTestIgnoreQuestions)
-	}
-	if m.removedtest_question_points != nil {
-		edges = append(edges, test.EdgeTestQuestionPoints)
 	}
 	return edges
 }
@@ -9099,19 +8945,13 @@ func (m *TestMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case test.EdgeTestQuestionPoints:
-		ids := make([]ent.Value, 0, len(m.removedtest_question_points))
-		for id := range m.removedtest_question_points {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TestMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 7)
+	edges := make([]string, 0, 6)
 	if m.clearedcourse_section {
 		edges = append(edges, test.EdgeCourseSection)
 	}
@@ -9129,9 +8969,6 @@ func (m *TestMutation) ClearedEdges() []string {
 	}
 	if m.clearedtest_ignore_questions {
 		edges = append(edges, test.EdgeTestIgnoreQuestions)
-	}
-	if m.clearedtest_question_points {
-		edges = append(edges, test.EdgeTestQuestionPoints)
 	}
 	return edges
 }
@@ -9152,8 +8989,6 @@ func (m *TestMutation) EdgeCleared(name string) bool {
 		return m.clearedtest_question_counts
 	case test.EdgeTestIgnoreQuestions:
 		return m.clearedtest_ignore_questions
-	case test.EdgeTestQuestionPoints:
-		return m.clearedtest_question_points
 	}
 	return false
 }
@@ -9193,9 +9028,6 @@ func (m *TestMutation) ResetEdge(name string) error {
 		return nil
 	case test.EdgeTestIgnoreQuestions:
 		m.ResetTestIgnoreQuestions()
-		return nil
-	case test.EdgeTestQuestionPoints:
-		m.ResetTestQuestionPoints()
 		return nil
 	}
 	return fmt.Errorf("unknown Test edge %s", name)
@@ -11664,766 +11496,6 @@ func (m *TestQuestionCountMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown TestQuestionCount edge %s", name)
-}
-
-// TestQuestionPointMutation represents an operation that mutates the TestQuestionPoint nodes in the graph.
-type TestQuestionPointMutation struct {
-	config
-	op              Op
-	typ             string
-	id              *uuid.UUID
-	created_at      *time.Time
-	updated_at      *time.Time
-	deleted_at      *time.Time
-	points          *int
-	addpoints       *int
-	clearedFields   map[string]struct{}
-	test            *uuid.UUID
-	clearedtest     bool
-	question        *uuid.UUID
-	clearedquestion bool
-	done            bool
-	oldValue        func(context.Context) (*TestQuestionPoint, error)
-	predicates      []predicate.TestQuestionPoint
-}
-
-var _ ent.Mutation = (*TestQuestionPointMutation)(nil)
-
-// testquestionpointOption allows management of the mutation configuration using functional options.
-type testquestionpointOption func(*TestQuestionPointMutation)
-
-// newTestQuestionPointMutation creates new mutation for the TestQuestionPoint entity.
-func newTestQuestionPointMutation(c config, op Op, opts ...testquestionpointOption) *TestQuestionPointMutation {
-	m := &TestQuestionPointMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeTestQuestionPoint,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withTestQuestionPointID sets the ID field of the mutation.
-func withTestQuestionPointID(id uuid.UUID) testquestionpointOption {
-	return func(m *TestQuestionPointMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *TestQuestionPoint
-		)
-		m.oldValue = func(ctx context.Context) (*TestQuestionPoint, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().TestQuestionPoint.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withTestQuestionPoint sets the old TestQuestionPoint of the mutation.
-func withTestQuestionPoint(node *TestQuestionPoint) testquestionpointOption {
-	return func(m *TestQuestionPointMutation) {
-		m.oldValue = func(context.Context) (*TestQuestionPoint, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m TestQuestionPointMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m TestQuestionPointMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of TestQuestionPoint entities.
-func (m *TestQuestionPointMutation) SetID(id uuid.UUID) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *TestQuestionPointMutation) ID() (id uuid.UUID, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *TestQuestionPointMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []uuid.UUID{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().TestQuestionPoint.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *TestQuestionPointMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *TestQuestionPointMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the TestQuestionPoint entity.
-// If the TestQuestionPoint object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionPointMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *TestQuestionPointMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *TestQuestionPointMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *TestQuestionPointMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the TestQuestionPoint entity.
-// If the TestQuestionPoint object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionPointMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *TestQuestionPointMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// SetDeletedAt sets the "deleted_at" field.
-func (m *TestQuestionPointMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the value of the "deleted_at" field in the mutation.
-func (m *TestQuestionPointMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old "deleted_at" field's value of the TestQuestionPoint entity.
-// If the TestQuestionPoint object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionPointMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of the "deleted_at" field.
-func (m *TestQuestionPointMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[testquestionpoint.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
-func (m *TestQuestionPointMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[testquestionpoint.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt resets all changes to the "deleted_at" field.
-func (m *TestQuestionPointMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, testquestionpoint.FieldDeletedAt)
-}
-
-// SetTestID sets the "test_id" field.
-func (m *TestQuestionPointMutation) SetTestID(u uuid.UUID) {
-	m.test = &u
-}
-
-// TestID returns the value of the "test_id" field in the mutation.
-func (m *TestQuestionPointMutation) TestID() (r uuid.UUID, exists bool) {
-	v := m.test
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldTestID returns the old "test_id" field's value of the TestQuestionPoint entity.
-// If the TestQuestionPoint object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionPointMutation) OldTestID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTestID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTestID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTestID: %w", err)
-	}
-	return oldValue.TestID, nil
-}
-
-// ResetTestID resets all changes to the "test_id" field.
-func (m *TestQuestionPointMutation) ResetTestID() {
-	m.test = nil
-}
-
-// SetQuestionID sets the "question_id" field.
-func (m *TestQuestionPointMutation) SetQuestionID(u uuid.UUID) {
-	m.question = &u
-}
-
-// QuestionID returns the value of the "question_id" field in the mutation.
-func (m *TestQuestionPointMutation) QuestionID() (r uuid.UUID, exists bool) {
-	v := m.question
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldQuestionID returns the old "question_id" field's value of the TestQuestionPoint entity.
-// If the TestQuestionPoint object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionPointMutation) OldQuestionID(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldQuestionID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldQuestionID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldQuestionID: %w", err)
-	}
-	return oldValue.QuestionID, nil
-}
-
-// ResetQuestionID resets all changes to the "question_id" field.
-func (m *TestQuestionPointMutation) ResetQuestionID() {
-	m.question = nil
-}
-
-// SetPoints sets the "points" field.
-func (m *TestQuestionPointMutation) SetPoints(i int) {
-	m.points = &i
-	m.addpoints = nil
-}
-
-// Points returns the value of the "points" field in the mutation.
-func (m *TestQuestionPointMutation) Points() (r int, exists bool) {
-	v := m.points
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPoints returns the old "points" field's value of the TestQuestionPoint entity.
-// If the TestQuestionPoint object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestQuestionPointMutation) OldPoints(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPoints is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPoints requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPoints: %w", err)
-	}
-	return oldValue.Points, nil
-}
-
-// AddPoints adds i to the "points" field.
-func (m *TestQuestionPointMutation) AddPoints(i int) {
-	if m.addpoints != nil {
-		*m.addpoints += i
-	} else {
-		m.addpoints = &i
-	}
-}
-
-// AddedPoints returns the value that was added to the "points" field in this mutation.
-func (m *TestQuestionPointMutation) AddedPoints() (r int, exists bool) {
-	v := m.addpoints
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetPoints resets all changes to the "points" field.
-func (m *TestQuestionPointMutation) ResetPoints() {
-	m.points = nil
-	m.addpoints = nil
-}
-
-// ClearTest clears the "test" edge to the Test entity.
-func (m *TestQuestionPointMutation) ClearTest() {
-	m.clearedtest = true
-	m.clearedFields[testquestionpoint.FieldTestID] = struct{}{}
-}
-
-// TestCleared reports if the "test" edge to the Test entity was cleared.
-func (m *TestQuestionPointMutation) TestCleared() bool {
-	return m.clearedtest
-}
-
-// TestIDs returns the "test" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// TestID instead. It exists only for internal usage by the builders.
-func (m *TestQuestionPointMutation) TestIDs() (ids []uuid.UUID) {
-	if id := m.test; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetTest resets all changes to the "test" edge.
-func (m *TestQuestionPointMutation) ResetTest() {
-	m.test = nil
-	m.clearedtest = false
-}
-
-// ClearQuestion clears the "question" edge to the Question entity.
-func (m *TestQuestionPointMutation) ClearQuestion() {
-	m.clearedquestion = true
-	m.clearedFields[testquestionpoint.FieldQuestionID] = struct{}{}
-}
-
-// QuestionCleared reports if the "question" edge to the Question entity was cleared.
-func (m *TestQuestionPointMutation) QuestionCleared() bool {
-	return m.clearedquestion
-}
-
-// QuestionIDs returns the "question" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// QuestionID instead. It exists only for internal usage by the builders.
-func (m *TestQuestionPointMutation) QuestionIDs() (ids []uuid.UUID) {
-	if id := m.question; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetQuestion resets all changes to the "question" edge.
-func (m *TestQuestionPointMutation) ResetQuestion() {
-	m.question = nil
-	m.clearedquestion = false
-}
-
-// Where appends a list predicates to the TestQuestionPointMutation builder.
-func (m *TestQuestionPointMutation) Where(ps ...predicate.TestQuestionPoint) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the TestQuestionPointMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *TestQuestionPointMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.TestQuestionPoint, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *TestQuestionPointMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *TestQuestionPointMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (TestQuestionPoint).
-func (m *TestQuestionPointMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *TestQuestionPointMutation) Fields() []string {
-	fields := make([]string, 0, 6)
-	if m.created_at != nil {
-		fields = append(fields, testquestionpoint.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, testquestionpoint.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, testquestionpoint.FieldDeletedAt)
-	}
-	if m.test != nil {
-		fields = append(fields, testquestionpoint.FieldTestID)
-	}
-	if m.question != nil {
-		fields = append(fields, testquestionpoint.FieldQuestionID)
-	}
-	if m.points != nil {
-		fields = append(fields, testquestionpoint.FieldPoints)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *TestQuestionPointMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case testquestionpoint.FieldCreatedAt:
-		return m.CreatedAt()
-	case testquestionpoint.FieldUpdatedAt:
-		return m.UpdatedAt()
-	case testquestionpoint.FieldDeletedAt:
-		return m.DeletedAt()
-	case testquestionpoint.FieldTestID:
-		return m.TestID()
-	case testquestionpoint.FieldQuestionID:
-		return m.QuestionID()
-	case testquestionpoint.FieldPoints:
-		return m.Points()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *TestQuestionPointMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case testquestionpoint.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case testquestionpoint.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
-	case testquestionpoint.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
-	case testquestionpoint.FieldTestID:
-		return m.OldTestID(ctx)
-	case testquestionpoint.FieldQuestionID:
-		return m.OldQuestionID(ctx)
-	case testquestionpoint.FieldPoints:
-		return m.OldPoints(ctx)
-	}
-	return nil, fmt.Errorf("unknown TestQuestionPoint field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *TestQuestionPointMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case testquestionpoint.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case testquestionpoint.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
-		return nil
-	case testquestionpoint.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
-		return nil
-	case testquestionpoint.FieldTestID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTestID(v)
-		return nil
-	case testquestionpoint.FieldQuestionID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetQuestionID(v)
-		return nil
-	case testquestionpoint.FieldPoints:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPoints(v)
-		return nil
-	}
-	return fmt.Errorf("unknown TestQuestionPoint field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *TestQuestionPointMutation) AddedFields() []string {
-	var fields []string
-	if m.addpoints != nil {
-		fields = append(fields, testquestionpoint.FieldPoints)
-	}
-	return fields
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *TestQuestionPointMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case testquestionpoint.FieldPoints:
-		return m.AddedPoints()
-	}
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *TestQuestionPointMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	case testquestionpoint.FieldPoints:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddPoints(v)
-		return nil
-	}
-	return fmt.Errorf("unknown TestQuestionPoint numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *TestQuestionPointMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(testquestionpoint.FieldDeletedAt) {
-		fields = append(fields, testquestionpoint.FieldDeletedAt)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *TestQuestionPointMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *TestQuestionPointMutation) ClearField(name string) error {
-	switch name {
-	case testquestionpoint.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	}
-	return fmt.Errorf("unknown TestQuestionPoint nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *TestQuestionPointMutation) ResetField(name string) error {
-	switch name {
-	case testquestionpoint.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case testquestionpoint.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
-	case testquestionpoint.FieldDeletedAt:
-		m.ResetDeletedAt()
-		return nil
-	case testquestionpoint.FieldTestID:
-		m.ResetTestID()
-		return nil
-	case testquestionpoint.FieldQuestionID:
-		m.ResetQuestionID()
-		return nil
-	case testquestionpoint.FieldPoints:
-		m.ResetPoints()
-		return nil
-	}
-	return fmt.Errorf("unknown TestQuestionPoint field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *TestQuestionPointMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.test != nil {
-		edges = append(edges, testquestionpoint.EdgeTest)
-	}
-	if m.question != nil {
-		edges = append(edges, testquestionpoint.EdgeQuestion)
-	}
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *TestQuestionPointMutation) AddedIDs(name string) []ent.Value {
-	switch name {
-	case testquestionpoint.EdgeTest:
-		if id := m.test; id != nil {
-			return []ent.Value{*id}
-		}
-	case testquestionpoint.EdgeQuestion:
-		if id := m.question; id != nil {
-			return []ent.Value{*id}
-		}
-	}
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *TestQuestionPointMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *TestQuestionPointMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *TestQuestionPointMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.clearedtest {
-		edges = append(edges, testquestionpoint.EdgeTest)
-	}
-	if m.clearedquestion {
-		edges = append(edges, testquestionpoint.EdgeQuestion)
-	}
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *TestQuestionPointMutation) EdgeCleared(name string) bool {
-	switch name {
-	case testquestionpoint.EdgeTest:
-		return m.clearedtest
-	case testquestionpoint.EdgeQuestion:
-		return m.clearedquestion
-	}
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *TestQuestionPointMutation) ClearEdge(name string) error {
-	switch name {
-	case testquestionpoint.EdgeTest:
-		m.ClearTest()
-		return nil
-	case testquestionpoint.EdgeQuestion:
-		m.ClearQuestion()
-		return nil
-	}
-	return fmt.Errorf("unknown TestQuestionPoint unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *TestQuestionPointMutation) ResetEdge(name string) error {
-	switch name {
-	case testquestionpoint.EdgeTest:
-		m.ResetTest()
-		return nil
-	case testquestionpoint.EdgeQuestion:
-		m.ResetQuestion()
-		return nil
-	}
-	return fmt.Errorf("unknown TestQuestionPoint edge %s", name)
 }
 
 // TestSessionMutation represents an operation that mutates the TestSession nodes in the graph.

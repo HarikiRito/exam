@@ -42,9 +42,6 @@ type TestQuestionAnswer func(*sql.Selector)
 // TestQuestionCount is the predicate function for testquestioncount builders.
 type TestQuestionCount func(*sql.Selector)
 
-// TestQuestionPoint is the predicate function for testquestionpoint builders.
-type TestQuestionPoint func(*sql.Selector)
-
 // TestSession is the predicate function for testsession builders.
 type TestSession func(*sql.Selector)
 

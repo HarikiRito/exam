@@ -38,8 +38,6 @@ func (Question) Edges() []ent.Edge {
 		edge.To("user_question_answers", TestQuestionAnswer.Type),
 		edge.From("test_ignore_questions", TestIgnoreQuestion.Type).
 			Ref("question"),
-		edge.From("test_question_points", TestQuestionPoint.Type).
-			Ref("question"),
 	}
 }
 

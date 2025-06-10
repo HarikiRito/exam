@@ -36,8 +36,6 @@ type Tx struct {
 	TestQuestionAnswer *TestQuestionAnswerClient
 	// TestQuestionCount is the client for interacting with the TestQuestionCount builders.
 	TestQuestionCount *TestQuestionCountClient
-	// TestQuestionPoint is the client for interacting with the TestQuestionPoint builders.
-	TestQuestionPoint *TestQuestionPointClient
 	// TestSession is the client for interacting with the TestSession builders.
 	TestSession *TestSessionClient
 	// Todo is the client for interacting with the Todo builders.
@@ -191,7 +189,6 @@ func (tx *Tx) init() {
 	tx.TestIgnoreQuestion = NewTestIgnoreQuestionClient(tx.config)
 	tx.TestQuestionAnswer = NewTestQuestionAnswerClient(tx.config)
 	tx.TestQuestionCount = NewTestQuestionCountClient(tx.config)
-	tx.TestQuestionPoint = NewTestQuestionPointClient(tx.config)
 	tx.TestSession = NewTestSessionClient(tx.config)
 	tx.Todo = NewTodoClient(tx.config)
 	tx.User = NewUserClient(tx.config)

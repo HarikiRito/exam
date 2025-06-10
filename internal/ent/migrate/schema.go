@@ -336,36 +336,6 @@ var (
 			},
 		},
 	}
-	// TestQuestionPointsColumns holds the columns for the "test_question_points" table.
-	TestQuestionPointsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "points", Type: field.TypeInt, Default: 0},
-		{Name: "test_id", Type: field.TypeUUID},
-		{Name: "question_id", Type: field.TypeUUID},
-	}
-	// TestQuestionPointsTable holds the schema information for the "test_question_points" table.
-	TestQuestionPointsTable = &schema.Table{
-		Name:       "test_question_points",
-		Columns:    TestQuestionPointsColumns,
-		PrimaryKey: []*schema.Column{TestQuestionPointsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "test_question_points_tests_test",
-				Columns:    []*schema.Column{TestQuestionPointsColumns[5]},
-				RefColumns: []*schema.Column{TestsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "test_question_points_questions_question",
-				Columns:    []*schema.Column{TestQuestionPointsColumns[6]},
-				RefColumns: []*schema.Column{QuestionsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// TestSessionsColumns holds the columns for the "test_sessions" table.
 	TestSessionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -605,7 +575,6 @@ var (
 		TestIgnoreQuestionsTable,
 		TestQuestionAnswersTable,
 		TestQuestionCountsTable,
-		TestQuestionPointsTable,
 		TestSessionsTable,
 		TodosTable,
 		UsersTable,
@@ -636,8 +605,6 @@ func init() {
 	TestQuestionAnswersTable.ForeignKeys[2].RefTable = TestSessionsTable
 	TestQuestionAnswersTable.ForeignKeys[3].RefTable = UsersTable
 	TestQuestionCountsTable.ForeignKeys[0].RefTable = TestsTable
-	TestQuestionPointsTable.ForeignKeys[0].RefTable = TestsTable
-	TestQuestionPointsTable.ForeignKeys[1].RefTable = QuestionsTable
 	TestSessionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
 	TestSessionsTable.ForeignKeys[1].RefTable = TestsTable
 	TestSessionsTable.ForeignKeys[2].RefTable = UsersTable

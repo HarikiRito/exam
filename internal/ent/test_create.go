@@ -12,7 +12,6 @@ import (
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
 	"template/internal/ent/testquestioncount"
-	"template/internal/ent/testquestionpoint"
 	"template/internal/ent/testsession"
 	"time"
 
@@ -200,21 +199,6 @@ func (tc *TestCreate) AddTestIgnoreQuestions(t ...*TestIgnoreQuestion) *TestCrea
 		ids[i] = t[i].ID
 	}
 	return tc.AddTestIgnoreQuestionIDs(ids...)
-}
-
-// AddTestQuestionPointIDs adds the "test_question_points" edge to the TestQuestionPoint entity by IDs.
-func (tc *TestCreate) AddTestQuestionPointIDs(ids ...uuid.UUID) *TestCreate {
-	tc.mutation.AddTestQuestionPointIDs(ids...)
-	return tc
-}
-
-// AddTestQuestionPoints adds the "test_question_points" edges to the TestQuestionPoint entity.
-func (tc *TestCreate) AddTestQuestionPoints(t ...*TestQuestionPoint) *TestCreate {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return tc.AddTestQuestionPointIDs(ids...)
 }
 
 // Mutation returns the TestMutation object of the builder.
@@ -452,22 +436,6 @@ func (tc *TestCreate) createSpec() (*Test, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testignorequestion.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := tc.mutation.TestQuestionPointsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   test.TestQuestionPointsTable,
-			Columns: []string{test.TestQuestionPointsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionpoint.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
