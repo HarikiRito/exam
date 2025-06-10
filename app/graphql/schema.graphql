@@ -8,9 +8,29 @@ The @defer directive may be specified on a fragment spread to imply de-prioritiz
 """
 directive @defer(if: Boolean = true, label: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+input AddMultiCollectionToTestInput {
+  collectionIds: [ID!]!
+  testId: ID!
+}
+
 type Auth {
   accessToken: String!
   refreshToken: String!
+}
+
+input BatchDeleteQuestionPointsInput {
+  questionIds: [ID!]!
+  testId: ID!
+}
+
+input BatchIgnoreQuestionsInput {
+  questionIgnoreData: [QuestionIgnoreData!]!
+  testId: ID!
+}
+
+input BatchUpdateQuestionPointsInput {
+  questionPoints: [QuestionPointsInput!]!
+  testId: ID!
 }
 
 type Course {
@@ -54,6 +74,7 @@ input CreateQuestionCollectionInput {
 
 input CreateQuestionInput {
   options: [QuestionOptionInput!]!
+  points: Int!
   questionCollectionId: ID!
   questionText: String!
 }
@@ -68,7 +89,6 @@ input CreateTestInput {
   courseId: ID
   courseSectionId: ID
   name: String!
-  questionIds: [ID!]!
 }
 
 input CreateTestSessionInput {
@@ -91,6 +111,10 @@ input LoginInput {
 }
 
 type Mutation {
+  addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
+  batchDeleteQuestionPoints(input: BatchDeleteQuestionPointsInput!): Boolean!
+  batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
+  batchUpdateQuestionPoints(input: BatchUpdateQuestionPointsInput!): Boolean!
   completeTestSession(id: ID!): TestSession!
   createCourse(input: CreateCourseInput!): Course!
   createCourseSection(input: CreateCourseSectionInput!): CourseSection!
@@ -117,7 +141,9 @@ type Mutation {
   updateQuestion(id: ID!, input: UpdateQuestionInput!): Question!
   updateQuestionCollection(id: ID!, input: UpdateQuestionCollectionInput!): QuestionCollection!
   updateQuestionOption(id: ID!, input: UpdateQuestionOptionInput!): QuestionOption!
+  updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
   updateTest(id: ID!, input: UpdateTestInput!): Test!
+  updateTestQuestionRequirement(input: [UpdateTestQuestionRequirementInput!]!, testId: ID!): Boolean!
   updateUserQuestionAnswer(id: ID!, input: UpdateUserQuestionAnswerInput!): UserQuestionAnswer!
 }
 
@@ -199,6 +225,7 @@ type Question {
   collection: QuestionCollection
   id: ID!
   options: [QuestionOption!]!
+  points: Int!
   questionText: String!
 }
 
@@ -210,6 +237,11 @@ type QuestionCollection {
   questions: [Question!]!
   title: String!
   updatedAt: DateTime!
+}
+
+input QuestionIgnoreData {
+  questionId: ID!
+  reason: String
 }
 
 type QuestionOption {
@@ -224,6 +256,11 @@ input QuestionOptionInput {
   optionText: String!
 }
 
+input QuestionPointsInput {
+  points: Int!
+  questionId: ID!
+}
+
 input RegisterInput {
   email: String!
   password: String!
@@ -234,6 +271,33 @@ type Test {
   courseSection: CourseSection
   id: ID!
   name: String!
+  questionCollections: [QuestionCollection!]!
+  testIgnoreQuestions: [TestIgnoreQuestion!]!
+  testQuestionCounts: [TestQuestionCount!]!
+  testQuestionPoints: [TestQuestionPoint!]!
+}
+
+type TestIgnoreQuestion {
+  id: ID!
+  question: Question
+  questionId: ID!
+  reason: String
+  testId: ID!
+}
+
+type TestQuestionCount {
+  id: ID!
+  numberOfQuestions: Int!
+  points: Int!
+  testId: ID!
+}
+
+type TestQuestionPoint {
+  id: ID!
+  points: Int!
+  question: Question
+  questionId: ID!
+  testId: ID!
 }
 
 type TestSession {
@@ -279,11 +343,13 @@ input UpdateQuestionCollectionInput {
 input UpdateQuestionData {
   id: ID
   options: [UpdateQuestionOptionInput!]!
+  points: Int!
   questionText: String
 }
 
 input UpdateQuestionInput {
   options: [QuestionOptionInput!]
+  points: Int!
   questionCollectionId: ID
   questionText: String
 }
@@ -293,11 +359,21 @@ input UpdateQuestionOptionInput {
   optionText: String
 }
 
+input UpdateQuestionPointsByCollectionInput {
+  collectionId: ID!
+  points: Int!
+  testId: ID!
+}
+
 input UpdateTestInput {
   courseId: ID
   courseSectionId: ID
   name: String
-  questionIds: [ID!]!
+}
+
+input UpdateTestQuestionRequirementInput {
+  numberOfQuestions: Int!
+  pointsPerQuestion: Int!
 }
 
 input UpdateTestSessionInput {

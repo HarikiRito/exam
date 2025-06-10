@@ -4,6 +4,7 @@ import { produce } from 'immer';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppLabel } from 'app/shared/components/label/AppLabel';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
@@ -16,6 +17,7 @@ import { AppBadge } from 'app/shared/components/badge/AppBadge';
 export interface QuestionData {
   id?: string;
   questionText: string;
+  points: number;
   options: QuestionOption[];
   allowMultipleCorrect: boolean;
   isNew?: boolean;
@@ -31,12 +33,25 @@ interface QuestionItemProps {
 
 export function QuestionItem({ index, question, onQuestionChange }: QuestionItemProps) {
   const [questionText, setQuestionText] = useState(question.questionText);
+  const [points, setPoints] = useState(question.points);
 
   function handleQuestionTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setQuestionText(e.target.value);
 
     const updatedQuestion = produce(question, (draft) => {
       draft.questionText = e.target.value;
+      draft.isEdited = true;
+    });
+
+    onQuestionChange(index, updatedQuestion);
+  }
+
+  function handlePointsChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const pointsValue = Number(e.target.value);
+    setPoints(pointsValue);
+
+    const updatedQuestion = produce(question, (draft) => {
+      draft.points = pointsValue;
       draft.isEdited = true;
     });
 
@@ -159,13 +174,28 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
         <div className='space-y-6'>
           {/* Question Text */}
           <div>
-            <AppLabel htmlFor={`question-text-${index}`}>Question Text</AppLabel>
+            <AppLabel htmlFor={`question-text-${index}`}>Question</AppLabel>
             <AppTextarea
               id={`question-text-${index}`}
               placeholder='Enter your question text'
               rows={3}
               value={questionText}
               onChange={handleQuestionTextChange}
+              className='mt-2'
+            />
+          </div>
+
+          {/* Points Input */}
+          <div>
+            <AppLabel htmlFor={`question-points-${index}`}>Points</AppLabel>
+            <AppInput
+              id={`question-points-${index}`}
+              type='number'
+              placeholder='5'
+              min={0}
+              value={points}
+              onChange={handlePointsChange}
+              className='mt-2'
             />
           </div>
 

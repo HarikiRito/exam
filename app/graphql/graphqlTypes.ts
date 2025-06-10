@@ -16,10 +16,30 @@ export type Scalars = {
   UUID: { input: any; output: any; }
 };
 
+export type AddMultiCollectionToTestInput = {
+  collectionIds: Array<Scalars['ID']['input']>;
+  testId: Scalars['ID']['input'];
+};
+
 export type Auth = {
   __typename?: 'Auth';
   accessToken: Scalars['String']['output'];
   refreshToken: Scalars['String']['output'];
+};
+
+export type BatchDeleteQuestionPointsInput = {
+  questionIds: Array<Scalars['ID']['input']>;
+  testId: Scalars['ID']['input'];
+};
+
+export type BatchIgnoreQuestionsInput = {
+  questionIgnoreData: Array<QuestionIgnoreData>;
+  testId: Scalars['ID']['input'];
+};
+
+export type BatchUpdateQuestionPointsInput = {
+  questionPoints: Array<QuestionPointsInput>;
+  testId: Scalars['ID']['input'];
 };
 
 export type Course = {
@@ -65,6 +85,7 @@ export type CreateQuestionCollectionInput = {
 
 export type CreateQuestionInput = {
   options: Array<QuestionOptionInput>;
+  points: Scalars['Int']['input'];
   questionCollectionId: Scalars['ID']['input'];
   questionText: Scalars['String']['input'];
 };
@@ -79,7 +100,6 @@ export type CreateTestInput = {
   courseId?: InputMaybe<Scalars['ID']['input']>;
   courseSectionId?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
-  questionIds: Array<Scalars['ID']['input']>;
 };
 
 export type CreateTestSessionInput = {
@@ -101,6 +121,10 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addMultiCollectionToTest: Scalars['Boolean']['output'];
+  batchDeleteQuestionPoints: Scalars['Boolean']['output'];
+  batchIgnoreQuestions: Scalars['Boolean']['output'];
+  batchUpdateQuestionPoints: Scalars['Boolean']['output'];
   completeTestSession: TestSession;
   createCourse: Course;
   createCourseSection: CourseSection;
@@ -127,8 +151,30 @@ export type Mutation = {
   updateQuestion: Question;
   updateQuestionCollection: QuestionCollection;
   updateQuestionOption: QuestionOption;
+  updateQuestionPointsByCollection: Scalars['Boolean']['output'];
   updateTest: Test;
+  updateTestQuestionRequirement: Scalars['Boolean']['output'];
   updateUserQuestionAnswer: UserQuestionAnswer;
+};
+
+
+export type MutationAddMultiCollectionToTestArgs = {
+  input: AddMultiCollectionToTestInput;
+};
+
+
+export type MutationBatchDeleteQuestionPointsArgs = {
+  input: BatchDeleteQuestionPointsInput;
+};
+
+
+export type MutationBatchIgnoreQuestionsArgs = {
+  input: BatchIgnoreQuestionsInput;
+};
+
+
+export type MutationBatchUpdateQuestionPointsArgs = {
+  input: BatchUpdateQuestionPointsInput;
 };
 
 
@@ -267,9 +313,20 @@ export type MutationUpdateQuestionOptionArgs = {
 };
 
 
+export type MutationUpdateQuestionPointsByCollectionArgs = {
+  input: UpdateQuestionPointsByCollectionInput;
+};
+
+
 export type MutationUpdateTestArgs = {
   id: Scalars['ID']['input'];
   input: UpdateTestInput;
+};
+
+
+export type MutationUpdateTestQuestionRequirementArgs = {
+  input: Array<UpdateTestQuestionRequirementInput>;
+  testId: Scalars['ID']['input'];
 };
 
 
@@ -442,6 +499,7 @@ export type Question = {
   collection?: Maybe<QuestionCollection>;
   id: Scalars['ID']['output'];
   options: Array<QuestionOption>;
+  points: Scalars['Int']['output'];
   questionText: Scalars['String']['output'];
 };
 
@@ -454,6 +512,11 @@ export type QuestionCollection = {
   questions: Array<Question>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type QuestionIgnoreData = {
+  questionId: Scalars['ID']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type QuestionOption = {
@@ -469,6 +532,11 @@ export type QuestionOptionInput = {
   optionText: Scalars['String']['input'];
 };
 
+export type QuestionPointsInput = {
+  points: Scalars['Int']['input'];
+  questionId: Scalars['ID']['input'];
+};
+
 export type RegisterInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -480,6 +548,36 @@ export type Test = {
   courseSection?: Maybe<CourseSection>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  questionCollections: Array<QuestionCollection>;
+  testIgnoreQuestions: Array<TestIgnoreQuestion>;
+  testQuestionCounts: Array<TestQuestionCount>;
+  testQuestionPoints: Array<TestQuestionPoint>;
+};
+
+export type TestIgnoreQuestion = {
+  __typename?: 'TestIgnoreQuestion';
+  id: Scalars['ID']['output'];
+  question?: Maybe<Question>;
+  questionId: Scalars['ID']['output'];
+  reason?: Maybe<Scalars['String']['output']>;
+  testId: Scalars['ID']['output'];
+};
+
+export type TestQuestionCount = {
+  __typename?: 'TestQuestionCount';
+  id: Scalars['ID']['output'];
+  numberOfQuestions: Scalars['Int']['output'];
+  points: Scalars['Int']['output'];
+  testId: Scalars['ID']['output'];
+};
+
+export type TestQuestionPoint = {
+  __typename?: 'TestQuestionPoint';
+  id: Scalars['ID']['output'];
+  points: Scalars['Int']['output'];
+  question?: Maybe<Question>;
+  questionId: Scalars['ID']['output'];
+  testId: Scalars['ID']['output'];
 };
 
 export type TestSession = {
@@ -525,11 +623,13 @@ export type UpdateQuestionCollectionInput = {
 export type UpdateQuestionData = {
   id?: InputMaybe<Scalars['ID']['input']>;
   options: Array<UpdateQuestionOptionInput>;
+  points: Scalars['Int']['input'];
   questionText?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateQuestionInput = {
   options?: InputMaybe<Array<QuestionOptionInput>>;
+  points: Scalars['Int']['input'];
   questionCollectionId?: InputMaybe<Scalars['ID']['input']>;
   questionText?: InputMaybe<Scalars['String']['input']>;
 };
@@ -539,11 +639,21 @@ export type UpdateQuestionOptionInput = {
   optionText?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateQuestionPointsByCollectionInput = {
+  collectionId: Scalars['ID']['input'];
+  points: Scalars['Int']['input'];
+  testId: Scalars['ID']['input'];
+};
+
 export type UpdateTestInput = {
   courseId?: InputMaybe<Scalars['ID']['input']>;
   courseSectionId?: InputMaybe<Scalars['ID']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
-  questionIds: Array<Scalars['ID']['input']>;
+};
+
+export type UpdateTestQuestionRequirementInput = {
+  numberOfQuestions: Scalars['Int']['input'];
+  pointsPerQuestion: Scalars['Int']['input'];
 };
 
 export type UpdateTestSessionInput = {

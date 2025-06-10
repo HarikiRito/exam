@@ -195,8 +195,8 @@ export function QuestionOptionsManager({
 
   return (
     <div>
-      <AppLabel>Answer Options</AppLabel>
-      <div className='space-y-4'>
+      <AppLabel>Options</AppLabel>
+      <div className='mt-2 space-y-4'>
         <div className='flex gap-2'>
           <AppInput
             placeholder='Enter new option text'

@@ -65,6 +65,7 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
         const mappedQuestions = collection.questions.map((question) => ({
           id: question.id,
           questionText: question.questionText,
+          points: question.points,
           options: question.options.map((option) => ({
             optionText: option.optionText,
             isCorrect: option.isCorrect,

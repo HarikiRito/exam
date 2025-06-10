@@ -13,6 +13,7 @@ import { PaginateQuestionsDocument } from 'app/graphql/operations/question/pagin
 import { questionFormState } from '../state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppForm } from 'app/shared/components/form/AppForm';
+import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
@@ -26,6 +27,7 @@ import { CorrectOptionToggle } from 'app/shared/components/custom/question/Corre
 const questionSchema = z.object({
   questionText: z.string().min(1, 'You must enter a question'),
   questionCollectionId: z.string().min(1, 'You must select a question collection'),
+  points: z.number().min(0, 'Points must not be negative').default(5),
   options: z
     .array(
       z.object({
@@ -101,6 +103,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
     defaultValues: {
       questionText: '',
       questionCollectionId: '',
+      points: 5,
       options: [],
     },
   });
@@ -112,6 +115,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
       const formData = {
         questionText: question.questionText,
         questionCollectionId: question.collection?.id || '',
+        points: question.points,
         options: question.options.map((option) => ({
           id: option.id,
           optionText: option.optionText,
@@ -163,6 +167,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
           input: {
             questionText: data.questionText,
             questionCollectionId: data.questionCollectionId,
+            points: data.points,
             options,
           },
         },
@@ -173,6 +178,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
           input: {
             questionText: data.questionText,
             questionCollectionId: data.questionCollectionId,
+            points: data.points,
             options,
           },
         },
@@ -219,7 +225,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
               name='questionText'
               render={({ field }) => (
                 <AppForm.Item>
-                  <AppForm.Label>Question Text</AppForm.Label>
+                  <AppForm.Label>Question</AppForm.Label>
                   <AppForm.Control>
                     <AppTextarea placeholder='Enter your question text' rows={3} {...field} />
                   </AppForm.Control>
@@ -236,6 +242,27 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
               onValueChange={(value) => {
                 form.setValue('questionCollectionId', value || '');
               }}
+            />
+
+            {/* Points Input */}
+            <AppForm.Field
+              control={form.control}
+              name='points'
+              render={({ field }) => (
+                <AppForm.Item>
+                  <AppForm.Label>Points</AppForm.Label>
+                  <AppForm.Control>
+                    <AppInput
+                      type='number'
+                      placeholder='5'
+                      min={0}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </AppForm.Control>
+                  <AppForm.Message />
+                </AppForm.Item>
+              )}
             />
 
             {/* Multiple Choice Toggle */}

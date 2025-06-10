@@ -60,6 +60,15 @@ export default function AdminQuestions() {
       enableSorting: true,
       enableColumnFilter: true,
     }),
+    columnHelper.accessor('points', {
+      header: 'Points',
+      cell: (info) => {
+        const points = info.getValue();
+        return points;
+      },
+      enableSorting: true,
+      enableColumnFilter: false,
+    }),
     columnHelper.accessor('options', {
       header: 'Options',
       cell: (info) => {

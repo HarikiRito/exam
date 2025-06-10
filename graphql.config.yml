@@ -1,0 +1,2 @@
+schema: 'app/graphql/schema/schema.gql'
+documents: 'app/graphql/operations/**/*.{graphql,gql}'

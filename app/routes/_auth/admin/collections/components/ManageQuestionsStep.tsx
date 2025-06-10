@@ -13,7 +13,6 @@ import { QuestionData } from 'app/shared/components/custom/question/QuestionItem
 import { QuestionManager } from 'app/shared/components/custom/question/QuestionManager';
 import { apolloService } from 'app/shared/services/apollo.service';
 import { guardAsync } from 'safe-guard-data';
-import { useUniqueId } from 'app/shared/hooks/useUniqueId';
 
 interface ManageQuestionsStepProps {
   readonly collectionId?: string;
@@ -100,6 +99,7 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
             variables: {
               input: {
                 questionText: question.questionText,
+                points: question.points,
                 options: question.options,
                 questionCollectionId: collectionId,
               },
@@ -130,6 +130,7 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
               id: question.id,
               input: {
                 questionText: question.questionText,
+                points: question.points,
                 options: question.options,
                 questionCollectionId: collectionId,
               },

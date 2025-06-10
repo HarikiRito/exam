@@ -2,7 +2,6 @@ import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppAlertDialog } from 'app/shared/components/alert-dialog/AppAlertDialog';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 
@@ -22,6 +21,7 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
   function handleAddQuestion() {
     const newQuestion: QuestionData = {
       questionText: '',
+      points: 5,
       options: [],
       allowMultipleCorrect: false,
       isNew: true,
