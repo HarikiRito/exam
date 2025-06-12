@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 
-import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
+import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/courseEditStore';
 import { useRemoveCourseSectionMutation } from 'app/graphql/operations/courseSection/removeCourseSection.mutation.generated';
 import { CourseSectionsByCourseIdDocument } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';

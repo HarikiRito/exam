@@ -9,7 +9,7 @@ import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { questionFormState } from '../state';
+import { questionFormState } from '../store';
 
 import { cn } from 'app/shared/utils/className';
 import { QuestionFormData } from './QuestionEditAndCreatePage';

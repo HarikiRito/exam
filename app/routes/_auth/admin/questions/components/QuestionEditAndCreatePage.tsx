@@ -10,7 +10,7 @@ import { usePaginateQuestionCollectionsQuery } from 'app/graphql/operations/ques
 import { useCreateQuestionMutation } from 'app/graphql/operations/question/createQuestion.mutation.generated';
 import { useUpdateQuestionMutation } from 'app/graphql/operations/question/updateQuestion.mutation.generated';
 import { PaginateQuestionsDocument } from 'app/graphql/operations/question/paginateQuestions.query.generated';
-import { questionFormState } from '../state';
+import { questionFormState } from '../store';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';

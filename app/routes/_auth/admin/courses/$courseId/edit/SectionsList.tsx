@@ -1,4 +1,4 @@
-import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
+import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/courseEditStore';
 import { AccordionSection, SectionWithChildren } from 'app/shared/components/custom/section/AccordionSection';
 
 export function SectionsList() {

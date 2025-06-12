@@ -5,7 +5,7 @@ import { useParams } from '@remix-run/react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/state';
+import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/courseEditStore';
 import { useCreateCourseSectionMutation } from 'app/graphql/operations/courseSection/createCourseSection.mutation.generated';
 import { useUpdateCourseSectionMutation } from 'app/graphql/operations/courseSection/updateCourseSection.mutation.generated';
 import { CourseSectionsByCourseIdDocument } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';

@@ -1,6 +1,6 @@
 import { AppSwitch } from 'app/shared/components/switch/AppSwitch';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { questionFormState } from '../state';
+import { questionFormState } from '../store';
 
 export function CorrectOptionToggle() {
   const state = questionFormState.useStateSnapshot();
