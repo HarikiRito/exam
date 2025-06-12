@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"template/internal/features/test"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -114,12 +113,12 @@ func (r *testResolver) QuestionCollections(ctx context.Context, obj *model.Test)
 
 // TestQuestionCounts is the resolver for the testQuestionCounts field.
 func (r *testResolver) TestQuestionCounts(ctx context.Context, obj *model.Test) ([]*model.TestQuestionCount, error) {
-	panic(fmt.Errorf("not implemented: TestQuestionCounts - testQuestionCounts"))
+	return dataloader.GetTestQuestionCountsByTestID(ctx, obj.ID)
 }
 
 // TestIgnoreQuestions is the resolver for the testIgnoreQuestions field.
 func (r *testResolver) TestIgnoreQuestions(ctx context.Context, obj *model.Test) ([]*model.TestIgnoreQuestion, error) {
-	panic(fmt.Errorf("not implemented: TestIgnoreQuestions - testIgnoreQuestions"))
+	return dataloader.GetTestIgnoreQuestionsByTestID(ctx, obj.ID)
 }
 
 // Test returns TestResolver implementation.
