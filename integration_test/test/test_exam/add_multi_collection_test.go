@@ -28,7 +28,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{scenario.Collection.ID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.NoError(t, err)
 		assert.True(t, result)
 	})
@@ -43,7 +43,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{scenario.Collection.ID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.NoError(t, err)
 		assert.True(t, result)
 	})
@@ -58,7 +58,7 @@ func TestAddMultiCollection(t *testing.T) {
 			TestID:        scenario.Test.ID,
 			CollectionIds: []uuid.UUID{scenario.Collection.ID},
 		}
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, initialInput)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, initialInput)
 		assert.NoError(t, err)
 		assert.True(t, result)
 
@@ -71,7 +71,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{collection2.ID, collection3.ID},
 		}
 
-		result, err = test.AddMultiCollection(ctx, scenario.User.ID, replaceInput)
+		result, err = test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, replaceInput)
 		assert.NoError(t, err)
 		assert.True(t, result)
 	})
@@ -86,7 +86,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{scenario.Collection.ID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.Error(t, err)
 		assert.False(t, result)
 		assert.Contains(t, err.Error(), "test not found")
@@ -111,7 +111,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{unauthorizedCollection.ID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.Error(t, err)
 		assert.False(t, result)
 		assert.Contains(t, err.Error(), "one or more collections not found or unauthorized")
@@ -136,7 +136,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{scenario.Collection.ID, unauthorizedCollection.ID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.Error(t, err)
 		assert.False(t, result)
 		assert.Contains(t, err.Error(), "one or more collections not found or unauthorized")
@@ -152,7 +152,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{nonExistentCollectionID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.Error(t, err)
 		assert.False(t, result)
 		assert.Contains(t, err.Error(), "one or more collections not found or unauthorized")
@@ -168,7 +168,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{scenario.Collection.ID, scenario.Collection.ID},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		// This should still succeed, but the collection will only be added once
 		assert.NoError(t, err)
 		assert.True(t, result)
@@ -183,7 +183,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: []uuid.UUID{},
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		// Should succeed as clearing collections is valid
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "no collections provided")
@@ -216,7 +216,7 @@ func TestAddMultiCollection(t *testing.T) {
 			CollectionIds: collectionIds,
 		}
 
-		result, err := test.AddMultiCollection(ctx, scenario.User.ID, input)
+		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		assert.NoError(t, err)
 		assert.True(t, result)
 	})

@@ -42,7 +42,7 @@ func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input m
 	if err != nil {
 		return false, err
 	}
-	return test.AddMultiCollection(ctx, userId, input)
+	return test.UpdateQuestionCollectionsForTest(ctx, userId, input)
 }
 
 // UpdateTestQuestionRequirement is the resolver for the updateTestQuestionRequirement field.

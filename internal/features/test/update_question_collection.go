@@ -14,7 +14,7 @@ import (
 
 // AddMultiCollectionToTest adds multiple question collections to a test.
 // Requires user authentication and authorization (user must own the course containing the test).
-func AddMultiCollection(ctx context.Context, userId uuid.UUID, input model.AddMultiCollectionToTestInput) (bool, error) {
+func UpdateQuestionCollectionsForTest(ctx context.Context, userId uuid.UUID, input model.AddMultiCollectionToTestInput) (bool, error) {
 	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return false, err
@@ -28,10 +28,6 @@ func AddMultiCollection(ctx context.Context, userId uuid.UUID, input model.AddMu
 	}
 
 	collectionIds := slice.Unique(input.CollectionIds)
-
-	if len(collectionIds) == 0 {
-		return false, db.Rollback(tx, errors.New("no collections provided"))
-	}
 
 	// Get the count of collections that are owned by the user
 	collectionCount, err := tx.QuestionCollection.Query().

@@ -11,11 +11,13 @@ Generate comprehensive multiple-choice questions based on the topic I provide. Y
 - If a question has multiple correct answers, explicitly state the exact number of correct answers (e.g., "Select two that apply" or "Choose three correct options") in the question text.
 - The answers must not include references to other options (e.g., "A or B").
 - The question text must be compatible with markdown format for highlighting terms (e.g., using **bold** or *italics*).
-- Generate 4-6 answer options per question
+- Generate exactly 4 or 6 answer options per question
 - Include intentionally wrong but plausible "distractor" answers that:
   - Are similar to the correct answer
   - Test common misconceptions
   - Require genuine knowledge to distinguish from correct answers
+- The AI will determine the difficulty level of each question and assign points dynamically based on the complexity, allowing for a broader range of difficulty levels.
+- Points assigned to each question must be divisible by 5.
 - All questions must be factually accurate and verifiable
 - Include a brief explanation for why the correct answer(s) are right, with a verifiable source.
 
@@ -32,6 +34,7 @@ When I request "convert to JSON", use this exact structure:
 ```json
 [{
   "question": "What is the capital of France?",
+  "points": 5,
   "options": [
     {
       "text": "Paris",

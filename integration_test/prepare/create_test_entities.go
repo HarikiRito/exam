@@ -77,7 +77,7 @@ func CreateTestScenario(t *testing.T, questionCount int) TestScenario {
 	})
 	collectionEntity, questions := CreateCollectionWithQuestions(t, userEntity.ID, questionCount)
 
-	_, err := test.AddMultiCollection(context.Background(), userEntity.ID, model.AddMultiCollectionToTestInput{
+	_, err := test.UpdateQuestionCollectionsForTest(context.Background(), userEntity.ID, model.AddMultiCollectionToTestInput{
 		TestID:        testEntity.ID,
 		CollectionIds: []uuid.UUID{collectionEntity.ID},
 	})
