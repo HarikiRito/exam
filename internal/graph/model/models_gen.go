@@ -184,14 +184,6 @@ type TestQuestionCount struct {
 	Points            int       `json:"points"`
 }
 
-type TestQuestionPoint struct {
-	ID         uuid.UUID `json:"id"`
-	TestID     uuid.UUID `json:"testId"`
-	QuestionID uuid.UUID `json:"questionId"`
-	Points     int       `json:"points"`
-	Question   *Question `json:"question,omitempty"`
-}
-
 type Todo struct {
 	ID   uuid.UUID `json:"id"`
 	Text string    `json:"text"`

@@ -6,9 +6,6 @@ extend type Mutation {
   # Add multiple collections to a test
   addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
   
-  # Update question points - batch by collection
-  updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
-  
   # Update number of questions requirement based on points per question
   updateTestQuestionRequirement(testId: ID!, input: [UpdateTestQuestionRequirementInput!]!): Boolean!
   
@@ -29,13 +26,9 @@ type PaginatedTest {
 type Test {
   id: ID!
   name: String!
-  courseSection: CourseSection
-  course: Course
   questionCollections: [QuestionCollection!]!
   testQuestionCounts: [TestQuestionCount!]!
-  testQuestionPoints: [TestQuestionPoint!]!
   testIgnoreQuestions: [TestIgnoreQuestion!]!
-  # questions: [Question!]!
 }
 
 type TestQuestionCount {
@@ -43,14 +36,6 @@ type TestQuestionCount {
   testId: ID!
   numberOfQuestions: Int!
   points: Int!
-}
-
-type TestQuestionPoint {
-  id: ID!
-  testId: ID!
-  questionId: ID!
-  points: Int!
-  question: Question
 }
 
 type TestIgnoreQuestion {

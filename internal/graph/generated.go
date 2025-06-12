@@ -108,7 +108,6 @@ type ComplexityRoot struct {
 		UpdateQuestion                   func(childComplexity int, id uuid.UUID, input model.UpdateQuestionInput) int
 		UpdateQuestionCollection         func(childComplexity int, id uuid.UUID, input model.UpdateQuestionCollectionInput) int
 		UpdateQuestionOption             func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
-		UpdateQuestionPointsByCollection func(childComplexity int, input model.UpdateQuestionPointsByCollectionInput) int
 		UpdateTest                       func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
 		UpdateTestQuestionRequirement    func(childComplexity int, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) int
 		UpdateUserQuestionAnswer         func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
@@ -204,14 +203,11 @@ type ComplexityRoot struct {
 	}
 
 	Test struct {
-		Course              func(childComplexity int) int
-		CourseSection       func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Name                func(childComplexity int) int
 		QuestionCollections func(childComplexity int) int
 		TestIgnoreQuestions func(childComplexity int) int
 		TestQuestionCounts  func(childComplexity int) int
-		TestQuestionPoints  func(childComplexity int) int
 	}
 
 	TestIgnoreQuestion struct {
@@ -227,14 +223,6 @@ type ComplexityRoot struct {
 		NumberOfQuestions func(childComplexity int) int
 		Points            func(childComplexity int) int
 		TestID            func(childComplexity int) int
-	}
-
-	TestQuestionPoint struct {
-		ID         func(childComplexity int) int
-		Points     func(childComplexity int) int
-		Question   func(childComplexity int) int
-		QuestionID func(childComplexity int) int
-		TestID     func(childComplexity int) int
 	}
 
 	TestSession struct {
@@ -296,7 +284,6 @@ type MutationResolver interface {
 	UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error)
 	DeleteTest(ctx context.Context, id uuid.UUID) (bool, error)
 	AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error)
-	UpdateQuestionPointsByCollection(ctx context.Context, input model.UpdateQuestionPointsByCollectionInput) (bool, error)
 	UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error)
 	BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error)
 	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error)
@@ -339,11 +326,8 @@ type QuestionOptionResolver interface {
 	Question(ctx context.Context, obj *model.QuestionOption) (*model.Question, error)
 }
 type TestResolver interface {
-	CourseSection(ctx context.Context, obj *model.Test) (*model.CourseSection, error)
-	Course(ctx context.Context, obj *model.Test) (*model.Course, error)
 	QuestionCollections(ctx context.Context, obj *model.Test) ([]*model.QuestionCollection, error)
 	TestQuestionCounts(ctx context.Context, obj *model.Test) ([]*model.TestQuestionCount, error)
-	TestQuestionPoints(ctx context.Context, obj *model.Test) ([]*model.TestQuestionPoint, error)
 	TestIgnoreQuestions(ctx context.Context, obj *model.Test) ([]*model.TestIgnoreQuestion, error)
 }
 type TestSessionResolver interface {
@@ -806,18 +790,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateQuestionOption(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateQuestionOptionInput)), true
-
-	case "Mutation.updateQuestionPointsByCollection":
-		if e.complexity.Mutation.UpdateQuestionPointsByCollection == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateQuestionPointsByCollection_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateQuestionPointsByCollection(childComplexity, args["input"].(model.UpdateQuestionPointsByCollectionInput)), true
 
 	case "Mutation.updateTest":
 		if e.complexity.Mutation.UpdateTest == nil {
@@ -1301,20 +1273,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QuestionOption.Question(childComplexity), true
 
-	case "Test.course":
-		if e.complexity.Test.Course == nil {
-			break
-		}
-
-		return e.complexity.Test.Course(childComplexity), true
-
-	case "Test.courseSection":
-		if e.complexity.Test.CourseSection == nil {
-			break
-		}
-
-		return e.complexity.Test.CourseSection(childComplexity), true
-
 	case "Test.id":
 		if e.complexity.Test.ID == nil {
 			break
@@ -1349,13 +1307,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Test.TestQuestionCounts(childComplexity), true
-
-	case "Test.testQuestionPoints":
-		if e.complexity.Test.TestQuestionPoints == nil {
-			break
-		}
-
-		return e.complexity.Test.TestQuestionPoints(childComplexity), true
 
 	case "TestIgnoreQuestion.id":
 		if e.complexity.TestIgnoreQuestion.ID == nil {
@@ -1419,41 +1370,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TestQuestionCount.TestID(childComplexity), true
-
-	case "TestQuestionPoint.id":
-		if e.complexity.TestQuestionPoint.ID == nil {
-			break
-		}
-
-		return e.complexity.TestQuestionPoint.ID(childComplexity), true
-
-	case "TestQuestionPoint.points":
-		if e.complexity.TestQuestionPoint.Points == nil {
-			break
-		}
-
-		return e.complexity.TestQuestionPoint.Points(childComplexity), true
-
-	case "TestQuestionPoint.question":
-		if e.complexity.TestQuestionPoint.Question == nil {
-			break
-		}
-
-		return e.complexity.TestQuestionPoint.Question(childComplexity), true
-
-	case "TestQuestionPoint.questionId":
-		if e.complexity.TestQuestionPoint.QuestionID == nil {
-			break
-		}
-
-		return e.complexity.TestQuestionPoint.QuestionID(childComplexity), true
-
-	case "TestQuestionPoint.testId":
-		if e.complexity.TestQuestionPoint.TestID == nil {
-			break
-		}
-
-		return e.complexity.TestQuestionPoint.TestID(childComplexity), true
 
 	case "TestSession.completedAt":
 		if e.complexity.TestSession.CompletedAt == nil {
@@ -2454,29 +2370,6 @@ func (ec *executionContext) field_Mutation_updateQuestionOption_argsInput(
 	}
 
 	var zeroVal model.UpdateQuestionOptionInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateQuestionPointsByCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateQuestionPointsByCollection_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateQuestionPointsByCollection_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateQuestionPointsByCollectionInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateQuestionPointsByCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionPointsByCollectionInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateQuestionPointsByCollectionInput
 	return zeroVal, nil
 }
 
@@ -4877,16 +4770,10 @@ func (ec *executionContext) fieldContext_Mutation_createTest(ctx context.Context
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_Test_courseSection(ctx, field)
-			case "course":
-				return ec.fieldContext_Test_course(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
 				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
-			case "testQuestionPoints":
-				return ec.fieldContext_Test_testQuestionPoints(ctx, field)
 			case "testIgnoreQuestions":
 				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
 			}
@@ -4950,16 +4837,10 @@ func (ec *executionContext) fieldContext_Mutation_updateTest(ctx context.Context
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_Test_courseSection(ctx, field)
-			case "course":
-				return ec.fieldContext_Test_course(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
 				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
-			case "testQuestionPoints":
-				return ec.fieldContext_Test_testQuestionPoints(ctx, field)
 			case "testIgnoreQuestions":
 				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
 			}
@@ -5084,61 +4965,6 @@ func (ec *executionContext) fieldContext_Mutation_addMultiCollectionToTest(ctx c
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_addMultiCollectionToTest_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateQuestionPointsByCollection(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateQuestionPointsByCollection(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateQuestionPointsByCollection(rctx, fc.Args["input"].(model.UpdateQuestionPointsByCollectionInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateQuestionPointsByCollection(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateQuestionPointsByCollection_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6269,16 +6095,10 @@ func (ec *executionContext) fieldContext_PaginatedTest_items(_ context.Context, 
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_Test_courseSection(ctx, field)
-			case "course":
-				return ec.fieldContext_Test_course(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
 				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
-			case "testQuestionPoints":
-				return ec.fieldContext_Test_testQuestionPoints(ctx, field)
 			case "testIgnoreQuestions":
 				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
 			}
@@ -7535,16 +7355,10 @@ func (ec *executionContext) fieldContext_Query_test(ctx context.Context, field g
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_Test_courseSection(ctx, field)
-			case "course":
-				return ec.fieldContext_Test_course(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
 				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
-			case "testQuestionPoints":
-				return ec.fieldContext_Test_testQuestionPoints(ctx, field)
 			case "testIgnoreQuestions":
 				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
 			}
@@ -8854,116 +8668,6 @@ func (ec *executionContext) fieldContext_Test_name(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Test_courseSection(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Test_courseSection(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Test().CourseSection(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.CourseSection)
-	fc.Result = res
-	return ec.marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Test_courseSection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Test",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CourseSection_id(ctx, field)
-			case "title":
-				return ec.fieldContext_CourseSection_title(ctx, field)
-			case "description":
-				return ec.fieldContext_CourseSection_description(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSection_courseId(ctx, field)
-			case "sectionId":
-				return ec.fieldContext_CourseSection_sectionId(ctx, field)
-			case "order":
-				return ec.fieldContext_CourseSection_order(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Test_course(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Test_course(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Test().Course(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Course)
-	fc.Result = res
-	return ec.marshalOCourse2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourse(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Test_course(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Test",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Course_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Course_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Course_description(ctx, field)
-			case "creator":
-				return ec.fieldContext_Course_creator(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Course_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Course_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Course", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Test_questionCollections(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Test_questionCollections(ctx, field)
 	if err != nil {
@@ -9073,62 +8777,6 @@ func (ec *executionContext) fieldContext_Test_testQuestionCounts(_ context.Conte
 				return ec.fieldContext_TestQuestionCount_points(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestQuestionCount", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Test_testQuestionPoints(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Test_testQuestionPoints(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Test().TestQuestionPoints(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.TestQuestionPoint)
-	fc.Result = res
-	return ec.marshalNTestQuestionPoint2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestQuestionPointᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Test_testQuestionPoints(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Test",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TestQuestionPoint_id(ctx, field)
-			case "testId":
-				return ec.fieldContext_TestQuestionPoint_testId(ctx, field)
-			case "questionId":
-				return ec.fieldContext_TestQuestionPoint_questionId(ctx, field)
-			case "points":
-				return ec.fieldContext_TestQuestionPoint_points(ctx, field)
-			case "question":
-				return ec.fieldContext_TestQuestionPoint_question(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TestQuestionPoint", field.Name)
 		},
 	}
 	return fc, nil
@@ -9592,235 +9240,6 @@ func (ec *executionContext) fieldContext_TestQuestionCount_points(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _TestQuestionPoint_id(ctx context.Context, field graphql.CollectedField, obj *model.TestQuestionPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestQuestionPoint_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestQuestionPoint_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestQuestionPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestQuestionPoint_testId(ctx context.Context, field graphql.CollectedField, obj *model.TestQuestionPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestQuestionPoint_testId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TestID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestQuestionPoint_testId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestQuestionPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestQuestionPoint_questionId(ctx context.Context, field graphql.CollectedField, obj *model.TestQuestionPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestQuestionPoint_questionId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.QuestionID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestQuestionPoint_questionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestQuestionPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestQuestionPoint_points(ctx context.Context, field graphql.CollectedField, obj *model.TestQuestionPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestQuestionPoint_points(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Points, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestQuestionPoint_points(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestQuestionPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestQuestionPoint_question(ctx context.Context, field graphql.CollectedField, obj *model.TestQuestionPoint) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestQuestionPoint_question(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Question, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.Question)
-	fc.Result = res
-	return ec.marshalOQuestion2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestion(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestQuestionPoint_question(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestQuestionPoint",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Question_id(ctx, field)
-			case "questionText":
-				return ec.fieldContext_Question_questionText(ctx, field)
-			case "collection":
-				return ec.fieldContext_Question_collection(ctx, field)
-			case "options":
-				return ec.fieldContext_Question_options(ctx, field)
-			case "points":
-				return ec.fieldContext_Question_points(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TestSession_id(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TestSession_id(ctx, field)
 	if err != nil {
@@ -9958,16 +9377,10 @@ func (ec *executionContext) fieldContext_TestSession_test(_ context.Context, fie
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_Test_courseSection(ctx, field)
-			case "course":
-				return ec.fieldContext_Test_course(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
 				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
-			case "testQuestionPoints":
-				return ec.fieldContext_Test_testQuestionPoints(ctx, field)
 			case "testIgnoreQuestions":
 				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
 			}
@@ -14127,13 +13540,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateQuestionPointsByCollection":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateQuestionPointsByCollection(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "updateTestQuestionRequirement":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateTestQuestionRequirement(ctx, field)
@@ -15385,72 +14791,6 @@ func (ec *executionContext) _Test(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "courseSection":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Test_courseSection(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "course":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Test_course(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "questionCollections":
 			field := field
 
@@ -15497,42 +14837,6 @@ func (ec *executionContext) _Test(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._Test_testQuestionCounts(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "testQuestionPoints":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Test_testQuestionPoints(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -15702,62 +15006,6 @@ func (ec *executionContext) _TestQuestionCount(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var testQuestionPointImplementors = []string{"TestQuestionPoint"}
-
-func (ec *executionContext) _TestQuestionPoint(ctx context.Context, sel ast.SelectionSet, obj *model.TestQuestionPoint) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, testQuestionPointImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("TestQuestionPoint")
-		case "id":
-			out.Values[i] = ec._TestQuestionPoint_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "testId":
-			out.Values[i] = ec._TestQuestionPoint_testId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "questionId":
-			out.Values[i] = ec._TestQuestionPoint_questionId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "points":
-			out.Values[i] = ec._TestQuestionPoint_points(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "question":
-			out.Values[i] = ec._TestQuestionPoint_question(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -17270,60 +16518,6 @@ func (ec *executionContext) marshalNTestQuestionCount2ᚖtemplateᚋinternalᚋg
 	return ec._TestQuestionCount(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTestQuestionPoint2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestQuestionPointᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TestQuestionPoint) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNTestQuestionPoint2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestQuestionPoint(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNTestQuestionPoint2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestQuestionPoint(ctx context.Context, sel ast.SelectionSet, v *model.TestQuestionPoint) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._TestQuestionPoint(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNTestSession2templateᚋinternalᚋgraphᚋmodelᚐTestSession(ctx context.Context, sel ast.SelectionSet, v model.TestSession) graphql.Marshaler {
 	return ec._TestSession(ctx, sel, &v)
 }
@@ -17512,11 +16706,6 @@ func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2ᚕᚖtemplate�
 func (ec *executionContext) unmarshalNUpdateQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionOptionInput(ctx context.Context, v interface{}) (*model.UpdateQuestionOptionInput, error) {
 	res, err := ec.unmarshalInputUpdateQuestionOptionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNUpdateQuestionPointsByCollectionInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateQuestionPointsByCollectionInput(ctx context.Context, v interface{}) (model.UpdateQuestionPointsByCollectionInput, error) {
-	res, err := ec.unmarshalInputUpdateQuestionPointsByCollectionInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNUpdateTestInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateTestInput(ctx context.Context, v interface{}) (model.UpdateTestInput, error) {
@@ -17900,13 +17089,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOCourse2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourse(ctx context.Context, sel ast.SelectionSet, v *model.Course) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Course(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx context.Context, sel ast.SelectionSet, v *model.CourseSection) graphql.Marshaler {

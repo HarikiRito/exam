@@ -16,21 +16,23 @@ const loadersKey = ctxKey("dataloaders")
 
 // Loaders wraps the dataloader instances.
 type Loaders struct {
-	UserLoader                  *dataloadgen.Loader[uuid.UUID, *model.User]
-	CourseSectionLoader         *dataloadgen.Loader[uuid.UUID, *model.CourseSection]
-	QuestionOptionLoader        *dataloadgen.Loader[uuid.UUID, []*model.QuestionOption]
-	QuestionCollectionLoader    *dataloadgen.Loader[uuid.UUID, *model.QuestionCollection]
-	QuestionsByCollectionLoader *dataloadgen.Loader[uuid.UUID, []*model.Question]
+	UserLoader                      *dataloadgen.Loader[uuid.UUID, *model.User]
+	CourseSectionLoader             *dataloadgen.Loader[uuid.UUID, *model.CourseSection]
+	QuestionOptionLoader            *dataloadgen.Loader[uuid.UUID, []*model.QuestionOption]
+	QuestionCollectionLoader        *dataloadgen.Loader[uuid.UUID, *model.QuestionCollection]
+	QuestionsByCollectionLoader     *dataloadgen.Loader[uuid.UUID, []*model.Question]
+	QuestionCollectionsByTestLoader *dataloadgen.Loader[uuid.UUID, []*model.QuestionCollection]
 }
 
 // NewLoaders instantiates and returns a new Loaders struct with a UserLoader.
 func NewLoaders() *Loaders {
 	return &Loaders{
-		UserLoader:                  dataloadgen.NewLoader(getUsers, dataloadgen.WithWait(time.Millisecond)),
-		CourseSectionLoader:         dataloadgen.NewLoader(getCourseSections, dataloadgen.WithWait(time.Millisecond)),
-		QuestionOptionLoader:        dataloadgen.NewLoader(getQuestionOptionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
-		QuestionCollectionLoader:    dataloadgen.NewLoader(getQuestionCollectionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
-		QuestionsByCollectionLoader: dataloadgen.NewLoader(getQuestionsByCollectionIDs, dataloadgen.WithWait(time.Millisecond)),
+		UserLoader:                      dataloadgen.NewLoader(getUsers, dataloadgen.WithWait(time.Millisecond)),
+		CourseSectionLoader:             dataloadgen.NewLoader(getCourseSections, dataloadgen.WithWait(time.Millisecond)),
+		QuestionOptionLoader:            dataloadgen.NewLoader(getQuestionOptionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
+		QuestionCollectionLoader:        dataloadgen.NewLoader(getQuestionCollectionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
+		QuestionsByCollectionLoader:     dataloadgen.NewLoader(getQuestionsByCollectionIDs, dataloadgen.WithWait(time.Millisecond)),
+		QuestionCollectionsByTestLoader: dataloadgen.NewLoader(getQuestionCollectionsByTestIDs, dataloadgen.WithWait(time.Millisecond)),
 	}
 }
 
