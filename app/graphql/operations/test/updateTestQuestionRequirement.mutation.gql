@@ -1,0 +1,3 @@
+mutation UpdateTestQuestionRequirement($testId: ID!, $input: [UpdateTestQuestionRequirementInput!]!) {
+  updateTestQuestionRequirement(testId: $testId, input: $input)
+} 

@@ -6,6 +6,7 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { testEditStore } from './testEditStore';
 import { TestQuestionCollectionsManager } from './TestQuestionCollectionsManager';
+import { TestQuestionRequirementsForm } from './TestQuestionRequirementsForm';
 import { UpdateTestForm } from './UpdateTestForm';
 
 const testEditMutation = testEditStore.proxyState;
@@ -58,9 +59,10 @@ export default function EditTestPage() {
         <AppTypography.h1>Edit Test: {testEditState.testDetails.name}</AppTypography.h1>
       </div>
 
-      <div className='grid gap-6 lg:grid-cols-2'>
+      <div className='space-y-6'>
         <UpdateTestForm />
         <TestQuestionCollectionsManager />
+        <TestQuestionRequirementsForm />
       </div>
     </div>
   );

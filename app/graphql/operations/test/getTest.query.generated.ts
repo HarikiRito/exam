@@ -11,7 +11,7 @@ export type GetTestQueryVariables = Types.Exact<{
 
 
 export type GetTestQuery = { __typename?: 'Query', test: (
-    { __typename?: 'Test', questionCollections: Array<{ __typename?: 'QuestionCollection', id: string, title: string, description?: string | null }> }
+    { __typename?: 'Test', questionCollections: Array<{ __typename?: 'QuestionCollection', id: string, title: string, description?: string | null }>, testQuestionCounts: Array<{ __typename?: 'TestQuestionCount', id: string, numberOfQuestions: number, points: number, testId: string }> }
     & TestFragmentFragment
   ) };
 
@@ -24,6 +24,12 @@ export const GetTestDocument = gql`
       id
       title
       description
+    }
+    testQuestionCounts {
+      id
+      numberOfQuestions
+      points
+      testId
     }
   }
 }

@@ -8,5 +8,11 @@ query GetTest($id: ID!) {
       title
       description
     }
+    testQuestionCounts {
+      id
+      numberOfQuestions
+      points
+      testId
+    }
   }
 } 

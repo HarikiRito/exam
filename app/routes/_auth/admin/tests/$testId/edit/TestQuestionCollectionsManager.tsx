@@ -155,7 +155,7 @@ export function TestQuestionCollectionsManager() {
                 className='w-full'
                 onClick={handleUpdateCollections}
                 disabled={addCollectionsLoading}>
-                {addCollectionsLoading ? 'Updating...' : 'Update selected collections'}
+                {addCollectionsLoading ? 'Saving...' : 'Save'}
               </AppButton>
             </div>
           </AppPopover.Content>
@@ -165,15 +165,9 @@ export function TestQuestionCollectionsManager() {
   }
 
   return (
-    <AppCard.Root>
-      <AppCard.Header>
-        <AppCard.Title>Question Collections</AppCard.Title>
-        <AppCard.Description>Manage the question collections associated with this test.</AppCard.Description>
-      </AppCard.Header>
-      <AppCard.Content className='space-y-4'>
-        {_renderCurrentCollections()}
-        {_renderAddCollections()}
-      </AppCard.Content>
-    </AppCard.Root>
+    <>
+      {_renderCurrentCollections()}
+      {_renderAddCollections()}
+    </>
   );
 }

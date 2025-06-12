@@ -73,39 +73,33 @@ export function UpdateTestForm() {
   }
 
   return (
-    <AppCard.Root>
-      <AppCard.Header>
-        <AppCard.Title>Test Information</AppCard.Title>
-        <AppCard.Description>Update the basic information for your test.</AppCard.Description>
-      </AppCard.Header>
-      <AppCard.Content>
-        <AppForm.Root {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            <AppForm.Field
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <AppForm.Item>
-                  <AppForm.Label>Test Name</AppForm.Label>
-                  <AppForm.Control>
-                    <AppInput placeholder='Enter test name' {...field} />
-                  </AppForm.Control>
-                  <AppForm.Message />
-                </AppForm.Item>
-              )}
-            />
+    <AppForm.Root {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+        <AppForm.Field
+          control={form.control}
+          name='name'
+          render={({ field }) => (
+            <AppForm.Item>
+              <AppForm.Label className='pb-1'>Test Name</AppForm.Label>
+              <AppForm.Control>
+                <AppInput placeholder='Enter test name' {...field} />
+              </AppForm.Control>
+              <AppForm.Message />
+            </AppForm.Item>
+          )}
+        />
 
-            <div className='flex justify-end gap-4'>
-              <AppButton type='button' variant='outline' onClick={() => navigate(APP_ROUTES.adminTests)}>
-                Cancel
-              </AppButton>
-              <AppButton type='submit' disabled={updateLoading}>
-                {updateLoading ? 'Updating...' : 'Update Test'}
-              </AppButton>
-            </div>
-          </form>
-        </AppForm.Root>
-      </AppCard.Content>
-    </AppCard.Root>
+        {form.formState.isDirty && (
+          <div className='flex justify-end gap-4'>
+            <AppButton type='button' variant='outline' onClick={() => navigate(APP_ROUTES.adminTests)}>
+              Cancel
+            </AppButton>
+            <AppButton type='submit' disabled={updateLoading}>
+              {updateLoading ? 'Updating...' : 'Update Test'}
+            </AppButton>
+          </div>
+        )}
+      </form>
+    </AppForm.Root>
   );
 }
