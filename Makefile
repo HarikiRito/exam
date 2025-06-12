@@ -18,5 +18,5 @@ test:
 	@go test ./integration_test/... -v
 test_fail:
 	@echo "Running tests and showing only failed tests..."
-	@go test ./integration_test/... -v | grep "FAIL"
+	@go test ./integration_test/... -v | grep "FAIL" || true
 	@echo "Done"

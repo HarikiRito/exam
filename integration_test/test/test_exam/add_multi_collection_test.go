@@ -185,9 +185,8 @@ func TestAddMultiCollection(t *testing.T) {
 
 		result, err := test.UpdateQuestionCollectionsForTest(ctx, scenario.User.ID, input)
 		// Should succeed as clearing collections is valid
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "no collections provided")
-		assert.False(t, result)
+		assert.NoError(t, err)
+		assert.True(t, result)
 	})
 
 	t.Run("AddMultiCollection_LargeNumberOfCollections", func(t *testing.T) {
