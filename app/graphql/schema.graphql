@@ -139,7 +139,6 @@ type Mutation {
   updateQuestion(id: ID!, input: UpdateQuestionInput!): Question!
   updateQuestionCollection(id: ID!, input: UpdateQuestionCollectionInput!): QuestionCollection!
   updateQuestionOption(id: ID!, input: UpdateQuestionOptionInput!): QuestionOption!
-  updateQuestionPointsByCollection(input: UpdateQuestionPointsByCollectionInput!): Boolean!
   updateTest(id: ID!, input: UpdateTestInput!): Test!
   updateTestQuestionRequirement(input: [UpdateTestQuestionRequirementInput!]!, testId: ID!): Boolean!
   updateUserQuestionAnswer(id: ID!, input: UpdateUserQuestionAnswerInput!): UserQuestionAnswer!
@@ -265,14 +264,11 @@ input RegisterInput {
 }
 
 type Test {
-  course: Course
-  courseSection: CourseSection
   id: ID!
   name: String!
   questionCollections: [QuestionCollection!]!
   testIgnoreQuestions: [TestIgnoreQuestion!]!
   testQuestionCounts: [TestQuestionCount!]!
-  testQuestionPoints: [TestQuestionPoint!]!
 }
 
 type TestIgnoreQuestion {
@@ -287,14 +283,6 @@ type TestQuestionCount {
   id: ID!
   numberOfQuestions: Int!
   points: Int!
-  testId: ID!
-}
-
-type TestQuestionPoint {
-  id: ID!
-  points: Int!
-  question: Question
-  questionId: ID!
   testId: ID!
 }
 

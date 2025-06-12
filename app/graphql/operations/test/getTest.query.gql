@@ -3,5 +3,10 @@
 query GetTest($id: ID!) {
   test(id: $id) {
     ...TestFragment
+    questionCollections {
+      id
+      title
+      description
+    }
   }
 } 

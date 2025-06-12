@@ -149,7 +149,6 @@ export type Mutation = {
   updateQuestion: Question;
   updateQuestionCollection: QuestionCollection;
   updateQuestionOption: QuestionOption;
-  updateQuestionPointsByCollection: Scalars['Boolean']['output'];
   updateTest: Test;
   updateTestQuestionRequirement: Scalars['Boolean']['output'];
   updateUserQuestionAnswer: UserQuestionAnswer;
@@ -298,11 +297,6 @@ export type MutationUpdateQuestionCollectionArgs = {
 export type MutationUpdateQuestionOptionArgs = {
   id: Scalars['ID']['input'];
   input: UpdateQuestionOptionInput;
-};
-
-
-export type MutationUpdateQuestionPointsByCollectionArgs = {
-  input: UpdateQuestionPointsByCollectionInput;
 };
 
 
@@ -532,14 +526,11 @@ export type RegisterInput = {
 
 export type Test = {
   __typename?: 'Test';
-  course?: Maybe<Course>;
-  courseSection?: Maybe<CourseSection>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   questionCollections: Array<QuestionCollection>;
   testIgnoreQuestions: Array<TestIgnoreQuestion>;
   testQuestionCounts: Array<TestQuestionCount>;
-  testQuestionPoints: Array<TestQuestionPoint>;
 };
 
 export type TestIgnoreQuestion = {
@@ -556,15 +547,6 @@ export type TestQuestionCount = {
   id: Scalars['ID']['output'];
   numberOfQuestions: Scalars['Int']['output'];
   points: Scalars['Int']['output'];
-  testId: Scalars['ID']['output'];
-};
-
-export type TestQuestionPoint = {
-  __typename?: 'TestQuestionPoint';
-  id: Scalars['ID']['output'];
-  points: Scalars['Int']['output'];
-  question?: Maybe<Question>;
-  questionId: Scalars['ID']['output'];
   testId: Scalars['ID']['output'];
 };
 

@@ -11,7 +11,7 @@ export type GetTestQueryVariables = Types.Exact<{
 
 
 export type GetTestQuery = { __typename?: 'Query', test: (
-    { __typename?: 'Test' }
+    { __typename?: 'Test', questionCollections: Array<{ __typename?: 'QuestionCollection', id: string, title: string, description?: string | null }> }
     & TestFragmentFragment
   ) };
 
@@ -20,6 +20,11 @@ export const GetTestDocument = gql`
     query GetTest($id: ID!) {
   test(id: $id) {
     ...TestFragment
+    questionCollections {
+      id
+      title
+      description
+    }
   }
 }
     ${TestFragmentFragmentDoc}`;
