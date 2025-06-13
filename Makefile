@@ -15,8 +15,11 @@ graphql_generate:
 
 
 test:
-	@go test ./integration_test/... -v
+	@echo "Running tests..."
+	@/usr/bin/time -f "Total time: %e seconds" go test ./integration_test/... -v
+	@echo "Done"
+
 test_fail:
 	@echo "Running tests and showing only failed tests..."
-	@go test ./integration_test/... -v | grep "FAIL" || true
+	@/usr/bin/time -f "Total time: %e seconds" go test ./integration_test/... -v 2> /dev/stderr | grep -E "FAIL|NAME" || true
 	@echo "Done"

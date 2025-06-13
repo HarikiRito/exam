@@ -32,10 +32,6 @@ func BatchIgnoreQuestions(ctx context.Context, userId uuid.UUID, input model.Bat
 		return false, db.Rollback(tx, errors.New("test not found"))
 	}
 
-	if len(input.QuestionIgnoreData) == 0 {
-		return false, db.Rollback(tx, errors.New("no questions provided to ignore"))
-	}
-
 	// Extract question IDs and validate they exist and are owned by the user
 	questionIDs := slice.Map(input.QuestionIgnoreData, func(data *model.QuestionIgnoreData) uuid.UUID {
 		return data.QuestionID

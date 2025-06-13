@@ -19,7 +19,6 @@ func TestAddMultiCollection(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("AddMultiCollection_Success", func(t *testing.T) {
-		t.Parallel()
 		// Create test scenario with user, course, test, and multiple collections
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -34,7 +33,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_SingleCollection", func(t *testing.T) {
-		t.Parallel()
 		// Create test scenario with user, course, test, and one collection
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -49,7 +47,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_ReplaceExistingCollections", func(t *testing.T) {
-		t.Parallel()
 		// Create test scenario with user, course, test, and initial collection
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -77,7 +74,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_TestNotFound", func(t *testing.T) {
-		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentTestID := uuid.New()
 
@@ -93,7 +89,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_UnauthorizedCollection", func(t *testing.T) {
-		t.Parallel()
 		// Create first user with test and collection
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -118,7 +113,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_MixedAuthorizedUnauthorized", func(t *testing.T) {
-		t.Parallel()
 		// Create first user with test and collection
 		scenario := prepare.CreateTestScenario(t, 3)
 
@@ -143,7 +137,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_NonExistentCollection", func(t *testing.T) {
-		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 		nonExistentCollectionID := uuid.New()
 
@@ -159,7 +152,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_DuplicateCollectionIds", func(t *testing.T) {
-		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Try to add the same collection multiple times
@@ -175,7 +167,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_EmptyCollectionIds", func(t *testing.T) {
-		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		input := model.AddMultiCollectionToTestInput{
@@ -190,7 +181,6 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_LargeNumberOfCollections", func(t *testing.T) {
-		t.Parallel()
 		scenario := prepare.CreateTestScenario(t, 3)
 
 		// Create multiple collections concurrently
