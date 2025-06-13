@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { FileTextIcon, PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
@@ -7,6 +7,7 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 
 import { produce } from 'immer';
 import { QuestionData, QuestionItem } from './QuestionItem';
+import { ImportQuestionsDialog } from './ImportQuestionsDialog';
 
 interface QuestionManagerProps {
   readonly questions: QuestionData[];
@@ -17,6 +18,7 @@ interface QuestionManagerProps {
 
 export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) {
   const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   function handleAddQuestion() {
     const newQuestion: QuestionData = {
@@ -30,9 +32,7 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
     const updatedQuestions = [...questions, newQuestion];
     onQuestionsChange(updatedQuestions);
 
-    // Open the newly added question accordion
-    const newIndex = questions.length;
-    setOpenAccordionItems([...openAccordionItems, `question-${newIndex}`]);
+    setOpenAccordionItems([...openAccordionItems, newQuestion.questionText]);
   }
 
   function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
@@ -40,6 +40,15 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
       draft[index] = updatedQuestion;
     });
     onQuestionsChange(updatedQuestions);
+  }
+
+  function handleImportQuestions(importedQuestions: QuestionData[]) {
+    const updatedQuestions = [...questions, ...importedQuestions];
+    onQuestionsChange(updatedQuestions);
+
+    // Open the newly imported question accordions
+    const newAccordionItems = importedQuestions.map((question) => question.questionText);
+    setOpenAccordionItems([...openAccordionItems, ...newAccordionItems]);
   }
 
   return (
@@ -51,6 +60,10 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
             <PlusIcon className='mr-2 h-4 w-4' />
             Add Question
           </AppButton>
+          <AppButton type='button' onClick={() => setIsImportDialogOpen(true)} variant='outline'>
+            <FileTextIcon className='mr-2 h-4 w-4' />
+            Import Questions
+          </AppButton>
           <AppButton type='button' onClick={onSaveQuestions} disabled={isSaving || questions.length === 0}>
             {isSaving ? 'Saving...' : 'Save Questions'}
           </AppButton>
@@ -58,10 +71,10 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
       </div>
 
       {questions.length > 0 ? (
-        <AppAccordion.Root type='multiple' value={openAccordionItems} onValueChange={setOpenAccordionItems}>
+        <AppAccordion.Root type='multiple'>
           {questions.map((question, index) => (
             <QuestionItem
-              key={question.id || `new-${index}`}
+              key={question.questionText}
               index={index}
               question={question}
               onQuestionChange={handleQuestionChange}
@@ -75,6 +88,12 @@ export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions,
           </AppTypography.muted>
         </div>
       )}
+
+      <ImportQuestionsDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImportQuestions={handleImportQuestions}
+      />
     </div>
   );
 }

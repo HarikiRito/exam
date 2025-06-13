@@ -184,7 +184,7 @@ export function QuestionOptionsManager({ control }: QuestionOptionsManagerProps)
             {fields.length > 0 ? (
               <div className='rounded-md border'>
                 <AppCommand.Root>
-                  <AppCommand.List>
+                  <AppCommand.List className='max-h-full'>
                     {fields.map((field, index) => (
                       <AppCommand.Item
                         key={field.id}

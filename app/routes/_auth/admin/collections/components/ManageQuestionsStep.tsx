@@ -47,7 +47,9 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
       return;
     }
 
-    setCompletedQuestionCount(0);
+    let count = 0;
+    setCompletedQuestionCount(count);
+
     setTotalQuestionToSave(
       questions.filter((question) => question.isNew || question.isEdited || question.isDeleted).length,
     );
@@ -89,7 +91,7 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
           return;
         }
 
-        setCompletedQuestionCount((prev) => prev + 1);
+        setCompletedQuestionCount(count++);
         continue;
       }
 
@@ -113,7 +115,7 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
           return;
         }
 
-        setCompletedQuestionCount((prev) => prev + 1);
+        setCompletedQuestionCount(count++);
         continue;
       }
 
@@ -144,9 +146,15 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
           return;
         }
 
-        setCompletedQuestionCount((prev) => prev + 1);
+        setCompletedQuestionCount(count++);
         continue;
       }
+    }
+
+    if (count === 0) {
+      toast.error('No questions to save.');
+      setIsSavingQuestions(false);
+      return;
     }
 
     apolloService.invalidateQueries([GetQuestionCollectionDocument]);

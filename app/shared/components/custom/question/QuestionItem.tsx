@@ -1,5 +1,5 @@
 import { RotateCcwIcon, TrashIcon } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { produce } from 'immer';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
@@ -167,7 +167,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
 
   return (
     <AppAccordion.Item
-      value={`question-${index}`}
+      value={question.questionText}
       className={cn('border-border mb-4 rounded-md border', { 'opacity-50': question.isDeleted })}>
       <AppAccordion.Trigger className='px-4'>{renderQuestionHeaderContent()}</AppAccordion.Trigger>
       <AppAccordion.Content className='px-4 pb-4'>

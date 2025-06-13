@@ -214,7 +214,7 @@ export function QuestionOptionsManager({
         {localOptions.length > 0 ? (
           <div className='rounded-md border'>
             <AppCommand.Root>
-              <AppCommand.List>
+              <AppCommand.List className='max-h-full'>
                 {localOptions.map((option, index) => (
                   <AppCommand.Item
                     key={`new-option-${index}`}
