@@ -93,27 +93,22 @@ export function TestQuestionCollectionsManager() {
   const collections = collectionsData?.paginatedQuestionCollections.items || [];
 
   function _renderCurrentCollections() {
-    return (
-      <div>
-        <AppTypography.h4 className='mb-3'>Current Collections</AppTypography.h4>
-        {currentCollectionsInTest.length === 0 ? (
-          <span className='text-muted-foreground'>No collections associated with this test yet.</span>
-        ) : (
-          <div className='flex flex-wrap gap-2'>
-            {currentCollectionsInTest.map((collection) => (
-              <AppBadge key={collection.id} variant='outline'>
-                {collection.title}
-              </AppBadge>
-            ))}
-          </div>
-        )}
+    return currentCollectionsInTest.length === 0 ? (
+      <span className='text-muted-foreground'>No collections associated with this test yet.</span>
+    ) : (
+      <div className='flex flex-wrap gap-2'>
+        {currentCollectionsInTest.map((collection) => (
+          <AppBadge key={collection.id} variant='outline'>
+            {collection.title}
+          </AppBadge>
+        ))}
       </div>
     );
   }
 
   function _renderAddCollections() {
     return (
-      <div>
+      <>
         <AppTypography.h4 className='mb-3'>Update Collections</AppTypography.h4>
         <AppPopover.Root open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <AppPopover.Trigger asChild>
@@ -160,14 +155,10 @@ export function TestQuestionCollectionsManager() {
             </div>
           </AppPopover.Content>
         </AppPopover.Root>
-      </div>
+        {_renderCurrentCollections()}
+      </>
     );
   }
 
-  return (
-    <>
-      {_renderCurrentCollections()}
-      {_renderAddCollections()}
-    </>
-  );
+  return <>{_renderAddCollections()}</>;
 }

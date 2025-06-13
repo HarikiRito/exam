@@ -1,0 +1,3 @@
+mutation BatchIgnoreQuestions($input: BatchIgnoreQuestionsInput!) {
+  batchIgnoreQuestions(input: $input)
+} 

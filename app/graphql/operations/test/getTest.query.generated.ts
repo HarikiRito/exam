@@ -1,8 +1,12 @@
 import type * as Types from '../../graphqlTypes';
 
 import type { TestFragmentFragment } from './test.fragment.generated';
+import type { QuestionItemFragment } from '../question/question.fragment.generated';
+import type { QuestionOptionItemFragment } from '../question/questionOption.fragment.generated';
 import { gql } from '@apollo/client/index.js';
 import { TestFragmentFragmentDoc } from './test.fragment.generated';
+import { QuestionItemFragmentDoc } from '../question/question.fragment.generated';
+import { QuestionOptionItemFragmentDoc } from '../question/questionOption.fragment.generated';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type GetTestQueryVariables = Types.Exact<{
@@ -11,7 +15,16 @@ export type GetTestQueryVariables = Types.Exact<{
 
 
 export type GetTestQuery = { __typename?: 'Query', test: (
-    { __typename?: 'Test', questionCollections: Array<{ __typename?: 'QuestionCollection', id: string, title: string, description?: string | null }>, testQuestionCounts: Array<{ __typename?: 'TestQuestionCount', id: string, numberOfQuestions: number, points: number, testId: string }> }
+    { __typename?: 'Test', questionCollections: Array<{ __typename?: 'QuestionCollection', id: string, title: string, description?: string | null, questions: Array<(
+        { __typename?: 'Question', options: Array<(
+          { __typename?: 'QuestionOption' }
+          & QuestionOptionItemFragment
+        )> }
+        & QuestionItemFragment
+      )> }>, testQuestionCounts: Array<{ __typename?: 'TestQuestionCount', id: string, numberOfQuestions: number, points: number, testId: string }>, testIgnoreQuestions: Array<{ __typename?: 'TestIgnoreQuestion', id: string, questionId: string, reason?: string | null, testId: string, question?: (
+        { __typename?: 'Question' }
+        & QuestionItemFragment
+      ) | null }> }
     & TestFragmentFragment
   ) };
 
@@ -24,6 +37,12 @@ export const GetTestDocument = gql`
       id
       title
       description
+      questions {
+        ...QuestionItem
+        options {
+          ...QuestionOptionItem
+        }
+      }
     }
     testQuestionCounts {
       id
@@ -31,9 +50,20 @@ export const GetTestDocument = gql`
       points
       testId
     }
+    testIgnoreQuestions {
+      id
+      questionId
+      reason
+      testId
+      question {
+        ...QuestionItem
+      }
+    }
   }
 }
-    ${TestFragmentFragmentDoc}`;
+    ${TestFragmentFragmentDoc}
+${QuestionItemFragmentDoc}
+${QuestionOptionItemFragmentDoc}`;
 
 /**
  * __useGetTestQuery__

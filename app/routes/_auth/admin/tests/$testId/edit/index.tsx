@@ -7,6 +7,7 @@ import { APP_ROUTES } from 'app/shared/constants/routes';
 import { testEditStore } from './testEditStore';
 import { TestQuestionCollectionsManager } from './TestQuestionCollectionsManager';
 import { TestQuestionRequirementsForm } from './TestQuestionRequirementsForm';
+import { TestQuestionsIgnore } from './TestQuestionsIgnore';
 import { UpdateTestForm } from './UpdateTestForm';
 
 const testEditMutation = testEditStore.proxyState;
@@ -63,6 +64,7 @@ export default function EditTestPage() {
         <UpdateTestForm />
         <TestQuestionCollectionsManager />
         <TestQuestionRequirementsForm />
+        <TestQuestionsIgnore />
       </div>
     </div>
   );

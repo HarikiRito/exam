@@ -7,12 +7,27 @@ query GetTest($id: ID!) {
       id
       title
       description
+      questions {
+        ...QuestionItem
+        options {
+          ...QuestionOptionItem
+        }
+      }
     }
     testQuestionCounts {
       id
       numberOfQuestions
       points
       testId
+    }
+    testIgnoreQuestions {
+      id
+      questionId
+      reason
+      testId
+      question {
+        ...QuestionItem
+      }
     }
   }
 } 

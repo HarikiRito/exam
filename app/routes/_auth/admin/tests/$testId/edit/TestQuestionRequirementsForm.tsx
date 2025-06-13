@@ -129,104 +129,100 @@ export function TestQuestionRequirementsForm() {
   }
 
   return (
-    <AppCard.Root>
-      <AppCard.Header>
-        <AppCard.Title>Question Requirements</AppCard.Title>
-        <AppCard.Description>
-          Configure the number of questions and points for different difficulty levels.
-        </AppCard.Description>
-      </AppCard.Header>
-      <AppCard.Content>
-        <AppForm.Root {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-            <div className='space-y-4'>
-              {fields.map((field, index) => (
-                <div key={field.id} className='space-y-4 rounded-lg border p-4'>
-                  <div className='flex items-center justify-between'>
-                    {fields.length > 0 && (
-                      <AppButton
-                        type='button'
-                        variant='outline'
-                        size='sm'
-                        onClick={() => handleRemoveRequirement(index)}
-                        className='text-red-600 hover:text-red-700'>
-                        <Trash2 className='h-4 w-4' />
-                        Remove
-                      </AppButton>
-                    )}
-                  </div>
-
-                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                    <AppForm.Field
-                      control={form.control}
-                      name={`requirements.${index}.numberOfQuestions`}
-                      render={({ field }) => (
-                        <AppForm.Item>
-                          <AppForm.Label>Number of Questions</AppForm.Label>
-                          <AppForm.Control>
-                            <AppInput
-                              type='text'
-                              inputMode='numeric'
-                              placeholder='Enter number of questions'
-                              {...field}
-                              onChange={(e) => {
-                                field.onChange(parseInt(e.target.value, 10) || 0);
-                              }}
-                            />
-                          </AppForm.Control>
-                          <AppForm.Message />
-                        </AppForm.Item>
-                      )}
-                    />
-
-                    <AppForm.Field
-                      control={form.control}
-                      name={`requirements.${index}.pointsPerQuestion`}
-                      render={({ field }) => (
-                        <AppForm.Item>
-                          <AppForm.Label>Points per Question</AppForm.Label>
-                          <AppForm.Control>
-                            <AppInput
-                              type='text'
-                              inputMode='numeric'
-                              placeholder='Enter points per question'
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
-                            />
-                          </AppForm.Control>
-                          <AppForm.Message />
-                        </AppForm.Item>
-                      )}
-                    />
-                  </div>
+    <>
+      <AppTypography.h4>Question Requirements</AppTypography.h4>
+      <AppTypography.p>
+        This is the question requirements for the test. You can add or remove requirements as needed.
+      </AppTypography.p>
+      <AppForm.Root {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+          <div className='space-y-4'>
+            {fields.map((field, index) => (
+              <div key={field.id} className='space-y-4 rounded-lg border p-4'>
+                <div className='flex items-center justify-between'>
+                  {fields.length > 0 && (
+                    <AppButton
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={() => handleRemoveRequirement(index)}
+                      className='text-red-600 hover:text-red-700'>
+                      <Trash2 className='h-4 w-4' />
+                      Remove
+                    </AppButton>
+                  )}
                 </div>
-              ))}
-            </div>
 
-            {/* Display form-level error for unique points validation */}
-            {formState.errors.requirements?.root && (
-              <div className='text-sm text-red-600'>{formState.errors.requirements.root?.message}</div>
-            )}
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  <AppForm.Field
+                    control={form.control}
+                    name={`requirements.${index}.numberOfQuestions`}
+                    render={({ field }) => (
+                      <AppForm.Item>
+                        <AppForm.Label>Number of Questions</AppForm.Label>
+                        <AppForm.Control>
+                          <AppInput
+                            type='text'
+                            inputMode='numeric'
+                            placeholder='Enter number of questions'
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(parseInt(e.target.value, 10) || 0);
+                            }}
+                          />
+                        </AppForm.Control>
+                        <AppForm.Message />
+                      </AppForm.Item>
+                    )}
+                  />
 
-            {/* Total points for the test estimation */}
-            <div className='text-muted-foreground text-sm'>Total points {totalPoints}</div>
-            <div className='flex items-center justify-between'>
-              <AppButton
-                type='button'
-                variant='outline'
-                onClick={handleAddRequirement}
-                className='flex items-center gap-2'>
-                <Plus className='h-4 w-4' />
-                Add Requirement
-              </AppButton>
+                  <AppForm.Field
+                    control={form.control}
+                    name={`requirements.${index}.pointsPerQuestion`}
+                    render={({ field }) => (
+                      <AppForm.Item>
+                        <AppForm.Label>Points per Question</AppForm.Label>
+                        <AppForm.Control>
+                          <AppInput
+                            type='text'
+                            inputMode='numeric'
+                            placeholder='Enter points per question'
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 0)}
+                          />
+                        </AppForm.Control>
+                        <AppForm.Message />
+                      </AppForm.Item>
+                    )}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
 
-              <AppButton type='submit' disabled={updateLoading}>
-                {updateLoading ? 'Updating...' : 'Update Requirements'}
-              </AppButton>
-            </div>
-          </form>
-        </AppForm.Root>
-      </AppCard.Content>
-    </AppCard.Root>
+          {/* Display form-level error for unique points validation */}
+          {formState.errors.requirements?.root && (
+            <div className='text-sm text-red-600'>{formState.errors.requirements.root?.message}</div>
+          )}
+
+          {/* Total points for the test estimation */}
+          <div className='text-muted-foreground text-sm'>Total points {totalPoints}</div>
+          <div className='flex items-center justify-between'>
+            <AppButton
+              type='button'
+              variant='outline'
+              onClick={handleAddRequirement}
+              className='flex items-center gap-2'>
+              <Plus className='h-4 w-4' />
+              Add Requirement
+            </AppButton>
+
+            <AppButton type='submit' disabled={updateLoading}>
+              {updateLoading ? 'Updating...' : 'Update Requirements'}
+            </AppButton>
+          </div>
+        </form>
+      </AppForm.Root>
+    </>
   );
 }
