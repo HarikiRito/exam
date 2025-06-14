@@ -10,6 +10,8 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { AppLabel } from 'app/shared/components/label/AppLabel';
 import { useImmer } from 'use-immer';
 import { cn } from 'app/shared/utils/className';
+import { useDebounce } from 'app/shared/hooks/useDebounce';
+import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
 
 export interface QuestionOption {
   optionText: string;
@@ -31,6 +33,8 @@ export function QuestionOptionsManager({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingText, setEditingText] = useState('');
   const [localOptions, setLocalOptions] = useImmer<QuestionOption[]>(options || []);
+
+  const debouncedOnOptionsChange = useDebounce(onOptionsChange, 300);
 
   // Update local state when props change
   useEffect(() => {
@@ -60,7 +64,7 @@ export function QuestionOptionsManager({
 
       // Pass the updated array instead of the draft
       const updatedOptions = [...localOptions, option];
-      onOptionsChange?.(updatedOptions);
+      debouncedOnOptionsChange?.(updatedOptions);
       setNewOptionText('');
     }
   }
@@ -84,7 +88,7 @@ export function QuestionOptionsManager({
       })
       .filter((option): option is QuestionOption => option !== null);
 
-    onOptionsChange?.(updatedOptions);
+    debouncedOnOptionsChange?.(updatedOptions);
   }
 
   function handleToggleCorrect(index: number) {
@@ -121,7 +125,7 @@ export function QuestionOptionsManager({
       return option;
     });
 
-    onOptionsChange?.(updatedOptions);
+    debouncedOnOptionsChange?.(updatedOptions);
   }
 
   function handleStartEdit(index: number) {
@@ -166,7 +170,7 @@ export function QuestionOptionsManager({
       return option;
     });
 
-    onOptionsChange(updatedOptions);
+    debouncedOnOptionsChange?.(updatedOptions);
     setEditingIndex(null);
     setEditingText('');
   }
@@ -236,7 +240,9 @@ export function QuestionOptionsManager({
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <span className='flex-1'>{option.optionText}</span>
+                        <span className='flex-1'>
+                          <AppMarkdown>{option.optionText}</AppMarkdown>
+                        </span>
                       )}
                       {option.isCorrect && <Check className='h-4 w-4 text-green-600' />}
                     </div>
