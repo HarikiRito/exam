@@ -1,5 +1,5 @@
 import { FileTextIcon, PlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/button/AppButton';
@@ -16,84 +16,75 @@ interface QuestionManagerProps {
   readonly isSaving: boolean;
 }
 
-export function QuestionManager({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) {
-  const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
-  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+export const QuestionManager = memo(
+  ({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) => {
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
-  function handleAddQuestion() {
-    const newQuestion: QuestionData = {
-      questionText: '',
-      points: 5,
-      options: [],
-      allowMultipleCorrect: false,
-      isNew: true,
-    };
+    function handleAddQuestion() {
+      const newQuestion: QuestionData = {
+        questionText: '',
+        points: 5,
+        options: [],
+        allowMultipleCorrect: false,
+        isNew: true,
+      };
 
-    const updatedQuestions = [...questions, newQuestion];
-    onQuestionsChange(updatedQuestions);
+      const updatedQuestions = [...questions, newQuestion];
+      onQuestionsChange(updatedQuestions);
+    }
 
-    setOpenAccordionItems([...openAccordionItems, newQuestion.questionText]);
-  }
+    function handleImportQuestions(importedQuestions: QuestionData[]) {
+      const updatedQuestions = [...questions, ...importedQuestions];
+      onQuestionsChange(updatedQuestions);
+    }
 
-  function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
-    const updatedQuestions = produce(questions, (draft) => {
-      draft[index] = updatedQuestion;
-    });
-    onQuestionsChange(updatedQuestions);
-  }
+    const questionsItems = useMemo(() => {
+      function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
+        const updatedQuestions = produce(questions, (draft) => {
+          draft[index] = updatedQuestion;
+        });
+        onQuestionsChange(updatedQuestions);
+      }
+      return questions.map((question, index) => (
+        <QuestionItem index={index} question={question} onQuestionChange={handleQuestionChange} />
+      ));
+    }, [questions, onQuestionsChange]);
 
-  function handleImportQuestions(importedQuestions: QuestionData[]) {
-    const updatedQuestions = [...questions, ...importedQuestions];
-    onQuestionsChange(updatedQuestions);
-
-    // Open the newly imported question accordions
-    const newAccordionItems = importedQuestions.map((question) => question.questionText);
-    setOpenAccordionItems([...openAccordionItems, ...newAccordionItems]);
-  }
-
-  return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-between'>
-        <AppTypography.h3>Questions</AppTypography.h3>
-        <div className='flex gap-2'>
-          <AppButton type='button' onClick={handleAddQuestion} variant='outline'>
-            <PlusIcon className='mr-2 h-4 w-4' />
-            Add Question
-          </AppButton>
-          <AppButton type='button' onClick={() => setIsImportDialogOpen(true)} variant='outline'>
-            <FileTextIcon className='mr-2 h-4 w-4' />
-            Import Questions
-          </AppButton>
-          <AppButton type='button' onClick={onSaveQuestions} disabled={isSaving || questions.length === 0}>
-            {isSaving ? 'Saving...' : 'Save Questions'}
-          </AppButton>
+    return (
+      <div className='space-y-6'>
+        <div className='flex items-center justify-between'>
+          <AppTypography.h3>Questions</AppTypography.h3>
+          <div className='flex gap-2'>
+            <AppButton type='button' onClick={handleAddQuestion} variant='outline'>
+              <PlusIcon className='mr-2 h-4 w-4' />
+              Add Question
+            </AppButton>
+            <AppButton type='button' onClick={() => setIsImportDialogOpen(true)} variant='outline'>
+              <FileTextIcon className='mr-2 h-4 w-4' />
+              Import Questions
+            </AppButton>
+            <AppButton type='button' onClick={onSaveQuestions} disabled={isSaving || questions.length === 0}>
+              {isSaving ? 'Saving...' : 'Save Questions'}
+            </AppButton>
+          </div>
         </div>
+
+        {questions.length > 0 ? (
+          <AppAccordion.Root type='single'>{questionsItems}</AppAccordion.Root>
+        ) : (
+          <div className='rounded-md border border-dashed p-8 text-center'>
+            <AppTypography.muted>
+              No questions added yet. Click "Add Question" to create a new question.
+            </AppTypography.muted>
+          </div>
+        )}
+
+        <ImportQuestionsDialog
+          open={isImportDialogOpen}
+          onOpenChange={setIsImportDialogOpen}
+          onImportQuestions={handleImportQuestions}
+        />
       </div>
-
-      {questions.length > 0 ? (
-        <AppAccordion.Root type='multiple'>
-          {questions.map((question, index) => (
-            <QuestionItem
-              key={question.questionText}
-              index={index}
-              question={question}
-              onQuestionChange={handleQuestionChange}
-            />
-          ))}
-        </AppAccordion.Root>
-      ) : (
-        <div className='rounded-md border border-dashed p-8 text-center'>
-          <AppTypography.muted>
-            No questions added yet. Click "Add Question" to create a new question.
-          </AppTypography.muted>
-        </div>
-      )}
-
-      <ImportQuestionsDialog
-        open={isImportDialogOpen}
-        onOpenChange={setIsImportDialogOpen}
-        onImportQuestions={handleImportQuestions}
-      />
-    </div>
-  );
-}
+    );
+  },
+);

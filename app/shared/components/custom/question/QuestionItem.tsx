@@ -1,5 +1,5 @@
 import { RotateCcwIcon, TrashIcon } from 'lucide-react';
-import { memo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { produce } from 'immer';
 
 import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
@@ -13,6 +13,8 @@ import { CorrectOptionToggle } from './CorrectOptionToggle';
 import { QuestionOption, QuestionOptionsManager } from './QuestionOptionsManager';
 import { cn } from 'app/shared/utils/className';
 import { AppBadge } from 'app/shared/components/badge/AppBadge';
+import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
+import { useDebounce } from 'app/shared/hooks/useDebounce';
 
 export interface QuestionData {
   id?: string;
@@ -31,9 +33,11 @@ interface QuestionItemProps {
   readonly onQuestionChange: (index: number, updatedQuestion: QuestionData) => void;
 }
 
-export function QuestionItem({ index, question, onQuestionChange }: QuestionItemProps) {
+export const QuestionItem = memo(({ index, question, onQuestionChange }: QuestionItemProps) => {
   const [questionText, setQuestionText] = useState(question.questionText);
   const [points, setPoints] = useState(question.points);
+
+  const debouncedOnQuestionChange = useDebounce(onQuestionChange, 300);
 
   function handleQuestionTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setQuestionText(e.target.value);
@@ -43,7 +47,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       draft.isEdited = true;
     });
 
-    onQuestionChange(index, updatedQuestion);
+    debouncedOnQuestionChange(index, updatedQuestion);
   }
 
   function handlePointsChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -55,7 +59,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       draft.isEdited = true;
     });
 
-    onQuestionChange(index, updatedQuestion);
+    debouncedOnQuestionChange(index, updatedQuestion);
   }
 
   function handleToggleMultipleCorrect(value: boolean) {
@@ -64,7 +68,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       draft.isEdited = true;
     });
 
-    onQuestionChange(index, updatedQuestion);
+    debouncedOnQuestionChange(index, updatedQuestion);
   }
 
   function handleOptionsChange(options: QuestionOption[]) {
@@ -73,7 +77,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       draft.isEdited = true;
     });
 
-    onQuestionChange(index, updatedQuestion);
+    debouncedOnQuestionChange(index, updatedQuestion);
   }
 
   function handleDeleteQuestion() {
@@ -82,7 +86,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       draft.isEdited = false;
     });
 
-    onQuestionChange(index, updatedQuestion);
+    debouncedOnQuestionChange(index, updatedQuestion);
   }
 
   function handleUndoDelete() {
@@ -91,7 +95,7 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       draft.isEdited = true;
     });
 
-    onQuestionChange(index, updatedQuestion);
+    debouncedOnQuestionChange(index, updatedQuestion);
   }
 
   function renderUndoDeleteButton() {
@@ -155,7 +159,9 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
 
     return (
       <div className='flex w-full items-center justify-between'>
-        <span className={cn({ 'line-through': question.isDeleted })}>{questionText || `Question ${index + 1}`}</span>
+        <span className={cn({ 'line-through': question.isDeleted })}>
+          <AppMarkdown>{questionText || `Question ${index + 1}`}</AppMarkdown>
+        </span>
 
         <div className='flex items-center gap-2'>
           {_renderBadge()}
@@ -167,9 +173,9 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
 
   return (
     <AppAccordion.Item
-      value={question.questionText}
+      value={index.toString()}
       className={cn('border-border mb-4 rounded-md border', { 'opacity-50': question.isDeleted })}>
-      <AppAccordion.Trigger className='px-4'>{renderQuestionHeaderContent()}</AppAccordion.Trigger>
+      <AppAccordion.Trigger className='px-4 hover:no-underline'>{renderQuestionHeaderContent()}</AppAccordion.Trigger>
       <AppAccordion.Content className='px-4 pb-4'>
         <div className='space-y-6'>
           {/* Question Text */}
@@ -215,4 +221,4 @@ export function QuestionItem({ index, question, onQuestionChange }: QuestionItem
       </AppAccordion.Content>
     </AppAccordion.Item>
   );
-}
+});

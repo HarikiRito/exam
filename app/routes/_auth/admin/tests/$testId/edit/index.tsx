@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from '@remix-run/react';
 import { useEffect } from 'react';
 
-import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
+import { GetTestDocument, useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { testEditStore } from './testEditStore';
@@ -9,6 +9,7 @@ import { TestQuestionCollectionsManager } from './TestQuestionCollectionsManager
 import { TestQuestionRequirementsForm } from './TestQuestionRequirementsForm';
 import { TestQuestionsIgnore } from './TestQuestionsIgnore';
 import { UpdateTestForm } from './UpdateTestForm';
+import { apolloService } from 'app/shared/services/apollo.service';
 
 const testEditMutation = testEditStore.proxyState;
 export default function EditTestPage() {
@@ -16,6 +17,12 @@ export default function EditTestPage() {
   const { testId } = useParams();
   const navigate = useNavigate();
   const testEditState = testEditStore.useStateSnapshot();
+
+  useEffect(() => {
+    return () => {
+      apolloService.invalidateQueries([GetTestDocument]);
+    };
+  }, []);
 
   if (!testId) {
     navigate(APP_ROUTES.adminTests);
