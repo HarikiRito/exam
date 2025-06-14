@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from '@remix-run/react';
 import { useEffect, useState } from 'react';
+import { useSnapshot } from 'valtio/react';
 
 import { useGetQuestionCollectionQuery } from 'app/graphql/operations/questionCollection/getQuestionCollection.query.generated';
 
@@ -14,6 +15,8 @@ import { isMoreThanOrEqual } from 'app/shared/utils/comparison';
 import { CollectionDetailsStep } from './CollectionDetailsStep';
 import { ManageQuestionsStep } from './ManageQuestionsStep';
 import { useUniqueId } from 'app/shared/hooks/useUniqueId';
+import { AppDialog } from 'app/shared/components/dialog/AppDialog';
+import { AppProgress } from 'app/shared/components/progress/AppProgress';
 
 interface CollectionEditAndCreatePageProps {
   readonly mode: 'create' | 'edit';
@@ -27,6 +30,7 @@ export enum CollectionAccordionSteps {
 export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePageProps) {
   collectionFormState.useResetHook();
   const mutation = collectionFormState.proxyState;
+  const { isSavingQuestions, savedQuestionCount, totalQuestionsToSave } = useSnapshot(collectionFormState.proxyState);
 
   const [activeAccordionItem, setActiveAccordionItem] = useState<CollectionAccordionSteps>(
     CollectionAccordionSteps.CollectionDetails,
@@ -130,6 +134,18 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
     );
   }
 
+  function _renderPendingSaveDialog() {
+    const percentage = (savedQuestionCount / totalQuestionsToSave) * 100;
+    return (
+      <AppDialog.Root open={isSavingQuestions}>
+        <AppDialog.Content>
+          <AppTypography.p>Saving Questions...</AppTypography.p>
+          <AppProgress value={percentage} />
+        </AppDialog.Content>
+      </AppDialog.Root>
+    );
+  }
+
   // Handle case where collection is not found in edit mode
   if (isEdit && !collectionLoading && !collectionError && !collectionData?.questionCollection) {
     return (
@@ -154,6 +170,7 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
 
   return (
     <div className='p-6'>
+      {_renderPendingSaveDialog()}
       <div className='mb-8 flex items-center justify-between'>
         <AppTypography.h1>{isEdit ? 'Edit Collection' : 'Create New Collection'}</AppTypography.h1>
         <AppButton onClick={() => navigate(APP_ROUTES.adminCollections)} variant='outline'>

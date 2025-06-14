@@ -15,7 +15,9 @@ class CollectionFormState {
 
   // Loading states
   isLoading = false;
-  isSaving = false;
+  isSavingQuestions = false;
+  savedQuestionCount = 0;
+  totalQuestionsToSave = 0;
 }
 
 export const collectionFormState = createProxyWithReset(new CollectionFormState());

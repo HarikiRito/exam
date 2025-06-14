@@ -11,80 +11,81 @@ import { ImportQuestionsDialog } from './ImportQuestionsDialog';
 
 interface QuestionManagerProps {
   readonly questions: QuestionData[];
-  readonly onQuestionsChange: (questions: QuestionData[]) => void;
-  readonly onSaveQuestions: () => void;
+  readonly onSaveQuestions: (questions: QuestionData[]) => void;
   readonly isSaving: boolean;
 }
 
-export const QuestionManager = memo(
-  ({ questions, onQuestionsChange, onSaveQuestions, isSaving }: QuestionManagerProps) => {
-    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving }: QuestionManagerProps) => {
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [localQuestions, setLocalQuestions] = useState<QuestionData[]>(questions);
 
-    function handleAddQuestion() {
-      const newQuestion: QuestionData = {
-        questionText: '',
-        points: 5,
-        options: [],
-        allowMultipleCorrect: false,
-        isNew: true,
-      };
+  function handleAddQuestion() {
+    const newQuestion: QuestionData = {
+      questionText: '',
+      points: 5,
+      options: [],
+      allowMultipleCorrect: false,
+      isNew: true,
+    };
 
-      const updatedQuestions = [...questions, newQuestion];
-      onQuestionsChange(updatedQuestions);
+    const updatedQuestions = [...localQuestions, newQuestion];
+    setLocalQuestions(updatedQuestions);
+  }
+
+  function handleImportQuestions(importedQuestions: QuestionData[]) {
+    const updatedQuestions = [...localQuestions, ...importedQuestions];
+    setLocalQuestions(updatedQuestions);
+  }
+
+  const questionsItems = useMemo(() => {
+    function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
+      const updatedQuestions = produce(localQuestions, (draft) => {
+        draft[index] = updatedQuestion;
+      });
+      setLocalQuestions(updatedQuestions);
     }
+    return localQuestions.map((question, index) => (
+      <QuestionItem index={index} question={question} onQuestionChange={handleQuestionChange} />
+    ));
+  }, [localQuestions]);
 
-    function handleImportQuestions(importedQuestions: QuestionData[]) {
-      const updatedQuestions = [...questions, ...importedQuestions];
-      onQuestionsChange(updatedQuestions);
-    }
-
-    const questionsItems = useMemo(() => {
-      function handleQuestionChange(index: number, updatedQuestion: QuestionData) {
-        const updatedQuestions = produce(questions, (draft) => {
-          draft[index] = updatedQuestion;
-        });
-        onQuestionsChange(updatedQuestions);
-      }
-      return questions.map((question, index) => (
-        <QuestionItem index={index} question={question} onQuestionChange={handleQuestionChange} />
-      ));
-    }, [questions, onQuestionsChange]);
-
-    return (
-      <div className='space-y-6'>
-        <div className='flex items-center justify-between'>
-          <AppTypography.h3>Questions</AppTypography.h3>
-          <div className='flex gap-2'>
-            <AppButton type='button' onClick={handleAddQuestion} variant='outline'>
-              <PlusIcon className='mr-2 h-4 w-4' />
-              Add Question
-            </AppButton>
-            <AppButton type='button' onClick={() => setIsImportDialogOpen(true)} variant='outline'>
-              <FileTextIcon className='mr-2 h-4 w-4' />
-              Import Questions
-            </AppButton>
-            <AppButton type='button' onClick={onSaveQuestions} disabled={isSaving || questions.length === 0}>
-              {isSaving ? 'Saving...' : 'Save Questions'}
-            </AppButton>
-          </div>
+  return (
+    <div className='space-y-6'>
+      <div className='flex items-center justify-between'>
+        <AppTypography.h3>Questions</AppTypography.h3>
+        <div className='flex gap-2'>
+          <AppButton type='button' onClick={handleAddQuestion} variant='outline'>
+            <PlusIcon className='mr-2 h-4 w-4' />
+            Add Question
+          </AppButton>
+          <AppButton type='button' onClick={() => setIsImportDialogOpen(true)} variant='outline'>
+            <FileTextIcon className='mr-2 h-4 w-4' />
+            Import Questions
+          </AppButton>
+          <AppButton
+            type='button'
+            onClick={() => onSaveQuestions(localQuestions)}
+            disabled={isSaving || localQuestions.length === 0}>
+            {isSaving ? 'Saving...' : 'Save Questions'}
+          </AppButton>
         </div>
-
-        {questions.length > 0 ? (
-          <AppAccordion.Root type='single'>{questionsItems}</AppAccordion.Root>
-        ) : (
-          <div className='rounded-md border border-dashed p-8 text-center'>
-            <AppTypography.muted>
-              No questions added yet. Click "Add Question" to create a new question.
-            </AppTypography.muted>
-          </div>
-        )}
-
-        <ImportQuestionsDialog
-          open={isImportDialogOpen}
-          onOpenChange={setIsImportDialogOpen}
-          onImportQuestions={handleImportQuestions}
-        />
       </div>
-    );
-  },
-);
+
+      {localQuestions.length > 0 ? (
+        <AppAccordion.Root type='single'>{questionsItems}</AppAccordion.Root>
+      ) : (
+        <div className='rounded-md border border-dashed p-8 text-center'>
+          <AppTypography.muted>
+            No questions added yet. Click "Add Question" to create a new question.
+          </AppTypography.muted>
+        </div>
+      )}
+
+      <ImportQuestionsDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImportQuestions={handleImportQuestions}
+      />
+    </div>
+  );
+});
