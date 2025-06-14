@@ -1,13 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Trash2, Plus } from 'lucide-react';
 import { useParams } from '@remix-run/react';
-import { useEffect, useMemo } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { Plus, Trash2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { UpdateTestQuestionRequirementInput } from 'app/graphql/graphqlTypes';
-import { useGetTestQuery, GetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
+import { GetTestQuery, useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { useUpdateTestQuestionRequirementMutation } from 'app/graphql/operations/test/updateTestQuestionRequirement.mutation.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCard } from 'app/shared/components/card/AppCard';

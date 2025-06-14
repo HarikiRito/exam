@@ -153,6 +153,7 @@ export function TestQuestionsIgnore() {
           <div key={collection.id} className='flex w-full items-center justify-between'>
             <div className='flex items-center gap-3'>
               <AppTypography.h4>{collection.title}</AppTypography.h4>
+              <AppBadge variant='outline'>{questions.length} questions</AppBadge>
               {selectedIgnoreQuestionIds.length > 0 && (
                 <AppBadge variant='destructive'>{selectedIgnoreQuestionIds.length} ignored</AppBadge>
               )}

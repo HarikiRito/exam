@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from '@remix-run/react';
+import { Navigate, Outlet, useLocation } from '@remix-run/react';
 import { AppBreadcrumb } from 'app/shared/components/breadcrumb/AppBreadcrumb';
 import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
@@ -10,9 +10,14 @@ import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthentic
 import { APP_ROUTES } from 'app/shared/constants/routes';
 export default function Page() {
   const { data } = useIsAuthenticatedQuery();
+  const pathname = useLocation();
 
   if (data && !data.isAuthenticated) {
     return <Navigate to={APP_ROUTES.login} />;
+  }
+
+  if (pathname.pathname.startsWith('/test/session/')) {
+    return <Outlet />;
   }
 
   return (

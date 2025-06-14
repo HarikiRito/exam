@@ -9,7 +9,6 @@ import { UpdateTestInput } from 'app/graphql/graphqlTypes';
 import { GetTestDocument } from 'app/graphql/operations/test/getTest.query.generated';
 import { useUpdateTestMutation } from 'app/graphql/operations/test/updateTest.mutation.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { APP_ROUTES } from 'app/shared/constants/routes';

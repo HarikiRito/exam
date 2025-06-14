@@ -9,7 +9,6 @@ import { usePaginateCoursesQuery } from 'app/graphql/operations/course/paginateC
 import { useCreateTestMutation } from 'app/graphql/operations/test/createTest.mutation.generated';
 import { PaginateTestsDocument } from 'app/graphql/operations/test/paginateTests.query.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppForm } from 'app/shared/components/form/AppForm';
 import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
@@ -25,16 +24,6 @@ type CreateTestFormData = z.infer<typeof createTestSchema>;
 
 export default function CreateTest() {
   const navigate = useNavigate();
-
-  // Fetch courses for dropdown
-  const { data: coursesData } = usePaginateCoursesQuery({
-    variables: {
-      paginationInput: {
-        page: 1,
-        limit: 100,
-      },
-    },
-  });
 
   // Create test mutation
   const [createTest, { loading }] = useCreateTestMutation({

@@ -1,12 +1,12 @@
+import { AttendanceVariant1 } from 'app/routes/demo/attendance/Variant1';
+import { DataTableExample } from 'app/routes/demo/DataTableExample';
 import { ExampleMultipleChoice } from 'app/routes/demo/ExampleMultipleChoice';
 import { TimesheetCards } from 'app/routes/demo/TimesheetCards';
-import { DataTableExample } from 'app/routes/demo/DataTableExample';
-import { MultipleChoiceGrid } from 'app/shared/components/custom/multiple-choice/MultipleChoiceGrid';
-import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 import { TypographyDemo } from 'app/routes/demo/TypographyDemo';
-import { AppLink } from 'app/shared/components/link/AppLink';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { AttendanceVariant1 } from 'app/routes/demo/attendance/Variant1';
+import { MultipleChoiceGrid } from 'app/shared/components/custom/multiple-choice/MultipleChoiceGrid';
+import { AppLink } from 'app/shared/components/link/AppLink';
+import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
 
 const DemoMap = {
   typography: {
