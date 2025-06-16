@@ -9,12 +9,16 @@ import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import client from './shared/utils/apollo';
+import { StagewiseToolbar } from '@stagewise/toolbar-react';
+import * as stagewise from '@stagewise-plugins/react';
 
 startTransition(() => {
   hydrateRoot(
     document,
     <StrictMode>
       <ApolloProvider client={client}>
+        <StagewiseToolbar config={{ plugins: [stagewise.ReactPlugin] }} />
+
         <RemixBrowser />
       </ApolloProvider>
     </StrictMode>,

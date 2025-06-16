@@ -1,4 +1,4 @@
-import ExamInterface from './exam-interface';
+import ExamInterface from './ExamInterface';
 
 export default function TestSessionPage() {
   return (

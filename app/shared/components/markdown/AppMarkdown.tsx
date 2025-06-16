@@ -23,15 +23,13 @@ function CodeBlock({ className, children }: { readonly className?: string; reado
       .map((child) => (typeof child === 'string' ? child : ''))
       .join('');
     return (
-      <div className='my-6'>
-        <SyntaxHighlighter language={language} PreTag='div' className='rounded-md'>
-          {codeString.replace(/\n$/, '')}
-        </SyntaxHighlighter>
-      </div>
+      <SyntaxHighlighter language={language} PreTag='div' className='rounded-md'>
+        {codeString.replace(/\n$/, '')}
+      </SyntaxHighlighter>
     );
   }
 
-  return <AppTypography.inlineCode className={cn(className)}>{children}</AppTypography.inlineCode>;
+  return <AppTypography.inlineCode className={cn(className, 'text-base')}>{children}</AppTypography.inlineCode>;
 }
 
 export function AppMarkdown({ children, className, components }: AppMarkdownProps) {
@@ -112,7 +110,7 @@ export function AppMarkdown({ children, className, components }: AppMarkdownProp
 
     // Pre tag (for code blocks without language)
     pre: ({ className: preClassName, children: preChildren, ...props }) => (
-      <pre className={cn('bg-muted my-6 overflow-x-auto rounded-md p-4 text-sm', preClassName)} {...props}>
+      <pre className={cn('bg-muted overflow-x-auto rounded-md p-2 text-sm', preClassName)} {...props}>
         {preChildren}
       </pre>
     ),

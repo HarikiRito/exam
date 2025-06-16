@@ -3,18 +3,19 @@ import { proxy, useSnapshot } from 'valtio';
 import { deepClone } from 'valtio/utils';
 
 export function createProxyWithReset<T extends object>(initialState: T) {
-  const proxyState = proxy(deepClone(initialState));
+  const proxyState = proxy(initialState);
 
   function reset() {
-    const resetState = deepClone(initialState);
+    const resetState = initialState;
     for (const key in resetState) {
       if (typeof resetState[key] !== 'function') {
-        proxyState[key] = resetState[key];
+        proxyState[key] = deepClone(resetState[key]);
       }
     }
   }
 
   function useResetHook() {
+    // Since the proxy are external state, we need to reset them when the component unmounts to make sure the state is not persisted
     useEffect(() => {
       return () => {
         reset();
