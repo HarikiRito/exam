@@ -11,8 +11,8 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 	"time"
 
@@ -270,19 +270,19 @@ func (uu *UserUpdate) AddQuestionCollections(q ...*QuestionCollection) *UserUpda
 	return uu.AddQuestionCollectionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
-func (uu *UserUpdate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (uu *UserUpdate) AddTestSessionAnswerIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddTestSessionAnswerIDs(ids...)
 	return uu
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (uu *UserUpdate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *UserUpdate {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (uu *UserUpdate) AddTestSessionAnswers(t ...*TestSessionAnswer) *UserUpdate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return uu.AddUserQuestionAnswerIDs(ids...)
+	return uu.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -395,25 +395,25 @@ func (uu *UserUpdate) RemoveQuestionCollections(q ...*QuestionCollection) *UserU
 	return uu.RemoveQuestionCollectionIDs(ids...)
 }
 
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestQuestionAnswer entity.
-func (uu *UserUpdate) ClearUserQuestionAnswers() *UserUpdate {
-	uu.mutation.ClearUserQuestionAnswers()
+// ClearTestSessionAnswers clears all "test_session_answers" edges to the TestSessionAnswer entity.
+func (uu *UserUpdate) ClearTestSessionAnswers() *UserUpdate {
+	uu.mutation.ClearTestSessionAnswers()
 	return uu
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestQuestionAnswer entities by IDs.
-func (uu *UserUpdate) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *UserUpdate {
-	uu.mutation.RemoveUserQuestionAnswerIDs(ids...)
+// RemoveTestSessionAnswerIDs removes the "test_session_answers" edge to TestSessionAnswer entities by IDs.
+func (uu *UserUpdate) RemoveTestSessionAnswerIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveTestSessionAnswerIDs(ids...)
 	return uu
 }
 
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestQuestionAnswer entities.
-func (uu *UserUpdate) RemoveUserQuestionAnswers(t ...*TestQuestionAnswer) *UserUpdate {
+// RemoveTestSessionAnswers removes "test_session_answers" edges to TestSessionAnswer entities.
+func (uu *UserUpdate) RemoveTestSessionAnswers(t ...*TestSessionAnswer) *UserUpdate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return uu.RemoveUserQuestionAnswerIDs(ids...)
+	return uu.RemoveTestSessionAnswerIDs(ids...)
 }
 
 // ClearTestSessions clears all "test_sessions" edges to the TestSession entity.
@@ -756,28 +756,28 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uu.mutation.UserQuestionAnswersCleared() {
+	if uu.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !uu.mutation.UserQuestionAnswersCleared() {
+	if nodes := uu.mutation.RemovedTestSessionAnswersIDs(); len(nodes) > 0 && !uu.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -785,15 +785,15 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := uu.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1101,19 +1101,19 @@ func (uuo *UserUpdateOne) AddQuestionCollections(q ...*QuestionCollection) *User
 	return uuo.AddQuestionCollectionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
-func (uuo *UserUpdateOne) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (uuo *UserUpdateOne) AddTestSessionAnswerIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddTestSessionAnswerIDs(ids...)
 	return uuo
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (uuo *UserUpdateOne) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *UserUpdateOne {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (uuo *UserUpdateOne) AddTestSessionAnswers(t ...*TestSessionAnswer) *UserUpdateOne {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return uuo.AddUserQuestionAnswerIDs(ids...)
+	return uuo.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -1226,25 +1226,25 @@ func (uuo *UserUpdateOne) RemoveQuestionCollections(q ...*QuestionCollection) *U
 	return uuo.RemoveQuestionCollectionIDs(ids...)
 }
 
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestQuestionAnswer entity.
-func (uuo *UserUpdateOne) ClearUserQuestionAnswers() *UserUpdateOne {
-	uuo.mutation.ClearUserQuestionAnswers()
+// ClearTestSessionAnswers clears all "test_session_answers" edges to the TestSessionAnswer entity.
+func (uuo *UserUpdateOne) ClearTestSessionAnswers() *UserUpdateOne {
+	uuo.mutation.ClearTestSessionAnswers()
 	return uuo
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestQuestionAnswer entities by IDs.
-func (uuo *UserUpdateOne) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *UserUpdateOne {
-	uuo.mutation.RemoveUserQuestionAnswerIDs(ids...)
+// RemoveTestSessionAnswerIDs removes the "test_session_answers" edge to TestSessionAnswer entities by IDs.
+func (uuo *UserUpdateOne) RemoveTestSessionAnswerIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveTestSessionAnswerIDs(ids...)
 	return uuo
 }
 
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestQuestionAnswer entities.
-func (uuo *UserUpdateOne) RemoveUserQuestionAnswers(t ...*TestQuestionAnswer) *UserUpdateOne {
+// RemoveTestSessionAnswers removes "test_session_answers" edges to TestSessionAnswer entities.
+func (uuo *UserUpdateOne) RemoveTestSessionAnswers(t ...*TestSessionAnswer) *UserUpdateOne {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return uuo.RemoveUserQuestionAnswerIDs(ids...)
+	return uuo.RemoveTestSessionAnswerIDs(ids...)
 }
 
 // ClearTestSessions clears all "test_sessions" edges to the TestSession entity.
@@ -1617,28 +1617,28 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if uuo.mutation.UserQuestionAnswersCleared() {
+	if uuo.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !uuo.mutation.UserQuestionAnswersCleared() {
+	if nodes := uuo.mutation.RemovedTestSessionAnswersIDs(); len(nodes) > 0 && !uuo.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -1646,15 +1646,15 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := uuo.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

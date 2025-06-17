@@ -14,14 +14,26 @@ type TestSession struct {
 	ent.Schema
 }
 
+const (
+	TestSessionStatusPending    string = "pending"
+	TestSessionStatusCompleted  string = "completed"
+	TestSessionStatusInProgress string = "in_progress"
+	TestSessionStatusCancelled  string = "cancelled"
+	TestSessionStatusExpired    string = "expired"
+)
+
 // Fields of the CourseSession.
 func (TestSession) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("course_section_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("test_id", uuid.UUID{}),
+		field.Time("started_at").Optional().Nillable(),
+		field.Time("expired_at").Optional().Nillable(),
 		field.Time("completed_at").Optional().Nillable(),
-		field.Int("total_score").Default(0),
+		field.Int("max_points").Default(0),
+		field.Int("points_earned").Default(0),
+		field.Enum("status").Values(TestSessionStatusPending, TestSessionStatusCompleted, TestSessionStatusInProgress, TestSessionStatusCancelled, TestSessionStatusExpired).Default(TestSessionStatusPending),
 	}
 }
 
@@ -42,7 +54,7 @@ func (TestSession) Edges() []ent.Edge {
 			Field("test_id").
 			Unique().
 			Required(),
-		edge.To("user_question_answers", TestQuestionAnswer.Type),
+		edge.To("test_session_question_answers", TestSessionAnswer.Type),
 	}
 }
 

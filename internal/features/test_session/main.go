@@ -4,8 +4,8 @@ import (
 	"context"
 	"template/internal/ent"
 	"template/internal/ent/db"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/graph/model"
 	"time"
 
@@ -63,9 +63,9 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 	}
 
 	// Get all user answers for this session within the transaction
-	answers, err := tx.TestQuestionAnswer.Query().
+	answers, err := tx.TestSessionAnswer.Query().
 		Where(
-			testquestionanswer.SessionID(sessionID),
+			testsessionanswer.SessionID(sessionID),
 		).
 		All(ctx)
 	if err != nil {
@@ -86,7 +86,8 @@ func CompleteTestSession(ctx context.Context, sessionID uuid.UUID) (*ent.TestSes
 	now := time.Now()
 	updatedSession, err := tx.TestSession.UpdateOneID(sessionID).
 		SetCompletedAt(now).
-		SetTotalScore(totalScore).
+		SetPointsEarned(totalScore).
+		SetStatus(testsession.StatusCompleted).
 		Select(testsession.FieldID, selectFields...).
 		Save(ctx)
 	if err != nil {

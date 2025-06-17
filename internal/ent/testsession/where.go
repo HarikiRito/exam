@@ -86,14 +86,29 @@ func TestID(v uuid.UUID) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldTestID, v))
 }
 
+// StartedAt applies equality check predicate on the "started_at" field. It's identical to StartedAtEQ.
+func StartedAt(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldStartedAt, v))
+}
+
+// ExpiredAt applies equality check predicate on the "expired_at" field. It's identical to ExpiredAtEQ.
+func ExpiredAt(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldExpiredAt, v))
+}
+
 // CompletedAt applies equality check predicate on the "completed_at" field. It's identical to CompletedAtEQ.
 func CompletedAt(v time.Time) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldCompletedAt, v))
 }
 
-// TotalScore applies equality check predicate on the "total_score" field. It's identical to TotalScoreEQ.
-func TotalScore(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldEQ(FieldTotalScore, v))
+// MaxPoints applies equality check predicate on the "max_points" field. It's identical to MaxPointsEQ.
+func MaxPoints(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldMaxPoints, v))
+}
+
+// PointsEarned applies equality check predicate on the "points_earned" field. It's identical to PointsEarnedEQ.
+func PointsEarned(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldPointsEarned, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -296,6 +311,106 @@ func TestIDNotIn(vs ...uuid.UUID) predicate.TestSession {
 	return predicate.TestSession(sql.FieldNotIn(FieldTestID, vs...))
 }
 
+// StartedAtEQ applies the EQ predicate on the "started_at" field.
+func StartedAtEQ(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldStartedAt, v))
+}
+
+// StartedAtNEQ applies the NEQ predicate on the "started_at" field.
+func StartedAtNEQ(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNEQ(FieldStartedAt, v))
+}
+
+// StartedAtIn applies the In predicate on the "started_at" field.
+func StartedAtIn(vs ...time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldIn(FieldStartedAt, vs...))
+}
+
+// StartedAtNotIn applies the NotIn predicate on the "started_at" field.
+func StartedAtNotIn(vs ...time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotIn(FieldStartedAt, vs...))
+}
+
+// StartedAtGT applies the GT predicate on the "started_at" field.
+func StartedAtGT(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGT(FieldStartedAt, v))
+}
+
+// StartedAtGTE applies the GTE predicate on the "started_at" field.
+func StartedAtGTE(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGTE(FieldStartedAt, v))
+}
+
+// StartedAtLT applies the LT predicate on the "started_at" field.
+func StartedAtLT(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLT(FieldStartedAt, v))
+}
+
+// StartedAtLTE applies the LTE predicate on the "started_at" field.
+func StartedAtLTE(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLTE(FieldStartedAt, v))
+}
+
+// StartedAtIsNil applies the IsNil predicate on the "started_at" field.
+func StartedAtIsNil() predicate.TestSession {
+	return predicate.TestSession(sql.FieldIsNull(FieldStartedAt))
+}
+
+// StartedAtNotNil applies the NotNil predicate on the "started_at" field.
+func StartedAtNotNil() predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotNull(FieldStartedAt))
+}
+
+// ExpiredAtEQ applies the EQ predicate on the "expired_at" field.
+func ExpiredAtEQ(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldExpiredAt, v))
+}
+
+// ExpiredAtNEQ applies the NEQ predicate on the "expired_at" field.
+func ExpiredAtNEQ(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNEQ(FieldExpiredAt, v))
+}
+
+// ExpiredAtIn applies the In predicate on the "expired_at" field.
+func ExpiredAtIn(vs ...time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldIn(FieldExpiredAt, vs...))
+}
+
+// ExpiredAtNotIn applies the NotIn predicate on the "expired_at" field.
+func ExpiredAtNotIn(vs ...time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotIn(FieldExpiredAt, vs...))
+}
+
+// ExpiredAtGT applies the GT predicate on the "expired_at" field.
+func ExpiredAtGT(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGT(FieldExpiredAt, v))
+}
+
+// ExpiredAtGTE applies the GTE predicate on the "expired_at" field.
+func ExpiredAtGTE(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGTE(FieldExpiredAt, v))
+}
+
+// ExpiredAtLT applies the LT predicate on the "expired_at" field.
+func ExpiredAtLT(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLT(FieldExpiredAt, v))
+}
+
+// ExpiredAtLTE applies the LTE predicate on the "expired_at" field.
+func ExpiredAtLTE(v time.Time) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLTE(FieldExpiredAt, v))
+}
+
+// ExpiredAtIsNil applies the IsNil predicate on the "expired_at" field.
+func ExpiredAtIsNil() predicate.TestSession {
+	return predicate.TestSession(sql.FieldIsNull(FieldExpiredAt))
+}
+
+// ExpiredAtNotNil applies the NotNil predicate on the "expired_at" field.
+func ExpiredAtNotNil() predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotNull(FieldExpiredAt))
+}
+
 // CompletedAtEQ applies the EQ predicate on the "completed_at" field.
 func CompletedAtEQ(v time.Time) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldCompletedAt, v))
@@ -346,44 +461,104 @@ func CompletedAtNotNil() predicate.TestSession {
 	return predicate.TestSession(sql.FieldNotNull(FieldCompletedAt))
 }
 
-// TotalScoreEQ applies the EQ predicate on the "total_score" field.
-func TotalScoreEQ(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldEQ(FieldTotalScore, v))
+// MaxPointsEQ applies the EQ predicate on the "max_points" field.
+func MaxPointsEQ(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldMaxPoints, v))
 }
 
-// TotalScoreNEQ applies the NEQ predicate on the "total_score" field.
-func TotalScoreNEQ(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldNEQ(FieldTotalScore, v))
+// MaxPointsNEQ applies the NEQ predicate on the "max_points" field.
+func MaxPointsNEQ(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNEQ(FieldMaxPoints, v))
 }
 
-// TotalScoreIn applies the In predicate on the "total_score" field.
-func TotalScoreIn(vs ...int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldIn(FieldTotalScore, vs...))
+// MaxPointsIn applies the In predicate on the "max_points" field.
+func MaxPointsIn(vs ...int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldIn(FieldMaxPoints, vs...))
 }
 
-// TotalScoreNotIn applies the NotIn predicate on the "total_score" field.
-func TotalScoreNotIn(vs ...int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldNotIn(FieldTotalScore, vs...))
+// MaxPointsNotIn applies the NotIn predicate on the "max_points" field.
+func MaxPointsNotIn(vs ...int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotIn(FieldMaxPoints, vs...))
 }
 
-// TotalScoreGT applies the GT predicate on the "total_score" field.
-func TotalScoreGT(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldGT(FieldTotalScore, v))
+// MaxPointsGT applies the GT predicate on the "max_points" field.
+func MaxPointsGT(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGT(FieldMaxPoints, v))
 }
 
-// TotalScoreGTE applies the GTE predicate on the "total_score" field.
-func TotalScoreGTE(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldGTE(FieldTotalScore, v))
+// MaxPointsGTE applies the GTE predicate on the "max_points" field.
+func MaxPointsGTE(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGTE(FieldMaxPoints, v))
 }
 
-// TotalScoreLT applies the LT predicate on the "total_score" field.
-func TotalScoreLT(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldLT(FieldTotalScore, v))
+// MaxPointsLT applies the LT predicate on the "max_points" field.
+func MaxPointsLT(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLT(FieldMaxPoints, v))
 }
 
-// TotalScoreLTE applies the LTE predicate on the "total_score" field.
-func TotalScoreLTE(v int) predicate.TestSession {
-	return predicate.TestSession(sql.FieldLTE(FieldTotalScore, v))
+// MaxPointsLTE applies the LTE predicate on the "max_points" field.
+func MaxPointsLTE(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLTE(FieldMaxPoints, v))
+}
+
+// PointsEarnedEQ applies the EQ predicate on the "points_earned" field.
+func PointsEarnedEQ(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldPointsEarned, v))
+}
+
+// PointsEarnedNEQ applies the NEQ predicate on the "points_earned" field.
+func PointsEarnedNEQ(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNEQ(FieldPointsEarned, v))
+}
+
+// PointsEarnedIn applies the In predicate on the "points_earned" field.
+func PointsEarnedIn(vs ...int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldIn(FieldPointsEarned, vs...))
+}
+
+// PointsEarnedNotIn applies the NotIn predicate on the "points_earned" field.
+func PointsEarnedNotIn(vs ...int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotIn(FieldPointsEarned, vs...))
+}
+
+// PointsEarnedGT applies the GT predicate on the "points_earned" field.
+func PointsEarnedGT(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGT(FieldPointsEarned, v))
+}
+
+// PointsEarnedGTE applies the GTE predicate on the "points_earned" field.
+func PointsEarnedGTE(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldGTE(FieldPointsEarned, v))
+}
+
+// PointsEarnedLT applies the LT predicate on the "points_earned" field.
+func PointsEarnedLT(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLT(FieldPointsEarned, v))
+}
+
+// PointsEarnedLTE applies the LTE predicate on the "points_earned" field.
+func PointsEarnedLTE(v int) predicate.TestSession {
+	return predicate.TestSession(sql.FieldLTE(FieldPointsEarned, v))
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v Status) predicate.TestSession {
+	return predicate.TestSession(sql.FieldEQ(FieldStatus, v))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v Status) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNEQ(FieldStatus, v))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...Status) predicate.TestSession {
+	return predicate.TestSession(sql.FieldIn(FieldStatus, vs...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...Status) predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotIn(FieldStatus, vs...))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.
@@ -455,21 +630,21 @@ func HasTestWith(preds ...predicate.Test) predicate.TestSession {
 	})
 }
 
-// HasUserQuestionAnswers applies the HasEdge predicate on the "user_question_answers" edge.
-func HasUserQuestionAnswers() predicate.TestSession {
+// HasTestSessionQuestionAnswers applies the HasEdge predicate on the "test_session_question_answers" edge.
+func HasTestSessionQuestionAnswers() predicate.TestSession {
 	return predicate.TestSession(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, TestSessionQuestionAnswersTable, TestSessionQuestionAnswersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserQuestionAnswersWith applies the HasEdge predicate on the "user_question_answers" edge with a given conditions (other predicates).
-func HasUserQuestionAnswersWith(preds ...predicate.TestQuestionAnswer) predicate.TestSession {
+// HasTestSessionQuestionAnswersWith applies the HasEdge predicate on the "test_session_question_answers" edge with a given conditions (other predicates).
+func HasTestSessionQuestionAnswersWith(preds ...predicate.TestSessionAnswer) predicate.TestSession {
 	return predicate.TestSession(func(s *sql.Selector) {
-		step := newUserQuestionAnswersStep()
+		step := newTestSessionQuestionAnswersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

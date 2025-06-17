@@ -3,6 +3,7 @@
 package testsession
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent"
@@ -28,18 +29,26 @@ const (
 	FieldCourseSectionID = "course_section_id"
 	// FieldTestID holds the string denoting the test_id field in the database.
 	FieldTestID = "test_id"
+	// FieldStartedAt holds the string denoting the started_at field in the database.
+	FieldStartedAt = "started_at"
+	// FieldExpiredAt holds the string denoting the expired_at field in the database.
+	FieldExpiredAt = "expired_at"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
-	// FieldTotalScore holds the string denoting the total_score field in the database.
-	FieldTotalScore = "total_score"
+	// FieldMaxPoints holds the string denoting the max_points field in the database.
+	FieldMaxPoints = "max_points"
+	// FieldPointsEarned holds the string denoting the points_earned field in the database.
+	FieldPointsEarned = "points_earned"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
 	EdgeCourseSection = "course_section"
 	// EdgeTest holds the string denoting the test edge name in mutations.
 	EdgeTest = "test"
-	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
-	EdgeUserQuestionAnswers = "user_question_answers"
+	// EdgeTestSessionQuestionAnswers holds the string denoting the test_session_question_answers edge name in mutations.
+	EdgeTestSessionQuestionAnswers = "test_session_question_answers"
 	// Table holds the table name of the testsession in the database.
 	Table = "test_sessions"
 	// UserTable is the table that holds the user relation/edge.
@@ -63,13 +72,13 @@ const (
 	TestInverseTable = "tests"
 	// TestColumn is the table column denoting the test relation/edge.
 	TestColumn = "test_id"
-	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "test_question_answers"
-	// UserQuestionAnswersInverseTable is the table name for the TestQuestionAnswer entity.
-	// It exists in this package in order to avoid circular dependency with the "testquestionanswer" package.
-	UserQuestionAnswersInverseTable = "test_question_answers"
-	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
-	UserQuestionAnswersColumn = "session_id"
+	// TestSessionQuestionAnswersTable is the table that holds the test_session_question_answers relation/edge.
+	TestSessionQuestionAnswersTable = "test_session_answers"
+	// TestSessionQuestionAnswersInverseTable is the table name for the TestSessionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "testsessionanswer" package.
+	TestSessionQuestionAnswersInverseTable = "test_session_answers"
+	// TestSessionQuestionAnswersColumn is the table column denoting the test_session_question_answers relation/edge.
+	TestSessionQuestionAnswersColumn = "session_id"
 )
 
 // Columns holds all SQL columns for testsession fields.
@@ -81,8 +90,12 @@ var Columns = []string{
 	FieldUserID,
 	FieldCourseSectionID,
 	FieldTestID,
+	FieldStartedAt,
+	FieldExpiredAt,
 	FieldCompletedAt,
-	FieldTotalScore,
+	FieldMaxPoints,
+	FieldPointsEarned,
+	FieldStatus,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -109,11 +122,42 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultTotalScore holds the default value on creation for the "total_score" field.
-	DefaultTotalScore int
+	// DefaultMaxPoints holds the default value on creation for the "max_points" field.
+	DefaultMaxPoints int
+	// DefaultPointsEarned holds the default value on creation for the "points_earned" field.
+	DefaultPointsEarned int
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
+
+// Status defines the type for the "status" enum field.
+type Status string
+
+// StatusPending is the default value of the Status enum.
+const DefaultStatus = StatusPending
+
+// Status values.
+const (
+	StatusPending    Status = "pending"
+	StatusCompleted  Status = "completed"
+	StatusInProgress Status = "in_progress"
+	StatusCancelled  Status = "cancelled"
+	StatusExpired    Status = "expired"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusPending, StatusCompleted, StatusInProgress, StatusCancelled, StatusExpired:
+		return nil
+	default:
+		return fmt.Errorf("testsession: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the TestSession queries.
 type OrderOption func(*sql.Selector)
@@ -153,14 +197,34 @@ func ByTestID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTestID, opts...).ToFunc()
 }
 
+// ByStartedAt orders the results by the started_at field.
+func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartedAt, opts...).ToFunc()
+}
+
+// ByExpiredAt orders the results by the expired_at field.
+func ByExpiredAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExpiredAt, opts...).ToFunc()
+}
+
 // ByCompletedAt orders the results by the completed_at field.
 func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
 }
 
-// ByTotalScore orders the results by the total_score field.
-func ByTotalScore(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTotalScore, opts...).ToFunc()
+// ByMaxPoints orders the results by the max_points field.
+func ByMaxPoints(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMaxPoints, opts...).ToFunc()
+}
+
+// ByPointsEarned orders the results by the points_earned field.
+func ByPointsEarned(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPointsEarned, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.
@@ -184,17 +248,17 @@ func ByTestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByUserQuestionAnswersCount orders the results by user_question_answers count.
-func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
+// ByTestSessionQuestionAnswersCount orders the results by test_session_question_answers count.
+func ByTestSessionQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserQuestionAnswersStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newTestSessionQuestionAnswersStep(), opts...)
 	}
 }
 
-// ByUserQuestionAnswers orders the results by user_question_answers terms.
-func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByTestSessionQuestionAnswers orders the results by test_session_question_answers terms.
+func ByTestSessionQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newTestSessionQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newUserStep() *sqlgraph.Step {
@@ -218,10 +282,10 @@ func newTestStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, TestTable, TestColumn),
 	)
 }
-func newUserQuestionAnswersStep() *sqlgraph.Step {
+func newTestSessionQuestionAnswersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+		sqlgraph.To(TestSessionQuestionAnswersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionQuestionAnswersTable, TestSessionQuestionAnswersColumn),
 	)
 }

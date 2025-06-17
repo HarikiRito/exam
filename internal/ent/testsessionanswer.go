@@ -7,8 +7,8 @@ import (
 	"strings"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 	"time"
 
@@ -17,8 +17,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// TestQuestionAnswer is the model entity for the TestQuestionAnswer schema.
-type TestQuestionAnswer struct {
+// TestSessionAnswer is the model entity for the TestSessionAnswer schema.
+type TestSessionAnswer struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
@@ -39,13 +39,13 @@ type TestQuestionAnswer struct {
 	// SelectedOptionText holds the value of the "selected_option_text" field.
 	SelectedOptionText *string `json:"selected_option_text,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the TestQuestionAnswerQuery when eager-loading is set.
-	Edges        TestQuestionAnswerEdges `json:"edges"`
+	// The values are being populated by the TestSessionAnswerQuery when eager-loading is set.
+	Edges        TestSessionAnswerEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// TestQuestionAnswerEdges holds the relations/edges for other nodes in the graph.
-type TestQuestionAnswerEdges struct {
+// TestSessionAnswerEdges holds the relations/edges for other nodes in the graph.
+type TestSessionAnswerEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
 	// Question holds the value of the question edge.
@@ -61,7 +61,7 @@ type TestQuestionAnswerEdges struct {
 
 // UserOrErr returns the User value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TestQuestionAnswerEdges) UserOrErr() (*User, error) {
+func (e TestSessionAnswerEdges) UserOrErr() (*User, error) {
 	if e.User != nil {
 		return e.User, nil
 	} else if e.loadedTypes[0] {
@@ -72,7 +72,7 @@ func (e TestQuestionAnswerEdges) UserOrErr() (*User, error) {
 
 // QuestionOrErr returns the Question value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TestQuestionAnswerEdges) QuestionOrErr() (*Question, error) {
+func (e TestSessionAnswerEdges) QuestionOrErr() (*Question, error) {
 	if e.Question != nil {
 		return e.Question, nil
 	} else if e.loadedTypes[1] {
@@ -83,7 +83,7 @@ func (e TestQuestionAnswerEdges) QuestionOrErr() (*Question, error) {
 
 // SelectedOptionOrErr returns the SelectedOption value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TestQuestionAnswerEdges) SelectedOptionOrErr() (*QuestionOption, error) {
+func (e TestSessionAnswerEdges) SelectedOptionOrErr() (*QuestionOption, error) {
 	if e.SelectedOption != nil {
 		return e.SelectedOption, nil
 	} else if e.loadedTypes[2] {
@@ -94,7 +94,7 @@ func (e TestQuestionAnswerEdges) SelectedOptionOrErr() (*QuestionOption, error) 
 
 // TestSessionOrErr returns the TestSession value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TestQuestionAnswerEdges) TestSessionOrErr() (*TestSession, error) {
+func (e TestSessionAnswerEdges) TestSessionOrErr() (*TestSession, error) {
 	if e.TestSession != nil {
 		return e.TestSession, nil
 	} else if e.loadedTypes[3] {
@@ -104,17 +104,17 @@ func (e TestQuestionAnswerEdges) TestSessionOrErr() (*TestSession, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*TestQuestionAnswer) scanValues(columns []string) ([]any, error) {
+func (*TestSessionAnswer) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testquestionanswer.FieldSelectedOptionID:
+		case testsessionanswer.FieldSelectedOptionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case testquestionanswer.FieldSelectedOptionText:
+		case testsessionanswer.FieldSelectedOptionText:
 			values[i] = new(sql.NullString)
-		case testquestionanswer.FieldCreatedAt, testquestionanswer.FieldUpdatedAt, testquestionanswer.FieldDeletedAt:
+		case testsessionanswer.FieldCreatedAt, testsessionanswer.FieldUpdatedAt, testsessionanswer.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
-		case testquestionanswer.FieldID, testquestionanswer.FieldUserID, testquestionanswer.FieldQuestionID, testquestionanswer.FieldSessionID:
+		case testsessionanswer.FieldID, testsessionanswer.FieldUserID, testsessionanswer.FieldQuestionID, testsessionanswer.FieldSessionID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -124,152 +124,152 @@ func (*TestQuestionAnswer) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the TestQuestionAnswer fields.
-func (tqa *TestQuestionAnswer) assignValues(columns []string, values []any) error {
+// to the TestSessionAnswer fields.
+func (tsa *TestSessionAnswer) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case testquestionanswer.FieldID:
+		case testsessionanswer.FieldID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				tqa.ID = *value
+				tsa.ID = *value
 			}
-		case testquestionanswer.FieldCreatedAt:
+		case testsessionanswer.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				tqa.CreatedAt = value.Time
+				tsa.CreatedAt = value.Time
 			}
-		case testquestionanswer.FieldUpdatedAt:
+		case testsessionanswer.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				tqa.UpdatedAt = value.Time
+				tsa.UpdatedAt = value.Time
 			}
-		case testquestionanswer.FieldDeletedAt:
+		case testsessionanswer.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				tqa.DeletedAt = new(time.Time)
-				*tqa.DeletedAt = value.Time
+				tsa.DeletedAt = new(time.Time)
+				*tsa.DeletedAt = value.Time
 			}
-		case testquestionanswer.FieldUserID:
+		case testsessionanswer.FieldUserID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value != nil {
-				tqa.UserID = *value
+				tsa.UserID = *value
 			}
-		case testquestionanswer.FieldQuestionID:
+		case testsessionanswer.FieldQuestionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field question_id", values[i])
 			} else if value != nil {
-				tqa.QuestionID = *value
+				tsa.QuestionID = *value
 			}
-		case testquestionanswer.FieldSelectedOptionID:
+		case testsessionanswer.FieldSelectedOptionID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field selected_option_id", values[i])
 			} else if value.Valid {
-				tqa.SelectedOptionID = new(uuid.UUID)
-				*tqa.SelectedOptionID = *value.S.(*uuid.UUID)
+				tsa.SelectedOptionID = new(uuid.UUID)
+				*tsa.SelectedOptionID = *value.S.(*uuid.UUID)
 			}
-		case testquestionanswer.FieldSessionID:
+		case testsessionanswer.FieldSessionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field session_id", values[i])
 			} else if value != nil {
-				tqa.SessionID = *value
+				tsa.SessionID = *value
 			}
-		case testquestionanswer.FieldSelectedOptionText:
+		case testsessionanswer.FieldSelectedOptionText:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field selected_option_text", values[i])
 			} else if value.Valid {
-				tqa.SelectedOptionText = new(string)
-				*tqa.SelectedOptionText = value.String
+				tsa.SelectedOptionText = new(string)
+				*tsa.SelectedOptionText = value.String
 			}
 		default:
-			tqa.selectValues.Set(columns[i], values[i])
+			tsa.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the TestQuestionAnswer.
+// Value returns the ent.Value that was dynamically selected and assigned to the TestSessionAnswer.
 // This includes values selected through modifiers, order, etc.
-func (tqa *TestQuestionAnswer) Value(name string) (ent.Value, error) {
-	return tqa.selectValues.Get(name)
+func (tsa *TestSessionAnswer) Value(name string) (ent.Value, error) {
+	return tsa.selectValues.Get(name)
 }
 
-// QueryUser queries the "user" edge of the TestQuestionAnswer entity.
-func (tqa *TestQuestionAnswer) QueryUser() *UserQuery {
-	return NewTestQuestionAnswerClient(tqa.config).QueryUser(tqa)
+// QueryUser queries the "user" edge of the TestSessionAnswer entity.
+func (tsa *TestSessionAnswer) QueryUser() *UserQuery {
+	return NewTestSessionAnswerClient(tsa.config).QueryUser(tsa)
 }
 
-// QueryQuestion queries the "question" edge of the TestQuestionAnswer entity.
-func (tqa *TestQuestionAnswer) QueryQuestion() *QuestionQuery {
-	return NewTestQuestionAnswerClient(tqa.config).QueryQuestion(tqa)
+// QueryQuestion queries the "question" edge of the TestSessionAnswer entity.
+func (tsa *TestSessionAnswer) QueryQuestion() *QuestionQuery {
+	return NewTestSessionAnswerClient(tsa.config).QueryQuestion(tsa)
 }
 
-// QuerySelectedOption queries the "selected_option" edge of the TestQuestionAnswer entity.
-func (tqa *TestQuestionAnswer) QuerySelectedOption() *QuestionOptionQuery {
-	return NewTestQuestionAnswerClient(tqa.config).QuerySelectedOption(tqa)
+// QuerySelectedOption queries the "selected_option" edge of the TestSessionAnswer entity.
+func (tsa *TestSessionAnswer) QuerySelectedOption() *QuestionOptionQuery {
+	return NewTestSessionAnswerClient(tsa.config).QuerySelectedOption(tsa)
 }
 
-// QueryTestSession queries the "test_session" edge of the TestQuestionAnswer entity.
-func (tqa *TestQuestionAnswer) QueryTestSession() *TestSessionQuery {
-	return NewTestQuestionAnswerClient(tqa.config).QueryTestSession(tqa)
+// QueryTestSession queries the "test_session" edge of the TestSessionAnswer entity.
+func (tsa *TestSessionAnswer) QueryTestSession() *TestSessionQuery {
+	return NewTestSessionAnswerClient(tsa.config).QueryTestSession(tsa)
 }
 
-// Update returns a builder for updating this TestQuestionAnswer.
-// Note that you need to call TestQuestionAnswer.Unwrap() before calling this method if this TestQuestionAnswer
+// Update returns a builder for updating this TestSessionAnswer.
+// Note that you need to call TestSessionAnswer.Unwrap() before calling this method if this TestSessionAnswer
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (tqa *TestQuestionAnswer) Update() *TestQuestionAnswerUpdateOne {
-	return NewTestQuestionAnswerClient(tqa.config).UpdateOne(tqa)
+func (tsa *TestSessionAnswer) Update() *TestSessionAnswerUpdateOne {
+	return NewTestSessionAnswerClient(tsa.config).UpdateOne(tsa)
 }
 
-// Unwrap unwraps the TestQuestionAnswer entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the TestSessionAnswer entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (tqa *TestQuestionAnswer) Unwrap() *TestQuestionAnswer {
-	_tx, ok := tqa.config.driver.(*txDriver)
+func (tsa *TestSessionAnswer) Unwrap() *TestSessionAnswer {
+	_tx, ok := tsa.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: TestQuestionAnswer is not a transactional entity")
+		panic("ent: TestSessionAnswer is not a transactional entity")
 	}
-	tqa.config.driver = _tx.drv
-	return tqa
+	tsa.config.driver = _tx.drv
+	return tsa
 }
 
 // String implements the fmt.Stringer.
-func (tqa *TestQuestionAnswer) String() string {
+func (tsa *TestSessionAnswer) String() string {
 	var builder strings.Builder
-	builder.WriteString("TestQuestionAnswer(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", tqa.ID))
+	builder.WriteString("TestSessionAnswer(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", tsa.ID))
 	builder.WriteString("created_at=")
-	builder.WriteString(tqa.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(tsa.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(tqa.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(tsa.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := tqa.DeletedAt; v != nil {
+	if v := tsa.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", tqa.UserID))
+	builder.WriteString(fmt.Sprintf("%v", tsa.UserID))
 	builder.WriteString(", ")
 	builder.WriteString("question_id=")
-	builder.WriteString(fmt.Sprintf("%v", tqa.QuestionID))
+	builder.WriteString(fmt.Sprintf("%v", tsa.QuestionID))
 	builder.WriteString(", ")
-	if v := tqa.SelectedOptionID; v != nil {
+	if v := tsa.SelectedOptionID; v != nil {
 		builder.WriteString("selected_option_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("session_id=")
-	builder.WriteString(fmt.Sprintf("%v", tqa.SessionID))
+	builder.WriteString(fmt.Sprintf("%v", tsa.SessionID))
 	builder.WriteString(", ")
-	if v := tqa.SelectedOptionText; v != nil {
+	if v := tsa.SelectedOptionText; v != nil {
 		builder.WriteString("selected_option_text=")
 		builder.WriteString(*v)
 	}
@@ -277,5 +277,5 @@ func (tqa *TestQuestionAnswer) String() string {
 	return builder.String()
 }
 
-// TestQuestionAnswers is a parsable slice of TestQuestionAnswer.
-type TestQuestionAnswers []*TestQuestionAnswer
+// TestSessionAnswers is a parsable slice of TestSessionAnswer.
+type TestSessionAnswers []*TestSessionAnswer

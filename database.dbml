@@ -161,15 +161,13 @@ Table user_video_progress {
   updated_at timestamp [default: `now()`]
 }
 
-Table test_question_answers {
+Table test_session_answers {
   id varchar [pk]
   user_id varchar [not null]
-  test_session_id varchar [not null]
+  session_id varchar [not null]
   question_id varchar [not null]
   selected_option_id varchar [null]
   selected_option_text text [null]
-  manual_answer text
-  is_correct boolean
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
 }
@@ -179,8 +177,13 @@ Table test_sessions {
   id varchar [pk]
   user_id varchar [not null]
   test_id varchar [not null]
+  course_section_id varchar [null]
+  started_at timestamp [null]
+  expired_at timestamp [null]
+  status varchar [not null, default: 'pending']
   completed_at timestamp
-  total_score integer [default: 0]
+  max_points integer [default: 0]
+  points_earned integer [default: 0]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
 }
@@ -255,14 +258,15 @@ Ref: user_section_progress.user_id > users.id [delete: cascade]
 Ref: user_section_progress.section_id > course_sections.id [delete: cascade]
 Ref: user_video_progress.user_id > users.id [delete: cascade]
 Ref: user_video_progress.video_id > videos.id [delete: cascade]
-Ref: test_question_answers.user_id > users.id [delete: cascade]
-Ref: test_question_answers.question_id > questions.id [delete: cascade]
-Ref: test_question_answers.selected_option_id > question_options.id [delete: cascade]
+Ref: test_session_answers.user_id > users.id [delete: cascade]
+Ref: test_session_answers.question_id > questions.id [delete: cascade]
+Ref: test_session_answers.selected_option_id > question_options.id [delete: cascade]
 
 // Course Session Relationships
 Ref: test_sessions.user_id > users.id [delete: cascade]
 Ref: test_sessions.test_id > tests.id [delete: cascade]
-Ref: test_question_answers.test_session_id > test_sessions.id [delete: cascade]
+Ref: test_sessions.course_section_id > course_sections.id [delete: cascade]
+Ref: test_session_answers.session_id > test_sessions.id [delete: cascade]
 
 // Relationships for Test Question Management
 Ref: test_collection.test_id > tests.id [delete: cascade]

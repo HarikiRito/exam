@@ -46,8 +46,8 @@ const (
 	EdgeCourseCreator = "course_creator"
 	// EdgeQuestionCollections holds the string denoting the question_collections edge name in mutations.
 	EdgeQuestionCollections = "question_collections"
-	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
-	EdgeUserQuestionAnswers = "user_question_answers"
+	// EdgeTestSessionAnswers holds the string denoting the test_session_answers edge name in mutations.
+	EdgeTestSessionAnswers = "test_session_answers"
 	// EdgeTestSessions holds the string denoting the test_sessions edge name in mutations.
 	EdgeTestSessions = "test_sessions"
 	// Table holds the table name of the user in the database.
@@ -85,13 +85,13 @@ const (
 	QuestionCollectionsInverseTable = "question_collections"
 	// QuestionCollectionsColumn is the table column denoting the question_collections relation/edge.
 	QuestionCollectionsColumn = "creator_id"
-	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "test_question_answers"
-	// UserQuestionAnswersInverseTable is the table name for the TestQuestionAnswer entity.
-	// It exists in this package in order to avoid circular dependency with the "testquestionanswer" package.
-	UserQuestionAnswersInverseTable = "test_question_answers"
-	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
-	UserQuestionAnswersColumn = "user_id"
+	// TestSessionAnswersTable is the table that holds the test_session_answers relation/edge.
+	TestSessionAnswersTable = "test_session_answers"
+	// TestSessionAnswersInverseTable is the table name for the TestSessionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "testsessionanswer" package.
+	TestSessionAnswersInverseTable = "test_session_answers"
+	// TestSessionAnswersColumn is the table column denoting the test_session_answers relation/edge.
+	TestSessionAnswersColumn = "user_id"
 	// TestSessionsTable is the table that holds the test_sessions relation/edge.
 	TestSessionsTable = "test_sessions"
 	// TestSessionsInverseTable is the table name for the TestSession entity.
@@ -279,17 +279,17 @@ func ByQuestionCollections(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOpti
 	}
 }
 
-// ByUserQuestionAnswersCount orders the results by user_question_answers count.
-func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
+// ByTestSessionAnswersCount orders the results by test_session_answers count.
+func ByTestSessionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserQuestionAnswersStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newTestSessionAnswersStep(), opts...)
 	}
 }
 
-// ByUserQuestionAnswers orders the results by user_question_answers terms.
-func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByTestSessionAnswers orders the results by test_session_answers terms.
+func ByTestSessionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newTestSessionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -341,11 +341,11 @@ func newQuestionCollectionsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, QuestionCollectionsTable, QuestionCollectionsColumn),
 	)
 }
-func newUserQuestionAnswersStep() *sqlgraph.Step {
+func newTestSessionAnswersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+		sqlgraph.To(TestSessionAnswersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionAnswersTable, TestSessionAnswersColumn),
 	)
 }
 func newTestSessionsStep() *sqlgraph.Step {

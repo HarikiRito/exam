@@ -10,8 +10,8 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/test"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 
 	"entgo.io/ent"
@@ -24,14 +24,14 @@ import (
 // TestSessionQuery is the builder for querying TestSession entities.
 type TestSessionQuery struct {
 	config
-	ctx                     *QueryContext
-	order                   []testsession.OrderOption
-	inters                  []Interceptor
-	predicates              []predicate.TestSession
-	withUser                *UserQuery
-	withCourseSection       *CourseSectionQuery
-	withTest                *TestQuery
-	withUserQuestionAnswers *TestQuestionAnswerQuery
+	ctx                            *QueryContext
+	order                          []testsession.OrderOption
+	inters                         []Interceptor
+	predicates                     []predicate.TestSession
+	withUser                       *UserQuery
+	withCourseSection              *CourseSectionQuery
+	withTest                       *TestQuery
+	withTestSessionQuestionAnswers *TestSessionAnswerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -134,9 +134,9 @@ func (tsq *TestSessionQuery) QueryTest() *TestQuery {
 	return query
 }
 
-// QueryUserQuestionAnswers chains the current query on the "user_question_answers" edge.
-func (tsq *TestSessionQuery) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
-	query := (&TestQuestionAnswerClient{config: tsq.config}).Query()
+// QueryTestSessionQuestionAnswers chains the current query on the "test_session_question_answers" edge.
+func (tsq *TestSessionQuery) QueryTestSessionQuestionAnswers() *TestSessionAnswerQuery {
+	query := (&TestSessionAnswerClient{config: tsq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tsq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -147,8 +147,8 @@ func (tsq *TestSessionQuery) QueryUserQuestionAnswers() *TestQuestionAnswerQuery
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(testsession.Table, testsession.FieldID, selector),
-			sqlgraph.To(testquestionanswer.Table, testquestionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, testsession.UserQuestionAnswersTable, testsession.UserQuestionAnswersColumn),
+			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, testsession.TestSessionQuestionAnswersTable, testsession.TestSessionQuestionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tsq.driver.Dialect(), step)
 		return fromU, nil
@@ -343,15 +343,15 @@ func (tsq *TestSessionQuery) Clone() *TestSessionQuery {
 		return nil
 	}
 	return &TestSessionQuery{
-		config:                  tsq.config,
-		ctx:                     tsq.ctx.Clone(),
-		order:                   append([]testsession.OrderOption{}, tsq.order...),
-		inters:                  append([]Interceptor{}, tsq.inters...),
-		predicates:              append([]predicate.TestSession{}, tsq.predicates...),
-		withUser:                tsq.withUser.Clone(),
-		withCourseSection:       tsq.withCourseSection.Clone(),
-		withTest:                tsq.withTest.Clone(),
-		withUserQuestionAnswers: tsq.withUserQuestionAnswers.Clone(),
+		config:                         tsq.config,
+		ctx:                            tsq.ctx.Clone(),
+		order:                          append([]testsession.OrderOption{}, tsq.order...),
+		inters:                         append([]Interceptor{}, tsq.inters...),
+		predicates:                     append([]predicate.TestSession{}, tsq.predicates...),
+		withUser:                       tsq.withUser.Clone(),
+		withCourseSection:              tsq.withCourseSection.Clone(),
+		withTest:                       tsq.withTest.Clone(),
+		withTestSessionQuestionAnswers: tsq.withTestSessionQuestionAnswers.Clone(),
 		// clone intermediate query.
 		sql:  tsq.sql.Clone(),
 		path: tsq.path,
@@ -391,14 +391,14 @@ func (tsq *TestSessionQuery) WithTest(opts ...func(*TestQuery)) *TestSessionQuer
 	return tsq
 }
 
-// WithUserQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
-// the "user_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
-func (tsq *TestSessionQuery) WithUserQuestionAnswers(opts ...func(*TestQuestionAnswerQuery)) *TestSessionQuery {
-	query := (&TestQuestionAnswerClient{config: tsq.config}).Query()
+// WithTestSessionQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
+// the "test_session_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
+func (tsq *TestSessionQuery) WithTestSessionQuestionAnswers(opts ...func(*TestSessionAnswerQuery)) *TestSessionQuery {
+	query := (&TestSessionAnswerClient{config: tsq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	tsq.withUserQuestionAnswers = query
+	tsq.withTestSessionQuestionAnswers = query
 	return tsq
 }
 
@@ -484,7 +484,7 @@ func (tsq *TestSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			tsq.withUser != nil,
 			tsq.withCourseSection != nil,
 			tsq.withTest != nil,
-			tsq.withUserQuestionAnswers != nil,
+			tsq.withTestSessionQuestionAnswers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -523,11 +523,11 @@ func (tsq *TestSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
-	if query := tsq.withUserQuestionAnswers; query != nil {
-		if err := tsq.loadUserQuestionAnswers(ctx, query, nodes,
-			func(n *TestSession) { n.Edges.UserQuestionAnswers = []*TestQuestionAnswer{} },
-			func(n *TestSession, e *TestQuestionAnswer) {
-				n.Edges.UserQuestionAnswers = append(n.Edges.UserQuestionAnswers, e)
+	if query := tsq.withTestSessionQuestionAnswers; query != nil {
+		if err := tsq.loadTestSessionQuestionAnswers(ctx, query, nodes,
+			func(n *TestSession) { n.Edges.TestSessionQuestionAnswers = []*TestSessionAnswer{} },
+			func(n *TestSession, e *TestSessionAnswer) {
+				n.Edges.TestSessionQuestionAnswers = append(n.Edges.TestSessionQuestionAnswers, e)
 			}); err != nil {
 			return nil, err
 		}
@@ -625,7 +625,7 @@ func (tsq *TestSessionQuery) loadTest(ctx context.Context, query *TestQuery, nod
 	}
 	return nil
 }
-func (tsq *TestSessionQuery) loadUserQuestionAnswers(ctx context.Context, query *TestQuestionAnswerQuery, nodes []*TestSession, init func(*TestSession), assign func(*TestSession, *TestQuestionAnswer)) error {
+func (tsq *TestSessionQuery) loadTestSessionQuestionAnswers(ctx context.Context, query *TestSessionAnswerQuery, nodes []*TestSession, init func(*TestSession), assign func(*TestSession, *TestSessionAnswer)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*TestSession)
 	for i := range nodes {
@@ -636,10 +636,10 @@ func (tsq *TestSessionQuery) loadUserQuestionAnswers(ctx context.Context, query 
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(testquestionanswer.FieldSessionID)
+		query.ctx.AppendFieldOnce(testsessionanswer.FieldSessionID)
 	}
-	query.Where(predicate.TestQuestionAnswer(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(testsession.UserQuestionAnswersColumn), fks...))
+	query.Where(predicate.TestSessionAnswer(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(testsession.TestSessionQuestionAnswersColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

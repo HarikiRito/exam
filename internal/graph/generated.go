@@ -226,15 +226,14 @@ type ComplexityRoot struct {
 	}
 
 	TestSession struct {
-		CompletedAt         func(childComplexity int) int
-		CourseSection       func(childComplexity int) int
-		CreatedAt           func(childComplexity int) int
-		ID                  func(childComplexity int) int
-		Test                func(childComplexity int) int
-		TotalScore          func(childComplexity int) int
-		UpdatedAt           func(childComplexity int) int
-		User                func(childComplexity int) int
-		UserQuestionAnswers func(childComplexity int) int
+		CompletedAt  func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		MaxPoints    func(childComplexity int) int
+		PointsEarned func(childComplexity int) int
+		Test         func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
+		User         func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -333,9 +332,6 @@ type TestResolver interface {
 type TestSessionResolver interface {
 	User(ctx context.Context, obj *model.TestSession) (*model.User, error)
 	Test(ctx context.Context, obj *model.TestSession) (*model.Test, error)
-	CourseSection(ctx context.Context, obj *model.TestSession) (*model.CourseSection, error)
-
-	UserQuestionAnswers(ctx context.Context, obj *model.TestSession) ([]*model.UserQuestionAnswer, error)
 }
 
 type executableSchema struct {
@@ -1378,13 +1374,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TestSession.CompletedAt(childComplexity), true
 
-	case "TestSession.courseSection":
-		if e.complexity.TestSession.CourseSection == nil {
-			break
-		}
-
-		return e.complexity.TestSession.CourseSection(childComplexity), true
-
 	case "TestSession.createdAt":
 		if e.complexity.TestSession.CreatedAt == nil {
 			break
@@ -1399,19 +1388,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TestSession.ID(childComplexity), true
 
+	case "TestSession.maxPoints":
+		if e.complexity.TestSession.MaxPoints == nil {
+			break
+		}
+
+		return e.complexity.TestSession.MaxPoints(childComplexity), true
+
+	case "TestSession.pointsEarned":
+		if e.complexity.TestSession.PointsEarned == nil {
+			break
+		}
+
+		return e.complexity.TestSession.PointsEarned(childComplexity), true
+
 	case "TestSession.test":
 		if e.complexity.TestSession.Test == nil {
 			break
 		}
 
 		return e.complexity.TestSession.Test(childComplexity), true
-
-	case "TestSession.totalScore":
-		if e.complexity.TestSession.TotalScore == nil {
-			break
-		}
-
-		return e.complexity.TestSession.TotalScore(childComplexity), true
 
 	case "TestSession.updatedAt":
 		if e.complexity.TestSession.UpdatedAt == nil {
@@ -1426,13 +1422,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TestSession.User(childComplexity), true
-
-	case "TestSession.userQuestionAnswers":
-		if e.complexity.TestSession.UserQuestionAnswers == nil {
-			break
-		}
-
-		return e.complexity.TestSession.UserQuestionAnswers(childComplexity), true
 
 	case "Todo.id":
 		if e.complexity.Todo.ID == nil {
@@ -5126,14 +5115,12 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
+			case "maxPoints":
+				return ec.fieldContext_TestSession_maxPoints(ctx, field)
+			case "pointsEarned":
+				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
@@ -5256,14 +5243,12 @@ func (ec *executionContext) fieldContext_Mutation_completeTestSession(ctx contex
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
+			case "maxPoints":
+				return ec.fieldContext_TestSession_maxPoints(ctx, field)
+			case "pointsEarned":
+				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
@@ -6209,14 +6194,12 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
+			case "maxPoints":
+				return ec.fieldContext_TestSession_maxPoints(ctx, field)
+			case "pointsEarned":
+				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
@@ -7485,14 +7468,12 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
+			case "maxPoints":
+				return ec.fieldContext_TestSession_maxPoints(ctx, field)
+			case "pointsEarned":
+				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
@@ -9390,61 +9371,6 @@ func (ec *executionContext) fieldContext_TestSession_test(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _TestSession_courseSection(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestSession_courseSection(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TestSession().CourseSection(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.CourseSection)
-	fc.Result = res
-	return ec.marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestSession_courseSection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestSession",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_CourseSection_id(ctx, field)
-			case "title":
-				return ec.fieldContext_CourseSection_title(ctx, field)
-			case "description":
-				return ec.fieldContext_CourseSection_description(ctx, field)
-			case "courseId":
-				return ec.fieldContext_CourseSection_courseId(ctx, field)
-			case "sectionId":
-				return ec.fieldContext_CourseSection_sectionId(ctx, field)
-			case "order":
-				return ec.fieldContext_CourseSection_order(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type CourseSection", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TestSession_completedAt(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TestSession_completedAt(ctx, field)
 	if err != nil {
@@ -9486,8 +9412,8 @@ func (ec *executionContext) fieldContext_TestSession_completedAt(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _TestSession_totalScore(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestSession_totalScore(ctx, field)
+func (ec *executionContext) _TestSession_maxPoints(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_maxPoints(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -9500,7 +9426,7 @@ func (ec *executionContext) _TestSession_totalScore(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TotalScore, nil
+		return obj.MaxPoints, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9517,7 +9443,7 @@ func (ec *executionContext) _TestSession_totalScore(ctx context.Context, field g
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TestSession_totalScore(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TestSession_maxPoints(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TestSession",
 		Field:      field,
@@ -9530,8 +9456,8 @@ func (ec *executionContext) fieldContext_TestSession_totalScore(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _TestSession_userQuestionAnswers(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
+func (ec *executionContext) _TestSession_pointsEarned(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_pointsEarned(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -9544,7 +9470,7 @@ func (ec *executionContext) _TestSession_userQuestionAnswers(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TestSession().UserQuestionAnswers(rctx, obj)
+		return obj.PointsEarned, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9556,35 +9482,19 @@ func (ec *executionContext) _TestSession_userQuestionAnswers(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.UserQuestionAnswer)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNUserQuestionAnswer2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswerᚄ(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_TestSession_userQuestionAnswers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TestSession_pointsEarned(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TestSession",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_UserQuestionAnswer_id(ctx, field)
-			case "user":
-				return ec.fieldContext_UserQuestionAnswer_user(ctx, field)
-			case "question":
-				return ec.fieldContext_UserQuestionAnswer_question(ctx, field)
-			case "selectedOption":
-				return ec.fieldContext_UserQuestionAnswer_selectedOption(ctx, field)
-			case "testSession":
-				return ec.fieldContext_UserQuestionAnswer_testSession(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_UserQuestionAnswer_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_UserQuestionAnswer_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserQuestionAnswer", field.Name)
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10103,14 +10013,12 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ contex
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
-			case "courseSection":
-				return ec.fieldContext_TestSession_courseSection(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "totalScore":
-				return ec.fieldContext_TestSession_totalScore(ctx, field)
-			case "userQuestionAnswers":
-				return ec.fieldContext_TestSession_userQuestionAnswers(ctx, field)
+			case "maxPoints":
+				return ec.fieldContext_TestSession_maxPoints(ctx, field)
+			case "pointsEarned":
+				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
@@ -15117,82 +15025,18 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "courseSection":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TestSession_courseSection(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "completedAt":
 			out.Values[i] = ec._TestSession_completedAt(ctx, field, obj)
-		case "totalScore":
-			out.Values[i] = ec._TestSession_totalScore(ctx, field, obj)
+		case "maxPoints":
+			out.Values[i] = ec._TestSession_maxPoints(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "userQuestionAnswers":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TestSession_userQuestionAnswers(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+		case "pointsEarned":
+			out.Values[i] = ec._TestSession_pointsEarned(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._TestSession_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -17089,13 +16933,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOCourseSection2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSection(ctx context.Context, sel ast.SelectionSet, v *model.CourseSection) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._CourseSection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOCourseSectionFilterInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐCourseSectionFilterInput(ctx context.Context, v interface{}) (*model.CourseSectionFilterInput, error) {

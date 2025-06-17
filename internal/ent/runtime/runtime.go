@@ -14,9 +14,9 @@ import (
 	"template/internal/ent/schema"
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/video"
@@ -328,29 +328,6 @@ func init() {
 	testignorequestionDescID := testignorequestionMixinFields0[0].Descriptor()
 	// testignorequestion.DefaultID holds the default value on creation for the id field.
 	testignorequestion.DefaultID = testignorequestionDescID.Default.(func() uuid.UUID)
-	testquestionanswerMixin := schema.TestQuestionAnswer{}.Mixin()
-	testquestionanswerMixinHooks1 := testquestionanswerMixin[1].Hooks()
-	testquestionanswer.Hooks[0] = testquestionanswerMixinHooks1[0]
-	testquestionanswerMixinInters1 := testquestionanswerMixin[1].Interceptors()
-	testquestionanswer.Interceptors[0] = testquestionanswerMixinInters1[0]
-	testquestionanswerMixinFields0 := testquestionanswerMixin[0].Fields()
-	_ = testquestionanswerMixinFields0
-	testquestionanswerFields := schema.TestQuestionAnswer{}.Fields()
-	_ = testquestionanswerFields
-	// testquestionanswerDescCreatedAt is the schema descriptor for created_at field.
-	testquestionanswerDescCreatedAt := testquestionanswerMixinFields0[1].Descriptor()
-	// testquestionanswer.DefaultCreatedAt holds the default value on creation for the created_at field.
-	testquestionanswer.DefaultCreatedAt = testquestionanswerDescCreatedAt.Default.(func() time.Time)
-	// testquestionanswerDescUpdatedAt is the schema descriptor for updated_at field.
-	testquestionanswerDescUpdatedAt := testquestionanswerMixinFields0[2].Descriptor()
-	// testquestionanswer.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	testquestionanswer.DefaultUpdatedAt = testquestionanswerDescUpdatedAt.Default.(func() time.Time)
-	// testquestionanswer.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	testquestionanswer.UpdateDefaultUpdatedAt = testquestionanswerDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// testquestionanswerDescID is the schema descriptor for id field.
-	testquestionanswerDescID := testquestionanswerMixinFields0[0].Descriptor()
-	// testquestionanswer.DefaultID holds the default value on creation for the id field.
-	testquestionanswer.DefaultID = testquestionanswerDescID.Default.(func() uuid.UUID)
 	testquestioncountMixin := schema.TestQuestionCount{}.Mixin()
 	testquestioncountMixinHooks1 := testquestioncountMixin[1].Hooks()
 	testquestioncount.Hooks[0] = testquestioncountMixinHooks1[0]
@@ -405,14 +382,41 @@ func init() {
 	testsession.DefaultUpdatedAt = testsessionDescUpdatedAt.Default.(func() time.Time)
 	// testsession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	testsession.UpdateDefaultUpdatedAt = testsessionDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// testsessionDescTotalScore is the schema descriptor for total_score field.
-	testsessionDescTotalScore := testsessionFields[4].Descriptor()
-	// testsession.DefaultTotalScore holds the default value on creation for the total_score field.
-	testsession.DefaultTotalScore = testsessionDescTotalScore.Default.(int)
+	// testsessionDescMaxPoints is the schema descriptor for max_points field.
+	testsessionDescMaxPoints := testsessionFields[6].Descriptor()
+	// testsession.DefaultMaxPoints holds the default value on creation for the max_points field.
+	testsession.DefaultMaxPoints = testsessionDescMaxPoints.Default.(int)
+	// testsessionDescPointsEarned is the schema descriptor for points_earned field.
+	testsessionDescPointsEarned := testsessionFields[7].Descriptor()
+	// testsession.DefaultPointsEarned holds the default value on creation for the points_earned field.
+	testsession.DefaultPointsEarned = testsessionDescPointsEarned.Default.(int)
 	// testsessionDescID is the schema descriptor for id field.
 	testsessionDescID := testsessionMixinFields0[0].Descriptor()
 	// testsession.DefaultID holds the default value on creation for the id field.
 	testsession.DefaultID = testsessionDescID.Default.(func() uuid.UUID)
+	testsessionanswerMixin := schema.TestSessionAnswer{}.Mixin()
+	testsessionanswerMixinHooks1 := testsessionanswerMixin[1].Hooks()
+	testsessionanswer.Hooks[0] = testsessionanswerMixinHooks1[0]
+	testsessionanswerMixinInters1 := testsessionanswerMixin[1].Interceptors()
+	testsessionanswer.Interceptors[0] = testsessionanswerMixinInters1[0]
+	testsessionanswerMixinFields0 := testsessionanswerMixin[0].Fields()
+	_ = testsessionanswerMixinFields0
+	testsessionanswerFields := schema.TestSessionAnswer{}.Fields()
+	_ = testsessionanswerFields
+	// testsessionanswerDescCreatedAt is the schema descriptor for created_at field.
+	testsessionanswerDescCreatedAt := testsessionanswerMixinFields0[1].Descriptor()
+	// testsessionanswer.DefaultCreatedAt holds the default value on creation for the created_at field.
+	testsessionanswer.DefaultCreatedAt = testsessionanswerDescCreatedAt.Default.(func() time.Time)
+	// testsessionanswerDescUpdatedAt is the schema descriptor for updated_at field.
+	testsessionanswerDescUpdatedAt := testsessionanswerMixinFields0[2].Descriptor()
+	// testsessionanswer.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	testsessionanswer.DefaultUpdatedAt = testsessionanswerDescUpdatedAt.Default.(func() time.Time)
+	// testsessionanswer.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	testsessionanswer.UpdateDefaultUpdatedAt = testsessionanswerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// testsessionanswerDescID is the schema descriptor for id field.
+	testsessionanswerDescID := testsessionanswerMixinFields0[0].Descriptor()
+	// testsessionanswer.DefaultID holds the default value on creation for the id field.
+	testsessionanswer.DefaultID = testsessionanswerDescID.Default.(func() uuid.UUID)
 	todoMixin := schema.Todo{}.Mixin()
 	todoMixinHooks1 := todoMixin[1].Hooks()
 	todo.Hooks[0] = todoMixinHooks1[0]

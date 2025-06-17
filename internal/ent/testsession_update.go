@@ -9,8 +9,8 @@ import (
 	"template/internal/ent/coursesection"
 	"template/internal/ent/predicate"
 	"template/internal/ent/test"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 	"time"
 
@@ -121,6 +121,46 @@ func (tsu *TestSessionUpdate) SetNillableTestID(u *uuid.UUID) *TestSessionUpdate
 	return tsu
 }
 
+// SetStartedAt sets the "started_at" field.
+func (tsu *TestSessionUpdate) SetStartedAt(t time.Time) *TestSessionUpdate {
+	tsu.mutation.SetStartedAt(t)
+	return tsu
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (tsu *TestSessionUpdate) SetNillableStartedAt(t *time.Time) *TestSessionUpdate {
+	if t != nil {
+		tsu.SetStartedAt(*t)
+	}
+	return tsu
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (tsu *TestSessionUpdate) ClearStartedAt() *TestSessionUpdate {
+	tsu.mutation.ClearStartedAt()
+	return tsu
+}
+
+// SetExpiredAt sets the "expired_at" field.
+func (tsu *TestSessionUpdate) SetExpiredAt(t time.Time) *TestSessionUpdate {
+	tsu.mutation.SetExpiredAt(t)
+	return tsu
+}
+
+// SetNillableExpiredAt sets the "expired_at" field if the given value is not nil.
+func (tsu *TestSessionUpdate) SetNillableExpiredAt(t *time.Time) *TestSessionUpdate {
+	if t != nil {
+		tsu.SetExpiredAt(*t)
+	}
+	return tsu
+}
+
+// ClearExpiredAt clears the value of the "expired_at" field.
+func (tsu *TestSessionUpdate) ClearExpiredAt() *TestSessionUpdate {
+	tsu.mutation.ClearExpiredAt()
+	return tsu
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tsu *TestSessionUpdate) SetCompletedAt(t time.Time) *TestSessionUpdate {
 	tsu.mutation.SetCompletedAt(t)
@@ -141,24 +181,59 @@ func (tsu *TestSessionUpdate) ClearCompletedAt() *TestSessionUpdate {
 	return tsu
 }
 
-// SetTotalScore sets the "total_score" field.
-func (tsu *TestSessionUpdate) SetTotalScore(i int) *TestSessionUpdate {
-	tsu.mutation.ResetTotalScore()
-	tsu.mutation.SetTotalScore(i)
+// SetMaxPoints sets the "max_points" field.
+func (tsu *TestSessionUpdate) SetMaxPoints(i int) *TestSessionUpdate {
+	tsu.mutation.ResetMaxPoints()
+	tsu.mutation.SetMaxPoints(i)
 	return tsu
 }
 
-// SetNillableTotalScore sets the "total_score" field if the given value is not nil.
-func (tsu *TestSessionUpdate) SetNillableTotalScore(i *int) *TestSessionUpdate {
+// SetNillableMaxPoints sets the "max_points" field if the given value is not nil.
+func (tsu *TestSessionUpdate) SetNillableMaxPoints(i *int) *TestSessionUpdate {
 	if i != nil {
-		tsu.SetTotalScore(*i)
+		tsu.SetMaxPoints(*i)
 	}
 	return tsu
 }
 
-// AddTotalScore adds i to the "total_score" field.
-func (tsu *TestSessionUpdate) AddTotalScore(i int) *TestSessionUpdate {
-	tsu.mutation.AddTotalScore(i)
+// AddMaxPoints adds i to the "max_points" field.
+func (tsu *TestSessionUpdate) AddMaxPoints(i int) *TestSessionUpdate {
+	tsu.mutation.AddMaxPoints(i)
+	return tsu
+}
+
+// SetPointsEarned sets the "points_earned" field.
+func (tsu *TestSessionUpdate) SetPointsEarned(i int) *TestSessionUpdate {
+	tsu.mutation.ResetPointsEarned()
+	tsu.mutation.SetPointsEarned(i)
+	return tsu
+}
+
+// SetNillablePointsEarned sets the "points_earned" field if the given value is not nil.
+func (tsu *TestSessionUpdate) SetNillablePointsEarned(i *int) *TestSessionUpdate {
+	if i != nil {
+		tsu.SetPointsEarned(*i)
+	}
+	return tsu
+}
+
+// AddPointsEarned adds i to the "points_earned" field.
+func (tsu *TestSessionUpdate) AddPointsEarned(i int) *TestSessionUpdate {
+	tsu.mutation.AddPointsEarned(i)
+	return tsu
+}
+
+// SetStatus sets the "status" field.
+func (tsu *TestSessionUpdate) SetStatus(t testsession.Status) *TestSessionUpdate {
+	tsu.mutation.SetStatus(t)
+	return tsu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tsu *TestSessionUpdate) SetNillableStatus(t *testsession.Status) *TestSessionUpdate {
+	if t != nil {
+		tsu.SetStatus(*t)
+	}
 	return tsu
 }
 
@@ -177,19 +252,19 @@ func (tsu *TestSessionUpdate) SetTest(t *Test) *TestSessionUpdate {
 	return tsu.SetTestID(t.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
-func (tsu *TestSessionUpdate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdate {
-	tsu.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionQuestionAnswerIDs adds the "test_session_question_answers" edge to the TestSessionAnswer entity by IDs.
+func (tsu *TestSessionUpdate) AddTestSessionQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdate {
+	tsu.mutation.AddTestSessionQuestionAnswerIDs(ids...)
 	return tsu
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (tsu *TestSessionUpdate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *TestSessionUpdate {
+// AddTestSessionQuestionAnswers adds the "test_session_question_answers" edges to the TestSessionAnswer entity.
+func (tsu *TestSessionUpdate) AddTestSessionQuestionAnswers(t ...*TestSessionAnswer) *TestSessionUpdate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return tsu.AddUserQuestionAnswerIDs(ids...)
+	return tsu.AddTestSessionQuestionAnswerIDs(ids...)
 }
 
 // Mutation returns the TestSessionMutation object of the builder.
@@ -215,25 +290,25 @@ func (tsu *TestSessionUpdate) ClearTest() *TestSessionUpdate {
 	return tsu
 }
 
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestQuestionAnswer entity.
-func (tsu *TestSessionUpdate) ClearUserQuestionAnswers() *TestSessionUpdate {
-	tsu.mutation.ClearUserQuestionAnswers()
+// ClearTestSessionQuestionAnswers clears all "test_session_question_answers" edges to the TestSessionAnswer entity.
+func (tsu *TestSessionUpdate) ClearTestSessionQuestionAnswers() *TestSessionUpdate {
+	tsu.mutation.ClearTestSessionQuestionAnswers()
 	return tsu
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestQuestionAnswer entities by IDs.
-func (tsu *TestSessionUpdate) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdate {
-	tsu.mutation.RemoveUserQuestionAnswerIDs(ids...)
+// RemoveTestSessionQuestionAnswerIDs removes the "test_session_question_answers" edge to TestSessionAnswer entities by IDs.
+func (tsu *TestSessionUpdate) RemoveTestSessionQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdate {
+	tsu.mutation.RemoveTestSessionQuestionAnswerIDs(ids...)
 	return tsu
 }
 
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestQuestionAnswer entities.
-func (tsu *TestSessionUpdate) RemoveUserQuestionAnswers(t ...*TestQuestionAnswer) *TestSessionUpdate {
+// RemoveTestSessionQuestionAnswers removes "test_session_question_answers" edges to TestSessionAnswer entities.
+func (tsu *TestSessionUpdate) RemoveTestSessionQuestionAnswers(t ...*TestSessionAnswer) *TestSessionUpdate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return tsu.RemoveUserQuestionAnswerIDs(ids...)
+	return tsu.RemoveTestSessionQuestionAnswerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -280,6 +355,11 @@ func (tsu *TestSessionUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tsu *TestSessionUpdate) check() error {
+	if v, ok := tsu.mutation.Status(); ok {
+		if err := testsession.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TestSession.status": %w`, err)}
+		}
+	}
 	if tsu.mutation.UserCleared() && len(tsu.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSession.user"`)
 	}
@@ -313,17 +393,38 @@ func (tsu *TestSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if tsu.mutation.DeletedAtCleared() {
 		_spec.ClearField(testsession.FieldDeletedAt, field.TypeTime)
 	}
+	if value, ok := tsu.mutation.StartedAt(); ok {
+		_spec.SetField(testsession.FieldStartedAt, field.TypeTime, value)
+	}
+	if tsu.mutation.StartedAtCleared() {
+		_spec.ClearField(testsession.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := tsu.mutation.ExpiredAt(); ok {
+		_spec.SetField(testsession.FieldExpiredAt, field.TypeTime, value)
+	}
+	if tsu.mutation.ExpiredAtCleared() {
+		_spec.ClearField(testsession.FieldExpiredAt, field.TypeTime)
+	}
 	if value, ok := tsu.mutation.CompletedAt(); ok {
 		_spec.SetField(testsession.FieldCompletedAt, field.TypeTime, value)
 	}
 	if tsu.mutation.CompletedAtCleared() {
 		_spec.ClearField(testsession.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := tsu.mutation.TotalScore(); ok {
-		_spec.SetField(testsession.FieldTotalScore, field.TypeInt, value)
+	if value, ok := tsu.mutation.MaxPoints(); ok {
+		_spec.SetField(testsession.FieldMaxPoints, field.TypeInt, value)
 	}
-	if value, ok := tsu.mutation.AddedTotalScore(); ok {
-		_spec.AddField(testsession.FieldTotalScore, field.TypeInt, value)
+	if value, ok := tsu.mutation.AddedMaxPoints(); ok {
+		_spec.AddField(testsession.FieldMaxPoints, field.TypeInt, value)
+	}
+	if value, ok := tsu.mutation.PointsEarned(); ok {
+		_spec.SetField(testsession.FieldPointsEarned, field.TypeInt, value)
+	}
+	if value, ok := tsu.mutation.AddedPointsEarned(); ok {
+		_spec.AddField(testsession.FieldPointsEarned, field.TypeInt, value)
+	}
+	if value, ok := tsu.mutation.Status(); ok {
+		_spec.SetField(testsession.FieldStatus, field.TypeEnum, value)
 	}
 	if tsu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -412,28 +513,28 @@ func (tsu *TestSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tsu.mutation.UserQuestionAnswersCleared() {
+	if tsu.mutation.TestSessionQuestionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tsu.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !tsu.mutation.UserQuestionAnswersCleared() {
+	if nodes := tsu.mutation.RemovedTestSessionQuestionAnswersIDs(); len(nodes) > 0 && !tsu.mutation.TestSessionQuestionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -441,15 +542,15 @@ func (tsu *TestSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tsu.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := tsu.mutation.TestSessionQuestionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -565,6 +666,46 @@ func (tsuo *TestSessionUpdateOne) SetNillableTestID(u *uuid.UUID) *TestSessionUp
 	return tsuo
 }
 
+// SetStartedAt sets the "started_at" field.
+func (tsuo *TestSessionUpdateOne) SetStartedAt(t time.Time) *TestSessionUpdateOne {
+	tsuo.mutation.SetStartedAt(t)
+	return tsuo
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (tsuo *TestSessionUpdateOne) SetNillableStartedAt(t *time.Time) *TestSessionUpdateOne {
+	if t != nil {
+		tsuo.SetStartedAt(*t)
+	}
+	return tsuo
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (tsuo *TestSessionUpdateOne) ClearStartedAt() *TestSessionUpdateOne {
+	tsuo.mutation.ClearStartedAt()
+	return tsuo
+}
+
+// SetExpiredAt sets the "expired_at" field.
+func (tsuo *TestSessionUpdateOne) SetExpiredAt(t time.Time) *TestSessionUpdateOne {
+	tsuo.mutation.SetExpiredAt(t)
+	return tsuo
+}
+
+// SetNillableExpiredAt sets the "expired_at" field if the given value is not nil.
+func (tsuo *TestSessionUpdateOne) SetNillableExpiredAt(t *time.Time) *TestSessionUpdateOne {
+	if t != nil {
+		tsuo.SetExpiredAt(*t)
+	}
+	return tsuo
+}
+
+// ClearExpiredAt clears the value of the "expired_at" field.
+func (tsuo *TestSessionUpdateOne) ClearExpiredAt() *TestSessionUpdateOne {
+	tsuo.mutation.ClearExpiredAt()
+	return tsuo
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tsuo *TestSessionUpdateOne) SetCompletedAt(t time.Time) *TestSessionUpdateOne {
 	tsuo.mutation.SetCompletedAt(t)
@@ -585,24 +726,59 @@ func (tsuo *TestSessionUpdateOne) ClearCompletedAt() *TestSessionUpdateOne {
 	return tsuo
 }
 
-// SetTotalScore sets the "total_score" field.
-func (tsuo *TestSessionUpdateOne) SetTotalScore(i int) *TestSessionUpdateOne {
-	tsuo.mutation.ResetTotalScore()
-	tsuo.mutation.SetTotalScore(i)
+// SetMaxPoints sets the "max_points" field.
+func (tsuo *TestSessionUpdateOne) SetMaxPoints(i int) *TestSessionUpdateOne {
+	tsuo.mutation.ResetMaxPoints()
+	tsuo.mutation.SetMaxPoints(i)
 	return tsuo
 }
 
-// SetNillableTotalScore sets the "total_score" field if the given value is not nil.
-func (tsuo *TestSessionUpdateOne) SetNillableTotalScore(i *int) *TestSessionUpdateOne {
+// SetNillableMaxPoints sets the "max_points" field if the given value is not nil.
+func (tsuo *TestSessionUpdateOne) SetNillableMaxPoints(i *int) *TestSessionUpdateOne {
 	if i != nil {
-		tsuo.SetTotalScore(*i)
+		tsuo.SetMaxPoints(*i)
 	}
 	return tsuo
 }
 
-// AddTotalScore adds i to the "total_score" field.
-func (tsuo *TestSessionUpdateOne) AddTotalScore(i int) *TestSessionUpdateOne {
-	tsuo.mutation.AddTotalScore(i)
+// AddMaxPoints adds i to the "max_points" field.
+func (tsuo *TestSessionUpdateOne) AddMaxPoints(i int) *TestSessionUpdateOne {
+	tsuo.mutation.AddMaxPoints(i)
+	return tsuo
+}
+
+// SetPointsEarned sets the "points_earned" field.
+func (tsuo *TestSessionUpdateOne) SetPointsEarned(i int) *TestSessionUpdateOne {
+	tsuo.mutation.ResetPointsEarned()
+	tsuo.mutation.SetPointsEarned(i)
+	return tsuo
+}
+
+// SetNillablePointsEarned sets the "points_earned" field if the given value is not nil.
+func (tsuo *TestSessionUpdateOne) SetNillablePointsEarned(i *int) *TestSessionUpdateOne {
+	if i != nil {
+		tsuo.SetPointsEarned(*i)
+	}
+	return tsuo
+}
+
+// AddPointsEarned adds i to the "points_earned" field.
+func (tsuo *TestSessionUpdateOne) AddPointsEarned(i int) *TestSessionUpdateOne {
+	tsuo.mutation.AddPointsEarned(i)
+	return tsuo
+}
+
+// SetStatus sets the "status" field.
+func (tsuo *TestSessionUpdateOne) SetStatus(t testsession.Status) *TestSessionUpdateOne {
+	tsuo.mutation.SetStatus(t)
+	return tsuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tsuo *TestSessionUpdateOne) SetNillableStatus(t *testsession.Status) *TestSessionUpdateOne {
+	if t != nil {
+		tsuo.SetStatus(*t)
+	}
 	return tsuo
 }
 
@@ -621,19 +797,19 @@ func (tsuo *TestSessionUpdateOne) SetTest(t *Test) *TestSessionUpdateOne {
 	return tsuo.SetTestID(t.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
-func (tsuo *TestSessionUpdateOne) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdateOne {
-	tsuo.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionQuestionAnswerIDs adds the "test_session_question_answers" edge to the TestSessionAnswer entity by IDs.
+func (tsuo *TestSessionUpdateOne) AddTestSessionQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdateOne {
+	tsuo.mutation.AddTestSessionQuestionAnswerIDs(ids...)
 	return tsuo
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (tsuo *TestSessionUpdateOne) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *TestSessionUpdateOne {
+// AddTestSessionQuestionAnswers adds the "test_session_question_answers" edges to the TestSessionAnswer entity.
+func (tsuo *TestSessionUpdateOne) AddTestSessionQuestionAnswers(t ...*TestSessionAnswer) *TestSessionUpdateOne {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return tsuo.AddUserQuestionAnswerIDs(ids...)
+	return tsuo.AddTestSessionQuestionAnswerIDs(ids...)
 }
 
 // Mutation returns the TestSessionMutation object of the builder.
@@ -659,25 +835,25 @@ func (tsuo *TestSessionUpdateOne) ClearTest() *TestSessionUpdateOne {
 	return tsuo
 }
 
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestQuestionAnswer entity.
-func (tsuo *TestSessionUpdateOne) ClearUserQuestionAnswers() *TestSessionUpdateOne {
-	tsuo.mutation.ClearUserQuestionAnswers()
+// ClearTestSessionQuestionAnswers clears all "test_session_question_answers" edges to the TestSessionAnswer entity.
+func (tsuo *TestSessionUpdateOne) ClearTestSessionQuestionAnswers() *TestSessionUpdateOne {
+	tsuo.mutation.ClearTestSessionQuestionAnswers()
 	return tsuo
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestQuestionAnswer entities by IDs.
-func (tsuo *TestSessionUpdateOne) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdateOne {
-	tsuo.mutation.RemoveUserQuestionAnswerIDs(ids...)
+// RemoveTestSessionQuestionAnswerIDs removes the "test_session_question_answers" edge to TestSessionAnswer entities by IDs.
+func (tsuo *TestSessionUpdateOne) RemoveTestSessionQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionUpdateOne {
+	tsuo.mutation.RemoveTestSessionQuestionAnswerIDs(ids...)
 	return tsuo
 }
 
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestQuestionAnswer entities.
-func (tsuo *TestSessionUpdateOne) RemoveUserQuestionAnswers(t ...*TestQuestionAnswer) *TestSessionUpdateOne {
+// RemoveTestSessionQuestionAnswers removes "test_session_question_answers" edges to TestSessionAnswer entities.
+func (tsuo *TestSessionUpdateOne) RemoveTestSessionQuestionAnswers(t ...*TestSessionAnswer) *TestSessionUpdateOne {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return tsuo.RemoveUserQuestionAnswerIDs(ids...)
+	return tsuo.RemoveTestSessionQuestionAnswerIDs(ids...)
 }
 
 // Where appends a list predicates to the TestSessionUpdate builder.
@@ -737,6 +913,11 @@ func (tsuo *TestSessionUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tsuo *TestSessionUpdateOne) check() error {
+	if v, ok := tsuo.mutation.Status(); ok {
+		if err := testsession.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TestSession.status": %w`, err)}
+		}
+	}
 	if tsuo.mutation.UserCleared() && len(tsuo.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSession.user"`)
 	}
@@ -787,17 +968,38 @@ func (tsuo *TestSessionUpdateOne) sqlSave(ctx context.Context) (_node *TestSessi
 	if tsuo.mutation.DeletedAtCleared() {
 		_spec.ClearField(testsession.FieldDeletedAt, field.TypeTime)
 	}
+	if value, ok := tsuo.mutation.StartedAt(); ok {
+		_spec.SetField(testsession.FieldStartedAt, field.TypeTime, value)
+	}
+	if tsuo.mutation.StartedAtCleared() {
+		_spec.ClearField(testsession.FieldStartedAt, field.TypeTime)
+	}
+	if value, ok := tsuo.mutation.ExpiredAt(); ok {
+		_spec.SetField(testsession.FieldExpiredAt, field.TypeTime, value)
+	}
+	if tsuo.mutation.ExpiredAtCleared() {
+		_spec.ClearField(testsession.FieldExpiredAt, field.TypeTime)
+	}
 	if value, ok := tsuo.mutation.CompletedAt(); ok {
 		_spec.SetField(testsession.FieldCompletedAt, field.TypeTime, value)
 	}
 	if tsuo.mutation.CompletedAtCleared() {
 		_spec.ClearField(testsession.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := tsuo.mutation.TotalScore(); ok {
-		_spec.SetField(testsession.FieldTotalScore, field.TypeInt, value)
+	if value, ok := tsuo.mutation.MaxPoints(); ok {
+		_spec.SetField(testsession.FieldMaxPoints, field.TypeInt, value)
 	}
-	if value, ok := tsuo.mutation.AddedTotalScore(); ok {
-		_spec.AddField(testsession.FieldTotalScore, field.TypeInt, value)
+	if value, ok := tsuo.mutation.AddedMaxPoints(); ok {
+		_spec.AddField(testsession.FieldMaxPoints, field.TypeInt, value)
+	}
+	if value, ok := tsuo.mutation.PointsEarned(); ok {
+		_spec.SetField(testsession.FieldPointsEarned, field.TypeInt, value)
+	}
+	if value, ok := tsuo.mutation.AddedPointsEarned(); ok {
+		_spec.AddField(testsession.FieldPointsEarned, field.TypeInt, value)
+	}
+	if value, ok := tsuo.mutation.Status(); ok {
+		_spec.SetField(testsession.FieldStatus, field.TypeEnum, value)
 	}
 	if tsuo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -886,28 +1088,28 @@ func (tsuo *TestSessionUpdateOne) sqlSave(ctx context.Context) (_node *TestSessi
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tsuo.mutation.UserQuestionAnswersCleared() {
+	if tsuo.mutation.TestSessionQuestionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tsuo.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !tsuo.mutation.UserQuestionAnswersCleared() {
+	if nodes := tsuo.mutation.RemovedTestSessionQuestionAnswersIDs(); len(nodes) > 0 && !tsuo.mutation.TestSessionQuestionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -915,15 +1117,15 @@ func (tsuo *TestSessionUpdateOne) sqlSave(ctx context.Context) (_node *TestSessi
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tsuo.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := tsuo.mutation.TestSessionQuestionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

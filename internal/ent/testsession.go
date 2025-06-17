@@ -33,10 +33,18 @@ type TestSession struct {
 	CourseSectionID *uuid.UUID `json:"course_section_id,omitempty"`
 	// TestID holds the value of the "test_id" field.
 	TestID uuid.UUID `json:"test_id,omitempty"`
+	// StartedAt holds the value of the "started_at" field.
+	StartedAt *time.Time `json:"started_at,omitempty"`
+	// ExpiredAt holds the value of the "expired_at" field.
+	ExpiredAt *time.Time `json:"expired_at,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	// TotalScore holds the value of the "total_score" field.
-	TotalScore int `json:"total_score,omitempty"`
+	// MaxPoints holds the value of the "max_points" field.
+	MaxPoints int `json:"max_points,omitempty"`
+	// PointsEarned holds the value of the "points_earned" field.
+	PointsEarned int `json:"points_earned,omitempty"`
+	// Status holds the value of the "status" field.
+	Status testsession.Status `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestSessionQuery when eager-loading is set.
 	Edges        TestSessionEdges `json:"edges"`
@@ -51,8 +59,8 @@ type TestSessionEdges struct {
 	CourseSection *CourseSection `json:"course_section,omitempty"`
 	// Test holds the value of the test edge.
 	Test *Test `json:"test,omitempty"`
-	// UserQuestionAnswers holds the value of the user_question_answers edge.
-	UserQuestionAnswers []*TestQuestionAnswer `json:"user_question_answers,omitempty"`
+	// TestSessionQuestionAnswers holds the value of the test_session_question_answers edge.
+	TestSessionQuestionAnswers []*TestSessionAnswer `json:"test_session_question_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -91,13 +99,13 @@ func (e TestSessionEdges) TestOrErr() (*Test, error) {
 	return nil, &NotLoadedError{edge: "test"}
 }
 
-// UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
+// TestSessionQuestionAnswersOrErr returns the TestSessionQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e TestSessionEdges) UserQuestionAnswersOrErr() ([]*TestQuestionAnswer, error) {
+func (e TestSessionEdges) TestSessionQuestionAnswersOrErr() ([]*TestSessionAnswer, error) {
 	if e.loadedTypes[3] {
-		return e.UserQuestionAnswers, nil
+		return e.TestSessionQuestionAnswers, nil
 	}
-	return nil, &NotLoadedError{edge: "user_question_answers"}
+	return nil, &NotLoadedError{edge: "test_session_question_answers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -107,9 +115,11 @@ func (*TestSession) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case testsession.FieldCourseSectionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case testsession.FieldTotalScore:
+		case testsession.FieldMaxPoints, testsession.FieldPointsEarned:
 			values[i] = new(sql.NullInt64)
-		case testsession.FieldCreatedAt, testsession.FieldUpdatedAt, testsession.FieldDeletedAt, testsession.FieldCompletedAt:
+		case testsession.FieldStatus:
+			values[i] = new(sql.NullString)
+		case testsession.FieldCreatedAt, testsession.FieldUpdatedAt, testsession.FieldDeletedAt, testsession.FieldStartedAt, testsession.FieldExpiredAt, testsession.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
 		case testsession.FieldID, testsession.FieldUserID, testsession.FieldTestID:
 			values[i] = new(uuid.UUID)
@@ -172,6 +182,20 @@ func (ts *TestSession) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				ts.TestID = *value
 			}
+		case testsession.FieldStartedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field started_at", values[i])
+			} else if value.Valid {
+				ts.StartedAt = new(time.Time)
+				*ts.StartedAt = value.Time
+			}
+		case testsession.FieldExpiredAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field expired_at", values[i])
+			} else if value.Valid {
+				ts.ExpiredAt = new(time.Time)
+				*ts.ExpiredAt = value.Time
+			}
 		case testsession.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
@@ -179,11 +203,23 @@ func (ts *TestSession) assignValues(columns []string, values []any) error {
 				ts.CompletedAt = new(time.Time)
 				*ts.CompletedAt = value.Time
 			}
-		case testsession.FieldTotalScore:
+		case testsession.FieldMaxPoints:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field total_score", values[i])
+				return fmt.Errorf("unexpected type %T for field max_points", values[i])
 			} else if value.Valid {
-				ts.TotalScore = int(value.Int64)
+				ts.MaxPoints = int(value.Int64)
+			}
+		case testsession.FieldPointsEarned:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field points_earned", values[i])
+			} else if value.Valid {
+				ts.PointsEarned = int(value.Int64)
+			}
+		case testsession.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				ts.Status = testsession.Status(value.String)
 			}
 		default:
 			ts.selectValues.Set(columns[i], values[i])
@@ -213,9 +249,9 @@ func (ts *TestSession) QueryTest() *TestQuery {
 	return NewTestSessionClient(ts.config).QueryTest(ts)
 }
 
-// QueryUserQuestionAnswers queries the "user_question_answers" edge of the TestSession entity.
-func (ts *TestSession) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
-	return NewTestSessionClient(ts.config).QueryUserQuestionAnswers(ts)
+// QueryTestSessionQuestionAnswers queries the "test_session_question_answers" edge of the TestSession entity.
+func (ts *TestSession) QueryTestSessionQuestionAnswers() *TestSessionAnswerQuery {
+	return NewTestSessionClient(ts.config).QueryTestSessionQuestionAnswers(ts)
 }
 
 // Update returns a builder for updating this TestSession.
@@ -263,13 +299,29 @@ func (ts *TestSession) String() string {
 	builder.WriteString("test_id=")
 	builder.WriteString(fmt.Sprintf("%v", ts.TestID))
 	builder.WriteString(", ")
+	if v := ts.StartedAt; v != nil {
+		builder.WriteString("started_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := ts.ExpiredAt; v != nil {
+		builder.WriteString("expired_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
 	if v := ts.CompletedAt; v != nil {
 		builder.WriteString("completed_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("total_score=")
-	builder.WriteString(fmt.Sprintf("%v", ts.TotalScore))
+	builder.WriteString("max_points=")
+	builder.WriteString(fmt.Sprintf("%v", ts.MaxPoints))
+	builder.WriteString(", ")
+	builder.WriteString("points_earned=")
+	builder.WriteString(fmt.Sprintf("%v", ts.PointsEarned))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", ts.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

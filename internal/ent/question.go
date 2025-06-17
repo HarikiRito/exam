@@ -46,7 +46,7 @@ type QuestionEdges struct {
 	// VideoQuestionTimestampsQuestion holds the value of the video_question_timestamps_question edge.
 	VideoQuestionTimestampsQuestion []*VideoQuestionTimestamp `json:"video_question_timestamps_question,omitempty"`
 	// UserQuestionAnswers holds the value of the user_question_answers edge.
-	UserQuestionAnswers []*TestQuestionAnswer `json:"user_question_answers,omitempty"`
+	UserQuestionAnswers []*TestSessionAnswer `json:"user_question_answers,omitempty"`
 	// TestIgnoreQuestions holds the value of the test_ignore_questions edge.
 	TestIgnoreQuestions []*TestIgnoreQuestion `json:"test_ignore_questions,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -85,7 +85,7 @@ func (e QuestionEdges) VideoQuestionTimestampsQuestionOrErr() ([]*VideoQuestionT
 
 // UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e QuestionEdges) UserQuestionAnswersOrErr() ([]*TestQuestionAnswer, error) {
+func (e QuestionEdges) UserQuestionAnswersOrErr() ([]*TestSessionAnswer, error) {
 	if e.loadedTypes[3] {
 		return e.UserQuestionAnswers, nil
 	}
@@ -201,7 +201,7 @@ func (q *Question) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTimestam
 }
 
 // QueryUserQuestionAnswers queries the "user_question_answers" edge of the Question entity.
-func (q *Question) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
+func (q *Question) QueryUserQuestionAnswers() *TestSessionAnswerQuery {
 	return NewQuestionClient(q.config).QueryUserQuestionAnswers(q)
 }
 

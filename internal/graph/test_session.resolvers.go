@@ -61,16 +61,6 @@ func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) 
 	panic(fmt.Errorf("not implemented: Test - test"))
 }
 
-// CourseSection is the resolver for the courseSection field.
-func (r *testSessionResolver) CourseSection(ctx context.Context, obj *model.TestSession) (*model.CourseSection, error) {
-	panic(fmt.Errorf("not implemented: CourseSection - courseSection"))
-}
-
-// UserQuestionAnswers is the resolver for the userQuestionAnswers field.
-func (r *testSessionResolver) UserQuestionAnswers(ctx context.Context, obj *model.TestSession) ([]*model.UserQuestionAnswer, error) {
-	panic(fmt.Errorf("not implemented: UserQuestionAnswers - userQuestionAnswers"))
-}
-
 // TestSession returns TestSessionResolver implementation.
 func (r *Resolver) TestSession() TestSessionResolver { return &testSessionResolver{r} }
 

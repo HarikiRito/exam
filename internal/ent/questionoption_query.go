@@ -10,7 +10,7 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/testquestionanswer"
+	"template/internal/ent/testsessionanswer"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -27,7 +27,7 @@ type QuestionOptionQuery struct {
 	inters                  []Interceptor
 	predicates              []predicate.QuestionOption
 	withQuestion            *QuestionQuery
-	withUserQuestionAnswers *TestQuestionAnswerQuery
+	withUserQuestionAnswers *TestSessionAnswerQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -87,8 +87,8 @@ func (qoq *QuestionOptionQuery) QueryQuestion() *QuestionQuery {
 }
 
 // QueryUserQuestionAnswers chains the current query on the "user_question_answers" edge.
-func (qoq *QuestionOptionQuery) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
-	query := (&TestQuestionAnswerClient{config: qoq.config}).Query()
+func (qoq *QuestionOptionQuery) QueryUserQuestionAnswers() *TestSessionAnswerQuery {
+	query := (&TestSessionAnswerClient{config: qoq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := qoq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -99,7 +99,7 @@ func (qoq *QuestionOptionQuery) QueryUserQuestionAnswers() *TestQuestionAnswerQu
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(questionoption.Table, questionoption.FieldID, selector),
-			sqlgraph.To(testquestionanswer.Table, testquestionanswer.FieldID),
+			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, questionoption.UserQuestionAnswersTable, questionoption.UserQuestionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(qoq.driver.Dialect(), step)
@@ -321,8 +321,8 @@ func (qoq *QuestionOptionQuery) WithQuestion(opts ...func(*QuestionQuery)) *Ques
 
 // WithUserQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
 // the "user_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
-func (qoq *QuestionOptionQuery) WithUserQuestionAnswers(opts ...func(*TestQuestionAnswerQuery)) *QuestionOptionQuery {
-	query := (&TestQuestionAnswerClient{config: qoq.config}).Query()
+func (qoq *QuestionOptionQuery) WithUserQuestionAnswers(opts ...func(*TestSessionAnswerQuery)) *QuestionOptionQuery {
+	query := (&TestSessionAnswerClient{config: qoq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -439,8 +439,8 @@ func (qoq *QuestionOptionQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	}
 	if query := qoq.withUserQuestionAnswers; query != nil {
 		if err := qoq.loadUserQuestionAnswers(ctx, query, nodes,
-			func(n *QuestionOption) { n.Edges.UserQuestionAnswers = []*TestQuestionAnswer{} },
-			func(n *QuestionOption, e *TestQuestionAnswer) {
+			func(n *QuestionOption) { n.Edges.UserQuestionAnswers = []*TestSessionAnswer{} },
+			func(n *QuestionOption, e *TestSessionAnswer) {
 				n.Edges.UserQuestionAnswers = append(n.Edges.UserQuestionAnswers, e)
 			}); err != nil {
 			return nil, err
@@ -478,7 +478,7 @@ func (qoq *QuestionOptionQuery) loadQuestion(ctx context.Context, query *Questio
 	}
 	return nil
 }
-func (qoq *QuestionOptionQuery) loadUserQuestionAnswers(ctx context.Context, query *TestQuestionAnswerQuery, nodes []*QuestionOption, init func(*QuestionOption), assign func(*QuestionOption, *TestQuestionAnswer)) error {
+func (qoq *QuestionOptionQuery) loadUserQuestionAnswers(ctx context.Context, query *TestSessionAnswerQuery, nodes []*QuestionOption, init func(*QuestionOption), assign func(*QuestionOption, *TestSessionAnswer)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*QuestionOption)
 	for i := range nodes {
@@ -489,9 +489,9 @@ func (qoq *QuestionOptionQuery) loadUserQuestionAnswers(ctx context.Context, que
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(testquestionanswer.FieldSelectedOptionID)
+		query.ctx.AppendFieldOnce(testsessionanswer.FieldSelectedOptionID)
 	}
-	query.Where(predicate.TestQuestionAnswer(func(s *sql.Selector) {
+	query.Where(predicate.TestSessionAnswer(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(questionoption.UserQuestionAnswersColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)

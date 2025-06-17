@@ -10,8 +10,8 @@ import (
 	"template/internal/ent/media"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 	"time"
 
@@ -236,19 +236,19 @@ func (uc *UserCreate) AddQuestionCollections(q ...*QuestionCollection) *UserCrea
 	return uc.AddQuestionCollectionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
-func (uc *UserCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (uc *UserCreate) AddTestSessionAnswerIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddTestSessionAnswerIDs(ids...)
 	return uc
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (uc *UserCreate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *UserCreate {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (uc *UserCreate) AddTestSessionAnswers(t ...*TestSessionAnswer) *UserCreate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return uc.AddUserQuestionAnswerIDs(ids...)
+	return uc.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -518,15 +518,15 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := uc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.UserQuestionAnswersTable,
-			Columns: []string{user.UserQuestionAnswersColumn},
+			Table:   user.TestSessionAnswersTable,
+			Columns: []string{user.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

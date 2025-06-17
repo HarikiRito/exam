@@ -31,7 +31,7 @@ func (QuestionOption) Edges() []ent.Edge {
 			Field("question_id").
 			Unique().
 			Required(),
-		edge.To("user_question_answers", TestQuestionAnswer.Type),
+		edge.To("user_question_answers", TestSessionAnswer.Type),
 	}
 }
 

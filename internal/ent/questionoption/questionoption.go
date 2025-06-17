@@ -42,10 +42,10 @@ const (
 	// QuestionColumn is the table column denoting the question relation/edge.
 	QuestionColumn = "question_id"
 	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "test_question_answers"
-	// UserQuestionAnswersInverseTable is the table name for the TestQuestionAnswer entity.
-	// It exists in this package in order to avoid circular dependency with the "testquestionanswer" package.
-	UserQuestionAnswersInverseTable = "test_question_answers"
+	UserQuestionAnswersTable = "test_session_answers"
+	// UserQuestionAnswersInverseTable is the table name for the TestSessionAnswer entity.
+	// It exists in this package in order to avoid circular dependency with the "testsessionanswer" package.
+	UserQuestionAnswersInverseTable = "test_session_answers"
 	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
 	UserQuestionAnswersColumn = "selected_option_id"
 )

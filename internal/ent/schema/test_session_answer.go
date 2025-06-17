@@ -4,18 +4,19 @@ import (
 	"template/internal/ent/schema/mixin"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 )
 
-// TestQuestionAnswer holds the schema definition for the TestQuestionAnswer entity.
-type TestQuestionAnswer struct {
+// TestSessionAnswer holds the schema definition for the TestSessionAnswer entity.
+type TestSessionAnswer struct {
 	ent.Schema
 }
 
 // Fields of the UserQuestionAnswer.
-func (TestQuestionAnswer) Fields() []ent.Field {
+func (TestSessionAnswer) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("question_id", uuid.UUID{}),
@@ -26,30 +27,34 @@ func (TestQuestionAnswer) Fields() []ent.Field {
 }
 
 // Edges of the UserQuestionAnswer.
-func (TestQuestionAnswer) Edges() []ent.Edge {
+func (TestSessionAnswer) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("user", User.Type).
-			Ref("user_question_answers").
+			Ref("test_session_answers").
 			Field("user_id").
 			Unique().
-			Required(),
+			Required().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("question", Question.Type).
 			Ref("user_question_answers").
 			Field("question_id").
 			Unique().
-			Required(),
+			Required().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("selected_option", QuestionOption.Type).
 			Ref("user_question_answers").
 			Field("selected_option_id").
-			Unique(),
+			Unique().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("test_session", TestSession.Type).
-			Ref("user_question_answers").
+			Ref("test_session_question_answers").
 			Field("session_id").
 			Unique().
-			Required(),
+			Required().
+			Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 
-func (TestQuestionAnswer) Mixin() []ent.Mixin {
+func (TestSessionAnswer) Mixin() []ent.Mixin {
 	return mixin.DefaultMixins()
 }

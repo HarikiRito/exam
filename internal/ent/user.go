@@ -57,8 +57,8 @@ type UserEdges struct {
 	CourseCreator []*Course `json:"course_creator,omitempty"`
 	// QuestionCollections holds the value of the question_collections edge.
 	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
-	// UserQuestionAnswers holds the value of the user_question_answers edge.
-	UserQuestionAnswers []*TestQuestionAnswer `json:"user_question_answers,omitempty"`
+	// TestSessionAnswers holds the value of the test_session_answers edge.
+	TestSessionAnswers []*TestSessionAnswer `json:"test_session_answers,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -113,13 +113,13 @@ func (e UserEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
 	return nil, &NotLoadedError{edge: "question_collections"}
 }
 
-// UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
+// TestSessionAnswersOrErr returns the TestSessionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) UserQuestionAnswersOrErr() ([]*TestQuestionAnswer, error) {
+func (e UserEdges) TestSessionAnswersOrErr() ([]*TestSessionAnswer, error) {
 	if e.loadedTypes[5] {
-		return e.UserQuestionAnswers, nil
+		return e.TestSessionAnswers, nil
 	}
-	return nil, &NotLoadedError{edge: "user_question_answers"}
+	return nil, &NotLoadedError{edge: "test_session_answers"}
 }
 
 // TestSessionsOrErr returns the TestSessions value or an error if the edge
@@ -269,9 +269,9 @@ func (u *User) QueryQuestionCollections() *QuestionCollectionQuery {
 	return NewUserClient(u.config).QueryQuestionCollections(u)
 }
 
-// QueryUserQuestionAnswers queries the "user_question_answers" edge of the User entity.
-func (u *User) QueryUserQuestionAnswers() *TestQuestionAnswerQuery {
-	return NewUserClient(u.config).QueryUserQuestionAnswers(u)
+// QueryTestSessionAnswers queries the "test_session_answers" edge of the User entity.
+func (u *User) QueryTestSessionAnswers() *TestSessionAnswerQuery {
+	return NewUserClient(u.config).QueryTestSessionAnswers(u)
 }
 
 // QueryTestSessions queries the "test_sessions" edge of the User entity.

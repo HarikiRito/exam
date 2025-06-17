@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/test"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 	"time"
 
@@ -93,6 +93,34 @@ func (tsc *TestSessionCreate) SetTestID(u uuid.UUID) *TestSessionCreate {
 	return tsc
 }
 
+// SetStartedAt sets the "started_at" field.
+func (tsc *TestSessionCreate) SetStartedAt(t time.Time) *TestSessionCreate {
+	tsc.mutation.SetStartedAt(t)
+	return tsc
+}
+
+// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
+func (tsc *TestSessionCreate) SetNillableStartedAt(t *time.Time) *TestSessionCreate {
+	if t != nil {
+		tsc.SetStartedAt(*t)
+	}
+	return tsc
+}
+
+// SetExpiredAt sets the "expired_at" field.
+func (tsc *TestSessionCreate) SetExpiredAt(t time.Time) *TestSessionCreate {
+	tsc.mutation.SetExpiredAt(t)
+	return tsc
+}
+
+// SetNillableExpiredAt sets the "expired_at" field if the given value is not nil.
+func (tsc *TestSessionCreate) SetNillableExpiredAt(t *time.Time) *TestSessionCreate {
+	if t != nil {
+		tsc.SetExpiredAt(*t)
+	}
+	return tsc
+}
+
 // SetCompletedAt sets the "completed_at" field.
 func (tsc *TestSessionCreate) SetCompletedAt(t time.Time) *TestSessionCreate {
 	tsc.mutation.SetCompletedAt(t)
@@ -107,16 +135,44 @@ func (tsc *TestSessionCreate) SetNillableCompletedAt(t *time.Time) *TestSessionC
 	return tsc
 }
 
-// SetTotalScore sets the "total_score" field.
-func (tsc *TestSessionCreate) SetTotalScore(i int) *TestSessionCreate {
-	tsc.mutation.SetTotalScore(i)
+// SetMaxPoints sets the "max_points" field.
+func (tsc *TestSessionCreate) SetMaxPoints(i int) *TestSessionCreate {
+	tsc.mutation.SetMaxPoints(i)
 	return tsc
 }
 
-// SetNillableTotalScore sets the "total_score" field if the given value is not nil.
-func (tsc *TestSessionCreate) SetNillableTotalScore(i *int) *TestSessionCreate {
+// SetNillableMaxPoints sets the "max_points" field if the given value is not nil.
+func (tsc *TestSessionCreate) SetNillableMaxPoints(i *int) *TestSessionCreate {
 	if i != nil {
-		tsc.SetTotalScore(*i)
+		tsc.SetMaxPoints(*i)
+	}
+	return tsc
+}
+
+// SetPointsEarned sets the "points_earned" field.
+func (tsc *TestSessionCreate) SetPointsEarned(i int) *TestSessionCreate {
+	tsc.mutation.SetPointsEarned(i)
+	return tsc
+}
+
+// SetNillablePointsEarned sets the "points_earned" field if the given value is not nil.
+func (tsc *TestSessionCreate) SetNillablePointsEarned(i *int) *TestSessionCreate {
+	if i != nil {
+		tsc.SetPointsEarned(*i)
+	}
+	return tsc
+}
+
+// SetStatus sets the "status" field.
+func (tsc *TestSessionCreate) SetStatus(t testsession.Status) *TestSessionCreate {
+	tsc.mutation.SetStatus(t)
+	return tsc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tsc *TestSessionCreate) SetNillableStatus(t *testsession.Status) *TestSessionCreate {
+	if t != nil {
+		tsc.SetStatus(*t)
 	}
 	return tsc
 }
@@ -150,19 +206,19 @@ func (tsc *TestSessionCreate) SetTest(t *Test) *TestSessionCreate {
 	return tsc.SetTestID(t.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
-func (tsc *TestSessionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionCreate {
-	tsc.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionQuestionAnswerIDs adds the "test_session_question_answers" edge to the TestSessionAnswer entity by IDs.
+func (tsc *TestSessionCreate) AddTestSessionQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionCreate {
+	tsc.mutation.AddTestSessionQuestionAnswerIDs(ids...)
 	return tsc
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (tsc *TestSessionCreate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *TestSessionCreate {
+// AddTestSessionQuestionAnswers adds the "test_session_question_answers" edges to the TestSessionAnswer entity.
+func (tsc *TestSessionCreate) AddTestSessionQuestionAnswers(t ...*TestSessionAnswer) *TestSessionCreate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return tsc.AddUserQuestionAnswerIDs(ids...)
+	return tsc.AddTestSessionQuestionAnswerIDs(ids...)
 }
 
 // Mutation returns the TestSessionMutation object of the builder.
@@ -216,9 +272,17 @@ func (tsc *TestSessionCreate) defaults() error {
 		v := testsession.DefaultUpdatedAt()
 		tsc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := tsc.mutation.TotalScore(); !ok {
-		v := testsession.DefaultTotalScore
-		tsc.mutation.SetTotalScore(v)
+	if _, ok := tsc.mutation.MaxPoints(); !ok {
+		v := testsession.DefaultMaxPoints
+		tsc.mutation.SetMaxPoints(v)
+	}
+	if _, ok := tsc.mutation.PointsEarned(); !ok {
+		v := testsession.DefaultPointsEarned
+		tsc.mutation.SetPointsEarned(v)
+	}
+	if _, ok := tsc.mutation.Status(); !ok {
+		v := testsession.DefaultStatus
+		tsc.mutation.SetStatus(v)
 	}
 	if _, ok := tsc.mutation.ID(); !ok {
 		if testsession.DefaultID == nil {
@@ -244,8 +308,19 @@ func (tsc *TestSessionCreate) check() error {
 	if _, ok := tsc.mutation.TestID(); !ok {
 		return &ValidationError{Name: "test_id", err: errors.New(`ent: missing required field "TestSession.test_id"`)}
 	}
-	if _, ok := tsc.mutation.TotalScore(); !ok {
-		return &ValidationError{Name: "total_score", err: errors.New(`ent: missing required field "TestSession.total_score"`)}
+	if _, ok := tsc.mutation.MaxPoints(); !ok {
+		return &ValidationError{Name: "max_points", err: errors.New(`ent: missing required field "TestSession.max_points"`)}
+	}
+	if _, ok := tsc.mutation.PointsEarned(); !ok {
+		return &ValidationError{Name: "points_earned", err: errors.New(`ent: missing required field "TestSession.points_earned"`)}
+	}
+	if _, ok := tsc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "TestSession.status"`)}
+	}
+	if v, ok := tsc.mutation.Status(); ok {
+		if err := testsession.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TestSession.status": %w`, err)}
+		}
 	}
 	if len(tsc.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "TestSession.user"`)}
@@ -300,13 +375,29 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 		_spec.SetField(testsession.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
+	if value, ok := tsc.mutation.StartedAt(); ok {
+		_spec.SetField(testsession.FieldStartedAt, field.TypeTime, value)
+		_node.StartedAt = &value
+	}
+	if value, ok := tsc.mutation.ExpiredAt(); ok {
+		_spec.SetField(testsession.FieldExpiredAt, field.TypeTime, value)
+		_node.ExpiredAt = &value
+	}
 	if value, ok := tsc.mutation.CompletedAt(); ok {
 		_spec.SetField(testsession.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = &value
 	}
-	if value, ok := tsc.mutation.TotalScore(); ok {
-		_spec.SetField(testsession.FieldTotalScore, field.TypeInt, value)
-		_node.TotalScore = value
+	if value, ok := tsc.mutation.MaxPoints(); ok {
+		_spec.SetField(testsession.FieldMaxPoints, field.TypeInt, value)
+		_node.MaxPoints = value
+	}
+	if value, ok := tsc.mutation.PointsEarned(); ok {
+		_spec.SetField(testsession.FieldPointsEarned, field.TypeInt, value)
+		_node.PointsEarned = value
+	}
+	if value, ok := tsc.mutation.Status(); ok {
+		_spec.SetField(testsession.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if nodes := tsc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -359,15 +450,15 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 		_node.TestID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := tsc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := tsc.mutation.TestSessionQuestionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.UserQuestionAnswersTable,
-			Columns: []string{testsession.UserQuestionAnswersColumn},
+			Table:   testsession.TestSessionQuestionAnswersTable,
+			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -16,8 +16,16 @@ func TestSessionSelectFields(ctx context.Context) []string {
 		selectFields = append(selectFields, testsession.FieldID)
 	}
 
-	if preloads["totalScore"] {
-		selectFields = append(selectFields, testsession.FieldTotalScore)
+	if preloads["status"] {
+		selectFields = append(selectFields, testsession.FieldStatus)
+	}
+
+	if preloads["pointsEarned"] {
+		selectFields = append(selectFields, testsession.FieldPointsEarned)
+	}
+
+	if preloads["maxPoints"] {
+		selectFields = append(selectFields, testsession.FieldMaxPoints)
 	}
 
 	if preloads["completedAt"] {

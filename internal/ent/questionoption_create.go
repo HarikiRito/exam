@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/testquestionanswer"
+	"template/internal/ent/testsessionanswer"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -110,14 +110,14 @@ func (qoc *QuestionOptionCreate) SetQuestion(q *Question) *QuestionOptionCreate 
 	return qoc.SetQuestionID(q.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestQuestionAnswer entity by IDs.
+// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
 func (qoc *QuestionOptionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionOptionCreate {
 	qoc.mutation.AddUserQuestionAnswerIDs(ids...)
 	return qoc
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestQuestionAnswer entity.
-func (qoc *QuestionOptionCreate) AddUserQuestionAnswers(t ...*TestQuestionAnswer) *QuestionOptionCreate {
+// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
+func (qoc *QuestionOptionCreate) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionOptionCreate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
@@ -295,7 +295,7 @@ func (qoc *QuestionOptionCreate) createSpec() (*QuestionOption, *sqlgraph.Create
 			Columns: []string{questionoption.UserQuestionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testquestionanswer.FieldID, field.TypeUUID),
+				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

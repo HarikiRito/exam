@@ -12,10 +12,9 @@ type TestSession {
   id: ID!
   user: User!
   test: Test!
-  courseSection: CourseSection
   completedAt: DateTime
-  totalScore: Int!
-  userQuestionAnswers: [UserQuestionAnswer!]!
+  maxPoints: Int!
+  pointsEarned: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

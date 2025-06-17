@@ -268,50 +268,6 @@ var (
 			},
 		},
 	}
-	// TestQuestionAnswersColumns holds the columns for the "test_question_answers" table.
-	TestQuestionAnswersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
-		{Name: "selected_option_text", Type: field.TypeString, Nullable: true},
-		{Name: "question_id", Type: field.TypeUUID},
-		{Name: "selected_option_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "session_id", Type: field.TypeUUID},
-		{Name: "user_id", Type: field.TypeUUID},
-	}
-	// TestQuestionAnswersTable holds the schema information for the "test_question_answers" table.
-	TestQuestionAnswersTable = &schema.Table{
-		Name:       "test_question_answers",
-		Columns:    TestQuestionAnswersColumns,
-		PrimaryKey: []*schema.Column{TestQuestionAnswersColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "test_question_answers_questions_user_question_answers",
-				Columns:    []*schema.Column{TestQuestionAnswersColumns[5]},
-				RefColumns: []*schema.Column{QuestionsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "test_question_answers_question_options_user_question_answers",
-				Columns:    []*schema.Column{TestQuestionAnswersColumns[6]},
-				RefColumns: []*schema.Column{QuestionOptionsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-			{
-				Symbol:     "test_question_answers_test_sessions_user_question_answers",
-				Columns:    []*schema.Column{TestQuestionAnswersColumns[7]},
-				RefColumns: []*schema.Column{TestSessionsColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "test_question_answers_users_user_question_answers",
-				Columns:    []*schema.Column{TestQuestionAnswersColumns[8]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-	}
 	// TestQuestionCountsColumns holds the columns for the "test_question_counts" table.
 	TestQuestionCountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -342,8 +298,12 @@ var (
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "expired_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "total_score", Type: field.TypeInt, Default: 0},
+		{Name: "max_points", Type: field.TypeInt, Default: 0},
+		{Name: "points_earned", Type: field.TypeInt, Default: 0},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "completed", "in_progress", "cancelled", "expired"}, Default: "pending"},
 		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "test_id", Type: field.TypeUUID},
 		{Name: "user_id", Type: field.TypeUUID},
@@ -356,19 +316,63 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "test_sessions_course_sections_test_sessions",
-				Columns:    []*schema.Column{TestSessionsColumns[6]},
+				Columns:    []*schema.Column{TestSessionsColumns[10]},
 				RefColumns: []*schema.Column{CourseSectionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "test_sessions_tests_test_sessions",
-				Columns:    []*schema.Column{TestSessionsColumns[7]},
+				Columns:    []*schema.Column{TestSessionsColumns[11]},
 				RefColumns: []*schema.Column{TestsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "test_sessions_users_test_sessions",
-				Columns:    []*schema.Column{TestSessionsColumns[8]},
+				Columns:    []*schema.Column{TestSessionsColumns[12]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// TestSessionAnswersColumns holds the columns for the "test_session_answers" table.
+	TestSessionAnswersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "selected_option_text", Type: field.TypeString, Nullable: true},
+		{Name: "question_id", Type: field.TypeUUID},
+		{Name: "selected_option_id", Type: field.TypeUUID, Nullable: true},
+		{Name: "session_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// TestSessionAnswersTable holds the schema information for the "test_session_answers" table.
+	TestSessionAnswersTable = &schema.Table{
+		Name:       "test_session_answers",
+		Columns:    TestSessionAnswersColumns,
+		PrimaryKey: []*schema.Column{TestSessionAnswersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "test_session_answers_questions_user_question_answers",
+				Columns:    []*schema.Column{TestSessionAnswersColumns[5]},
+				RefColumns: []*schema.Column{QuestionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "test_session_answers_question_options_user_question_answers",
+				Columns:    []*schema.Column{TestSessionAnswersColumns[6]},
+				RefColumns: []*schema.Column{QuestionOptionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "test_session_answers_test_sessions_test_session_question_answers",
+				Columns:    []*schema.Column{TestSessionAnswersColumns[7]},
+				RefColumns: []*schema.Column{TestSessionsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "test_session_answers_users_test_session_answers",
+				Columns:    []*schema.Column{TestSessionAnswersColumns[8]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -573,9 +577,9 @@ var (
 		RolesTable,
 		TestsTable,
 		TestIgnoreQuestionsTable,
-		TestQuestionAnswersTable,
 		TestQuestionCountsTable,
 		TestSessionsTable,
+		TestSessionAnswersTable,
 		TodosTable,
 		UsersTable,
 		VideosTable,
@@ -600,14 +604,14 @@ func init() {
 	TestsTable.ForeignKeys[1].RefTable = CourseSectionsTable
 	TestIgnoreQuestionsTable.ForeignKeys[0].RefTable = TestsTable
 	TestIgnoreQuestionsTable.ForeignKeys[1].RefTable = QuestionsTable
-	TestQuestionAnswersTable.ForeignKeys[0].RefTable = QuestionsTable
-	TestQuestionAnswersTable.ForeignKeys[1].RefTable = QuestionOptionsTable
-	TestQuestionAnswersTable.ForeignKeys[2].RefTable = TestSessionsTable
-	TestQuestionAnswersTable.ForeignKeys[3].RefTable = UsersTable
 	TestQuestionCountsTable.ForeignKeys[0].RefTable = TestsTable
 	TestSessionsTable.ForeignKeys[0].RefTable = CourseSectionsTable
 	TestSessionsTable.ForeignKeys[1].RefTable = TestsTable
 	TestSessionsTable.ForeignKeys[2].RefTable = UsersTable
+	TestSessionAnswersTable.ForeignKeys[0].RefTable = QuestionsTable
+	TestSessionAnswersTable.ForeignKeys[1].RefTable = QuestionOptionsTable
+	TestSessionAnswersTable.ForeignKeys[2].RefTable = TestSessionsTable
+	TestSessionAnswersTable.ForeignKeys[3].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = MediaTable
 	VideosTable.ForeignKeys[0].RefTable = CoursesTable
 	VideosTable.ForeignKeys[1].RefTable = CourseSectionsTable

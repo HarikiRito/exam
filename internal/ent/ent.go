@@ -18,9 +18,9 @@ import (
 	"template/internal/ent/role"
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
-	"template/internal/ent/testquestionanswer"
 	"template/internal/ent/testquestioncount"
 	"template/internal/ent/testsession"
+	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/todo"
 	"template/internal/ent/user"
 	"template/internal/ent/video"
@@ -99,9 +99,9 @@ func checkColumn(table, column string) error {
 			role.Table:                   role.ValidColumn,
 			test.Table:                   test.ValidColumn,
 			testignorequestion.Table:     testignorequestion.ValidColumn,
-			testquestionanswer.Table:     testquestionanswer.ValidColumn,
 			testquestioncount.Table:      testquestioncount.ValidColumn,
 			testsession.Table:            testsession.ValidColumn,
+			testsessionanswer.Table:      testsessionanswer.ValidColumn,
 			todo.Table:                   todo.ValidColumn,
 			user.Table:                   user.ValidColumn,
 			video.Table:                  video.ValidColumn,

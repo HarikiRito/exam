@@ -128,18 +128,6 @@ func (f TestIgnoreQuestionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestIgnoreQuestionMutation", m)
 }
 
-// The TestQuestionAnswerFunc type is an adapter to allow the use of ordinary
-// function as TestQuestionAnswer mutator.
-type TestQuestionAnswerFunc func(context.Context, *ent.TestQuestionAnswerMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f TestQuestionAnswerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.TestQuestionAnswerMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestQuestionAnswerMutation", m)
-}
-
 // The TestQuestionCountFunc type is an adapter to allow the use of ordinary
 // function as TestQuestionCount mutator.
 type TestQuestionCountFunc func(context.Context, *ent.TestQuestionCountMutation) (ent.Value, error)
@@ -162,6 +150,18 @@ func (f TestSessionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestSessionMutation", m)
+}
+
+// The TestSessionAnswerFunc type is an adapter to allow the use of ordinary
+// function as TestSessionAnswer mutator.
+type TestSessionAnswerFunc func(context.Context, *ent.TestSessionAnswerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TestSessionAnswerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TestSessionAnswerMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TestSessionAnswerMutation", m)
 }
 
 // The TodoFunc type is an adapter to allow the use of ordinary
