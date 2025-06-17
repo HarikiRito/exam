@@ -7,6 +7,7 @@ import { FinishExamDialog } from './components/FinishExamDialog';
 import { QuestionOverviewSheet } from './components/QuestionOverviewSheet';
 import { QuestionSection } from './components/QuestionSection';
 import { TopNavBar } from './components/TopNavBar';
+import { testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
 
 // Helper function to format time
 function formatTime(ms: number) {
@@ -91,66 +92,11 @@ const MOCK_QUESTIONS = [
   },
 ];
 
-class State {
-  currentQuestionIndex: number = 0;
-  selectedAnswers: Record<string, number[]> = {};
-  flaggedQuestions: Set<string> = proxySet<string>();
-  timeLeft: number = 3000 * 60 * 1000;
-  examStarted: boolean = false;
-  isFinishExamDialogOpen: boolean = false;
-}
-
-const localState = createProxyWithReset(new State());
-const state = localState.proxyState;
-
-function handleToggleFlag(questionId: string) {
-  const flaggedQuestions = state.flaggedQuestions;
-  if (flaggedQuestions.has(questionId)) {
-    flaggedQuestions.delete(questionId);
-  } else {
-    flaggedQuestions.add(questionId);
-  }
-}
-
-function handleSelectAnswer(questionId: string, optionIndex: number, isSelected: boolean) {
-  const selectedAnswers = state.selectedAnswers;
-  if (isSelected) {
-    selectedAnswers[questionId] = [optionIndex];
-  } else {
-    delete selectedAnswers[questionId];
-  }
-}
-
-function handlePrevious() {
-  state.currentQuestionIndex = Math.max(0, state.currentQuestionIndex - 1);
-}
-
-function handleNext() {
-  state.currentQuestionIndex = Math.max(0, state.currentQuestionIndex + 1);
-}
-
-function handleFinishExamConfirmed() {
-  console.info('Exam Finished! Submitting answers:', state.selectedAnswers);
-  console.info('Flagged questions:', Array.from(state.flaggedQuestions));
-  alert('Exam Finished! Check console for results.');
-  state.isFinishExamDialogOpen = false;
-}
-
-function handleJumpToQuestion(index: number) {
-  state.currentQuestionIndex = index;
-}
-
-function handleStartExam() {
-  state.examStarted = true;
-}
-
-function handleFinishExam() {
-  state.isFinishExamDialogOpen = true;
-}
+const state = testSessionStore.proxyState;
 
 export default function ExamInterface() {
-  localState.useResetHook();
-  const snapshot = localState.useStateSnapshot();
+  testSessionStore.useResetHook();
+  const snapshot = testSessionStore.useStateSnapshot();
 
   const totalQuestions = MOCK_QUESTIONS.length;
   const answeredQuestionsCount = Object.keys(snapshot.selectedAnswers).length;
@@ -158,7 +104,7 @@ export default function ExamInterface() {
 
   // Start exam on component mount
   useEffect(() => {
-    handleStartExam();
+    state.handleStartExam();
   }, []);
 
   const currentQuestion = MOCK_QUESTIONS[snapshot.currentQuestionIndex];
@@ -175,39 +121,33 @@ export default function ExamInterface() {
       <TopNavBar
         timeLeft={formatTime(snapshot.timeLeft)}
         progressPercentage={progressPercentage}
-        currentQuestionNumber={snapshot.currentQuestionIndex + 1}
         totalQuestions={totalQuestions}
-        onFinishExam={() => handleFinishExam()}
       />
 
       {/* Main Content Area */}
       <main className='flex flex-1 flex-col items-center justify-start bg-gray-50 px-4 py-6 md:px-6 lg:px-8'>
         <div className='max-w-[400px]'>
-          <QuestionOverviewSheet
-            questions={MOCK_QUESTIONS}
-            currentQuestionIndex={snapshot.currentQuestionIndex}
-            selectedAnswers={snapshot.selectedAnswers}
-            flaggedQuestions={snapshot.flaggedQuestions}
-            onJumpToQuestion={handleJumpToQuestion}
-          />
+          <QuestionOverviewSheet questions={MOCK_QUESTIONS} />
         </div>
         <QuestionSection
           question={currentQuestion}
           selectedAnswerIndexes={snapshot.selectedAnswers[currentQuestion.id] || []}
-          onSelectAnswer={handleSelectAnswer}
           isFlagged={snapshot.flaggedQuestions.has(currentQuestion.id)}
-          onToggleFlag={handleToggleFlag}
         />
       </main>
 
       {/* Bottom Navigation Buttons */}
       <footer className='flex h-[80px] items-center justify-between border-t bg-white px-4 md:px-6 lg:px-8'>
-        <AppButton variant='outline' onClick={handlePrevious} disabled={isFirstQuestion} aria-label='Previous question'>
+        <AppButton
+          variant='outline'
+          onClick={state.handlePrevious}
+          disabled={isFirstQuestion}
+          aria-label='Previous question'>
           <ChevronLeft className='mr-2 h-5 w-5' />
           Previous
         </AppButton>
 
-        <AppButton onClick={handleNext} aria-label={isLastQuestion ? 'Finish exam' : 'Next question'}>
+        <AppButton onClick={state.handleNext} aria-label={isLastQuestion ? 'Finish exam' : 'Next question'}>
           {isLastQuestion ? 'Finish Exam' : 'Next'}
           <ChevronRight className='ml-2 h-5 w-5' />
         </AppButton>
@@ -216,8 +156,8 @@ export default function ExamInterface() {
       {/* Finish Exam Confirmation Dialog */}
       <FinishExamDialog
         isOpen={snapshot.isFinishExamDialogOpen}
-        onClose={handleFinishExam}
-        onConfirm={handleFinishExamConfirmed}
+        onClose={state.handleFinishExam}
+        onConfirm={state.handleFinishExamConfirmed}
       />
     </div>
   );

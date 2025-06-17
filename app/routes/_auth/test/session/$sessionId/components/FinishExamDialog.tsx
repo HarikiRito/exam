@@ -1,17 +1,13 @@
 'use client';
 
+import { testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
 import { AppAlertDialog } from 'app/shared/components/alert-dialog/AppAlertDialog';
 import { AppButton } from 'app/shared/components/button/AppButton';
 
-interface FinishExamDialogProps {
-  readonly isOpen: boolean;
-  readonly onClose: () => void;
-  readonly onConfirm: () => void;
-}
-
-export function FinishExamDialog({ isOpen, onClose, onConfirm }: FinishExamDialogProps) {
+export function FinishExamDialog() {
+  const snapshot = testSessionStore.useStateSnapshot();
   return (
-    <AppAlertDialog.Root open={isOpen} onOpenChange={onClose}>
+    <AppAlertDialog.Root open={snapshot.isFinishExamDialogOpen} onOpenChange={snapshot.handleFinishExam}>
       <AppAlertDialog.Content>
         <AppAlertDialog.Header>
           <AppAlertDialog.Title>Are you sure you want to finish the exam?</AppAlertDialog.Title>
@@ -21,12 +17,12 @@ export function FinishExamDialog({ isOpen, onClose, onConfirm }: FinishExamDialo
         </AppAlertDialog.Header>
         <AppAlertDialog.Footer>
           <AppAlertDialog.Cancel asChild>
-            <AppButton variant='outline' onClick={onClose}>
+            <AppButton variant='outline' onClick={snapshot.handleFinishExam}>
               Cancel
             </AppButton>
           </AppAlertDialog.Cancel>
           <AppAlertDialog.Action asChild>
-            <AppButton onClick={onConfirm}>Finish Exam</AppButton>
+            <AppButton onClick={snapshot.handleFinishExamConfirmed}>Finish Exam</AppButton>
           </AppAlertDialog.Action>
         </AppAlertDialog.Footer>
       </AppAlertDialog.Content>

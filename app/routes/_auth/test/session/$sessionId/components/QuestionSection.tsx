@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { ReportQuestionDialog } from './ReportQuestionDialog';
 import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
 import { AppCheckbox } from 'app/shared/components/checkbox/AppCheckbox';
+import { testSessionState, testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
 
 interface Question {
   id: string;
@@ -17,25 +18,11 @@ interface Question {
 interface QuestionSectionProps {
   readonly question: Question;
   readonly selectedAnswerIndexes?: number[];
-  readonly onSelectAnswer: (questionId: string, optionIndex: number, isSelected: boolean) => void;
   readonly isFlagged: boolean;
-  readonly onToggleFlag: (questionId: string) => void;
 }
 
-export function QuestionSection({
-  question,
-  selectedAnswerIndexes = [],
-  onSelectAnswer,
-  isFlagged,
-  onToggleFlag,
-}: QuestionSectionProps) {
-  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
-
-  function handleReportSubmit(reason: string, details: string) {
-    console.info(`Reporting question ${question.id}: Reason - ${reason}, Details - ${details}`);
-    // Here you would typically send this report to your backend
-    setIsReportDialogOpen(false);
-  }
+export function QuestionSection({ question, selectedAnswerIndexes = [], isFlagged }: QuestionSectionProps) {
+  const snapshot = testSessionStore.useStateSnapshot();
 
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
@@ -47,7 +34,7 @@ export function QuestionSection({
           <AppButton
             variant='ghost'
             size='icon'
-            onClick={() => onToggleFlag(question.id)}
+            onClick={() => snapshot.handleToggleFlag(question.id)}
             aria-pressed={isFlagged}
             aria-label={isFlagged ? 'Unflag question' : 'Flag question'}>
             {isFlagged ? (
@@ -59,7 +46,7 @@ export function QuestionSection({
           <AppButton
             variant='ghost'
             size='icon'
-            onClick={() => setIsReportDialogOpen(true)}
+            onClick={() => (testSessionState.isReportQuestionDialogOpen = true)}
             aria-label='Report question'>
             <AlertCircle className='h-6 w-6 text-gray-400' />
           </AppButton>
@@ -75,12 +62,12 @@ export function QuestionSection({
                 'cursor-pointer transition-all duration-200 hover:border-blue-500 hover:shadow-sm',
                 isSelected && 'border-blue-500 ring-2 ring-blue-500',
               )}
-              onClick={() => onSelectAnswer(question.id, index, !isSelected)}>
+              onClick={() => snapshot.handleSelectAnswer(question.id, index, !isSelected)}>
               <AppCard.Content className='flex h-full min-h-24 items-center p-4'>
                 <AppCheckbox
                   id={`option-${question.id}-${index}`}
                   checked={isSelected}
-                  onCheckedChange={(checked: boolean) => onSelectAnswer(question.id, index, checked)}
+                  onCheckedChange={(checked: boolean) => snapshot.handleSelectAnswer(question.id, index, checked)}
                   className='mr-3'
                   aria-labelledby={`label-option-${question.id}-${index}`}
                 />
@@ -92,11 +79,7 @@ export function QuestionSection({
           );
         })}
       </div>
-      <ReportQuestionDialog
-        isOpen={isReportDialogOpen}
-        onClose={() => setIsReportDialogOpen(false)}
-        onSubmit={handleReportSubmit}
-      />
+      <ReportQuestionDialog />
     </div>
   );
 }

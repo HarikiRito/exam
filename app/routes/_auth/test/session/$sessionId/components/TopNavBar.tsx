@@ -1,26 +1,20 @@
 'use client';
 
+import { testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppProgress } from 'app/shared/components/progress/AppProgress';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
-import { useRef } from 'react';
 
 interface TopNavBarProps {
   readonly timeLeft: string;
   readonly progressPercentage: number;
-  readonly currentQuestionNumber: number;
   readonly totalQuestions: number;
-  readonly onFinishExam: () => void;
 }
 
-export function TopNavBar({
-  timeLeft,
-  progressPercentage,
-  currentQuestionNumber,
-  totalQuestions,
-  onFinishExam,
-}: TopNavBarProps) {
+export function TopNavBar({ timeLeft, progressPercentage, totalQuestions }: TopNavBarProps) {
+  const snapshot = testSessionStore.useStateSnapshot();
   const [ref, { width }] = useElementSpace<HTMLButtonElement>();
+
   return (
     <header className='flex h-[60px] items-center justify-between border-b bg-white px-4'>
       <span className='invisible' style={{ width }}></span>
@@ -36,10 +30,10 @@ export function TopNavBar({
           />
         </div>
         <div className='text-sm text-gray-600'>
-          Question {currentQuestionNumber} of {totalQuestions}
+          Question {snapshot.currentQuestionIndex + 1} of {totalQuestions}
         </div>
       </div>
-      <AppButton ref={ref} onClick={onFinishExam} variant='default' aria-label='Finish exam'>
+      <AppButton ref={ref} onClick={snapshot.handleFinishExam} variant='default' aria-label='Finish exam'>
         Finish Exam
       </AppButton>
     </header>

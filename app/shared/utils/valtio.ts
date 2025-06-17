@@ -25,7 +25,7 @@ export function createProxyWithReset<T extends object>(initialState: T) {
 
   function useStateSnapshot() {
     /**
-     * We acknowledge that this is a bit of a hack, but it works.
+     * We acknowledge that this is a bit of a hack.
      * The type returned by useSnapshot is not the same as the type of the initial state.
      * This is a workaround to get the correct type without to deal with the readonly nature of the state.
      */

@@ -4,12 +4,7 @@ import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
 import { AppLabel } from 'app/shared/components/label/AppLabel';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-
-interface ReportQuestionDialogProps {
-  readonly isOpen: boolean;
-  readonly onClose: () => void;
-  readonly onSubmit: (reason: string, details: string) => void;
-}
+import { testSessionState, testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
 
 const REPORT_REASONS = [
   'Question is incorrect',
@@ -19,21 +14,26 @@ const REPORT_REASONS = [
   'Other',
 ];
 
-export function ReportQuestionDialog({ isOpen, onClose, onSubmit }: ReportQuestionDialogProps) {
+export function ReportQuestionDialog() {
+  const snapshot = testSessionStore.useStateSnapshot();
   const [selectedReason, setSelectedReason] = useState('');
   const [otherReasonDetails, setOtherReasonDetails] = useState('');
 
   const handleSubmit = () => {
     if (selectedReason) {
       const details = selectedReason === 'Other' ? otherReasonDetails : '';
-      onSubmit(selectedReason, details);
+      snapshot.submitReportQuestion(selectedReason, details);
       setSelectedReason('');
       setOtherReasonDetails('');
     }
   };
 
+  function onDialogOpenChange(open: boolean) {
+    snapshot.isReportQuestionDialogOpen = open;
+  }
+
   return (
-    <AppDialog.Root open={isOpen} onOpenChange={onClose}>
+    <AppDialog.Root open={snapshot.isReportQuestionDialogOpen} onOpenChange={onDialogOpenChange}>
       <AppDialog.Content className='sm:max-w-[425px]'>
         <AppDialog.Header>
           <AppDialog.Title>Report Question</AppDialog.Title>
@@ -58,7 +58,7 @@ export function ReportQuestionDialog({ isOpen, onClose, onSubmit }: ReportQuesti
           )}
         </div>
         <AppDialog.Footer>
-          <AppButton variant='outline' onClick={onClose}>
+          <AppButton variant='outline' onClick={() => (testSessionState.isReportQuestionDialogOpen = false)}>
             Cancel
           </AppButton>
           <AppButton
