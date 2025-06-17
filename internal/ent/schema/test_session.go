@@ -25,7 +25,7 @@ const (
 // Fields of the CourseSession.
 func (TestSession) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("user_id", uuid.UUID{}),
+		field.UUID("user_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("course_section_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("test_id", uuid.UUID{}),
 		field.Time("started_at").Optional().Nillable(),
@@ -43,8 +43,7 @@ func (TestSession) Edges() []ent.Edge {
 		edge.From("user", User.Type).
 			Ref("test_sessions").
 			Field("user_id").
-			Unique().
-			Required(),
+			Unique(),
 		edge.From("course_section", CourseSection.Type).
 			Ref("test_sessions").
 			Field("course_section_id").

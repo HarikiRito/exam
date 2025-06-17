@@ -22,7 +22,7 @@ func CreateTestSession(ctx context.Context, userID uuid.UUID, input model.Create
 	builder := client.TestSession.Create().
 		SetUserID(userID).
 		SetTestID(input.TestID).
-		SetNillableCourseSectionID(input.CourseSectionID)
+		SetNillableUserID(input.UserID)
 
 	session, err := builder.Save(ctx)
 	if err != nil {

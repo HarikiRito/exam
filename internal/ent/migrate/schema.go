@@ -306,7 +306,7 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "completed", "in_progress", "cancelled", "expired"}, Default: "pending"},
 		{Name: "course_section_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "test_id", Type: field.TypeUUID},
-		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "user_id", Type: field.TypeUUID, Nullable: true},
 	}
 	// TestSessionsTable holds the schema information for the "test_sessions" table.
 	TestSessionsTable = &schema.Table{
@@ -330,7 +330,7 @@ var (
 				Symbol:     "test_sessions_users_test_sessions",
 				Columns:    []*schema.Column{TestSessionsColumns[12]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}

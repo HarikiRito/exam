@@ -73,6 +73,14 @@ func (tsc *TestSessionCreate) SetUserID(u uuid.UUID) *TestSessionCreate {
 	return tsc
 }
 
+// SetNillableUserID sets the "user_id" field if the given value is not nil.
+func (tsc *TestSessionCreate) SetNillableUserID(u *uuid.UUID) *TestSessionCreate {
+	if u != nil {
+		tsc.SetUserID(*u)
+	}
+	return tsc
+}
+
 // SetCourseSectionID sets the "course_section_id" field.
 func (tsc *TestSessionCreate) SetCourseSectionID(u uuid.UUID) *TestSessionCreate {
 	tsc.mutation.SetCourseSectionID(u)
@@ -302,9 +310,6 @@ func (tsc *TestSessionCreate) check() error {
 	if _, ok := tsc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "TestSession.updated_at"`)}
 	}
-	if _, ok := tsc.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "TestSession.user_id"`)}
-	}
 	if _, ok := tsc.mutation.TestID(); !ok {
 		return &ValidationError{Name: "test_id", err: errors.New(`ent: missing required field "TestSession.test_id"`)}
 	}
@@ -321,9 +326,6 @@ func (tsc *TestSessionCreate) check() error {
 		if err := testsession.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TestSession.status": %w`, err)}
 		}
-	}
-	if len(tsc.mutation.UserIDs()) == 0 {
-		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "TestSession.user"`)}
 	}
 	if len(tsc.mutation.TestIDs()) == 0 {
 		return &ValidationError{Name: "test", err: errors.New(`ent: missing required edge "TestSession.test"`)}
@@ -413,7 +415,7 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.UserID = nodes[0]
+		_node.UserID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := tsc.mutation.CourseSectionIDs(); len(nodes) > 0 {

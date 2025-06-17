@@ -33,13 +33,14 @@ func (r *mutationResolver) DeleteTestSession(ctx context.Context, id uuid.UUID) 
 	return test_session.DeleteTestSession(ctx, id)
 }
 
-// CompleteTestSession is the resolver for the completeTestSession field.
-func (r *mutationResolver) CompleteTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
-	session, err := test_session.CompleteTestSession(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	return model.ConvertTestSessionToModel(session), nil
+// SubmitTestSession is the resolver for the submitTestSession field.
+func (r *mutationResolver) SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error) {
+	panic(fmt.Errorf("not implemented: SubmitTestSession - submitTestSession"))
+}
+
+// StartTestSession is the resolver for the startTestSession field.
+func (r *mutationResolver) StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
+	panic(fmt.Errorf("not implemented: StartTestSession - startTestSession"))
 }
 
 // TestSession is the resolver for the testSession field.
@@ -59,6 +60,15 @@ func (r *testSessionResolver) User(ctx context.Context, obj *model.TestSession) 
 // Test is the resolver for the test field.
 func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) (*model.Test, error) {
 	panic(fmt.Errorf("not implemented: Test - test"))
+}
+
+// Status is the resolver for the status field.
+func (r *testSessionResolver) Status(ctx context.Context, obj *model.TestSession) (model.TestSessionStatus, error) {
+	entStatus := obj.Status
+
+	status := model.TestSessionStatus(entStatus)
+
+	return status, nil
 }
 
 // TestSession returns TestSessionResolver implementation.

@@ -28,7 +28,7 @@ type TestSession struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID uuid.UUID `json:"user_id,omitempty"`
+	UserID *uuid.UUID `json:"user_id,omitempty"`
 	// CourseSectionID holds the value of the "course_section_id" field.
 	CourseSectionID *uuid.UUID `json:"course_section_id,omitempty"`
 	// TestID holds the value of the "test_id" field.
@@ -113,7 +113,7 @@ func (*TestSession) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testsession.FieldCourseSectionID:
+		case testsession.FieldUserID, testsession.FieldCourseSectionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case testsession.FieldMaxPoints, testsession.FieldPointsEarned:
 			values[i] = new(sql.NullInt64)
@@ -121,7 +121,7 @@ func (*TestSession) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case testsession.FieldCreatedAt, testsession.FieldUpdatedAt, testsession.FieldDeletedAt, testsession.FieldStartedAt, testsession.FieldExpiredAt, testsession.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case testsession.FieldID, testsession.FieldUserID, testsession.FieldTestID:
+		case testsession.FieldID, testsession.FieldTestID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -164,10 +164,11 @@ func (ts *TestSession) assignValues(columns []string, values []any) error {
 				*ts.DeletedAt = value.Time
 			}
 		case testsession.FieldUserID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
-			} else if value != nil {
-				ts.UserID = *value
+			} else if value.Valid {
+				ts.UserID = new(uuid.UUID)
+				*ts.UserID = *value.S.(*uuid.UUID)
 			}
 		case testsession.FieldCourseSectionID:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
@@ -288,8 +289,10 @@ func (ts *TestSession) String() string {
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("user_id=")
-	builder.WriteString(fmt.Sprintf("%v", ts.UserID))
+	if v := ts.UserID; v != nil {
+		builder.WriteString("user_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	if v := ts.CourseSectionID; v != nil {
 		builder.WriteString("course_section_id=")

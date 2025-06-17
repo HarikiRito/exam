@@ -175,7 +175,7 @@ Table test_session_answers {
 // Course Session Management
 Table test_sessions {
   id varchar [pk]
-  user_id varchar [not null]
+  user_id varchar [null]
   test_id varchar [not null]
   course_section_id varchar [null]
   started_at timestamp [null]

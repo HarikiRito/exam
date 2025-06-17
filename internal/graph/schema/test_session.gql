@@ -1,17 +1,29 @@
 extend type Mutation {
   createTestSession(input: CreateTestSessionInput!): TestSession!
   deleteTestSession(id: ID!): Boolean!
-  completeTestSession(id: ID!): TestSession!
+  submitTestSession(sessionId: ID!, input: SubmitTestSessionInput!): TestSession!
+  startTestSession(id: ID!): TestSession!
 }
 
 extend type Query {
   testSession(id: ID!): TestSession!
 }
 
+enum TestSessionStatus {
+  PENDING
+  COMPLETED
+  IN_PROGRESS
+  CANCELLED
+  EXPIRED
+}
+
 type TestSession {
   id: ID!
   user: User!
   test: Test!
+  status: TestSessionStatus!
+  startedAt: DateTime
+  expiredAt: DateTime
   completedAt: DateTime
   maxPoints: Int!
   pointsEarned: Int!
@@ -26,10 +38,24 @@ type PaginatedTestSession {
 
 input CreateTestSessionInput {
   testId: ID!
-  courseSectionId: ID
+  userId: ID
 }
 
 input UpdateTestSessionInput {
   completedAt: DateTime
   totalScore: Int
+}
+
+input TestSessionAnswerInput {
+  questionId: ID!
+  questionOptionIds: [ID!]!
+}
+
+input SubmitTestSessionInput {
+  answers: [TestSessionAnswerInput!]!
+}
+
+input StartTestSessionInput {
+  testTimeTaken: Int!
+  expiredAt: DateTime
 } 

@@ -87,6 +87,12 @@ func (tsu *TestSessionUpdate) SetNillableUserID(u *uuid.UUID) *TestSessionUpdate
 	return tsu
 }
 
+// ClearUserID clears the value of the "user_id" field.
+func (tsu *TestSessionUpdate) ClearUserID() *TestSessionUpdate {
+	tsu.mutation.ClearUserID()
+	return tsu
+}
+
 // SetCourseSectionID sets the "course_section_id" field.
 func (tsu *TestSessionUpdate) SetCourseSectionID(u uuid.UUID) *TestSessionUpdate {
 	tsu.mutation.SetCourseSectionID(u)
@@ -360,9 +366,6 @@ func (tsu *TestSessionUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TestSession.status": %w`, err)}
 		}
 	}
-	if tsu.mutation.UserCleared() && len(tsu.mutation.UserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "TestSession.user"`)
-	}
 	if tsu.mutation.TestCleared() && len(tsu.mutation.TestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSession.test"`)
 	}
@@ -629,6 +632,12 @@ func (tsuo *TestSessionUpdateOne) SetNillableUserID(u *uuid.UUID) *TestSessionUp
 	if u != nil {
 		tsuo.SetUserID(*u)
 	}
+	return tsuo
+}
+
+// ClearUserID clears the value of the "user_id" field.
+func (tsuo *TestSessionUpdateOne) ClearUserID() *TestSessionUpdateOne {
+	tsuo.mutation.ClearUserID()
 	return tsuo
 }
 
@@ -917,9 +926,6 @@ func (tsuo *TestSessionUpdateOne) check() error {
 		if err := testsession.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TestSession.status": %w`, err)}
 		}
-	}
-	if tsuo.mutation.UserCleared() && len(tsuo.mutation.UserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "TestSession.user"`)
 	}
 	if tsuo.mutation.TestCleared() && len(tsuo.mutation.TestIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSession.test"`)

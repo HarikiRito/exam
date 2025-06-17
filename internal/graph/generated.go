@@ -82,7 +82,6 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddMultiCollectionToTest         func(childComplexity int, input model.AddMultiCollectionToTestInput) int
 		BatchIgnoreQuestions             func(childComplexity int, input model.BatchIgnoreQuestionsInput) int
-		CompleteTestSession              func(childComplexity int, id uuid.UUID) int
 		CreateCourse                     func(childComplexity int, input model.CreateCourseInput) int
 		CreateCourseSection              func(childComplexity int, input model.CreateCourseSectionInput) int
 		CreateQuestion                   func(childComplexity int, input model.CreateQuestionInput) int
@@ -102,6 +101,8 @@ type ComplexityRoot struct {
 		RemoveCourse                     func(childComplexity int, id uuid.UUID) int
 		RemoveCourseSection              func(childComplexity int, id uuid.UUID) int
 		RenewToken                       func(childComplexity int, refreshToken string) int
+		StartTestSession                 func(childComplexity int, id uuid.UUID) int
+		SubmitTestSession                func(childComplexity int, sessionID uuid.UUID, input model.SubmitTestSessionInput) int
 		UpdateBatchQuestionsByCollection func(childComplexity int, input model.UpdateBatchQuestionsByCollectionInput) int
 		UpdateCourse                     func(childComplexity int, id uuid.UUID, input model.UpdateCourseInput) int
 		UpdateCourseSection              func(childComplexity int, id uuid.UUID, input model.UpdateCourseSectionInput) int
@@ -228,9 +229,12 @@ type ComplexityRoot struct {
 	TestSession struct {
 		CompletedAt  func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
+		ExpiredAt    func(childComplexity int) int
 		ID           func(childComplexity int) int
 		MaxPoints    func(childComplexity int) int
 		PointsEarned func(childComplexity int) int
+		StartedAt    func(childComplexity int) int
+		Status       func(childComplexity int) int
 		Test         func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
 		User         func(childComplexity int) int
@@ -287,7 +291,8 @@ type MutationResolver interface {
 	BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error)
 	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error)
 	DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error)
-	CompleteTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
+	SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error)
+	StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
 	CreateUserQuestionAnswer(ctx context.Context, input model.CreateUserQuestionAnswerInput) (*model.UserQuestionAnswer, error)
 	UpdateUserQuestionAnswer(ctx context.Context, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) (*model.UserQuestionAnswer, error)
@@ -474,18 +479,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.BatchIgnoreQuestions(childComplexity, args["input"].(model.BatchIgnoreQuestionsInput)), true
-
-	case "Mutation.completeTestSession":
-		if e.complexity.Mutation.CompleteTestSession == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_completeTestSession_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CompleteTestSession(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.createCourse":
 		if e.complexity.Mutation.CreateCourse == nil {
@@ -714,6 +707,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RenewToken(childComplexity, args["refreshToken"].(string)), true
+
+	case "Mutation.startTestSession":
+		if e.complexity.Mutation.StartTestSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_startTestSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.StartTestSession(childComplexity, args["id"].(uuid.UUID)), true
+
+	case "Mutation.submitTestSession":
+		if e.complexity.Mutation.SubmitTestSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_submitTestSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SubmitTestSession(childComplexity, args["sessionId"].(uuid.UUID), args["input"].(model.SubmitTestSessionInput)), true
 
 	case "Mutation.updateBatchQuestionsByCollection":
 		if e.complexity.Mutation.UpdateBatchQuestionsByCollection == nil {
@@ -1381,6 +1398,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TestSession.CreatedAt(childComplexity), true
 
+	case "TestSession.expiredAt":
+		if e.complexity.TestSession.ExpiredAt == nil {
+			break
+		}
+
+		return e.complexity.TestSession.ExpiredAt(childComplexity), true
+
 	case "TestSession.id":
 		if e.complexity.TestSession.ID == nil {
 			break
@@ -1401,6 +1425,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TestSession.PointsEarned(childComplexity), true
+
+	case "TestSession.startedAt":
+		if e.complexity.TestSession.StartedAt == nil {
+			break
+		}
+
+		return e.complexity.TestSession.StartedAt(childComplexity), true
+
+	case "TestSession.status":
+		if e.complexity.TestSession.Status == nil {
+			break
+		}
+
+		return e.complexity.TestSession.Status(childComplexity), true
 
 	case "TestSession.test":
 		if e.complexity.TestSession.Test == nil {
@@ -1528,6 +1566,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputQuestionOptionInput,
 		ec.unmarshalInputQuestionPointsInput,
 		ec.unmarshalInputRegisterInput,
+		ec.unmarshalInputStartTestSessionInput,
+		ec.unmarshalInputSubmitTestSessionInput,
+		ec.unmarshalInputTestSessionAnswerInput,
 		ec.unmarshalInputUpdateBatchQuestionsByCollectionInput,
 		ec.unmarshalInputUpdateCourseInput,
 		ec.unmarshalInputUpdateCourseSectionInput,
@@ -1712,29 +1753,6 @@ func (ec *executionContext) field_Mutation_batchIgnoreQuestions_argsInput(
 	}
 
 	var zeroVal model.BatchIgnoreQuestionsInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_completeTestSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_completeTestSession_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_completeTestSession_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -2172,6 +2190,70 @@ func (ec *executionContext) field_Mutation_renewToken_argsRefreshToken(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_startTestSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_startTestSession_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_startTestSession_argsID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_submitTestSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_submitTestSession_argsSessionID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["sessionId"] = arg0
+	arg1, err := ec.field_Mutation_submitTestSession_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_submitTestSession_argsSessionID(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("sessionId"))
+	if tmp, ok := rawArgs["sessionId"]; ok {
+		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_submitTestSession_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.SubmitTestSessionInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSubmitTestSessionInput2templateᚋinternalᚋgraphᚋmodelᚐSubmitTestSessionInput(ctx, tmp)
+	}
+
+	var zeroVal model.SubmitTestSessionInput
 	return zeroVal, nil
 }
 
@@ -5115,6 +5197,12 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
+			case "status":
+				return ec.fieldContext_TestSession_status(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_TestSession_startedAt(ctx, field)
+			case "expiredAt":
+				return ec.fieldContext_TestSession_expiredAt(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
 			case "maxPoints":
@@ -5198,8 +5286,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteTestSession(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_completeTestSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_completeTestSession(ctx, field)
+func (ec *executionContext) _Mutation_submitTestSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_submitTestSession(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5212,7 +5300,7 @@ func (ec *executionContext) _Mutation_completeTestSession(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CompleteTestSession(rctx, fc.Args["id"].(uuid.UUID))
+		return ec.resolvers.Mutation().SubmitTestSession(rctx, fc.Args["sessionId"].(uuid.UUID), fc.Args["input"].(model.SubmitTestSessionInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5229,7 +5317,7 @@ func (ec *executionContext) _Mutation_completeTestSession(ctx context.Context, f
 	return ec.marshalNTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSession(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_completeTestSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_submitTestSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -5243,6 +5331,12 @@ func (ec *executionContext) fieldContext_Mutation_completeTestSession(ctx contex
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
+			case "status":
+				return ec.fieldContext_TestSession_status(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_TestSession_startedAt(ctx, field)
+			case "expiredAt":
+				return ec.fieldContext_TestSession_expiredAt(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
 			case "maxPoints":
@@ -5264,7 +5358,86 @@ func (ec *executionContext) fieldContext_Mutation_completeTestSession(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_completeTestSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_submitTestSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_startTestSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_startTestSession(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().StartTestSession(rctx, fc.Args["id"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TestSession)
+	fc.Result = res
+	return ec.marshalNTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSession(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_startTestSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TestSession_id(ctx, field)
+			case "user":
+				return ec.fieldContext_TestSession_user(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
+			case "status":
+				return ec.fieldContext_TestSession_status(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_TestSession_startedAt(ctx, field)
+			case "expiredAt":
+				return ec.fieldContext_TestSession_expiredAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_TestSession_completedAt(ctx, field)
+			case "maxPoints":
+				return ec.fieldContext_TestSession_maxPoints(ctx, field)
+			case "pointsEarned":
+				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_TestSession_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_startTestSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -6194,6 +6367,12 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
+			case "status":
+				return ec.fieldContext_TestSession_status(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_TestSession_startedAt(ctx, field)
+			case "expiredAt":
+				return ec.fieldContext_TestSession_expiredAt(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
 			case "maxPoints":
@@ -7468,6 +7647,12 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
+			case "status":
+				return ec.fieldContext_TestSession_status(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_TestSession_startedAt(ctx, field)
+			case "expiredAt":
+				return ec.fieldContext_TestSession_expiredAt(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
 			case "maxPoints":
@@ -9371,6 +9556,132 @@ func (ec *executionContext) fieldContext_TestSession_test(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _TestSession_status(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.TestSessionStatus)
+	fc.Result = res
+	return ec.marshalNTestSessionStatus2templateᚋinternalᚋgraphᚋmodelᚐTestSessionStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type TestSessionStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSession_startedAt(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_startedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalODateTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_startedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSession_expiredAt(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_expiredAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpiredAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalODateTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_expiredAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TestSession_completedAt(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TestSession_completedAt(ctx, field)
 	if err != nil {
@@ -10013,6 +10324,12 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ contex
 				return ec.fieldContext_TestSession_user(ctx, field)
 			case "test":
 				return ec.fieldContext_TestSession_test(ctx, field)
+			case "status":
+				return ec.fieldContext_TestSession_status(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_TestSession_startedAt(ctx, field)
+			case "expiredAt":
+				return ec.fieldContext_TestSession_expiredAt(ctx, field)
 			case "completedAt":
 				return ec.fieldContext_TestSession_completedAt(ctx, field)
 			case "maxPoints":
@@ -12307,7 +12624,7 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"testId", "courseSectionId"}
+	fieldsInOrder := [...]string{"testId", "userId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12321,13 +12638,13 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 				return it, err
 			}
 			it.TestID = data
-		case "courseSectionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
+		case "userId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CourseSectionID = data
+			it.UserID = data
 		}
 	}
 
@@ -12614,6 +12931,101 @@ func (ec *executionContext) unmarshalInputRegisterInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStartTestSessionInput(ctx context.Context, obj interface{}) (model.StartTestSessionInput, error) {
+	var it model.StartTestSessionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"testTimeTaken", "expiredAt"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "testTimeTaken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testTimeTaken"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TestTimeTaken = data
+		case "expiredAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiredAt"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiredAt = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputSubmitTestSessionInput(ctx context.Context, obj interface{}) (model.SubmitTestSessionInput, error) {
+	var it model.SubmitTestSessionInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"answers"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "answers":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("answers"))
+			data, err := ec.unmarshalNTestSessionAnswerInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionAnswerInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Answers = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTestSessionAnswerInput(ctx context.Context, obj interface{}) (model.TestSessionAnswerInput, error) {
+	var it model.TestSessionAnswerInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"questionId", "questionOptionIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "questionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionID = data
+		case "questionOptionIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionOptionIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuestionOptionIds = data
 		}
 	}
 
@@ -13476,9 +13888,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "completeTestSession":
+		case "submitTestSession":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_completeTestSession(ctx, field)
+				return ec._Mutation_submitTestSession(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "startTestSession":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_startTestSession(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -15025,6 +15444,15 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "status":
+			out.Values[i] = ec._TestSession_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "startedAt":
+			out.Values[i] = ec._TestSession_startedAt(ctx, field, obj)
+		case "expiredAt":
+			out.Values[i] = ec._TestSession_expiredAt(ctx, field, obj)
 		case "completedAt":
 			out.Values[i] = ec._TestSession_completedAt(ctx, field, obj)
 		case "maxPoints":
@@ -16196,6 +16624,11 @@ func (ec *executionContext) marshalNString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) unmarshalNSubmitTestSessionInput2templateᚋinternalᚋgraphᚋmodelᚐSubmitTestSessionInput(ctx context.Context, v interface{}) (model.SubmitTestSessionInput, error) {
+	res, err := ec.unmarshalInputSubmitTestSessionInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNTest2templateᚋinternalᚋgraphᚋmodelᚐTest(ctx context.Context, sel ast.SelectionSet, v model.Test) graphql.Marshaler {
 	return ec._Test(ctx, sel, &v)
 }
@@ -16418,6 +16851,38 @@ func (ec *executionContext) marshalNTestSession2ᚖtemplateᚋinternalᚋgraph�
 		return graphql.Null
 	}
 	return ec._TestSession(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTestSessionAnswerInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionAnswerInputᚄ(ctx context.Context, v interface{}) ([]*model.TestSessionAnswerInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.TestSessionAnswerInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestSessionAnswerInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionAnswerInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNTestSessionAnswerInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionAnswerInput(ctx context.Context, v interface{}) (*model.TestSessionAnswerInput, error) {
+	res, err := ec.unmarshalInputTestSessionAnswerInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTestSessionStatus2templateᚋinternalᚋgraphᚋmodelᚐTestSessionStatus(ctx context.Context, v interface{}) (model.TestSessionStatus, error) {
+	var res model.TestSessionStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTestSessionStatus2templateᚋinternalᚋgraphᚋmodelᚐTestSessionStatus(ctx context.Context, sel ast.SelectionSet, v model.TestSessionStatus) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNTodo2templateᚋinternalᚋgraphᚋmodelᚐTodo(ctx context.Context, sel ast.SelectionSet, v model.Todo) graphql.Marshaler {

@@ -3,6 +3,9 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -74,8 +77,8 @@ type CreateTestInput struct {
 }
 
 type CreateTestSessionInput struct {
-	TestID          uuid.UUID  `json:"testId"`
-	CourseSectionID *uuid.UUID `json:"courseSectionId,omitempty"`
+	TestID uuid.UUID  `json:"testId"`
+	UserID *uuid.UUID `json:"userId,omitempty"`
 }
 
 type CreateUserQuestionAnswerInput struct {
@@ -169,6 +172,15 @@ type RegisterInput struct {
 	Password string `json:"password"`
 }
 
+type StartTestSessionInput struct {
+	TestTimeTaken int        `json:"testTimeTaken"`
+	ExpiredAt     *time.Time `json:"expiredAt,omitempty"`
+}
+
+type SubmitTestSessionInput struct {
+	Answers []*TestSessionAnswerInput `json:"answers"`
+}
+
 type TestIgnoreQuestion struct {
 	ID         uuid.UUID `json:"id"`
 	TestID     uuid.UUID `json:"testId"`
@@ -182,6 +194,11 @@ type TestQuestionCount struct {
 	TestID            uuid.UUID `json:"testId"`
 	NumberOfQuestions int       `json:"numberOfQuestions"`
 	Points            int       `json:"points"`
+}
+
+type TestSessionAnswerInput struct {
+	QuestionID        uuid.UUID   `json:"questionId"`
+	QuestionOptionIds []uuid.UUID `json:"questionOptionIds"`
 }
 
 type Todo struct {
@@ -268,4 +285,51 @@ type UserQuestionAnswer struct {
 	TestSession    *TestSession    `json:"testSession"`
 	CreatedAt      time.Time       `json:"createdAt"`
 	UpdatedAt      time.Time       `json:"updatedAt"`
+}
+
+type TestSessionStatus string
+
+const (
+	TestSessionStatusPending    TestSessionStatus = "PENDING"
+	TestSessionStatusCompleted  TestSessionStatus = "COMPLETED"
+	TestSessionStatusInProgress TestSessionStatus = "IN_PROGRESS"
+	TestSessionStatusCancelled  TestSessionStatus = "CANCELLED"
+	TestSessionStatusExpired    TestSessionStatus = "EXPIRED"
+)
+
+var AllTestSessionStatus = []TestSessionStatus{
+	TestSessionStatusPending,
+	TestSessionStatusCompleted,
+	TestSessionStatusInProgress,
+	TestSessionStatusCancelled,
+	TestSessionStatusExpired,
+}
+
+func (e TestSessionStatus) IsValid() bool {
+	switch e {
+	case TestSessionStatusPending, TestSessionStatusCompleted, TestSessionStatusInProgress, TestSessionStatusCancelled, TestSessionStatusExpired:
+		return true
+	}
+	return false
+}
+
+func (e TestSessionStatus) String() string {
+	return string(e)
+}
+
+func (e *TestSessionStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TestSessionStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TestSessionStatus", str)
+	}
+	return nil
+}
+
+func (e TestSessionStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

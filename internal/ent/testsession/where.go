@@ -261,6 +261,16 @@ func UserIDNotIn(vs ...uuid.UUID) predicate.TestSession {
 	return predicate.TestSession(sql.FieldNotIn(FieldUserID, vs...))
 }
 
+// UserIDIsNil applies the IsNil predicate on the "user_id" field.
+func UserIDIsNil() predicate.TestSession {
+	return predicate.TestSession(sql.FieldIsNull(FieldUserID))
+}
+
+// UserIDNotNil applies the NotNil predicate on the "user_id" field.
+func UserIDNotNil() predicate.TestSession {
+	return predicate.TestSession(sql.FieldNotNull(FieldUserID))
+}
+
 // CourseSectionIDEQ applies the EQ predicate on the "course_section_id" field.
 func CourseSectionIDEQ(v uuid.UUID) predicate.TestSession {
 	return predicate.TestSession(sql.FieldEQ(FieldCourseSectionID, v))
