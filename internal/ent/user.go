@@ -57,13 +57,11 @@ type UserEdges struct {
 	CourseCreator []*Course `json:"course_creator,omitempty"`
 	// QuestionCollections holds the value of the question_collections edge.
 	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
-	// TestSessionAnswers holds the value of the test_session_answers edge.
-	TestSessionAnswers []*TestSessionAnswer `json:"test_session_answers,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [7]bool
+	loadedTypes [6]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -113,19 +111,10 @@ func (e UserEdges) QuestionCollectionsOrErr() ([]*QuestionCollection, error) {
 	return nil, &NotLoadedError{edge: "question_collections"}
 }
 
-// TestSessionAnswersOrErr returns the TestSessionAnswers value or an error if the edge
-// was not loaded in eager-loading.
-func (e UserEdges) TestSessionAnswersOrErr() ([]*TestSessionAnswer, error) {
-	if e.loadedTypes[5] {
-		return e.TestSessionAnswers, nil
-	}
-	return nil, &NotLoadedError{edge: "test_session_answers"}
-}
-
 // TestSessionsOrErr returns the TestSessions value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) TestSessionsOrErr() ([]*TestSession, error) {
-	if e.loadedTypes[6] {
+	if e.loadedTypes[5] {
 		return e.TestSessions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_sessions"}
@@ -267,11 +256,6 @@ func (u *User) QueryCourseCreator() *CourseQuery {
 // QueryQuestionCollections queries the "question_collections" edge of the User entity.
 func (u *User) QueryQuestionCollections() *QuestionCollectionQuery {
 	return NewUserClient(u.config).QueryQuestionCollections(u)
-}
-
-// QueryTestSessionAnswers queries the "test_session_answers" edge of the User entity.
-func (u *User) QueryTestSessionAnswers() *TestSessionAnswerQuery {
-	return NewUserClient(u.config).QueryTestSessionAnswers(u)
 }
 
 // QueryTestSessions queries the "test_sessions" edge of the User entity.

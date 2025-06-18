@@ -736,29 +736,6 @@ func HasQuestionCollectionsWith(preds ...predicate.QuestionCollection) predicate
 	})
 }
 
-// HasTestSessionAnswers applies the HasEdge predicate on the "test_session_answers" edge.
-func HasTestSessionAnswers() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, TestSessionAnswersTable, TestSessionAnswersColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTestSessionAnswersWith applies the HasEdge predicate on the "test_session_answers" edge with a given conditions (other predicates).
-func HasTestSessionAnswersWith(preds ...predicate.TestSessionAnswer) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newTestSessionAnswersStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasTestSessions applies the HasEdge predicate on the "test_sessions" edge.
 func HasTestSessions() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

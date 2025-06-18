@@ -49,6 +49,8 @@ input UpdateTestSessionInput {
 input TestSessionAnswerInput {
   questionId: ID!
   questionOptionIds: [ID!]!
+  points: Int
+  order: Int!
 }
 
 input SubmitTestSessionInput {

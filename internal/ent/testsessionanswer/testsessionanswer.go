@@ -22,8 +22,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
-	// FieldUserID holds the string denoting the user_id field in the database.
-	FieldUserID = "user_id"
 	// FieldQuestionID holds the string denoting the question_id field in the database.
 	FieldQuestionID = "question_id"
 	// FieldSelectedOptionID holds the string denoting the selected_option_id field in the database.
@@ -32,8 +30,10 @@ const (
 	FieldSessionID = "session_id"
 	// FieldSelectedOptionText holds the string denoting the selected_option_text field in the database.
 	FieldSelectedOptionText = "selected_option_text"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
+	// FieldPoints holds the string denoting the points field in the database.
+	FieldPoints = "points"
+	// FieldOrder holds the string denoting the order field in the database.
+	FieldOrder = "order"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
 	// EdgeSelectedOption holds the string denoting the selected_option edge name in mutations.
@@ -42,13 +42,6 @@ const (
 	EdgeTestSession = "test_session"
 	// Table holds the table name of the testsessionanswer in the database.
 	Table = "test_session_answers"
-	// UserTable is the table that holds the user relation/edge.
-	UserTable = "test_session_answers"
-	// UserInverseTable is the table name for the User entity.
-	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "users"
-	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "user_id"
 	// QuestionTable is the table that holds the question relation/edge.
 	QuestionTable = "test_session_answers"
 	// QuestionInverseTable is the table name for the Question entity.
@@ -78,11 +71,12 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
-	FieldUserID,
 	FieldQuestionID,
 	FieldSelectedOptionID,
 	FieldSessionID,
 	FieldSelectedOptionText,
+	FieldPoints,
+	FieldOrder,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -109,6 +103,10 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultOrder holds the default value on creation for the "order" field.
+	DefaultOrder int
+	// OrderValidator is a validator for the "order" field. It is called by the builders before save.
+	OrderValidator func(int) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
@@ -136,11 +134,6 @@ func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
-// ByUserID orders the results by the user_id field.
-func ByUserID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUserID, opts...).ToFunc()
-}
-
 // ByQuestionID orders the results by the question_id field.
 func ByQuestionID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldQuestionID, opts...).ToFunc()
@@ -161,11 +154,14 @@ func BySelectedOptionText(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSelectedOptionText, opts...).ToFunc()
 }
 
-// ByUserField orders the results by user field.
-func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
-	}
+// ByPoints orders the results by the points field.
+func ByPoints(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPoints, opts...).ToFunc()
+}
+
+// ByOrder orders the results by the order field.
+func ByOrder(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrder, opts...).ToFunc()
 }
 
 // ByQuestionField orders the results by question field.
@@ -187,13 +183,6 @@ func ByTestSessionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newTestSessionStep(), sql.OrderByField(field, opts...))
 	}
-}
-func newUserStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-	)
 }
 func newQuestionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

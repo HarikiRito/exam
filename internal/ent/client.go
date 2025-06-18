@@ -2757,22 +2757,6 @@ func (c *TestSessionAnswerClient) GetX(ctx context.Context, id uuid.UUID) *TestS
 	return obj
 }
 
-// QueryUser queries the user edge of a TestSessionAnswer.
-func (c *TestSessionAnswerClient) QueryUser(tsa *TestSessionAnswer) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := tsa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(testsessionanswer.Table, testsessionanswer.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, testsessionanswer.UserTable, testsessionanswer.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(tsa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryQuestion queries the question edge of a TestSessionAnswer.
 func (c *TestSessionAnswerClient) QueryQuestion(tsa *TestSessionAnswer) *QuestionQuery {
 	query := (&QuestionClient{config: c.config}).Query()
@@ -3164,22 +3148,6 @@ func (c *UserClient) QueryQuestionCollections(u *User) *QuestionCollectionQuery 
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(questioncollection.Table, questioncollection.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.QuestionCollectionsTable, user.QuestionCollectionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTestSessionAnswers queries the test_session_answers edge of a User.
-func (c *UserClient) QueryTestSessionAnswers(u *User) *TestSessionAnswerQuery {
-	query := (&TestSessionAnswerClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.TestSessionAnswersTable, user.TestSessionAnswersColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

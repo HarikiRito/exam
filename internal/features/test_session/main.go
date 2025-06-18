@@ -13,14 +13,13 @@ import (
 )
 
 // CreateTestSession creates a new test session with the given input.
-func CreateTestSession(ctx context.Context, userID uuid.UUID, input model.CreateTestSessionInput) (*ent.TestSession, error) {
+func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*ent.TestSession, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
 	}
 
 	builder := client.TestSession.Create().
-		SetUserID(userID).
 		SetTestID(input.TestID).
 		SetNillableUserID(input.UserID)
 

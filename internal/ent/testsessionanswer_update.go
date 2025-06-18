@@ -11,7 +11,6 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
-	"template/internal/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -70,20 +69,6 @@ func (tsau *TestSessionAnswerUpdate) SetNillableDeletedAt(t *time.Time) *TestSes
 // ClearDeletedAt clears the value of the "deleted_at" field.
 func (tsau *TestSessionAnswerUpdate) ClearDeletedAt() *TestSessionAnswerUpdate {
 	tsau.mutation.ClearDeletedAt()
-	return tsau
-}
-
-// SetUserID sets the "user_id" field.
-func (tsau *TestSessionAnswerUpdate) SetUserID(u uuid.UUID) *TestSessionAnswerUpdate {
-	tsau.mutation.SetUserID(u)
-	return tsau
-}
-
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (tsau *TestSessionAnswerUpdate) SetNillableUserID(u *uuid.UUID) *TestSessionAnswerUpdate {
-	if u != nil {
-		tsau.SetUserID(*u)
-	}
 	return tsau
 }
 
@@ -155,9 +140,52 @@ func (tsau *TestSessionAnswerUpdate) ClearSelectedOptionText() *TestSessionAnswe
 	return tsau
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (tsau *TestSessionAnswerUpdate) SetUser(u *User) *TestSessionAnswerUpdate {
-	return tsau.SetUserID(u.ID)
+// SetPoints sets the "points" field.
+func (tsau *TestSessionAnswerUpdate) SetPoints(i int) *TestSessionAnswerUpdate {
+	tsau.mutation.ResetPoints()
+	tsau.mutation.SetPoints(i)
+	return tsau
+}
+
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (tsau *TestSessionAnswerUpdate) SetNillablePoints(i *int) *TestSessionAnswerUpdate {
+	if i != nil {
+		tsau.SetPoints(*i)
+	}
+	return tsau
+}
+
+// AddPoints adds i to the "points" field.
+func (tsau *TestSessionAnswerUpdate) AddPoints(i int) *TestSessionAnswerUpdate {
+	tsau.mutation.AddPoints(i)
+	return tsau
+}
+
+// ClearPoints clears the value of the "points" field.
+func (tsau *TestSessionAnswerUpdate) ClearPoints() *TestSessionAnswerUpdate {
+	tsau.mutation.ClearPoints()
+	return tsau
+}
+
+// SetOrder sets the "order" field.
+func (tsau *TestSessionAnswerUpdate) SetOrder(i int) *TestSessionAnswerUpdate {
+	tsau.mutation.ResetOrder()
+	tsau.mutation.SetOrder(i)
+	return tsau
+}
+
+// SetNillableOrder sets the "order" field if the given value is not nil.
+func (tsau *TestSessionAnswerUpdate) SetNillableOrder(i *int) *TestSessionAnswerUpdate {
+	if i != nil {
+		tsau.SetOrder(*i)
+	}
+	return tsau
+}
+
+// AddOrder adds i to the "order" field.
+func (tsau *TestSessionAnswerUpdate) AddOrder(i int) *TestSessionAnswerUpdate {
+	tsau.mutation.AddOrder(i)
+	return tsau
 }
 
 // SetQuestion sets the "question" edge to the Question entity.
@@ -184,12 +212,6 @@ func (tsau *TestSessionAnswerUpdate) SetTestSession(t *TestSession) *TestSession
 // Mutation returns the TestSessionAnswerMutation object of the builder.
 func (tsau *TestSessionAnswerUpdate) Mutation() *TestSessionAnswerMutation {
 	return tsau.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (tsau *TestSessionAnswerUpdate) ClearUser() *TestSessionAnswerUpdate {
-	tsau.mutation.ClearUser()
-	return tsau
 }
 
 // ClearQuestion clears the "question" edge to the Question entity.
@@ -254,8 +276,10 @@ func (tsau *TestSessionAnswerUpdate) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tsau *TestSessionAnswerUpdate) check() error {
-	if tsau.mutation.UserCleared() && len(tsau.mutation.UserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "TestSessionAnswer.user"`)
+	if v, ok := tsau.mutation.Order(); ok {
+		if err := testsessionanswer.OrderValidator(v); err != nil {
+			return &ValidationError{Name: "order", err: fmt.Errorf(`ent: validator failed for field "TestSessionAnswer.order": %w`, err)}
+		}
 	}
 	if tsau.mutation.QuestionCleared() && len(tsau.mutation.QuestionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSessionAnswer.question"`)
@@ -296,34 +320,20 @@ func (tsau *TestSessionAnswerUpdate) sqlSave(ctx context.Context) (n int, err er
 	if tsau.mutation.SelectedOptionTextCleared() {
 		_spec.ClearField(testsessionanswer.FieldSelectedOptionText, field.TypeString)
 	}
-	if tsau.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.UserTable,
-			Columns: []string{testsessionanswer.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := tsau.mutation.Points(); ok {
+		_spec.SetField(testsessionanswer.FieldPoints, field.TypeInt, value)
 	}
-	if nodes := tsau.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.UserTable,
-			Columns: []string{testsessionanswer.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := tsau.mutation.AddedPoints(); ok {
+		_spec.AddField(testsessionanswer.FieldPoints, field.TypeInt, value)
+	}
+	if tsau.mutation.PointsCleared() {
+		_spec.ClearField(testsessionanswer.FieldPoints, field.TypeInt)
+	}
+	if value, ok := tsau.mutation.Order(); ok {
+		_spec.SetField(testsessionanswer.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := tsau.mutation.AddedOrder(); ok {
+		_spec.AddField(testsessionanswer.FieldOrder, field.TypeInt, value)
 	}
 	if tsau.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -472,20 +482,6 @@ func (tsauo *TestSessionAnswerUpdateOne) ClearDeletedAt() *TestSessionAnswerUpda
 	return tsauo
 }
 
-// SetUserID sets the "user_id" field.
-func (tsauo *TestSessionAnswerUpdateOne) SetUserID(u uuid.UUID) *TestSessionAnswerUpdateOne {
-	tsauo.mutation.SetUserID(u)
-	return tsauo
-}
-
-// SetNillableUserID sets the "user_id" field if the given value is not nil.
-func (tsauo *TestSessionAnswerUpdateOne) SetNillableUserID(u *uuid.UUID) *TestSessionAnswerUpdateOne {
-	if u != nil {
-		tsauo.SetUserID(*u)
-	}
-	return tsauo
-}
-
 // SetQuestionID sets the "question_id" field.
 func (tsauo *TestSessionAnswerUpdateOne) SetQuestionID(u uuid.UUID) *TestSessionAnswerUpdateOne {
 	tsauo.mutation.SetQuestionID(u)
@@ -554,9 +550,52 @@ func (tsauo *TestSessionAnswerUpdateOne) ClearSelectedOptionText() *TestSessionA
 	return tsauo
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (tsauo *TestSessionAnswerUpdateOne) SetUser(u *User) *TestSessionAnswerUpdateOne {
-	return tsauo.SetUserID(u.ID)
+// SetPoints sets the "points" field.
+func (tsauo *TestSessionAnswerUpdateOne) SetPoints(i int) *TestSessionAnswerUpdateOne {
+	tsauo.mutation.ResetPoints()
+	tsauo.mutation.SetPoints(i)
+	return tsauo
+}
+
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (tsauo *TestSessionAnswerUpdateOne) SetNillablePoints(i *int) *TestSessionAnswerUpdateOne {
+	if i != nil {
+		tsauo.SetPoints(*i)
+	}
+	return tsauo
+}
+
+// AddPoints adds i to the "points" field.
+func (tsauo *TestSessionAnswerUpdateOne) AddPoints(i int) *TestSessionAnswerUpdateOne {
+	tsauo.mutation.AddPoints(i)
+	return tsauo
+}
+
+// ClearPoints clears the value of the "points" field.
+func (tsauo *TestSessionAnswerUpdateOne) ClearPoints() *TestSessionAnswerUpdateOne {
+	tsauo.mutation.ClearPoints()
+	return tsauo
+}
+
+// SetOrder sets the "order" field.
+func (tsauo *TestSessionAnswerUpdateOne) SetOrder(i int) *TestSessionAnswerUpdateOne {
+	tsauo.mutation.ResetOrder()
+	tsauo.mutation.SetOrder(i)
+	return tsauo
+}
+
+// SetNillableOrder sets the "order" field if the given value is not nil.
+func (tsauo *TestSessionAnswerUpdateOne) SetNillableOrder(i *int) *TestSessionAnswerUpdateOne {
+	if i != nil {
+		tsauo.SetOrder(*i)
+	}
+	return tsauo
+}
+
+// AddOrder adds i to the "order" field.
+func (tsauo *TestSessionAnswerUpdateOne) AddOrder(i int) *TestSessionAnswerUpdateOne {
+	tsauo.mutation.AddOrder(i)
+	return tsauo
 }
 
 // SetQuestion sets the "question" edge to the Question entity.
@@ -583,12 +622,6 @@ func (tsauo *TestSessionAnswerUpdateOne) SetTestSession(t *TestSession) *TestSes
 // Mutation returns the TestSessionAnswerMutation object of the builder.
 func (tsauo *TestSessionAnswerUpdateOne) Mutation() *TestSessionAnswerMutation {
 	return tsauo.mutation
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (tsauo *TestSessionAnswerUpdateOne) ClearUser() *TestSessionAnswerUpdateOne {
-	tsauo.mutation.ClearUser()
-	return tsauo
 }
 
 // ClearQuestion clears the "question" edge to the Question entity.
@@ -666,8 +699,10 @@ func (tsauo *TestSessionAnswerUpdateOne) defaults() error {
 
 // check runs all checks and user-defined validators on the builder.
 func (tsauo *TestSessionAnswerUpdateOne) check() error {
-	if tsauo.mutation.UserCleared() && len(tsauo.mutation.UserIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "TestSessionAnswer.user"`)
+	if v, ok := tsauo.mutation.Order(); ok {
+		if err := testsessionanswer.OrderValidator(v); err != nil {
+			return &ValidationError{Name: "order", err: fmt.Errorf(`ent: validator failed for field "TestSessionAnswer.order": %w`, err)}
+		}
 	}
 	if tsauo.mutation.QuestionCleared() && len(tsauo.mutation.QuestionIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "TestSessionAnswer.question"`)
@@ -725,34 +760,20 @@ func (tsauo *TestSessionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *Te
 	if tsauo.mutation.SelectedOptionTextCleared() {
 		_spec.ClearField(testsessionanswer.FieldSelectedOptionText, field.TypeString)
 	}
-	if tsauo.mutation.UserCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.UserTable,
-			Columns: []string{testsessionanswer.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := tsauo.mutation.Points(); ok {
+		_spec.SetField(testsessionanswer.FieldPoints, field.TypeInt, value)
 	}
-	if nodes := tsauo.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.UserTable,
-			Columns: []string{testsessionanswer.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := tsauo.mutation.AddedPoints(); ok {
+		_spec.AddField(testsessionanswer.FieldPoints, field.TypeInt, value)
+	}
+	if tsauo.mutation.PointsCleared() {
+		_spec.ClearField(testsessionanswer.FieldPoints, field.TypeInt)
+	}
+	if value, ok := tsauo.mutation.Order(); ok {
+		_spec.SetField(testsessionanswer.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := tsauo.mutation.AddedOrder(); ok {
+		_spec.AddField(testsessionanswer.FieldOrder, field.TypeInt, value)
 	}
 	if tsauo.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{

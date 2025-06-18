@@ -11,7 +11,6 @@ import (
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
 	"template/internal/ent/testsession"
-	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 	"time"
 
@@ -234,21 +233,6 @@ func (uc *UserCreate) AddQuestionCollections(q ...*QuestionCollection) *UserCrea
 		ids[i] = q[i].ID
 	}
 	return uc.AddQuestionCollectionIDs(ids...)
-}
-
-// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
-func (uc *UserCreate) AddTestSessionAnswerIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddTestSessionAnswerIDs(ids...)
-	return uc
-}
-
-// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
-func (uc *UserCreate) AddTestSessionAnswers(t ...*TestSessionAnswer) *UserCreate {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return uc.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestSessionIDs adds the "test_sessions" edge to the TestSession entity by IDs.
@@ -511,22 +495,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(questioncollection.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   user.TestSessionAnswersTable,
-			Columns: []string{user.TestSessionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

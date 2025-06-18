@@ -413,6 +413,12 @@ func init() {
 	testsessionanswer.DefaultUpdatedAt = testsessionanswerDescUpdatedAt.Default.(func() time.Time)
 	// testsessionanswer.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	testsessionanswer.UpdateDefaultUpdatedAt = testsessionanswerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// testsessionanswerDescOrder is the schema descriptor for order field.
+	testsessionanswerDescOrder := testsessionanswerFields[5].Descriptor()
+	// testsessionanswer.DefaultOrder holds the default value on creation for the order field.
+	testsessionanswer.DefaultOrder = testsessionanswerDescOrder.Default.(int)
+	// testsessionanswer.OrderValidator is a validator for the "order" field. It is called by the builders before save.
+	testsessionanswer.OrderValidator = testsessionanswerDescOrder.Validators[0].(func(int) error)
 	// testsessionanswerDescID is the schema descriptor for id field.
 	testsessionanswerDescID := testsessionanswerMixinFields0[0].Descriptor()
 	// testsessionanswer.DefaultID holds the default value on creation for the id field.

@@ -10,7 +10,6 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
-	"template/internal/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -67,12 +66,6 @@ func (tsac *TestSessionAnswerCreate) SetNillableDeletedAt(t *time.Time) *TestSes
 	return tsac
 }
 
-// SetUserID sets the "user_id" field.
-func (tsac *TestSessionAnswerCreate) SetUserID(u uuid.UUID) *TestSessionAnswerCreate {
-	tsac.mutation.SetUserID(u)
-	return tsac
-}
-
 // SetQuestionID sets the "question_id" field.
 func (tsac *TestSessionAnswerCreate) SetQuestionID(u uuid.UUID) *TestSessionAnswerCreate {
 	tsac.mutation.SetQuestionID(u)
@@ -113,6 +106,34 @@ func (tsac *TestSessionAnswerCreate) SetNillableSelectedOptionText(s *string) *T
 	return tsac
 }
 
+// SetPoints sets the "points" field.
+func (tsac *TestSessionAnswerCreate) SetPoints(i int) *TestSessionAnswerCreate {
+	tsac.mutation.SetPoints(i)
+	return tsac
+}
+
+// SetNillablePoints sets the "points" field if the given value is not nil.
+func (tsac *TestSessionAnswerCreate) SetNillablePoints(i *int) *TestSessionAnswerCreate {
+	if i != nil {
+		tsac.SetPoints(*i)
+	}
+	return tsac
+}
+
+// SetOrder sets the "order" field.
+func (tsac *TestSessionAnswerCreate) SetOrder(i int) *TestSessionAnswerCreate {
+	tsac.mutation.SetOrder(i)
+	return tsac
+}
+
+// SetNillableOrder sets the "order" field if the given value is not nil.
+func (tsac *TestSessionAnswerCreate) SetNillableOrder(i *int) *TestSessionAnswerCreate {
+	if i != nil {
+		tsac.SetOrder(*i)
+	}
+	return tsac
+}
+
 // SetID sets the "id" field.
 func (tsac *TestSessionAnswerCreate) SetID(u uuid.UUID) *TestSessionAnswerCreate {
 	tsac.mutation.SetID(u)
@@ -125,11 +146,6 @@ func (tsac *TestSessionAnswerCreate) SetNillableID(u *uuid.UUID) *TestSessionAns
 		tsac.SetID(*u)
 	}
 	return tsac
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (tsac *TestSessionAnswerCreate) SetUser(u *User) *TestSessionAnswerCreate {
-	return tsac.SetUserID(u.ID)
 }
 
 // SetQuestion sets the "question" edge to the Question entity.
@@ -204,6 +220,10 @@ func (tsac *TestSessionAnswerCreate) defaults() error {
 		v := testsessionanswer.DefaultUpdatedAt()
 		tsac.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := tsac.mutation.Order(); !ok {
+		v := testsessionanswer.DefaultOrder
+		tsac.mutation.SetOrder(v)
+	}
 	if _, ok := tsac.mutation.ID(); !ok {
 		if testsessionanswer.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized testsessionanswer.DefaultID (forgotten import ent/runtime?)")
@@ -222,17 +242,19 @@ func (tsac *TestSessionAnswerCreate) check() error {
 	if _, ok := tsac.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "TestSessionAnswer.updated_at"`)}
 	}
-	if _, ok := tsac.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "TestSessionAnswer.user_id"`)}
-	}
 	if _, ok := tsac.mutation.QuestionID(); !ok {
 		return &ValidationError{Name: "question_id", err: errors.New(`ent: missing required field "TestSessionAnswer.question_id"`)}
 	}
 	if _, ok := tsac.mutation.SessionID(); !ok {
 		return &ValidationError{Name: "session_id", err: errors.New(`ent: missing required field "TestSessionAnswer.session_id"`)}
 	}
-	if len(tsac.mutation.UserIDs()) == 0 {
-		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "TestSessionAnswer.user"`)}
+	if _, ok := tsac.mutation.Order(); !ok {
+		return &ValidationError{Name: "order", err: errors.New(`ent: missing required field "TestSessionAnswer.order"`)}
+	}
+	if v, ok := tsac.mutation.Order(); ok {
+		if err := testsessionanswer.OrderValidator(v); err != nil {
+			return &ValidationError{Name: "order", err: fmt.Errorf(`ent: validator failed for field "TestSessionAnswer.order": %w`, err)}
+		}
 	}
 	if len(tsac.mutation.QuestionIDs()) == 0 {
 		return &ValidationError{Name: "question", err: errors.New(`ent: missing required edge "TestSessionAnswer.question"`)}
@@ -291,22 +313,13 @@ func (tsac *TestSessionAnswerCreate) createSpec() (*TestSessionAnswer, *sqlgraph
 		_spec.SetField(testsessionanswer.FieldSelectedOptionText, field.TypeString, value)
 		_node.SelectedOptionText = &value
 	}
-	if nodes := tsac.mutation.UserIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.UserTable,
-			Columns: []string{testsessionanswer.UserColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.UserID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := tsac.mutation.Points(); ok {
+		_spec.SetField(testsessionanswer.FieldPoints, field.TypeInt, value)
+		_node.Points = &value
+	}
+	if value, ok := tsac.mutation.Order(); ok {
+		_spec.SetField(testsessionanswer.FieldOrder, field.TypeInt, value)
+		_node.Order = value
 	}
 	if nodes := tsac.mutation.QuestionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -71,11 +71,6 @@ func DeletedAt(v time.Time) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
-func UserID(v uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEQ(FieldUserID, v))
-}
-
 // QuestionID applies equality check predicate on the "question_id" field. It's identical to QuestionIDEQ.
 func QuestionID(v uuid.UUID) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldQuestionID, v))
@@ -94,6 +89,16 @@ func SessionID(v uuid.UUID) predicate.TestSessionAnswer {
 // SelectedOptionText applies equality check predicate on the "selected_option_text" field. It's identical to SelectedOptionTextEQ.
 func SelectedOptionText(v string) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSelectedOptionText, v))
+}
+
+// Points applies equality check predicate on the "points" field. It's identical to PointsEQ.
+func Points(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldEQ(FieldPoints, v))
+}
+
+// Order applies equality check predicate on the "order" field. It's identical to OrderEQ.
+func Order(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldEQ(FieldOrder, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -224,26 +229,6 @@ func DeletedAtIsNil() predicate.TestSessionAnswer {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldDeletedAt))
-}
-
-// UserIDEQ applies the EQ predicate on the "user_id" field.
-func UserIDEQ(v uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEQ(FieldUserID, v))
-}
-
-// UserIDNEQ applies the NEQ predicate on the "user_id" field.
-func UserIDNEQ(v uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNEQ(FieldUserID, v))
-}
-
-// UserIDIn applies the In predicate on the "user_id" field.
-func UserIDIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldIn(FieldUserID, vs...))
-}
-
-// UserIDNotIn applies the NotIn predicate on the "user_id" field.
-func UserIDNotIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // QuestionIDEQ applies the EQ predicate on the "question_id" field.
@@ -391,27 +376,94 @@ func SelectedOptionTextContainsFold(v string) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldContainsFold(FieldSelectedOptionText, v))
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// PointsEQ applies the EQ predicate on the "points" field.
+func PointsEQ(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldEQ(FieldPoints, v))
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(func(s *sql.Selector) {
-		step := newUserStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// PointsNEQ applies the NEQ predicate on the "points" field.
+func PointsNEQ(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNEQ(FieldPoints, v))
+}
+
+// PointsIn applies the In predicate on the "points" field.
+func PointsIn(vs ...int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldIn(FieldPoints, vs...))
+}
+
+// PointsNotIn applies the NotIn predicate on the "points" field.
+func PointsNotIn(vs ...int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldPoints, vs...))
+}
+
+// PointsGT applies the GT predicate on the "points" field.
+func PointsGT(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldGT(FieldPoints, v))
+}
+
+// PointsGTE applies the GTE predicate on the "points" field.
+func PointsGTE(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldGTE(FieldPoints, v))
+}
+
+// PointsLT applies the LT predicate on the "points" field.
+func PointsLT(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldLT(FieldPoints, v))
+}
+
+// PointsLTE applies the LTE predicate on the "points" field.
+func PointsLTE(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldLTE(FieldPoints, v))
+}
+
+// PointsIsNil applies the IsNil predicate on the "points" field.
+func PointsIsNil() predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldIsNull(FieldPoints))
+}
+
+// PointsNotNil applies the NotNil predicate on the "points" field.
+func PointsNotNil() predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldPoints))
+}
+
+// OrderEQ applies the EQ predicate on the "order" field.
+func OrderEQ(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldEQ(FieldOrder, v))
+}
+
+// OrderNEQ applies the NEQ predicate on the "order" field.
+func OrderNEQ(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNEQ(FieldOrder, v))
+}
+
+// OrderIn applies the In predicate on the "order" field.
+func OrderIn(vs ...int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldIn(FieldOrder, vs...))
+}
+
+// OrderNotIn applies the NotIn predicate on the "order" field.
+func OrderNotIn(vs ...int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldOrder, vs...))
+}
+
+// OrderGT applies the GT predicate on the "order" field.
+func OrderGT(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldGT(FieldOrder, v))
+}
+
+// OrderGTE applies the GTE predicate on the "order" field.
+func OrderGTE(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldGTE(FieldOrder, v))
+}
+
+// OrderLT applies the LT predicate on the "order" field.
+func OrderLT(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldLT(FieldOrder, v))
+}
+
+// OrderLTE applies the LTE predicate on the "order" field.
+func OrderLTE(v int) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldLTE(FieldOrder, v))
 }
 
 // HasQuestion applies the HasEdge predicate on the "question" edge.

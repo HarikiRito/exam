@@ -11,7 +11,6 @@ import (
 	"template/internal/ent/questionoption"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
-	"template/internal/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -27,7 +26,6 @@ type TestSessionAnswerQuery struct {
 	order              []testsessionanswer.OrderOption
 	inters             []Interceptor
 	predicates         []predicate.TestSessionAnswer
-	withUser           *UserQuery
 	withQuestion       *QuestionQuery
 	withSelectedOption *QuestionOptionQuery
 	withTestSession    *TestSessionQuery
@@ -65,28 +63,6 @@ func (tsaq *TestSessionAnswerQuery) Unique(unique bool) *TestSessionAnswerQuery 
 func (tsaq *TestSessionAnswerQuery) Order(o ...testsessionanswer.OrderOption) *TestSessionAnswerQuery {
 	tsaq.order = append(tsaq.order, o...)
 	return tsaq
-}
-
-// QueryUser chains the current query on the "user" edge.
-func (tsaq *TestSessionAnswerQuery) QueryUser() *UserQuery {
-	query := (&UserClient{config: tsaq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := tsaq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := tsaq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(testsessionanswer.Table, testsessionanswer.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, testsessionanswer.UserTable, testsessionanswer.UserColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(tsaq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryQuestion chains the current query on the "question" edge.
@@ -347,7 +323,6 @@ func (tsaq *TestSessionAnswerQuery) Clone() *TestSessionAnswerQuery {
 		order:              append([]testsessionanswer.OrderOption{}, tsaq.order...),
 		inters:             append([]Interceptor{}, tsaq.inters...),
 		predicates:         append([]predicate.TestSessionAnswer{}, tsaq.predicates...),
-		withUser:           tsaq.withUser.Clone(),
 		withQuestion:       tsaq.withQuestion.Clone(),
 		withSelectedOption: tsaq.withSelectedOption.Clone(),
 		withTestSession:    tsaq.withTestSession.Clone(),
@@ -355,17 +330,6 @@ func (tsaq *TestSessionAnswerQuery) Clone() *TestSessionAnswerQuery {
 		sql:  tsaq.sql.Clone(),
 		path: tsaq.path,
 	}
-}
-
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (tsaq *TestSessionAnswerQuery) WithUser(opts ...func(*UserQuery)) *TestSessionAnswerQuery {
-	query := (&UserClient{config: tsaq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	tsaq.withUser = query
-	return tsaq
 }
 
 // WithQuestion tells the query-builder to eager-load the nodes that are connected to
@@ -479,8 +443,7 @@ func (tsaq *TestSessionAnswerQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	var (
 		nodes       = []*TestSessionAnswer{}
 		_spec       = tsaq.querySpec()
-		loadedTypes = [4]bool{
-			tsaq.withUser != nil,
+		loadedTypes = [3]bool{
 			tsaq.withQuestion != nil,
 			tsaq.withSelectedOption != nil,
 			tsaq.withTestSession != nil,
@@ -504,12 +467,6 @@ func (tsaq *TestSessionAnswerQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := tsaq.withUser; query != nil {
-		if err := tsaq.loadUser(ctx, query, nodes, nil,
-			func(n *TestSessionAnswer, e *User) { n.Edges.User = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := tsaq.withQuestion; query != nil {
 		if err := tsaq.loadQuestion(ctx, query, nodes, nil,
 			func(n *TestSessionAnswer, e *Question) { n.Edges.Question = e }); err != nil {
@@ -531,35 +488,6 @@ func (tsaq *TestSessionAnswerQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	return nodes, nil
 }
 
-func (tsaq *TestSessionAnswerQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*TestSessionAnswer, init func(*TestSessionAnswer), assign func(*TestSessionAnswer, *User)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*TestSessionAnswer)
-	for i := range nodes {
-		fk := nodes[i].UserID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(user.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (tsaq *TestSessionAnswerQuery) loadQuestion(ctx context.Context, query *QuestionQuery, nodes []*TestSessionAnswer, init func(*TestSessionAnswer), assign func(*TestSessionAnswer, *Question)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*TestSessionAnswer)
@@ -675,9 +603,6 @@ func (tsaq *TestSessionAnswerQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != testsessionanswer.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if tsaq.withUser != nil {
-			_spec.Node.AddColumnOnce(testsessionanswer.FieldUserID)
 		}
 		if tsaq.withQuestion != nil {
 			_spec.Node.AddColumnOnce(testsessionanswer.FieldQuestionID)

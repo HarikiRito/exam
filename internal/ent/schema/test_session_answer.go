@@ -18,23 +18,18 @@ type TestSessionAnswer struct {
 // Fields of the UserQuestionAnswer.
 func (TestSessionAnswer) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("user_id", uuid.UUID{}),
 		field.UUID("question_id", uuid.UUID{}),
 		field.UUID("selected_option_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("session_id", uuid.UUID{}),
 		field.String("selected_option_text").Optional().Nillable(),
+		field.Int("points").Optional().Nillable(),
+		field.Int("order").Default(1).Positive(),
 	}
 }
 
 // Edges of the UserQuestionAnswer.
 func (TestSessionAnswer) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("user", User.Type).
-			Ref("test_session_answers").
-			Field("user_id").
-			Unique().
-			Required().
-			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("question", Question.Type).
 			Ref("user_question_answers").
 			Field("question_id").

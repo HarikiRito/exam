@@ -13005,7 +13005,7 @@ func (ec *executionContext) unmarshalInputTestSessionAnswerInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionId", "questionOptionIds"}
+	fieldsInOrder := [...]string{"questionId", "questionOptionIds", "points", "order"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13026,6 +13026,20 @@ func (ec *executionContext) unmarshalInputTestSessionAnswerInput(ctx context.Con
 				return it, err
 			}
 			it.QuestionOptionIds = data
+		case "points":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("points"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Points = data
+		case "order":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("order"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Order = data
 		}
 	}
 

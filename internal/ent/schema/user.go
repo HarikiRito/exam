@@ -37,7 +37,6 @@ func (User) Edges() []ent.Edge {
 		edge.To("roles", Role.Type),
 		edge.To("course_creator", Course.Type),
 		edge.To("question_collections", QuestionCollection.Type),
-		edge.To("test_session_answers", TestSessionAnswer.Type),
 		edge.To("test_sessions", TestSession.Type),
 	}
 }

@@ -163,11 +163,12 @@ Table user_video_progress {
 
 Table test_session_answers {
   id varchar [pk]
-  user_id varchar [not null]
   session_id varchar [not null]
   question_id varchar [not null]
   selected_option_id varchar [null]
   selected_option_text text [null]
+  points integer [null]
+  order integer [not null, default: 1]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
 }
@@ -258,7 +259,6 @@ Ref: user_section_progress.user_id > users.id [delete: cascade]
 Ref: user_section_progress.section_id > course_sections.id [delete: cascade]
 Ref: user_video_progress.user_id > users.id [delete: cascade]
 Ref: user_video_progress.video_id > videos.id [delete: cascade]
-Ref: test_session_answers.user_id > users.id [delete: cascade]
 Ref: test_session_answers.question_id > questions.id [delete: cascade]
 Ref: test_session_answers.selected_option_id > question_options.id [delete: cascade]
 

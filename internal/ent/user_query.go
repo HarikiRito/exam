@@ -13,7 +13,6 @@ import (
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
 	"template/internal/ent/testsession"
-	"template/internal/ent/testsessionanswer"
 	"template/internal/ent/user"
 
 	"entgo.io/ent"
@@ -35,7 +34,6 @@ type UserQuery struct {
 	withRoles               *RoleQuery
 	withCourseCreator       *CourseQuery
 	withQuestionCollections *QuestionCollectionQuery
-	withTestSessionAnswers  *TestSessionAnswerQuery
 	withTestSessions        *TestSessionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -176,28 +174,6 @@ func (uq *UserQuery) QueryQuestionCollections() *QuestionCollectionQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(questioncollection.Table, questioncollection.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.QuestionCollectionsTable, user.QuestionCollectionsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryTestSessionAnswers chains the current query on the "test_session_answers" edge.
-func (uq *UserQuery) QueryTestSessionAnswers() *TestSessionAnswerQuery {
-	query := (&TestSessionAnswerClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.TestSessionAnswersTable, user.TestSessionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -424,7 +400,6 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withRoles:               uq.withRoles.Clone(),
 		withCourseCreator:       uq.withCourseCreator.Clone(),
 		withQuestionCollections: uq.withQuestionCollections.Clone(),
-		withTestSessionAnswers:  uq.withTestSessionAnswers.Clone(),
 		withTestSessions:        uq.withTestSessions.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
@@ -484,17 +459,6 @@ func (uq *UserQuery) WithQuestionCollections(opts ...func(*QuestionCollectionQue
 		opt(query)
 	}
 	uq.withQuestionCollections = query
-	return uq
-}
-
-// WithTestSessionAnswers tells the query-builder to eager-load the nodes that are connected to
-// the "test_session_answers" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithTestSessionAnswers(opts ...func(*TestSessionAnswerQuery)) *UserQuery {
-	query := (&TestSessionAnswerClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withTestSessionAnswers = query
 	return uq
 }
 
@@ -587,13 +551,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [7]bool{
+		loadedTypes = [6]bool{
 			uq.withMedia != nil,
 			uq.withMediaUploader != nil,
 			uq.withRoles != nil,
 			uq.withCourseCreator != nil,
 			uq.withQuestionCollections != nil,
-			uq.withTestSessionAnswers != nil,
 			uq.withTestSessions != nil,
 		}
 	)
@@ -647,15 +610,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			func(n *User) { n.Edges.QuestionCollections = []*QuestionCollection{} },
 			func(n *User, e *QuestionCollection) {
 				n.Edges.QuestionCollections = append(n.Edges.QuestionCollections, e)
-			}); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withTestSessionAnswers; query != nil {
-		if err := uq.loadTestSessionAnswers(ctx, query, nodes,
-			func(n *User) { n.Edges.TestSessionAnswers = []*TestSessionAnswer{} },
-			func(n *User, e *TestSessionAnswer) {
-				n.Edges.TestSessionAnswers = append(n.Edges.TestSessionAnswers, e)
 			}); err != nil {
 			return nil, err
 		}
@@ -851,36 +805,6 @@ func (uq *UserQuery) loadQuestionCollections(ctx context.Context, query *Questio
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "creator_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadTestSessionAnswers(ctx context.Context, query *TestSessionAnswerQuery, nodes []*User, init func(*User), assign func(*User, *TestSessionAnswer)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(testsessionanswer.FieldUserID)
-	}
-	query.Where(predicate.TestSessionAnswer(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.TestSessionAnswersColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

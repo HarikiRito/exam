@@ -16,12 +16,12 @@ import (
 // CreateTestSession is the resolver for the createTestSession field.
 func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error) {
 	// Get user ID from auth context
-	userID, err := GetUserIdFromRequestContext(ctx)
+	_, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	session, err := test_session.CreateTestSession(ctx, userID, input)
+	session, err := test_session.CreateTestSession(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -60,15 +60,6 @@ func (r *testSessionResolver) User(ctx context.Context, obj *model.TestSession) 
 // Test is the resolver for the test field.
 func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) (*model.Test, error) {
 	panic(fmt.Errorf("not implemented: Test - test"))
-}
-
-// Status is the resolver for the status field.
-func (r *testSessionResolver) Status(ctx context.Context, obj *model.TestSession) (model.TestSessionStatus, error) {
-	entStatus := obj.Status
-
-	status := model.TestSessionStatus(entStatus)
-
-	return status, nil
 }
 
 // TestSession returns TestSessionResolver implementation.
