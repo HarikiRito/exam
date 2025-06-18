@@ -2,6 +2,7 @@ package model
 
 import (
 	"template/internal/ent"
+	"template/internal/ent/testsession"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,7 +32,26 @@ func ConvertTestSessionToModel(ts *ent.TestSession) *TestSession {
 		UpdatedAt:    ts.UpdatedAt,
 		StartedAt:    ts.StartedAt,
 		ExpiredAt:    ts.ExpiredAt,
+		Status:       convertEntStatusToGraphQLStatus(ts.Status),
 	}
 
 	return result
+}
+
+// convertEntStatusToGraphQLStatus converts ent TestSession status to GraphQL TestSessionStatus
+func convertEntStatusToGraphQLStatus(entStatus testsession.Status) TestSessionStatus {
+	switch entStatus {
+	case testsession.StatusPending:
+		return TestSessionStatusPending
+	case testsession.StatusCompleted:
+		return TestSessionStatusCompleted
+	case testsession.StatusInProgress:
+		return TestSessionStatusInProgress
+	case testsession.StatusCancelled:
+		return TestSessionStatusCancelled
+	case testsession.StatusExpired:
+		return TestSessionStatusExpired
+	default:
+		return TestSessionStatusPending
+	}
 }

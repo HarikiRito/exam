@@ -35,12 +35,38 @@ func (r *mutationResolver) DeleteTestSession(ctx context.Context, id uuid.UUID) 
 
 // SubmitTestSession is the resolver for the submitTestSession field.
 func (r *mutationResolver) SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error) {
-	panic(fmt.Errorf("not implemented: SubmitTestSession - submitTestSession"))
+	// Get current user from context
+	userID, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unauthorized: %w", err)
+	}
+
+	// Submit the test session
+	session, err := test_session.SubmitTestSession(ctx, userID, sessionID, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertTestSessionToModel(session), nil
 }
 
 // StartTestSession is the resolver for the startTestSession field.
 func (r *mutationResolver) StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
-	panic(fmt.Errorf("not implemented: StartTestSession - startTestSession"))
+	// Get current user from context
+	userID, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unauthorized: %w", err)
+	}
+
+	// Start the test session
+	session, err := test_session.StartTestSession(ctx, userID, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertTestSessionToModel(session), nil
 }
 
 // TestSession is the resolver for the testSession field.
