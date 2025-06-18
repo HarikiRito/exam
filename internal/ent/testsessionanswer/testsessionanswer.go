@@ -34,6 +34,8 @@ const (
 	FieldPoints = "points"
 	// FieldOrder holds the string denoting the order field in the database.
 	FieldOrder = "order"
+	// FieldIsCorrect holds the string denoting the is_correct field in the database.
+	FieldIsCorrect = "is_correct"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
 	// EdgeSelectedOption holds the string denoting the selected_option edge name in mutations.
@@ -77,6 +79,7 @@ var Columns = []string{
 	FieldSelectedOptionText,
 	FieldPoints,
 	FieldOrder,
+	FieldIsCorrect,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -162,6 +165,11 @@ func ByPoints(opts ...sql.OrderTermOption) OrderOption {
 // ByOrder orders the results by the order field.
 func ByOrder(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOrder, opts...).ToFunc()
+}
+
+// ByIsCorrect orders the results by the is_correct field.
+func ByIsCorrect(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsCorrect, opts...).ToFunc()
 }
 
 // ByQuestionField orders the results by question field.

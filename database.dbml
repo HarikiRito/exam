@@ -167,6 +167,7 @@ Table test_session_answers {
   question_id varchar [not null]
   selected_option_id varchar [null]
   selected_option_text text [null]
+  is_correct boolean [null]
   points integer [null]
   order integer [not null, default: 1]
   created_at timestamp [default: `now()`]

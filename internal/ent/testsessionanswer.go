@@ -39,6 +39,8 @@ type TestSessionAnswer struct {
 	Points *int `json:"points,omitempty"`
 	// Order holds the value of the "order" field.
 	Order int `json:"order,omitempty"`
+	// IsCorrect holds the value of the "is_correct" field.
+	IsCorrect *bool `json:"is_correct,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestSessionAnswerQuery when eager-loading is set.
 	Edges        TestSessionAnswerEdges `json:"edges"`
@@ -98,6 +100,8 @@ func (*TestSessionAnswer) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case testsessionanswer.FieldSelectedOptionID:
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case testsessionanswer.FieldIsCorrect:
+			values[i] = new(sql.NullBool)
 		case testsessionanswer.FieldPoints, testsessionanswer.FieldOrder:
 			values[i] = new(sql.NullInt64)
 		case testsessionanswer.FieldSelectedOptionText:
@@ -185,6 +189,13 @@ func (tsa *TestSessionAnswer) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				tsa.Order = int(value.Int64)
 			}
+		case testsessionanswer.FieldIsCorrect:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_correct", values[i])
+			} else if value.Valid {
+				tsa.IsCorrect = new(bool)
+				*tsa.IsCorrect = value.Bool
+			}
 		default:
 			tsa.selectValues.Set(columns[i], values[i])
 		}
@@ -270,6 +281,11 @@ func (tsa *TestSessionAnswer) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("order=")
 	builder.WriteString(fmt.Sprintf("%v", tsa.Order))
+	builder.WriteString(", ")
+	if v := tsa.IsCorrect; v != nil {
+		builder.WriteString("is_correct=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

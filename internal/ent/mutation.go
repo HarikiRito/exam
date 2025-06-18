@@ -11880,6 +11880,7 @@ type TestSessionAnswerMutation struct {
 	addpoints              *int
 	_order                 *int
 	add_order              *int
+	is_correct             *bool
 	clearedFields          map[string]struct{}
 	question               *uuid.UUID
 	clearedquestion        bool
@@ -12413,6 +12414,55 @@ func (m *TestSessionAnswerMutation) ResetOrder() {
 	m.add_order = nil
 }
 
+// SetIsCorrect sets the "is_correct" field.
+func (m *TestSessionAnswerMutation) SetIsCorrect(b bool) {
+	m.is_correct = &b
+}
+
+// IsCorrect returns the value of the "is_correct" field in the mutation.
+func (m *TestSessionAnswerMutation) IsCorrect() (r bool, exists bool) {
+	v := m.is_correct
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsCorrect returns the old "is_correct" field's value of the TestSessionAnswer entity.
+// If the TestSessionAnswer object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionAnswerMutation) OldIsCorrect(ctx context.Context) (v *bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsCorrect is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsCorrect requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsCorrect: %w", err)
+	}
+	return oldValue.IsCorrect, nil
+}
+
+// ClearIsCorrect clears the value of the "is_correct" field.
+func (m *TestSessionAnswerMutation) ClearIsCorrect() {
+	m.is_correct = nil
+	m.clearedFields[testsessionanswer.FieldIsCorrect] = struct{}{}
+}
+
+// IsCorrectCleared returns if the "is_correct" field was cleared in this mutation.
+func (m *TestSessionAnswerMutation) IsCorrectCleared() bool {
+	_, ok := m.clearedFields[testsessionanswer.FieldIsCorrect]
+	return ok
+}
+
+// ResetIsCorrect resets all changes to the "is_correct" field.
+func (m *TestSessionAnswerMutation) ResetIsCorrect() {
+	m.is_correct = nil
+	delete(m.clearedFields, testsessionanswer.FieldIsCorrect)
+}
+
 // ClearQuestion clears the "question" edge to the Question entity.
 func (m *TestSessionAnswerMutation) ClearQuestion() {
 	m.clearedquestion = true
@@ -12541,7 +12591,7 @@ func (m *TestSessionAnswerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TestSessionAnswerMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, testsessionanswer.FieldCreatedAt)
 	}
@@ -12569,6 +12619,9 @@ func (m *TestSessionAnswerMutation) Fields() []string {
 	if m._order != nil {
 		fields = append(fields, testsessionanswer.FieldOrder)
 	}
+	if m.is_correct != nil {
+		fields = append(fields, testsessionanswer.FieldIsCorrect)
+	}
 	return fields
 }
 
@@ -12595,6 +12648,8 @@ func (m *TestSessionAnswerMutation) Field(name string) (ent.Value, bool) {
 		return m.Points()
 	case testsessionanswer.FieldOrder:
 		return m.Order()
+	case testsessionanswer.FieldIsCorrect:
+		return m.IsCorrect()
 	}
 	return nil, false
 }
@@ -12622,6 +12677,8 @@ func (m *TestSessionAnswerMutation) OldField(ctx context.Context, name string) (
 		return m.OldPoints(ctx)
 	case testsessionanswer.FieldOrder:
 		return m.OldOrder(ctx)
+	case testsessionanswer.FieldIsCorrect:
+		return m.OldIsCorrect(ctx)
 	}
 	return nil, fmt.Errorf("unknown TestSessionAnswer field %s", name)
 }
@@ -12694,6 +12751,13 @@ func (m *TestSessionAnswerMutation) SetField(name string, value ent.Value) error
 		}
 		m.SetOrder(v)
 		return nil
+	case testsessionanswer.FieldIsCorrect:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsCorrect(v)
+		return nil
 	}
 	return fmt.Errorf("unknown TestSessionAnswer field %s", name)
 }
@@ -12763,6 +12827,9 @@ func (m *TestSessionAnswerMutation) ClearedFields() []string {
 	if m.FieldCleared(testsessionanswer.FieldPoints) {
 		fields = append(fields, testsessionanswer.FieldPoints)
 	}
+	if m.FieldCleared(testsessionanswer.FieldIsCorrect) {
+		fields = append(fields, testsessionanswer.FieldIsCorrect)
+	}
 	return fields
 }
 
@@ -12788,6 +12855,9 @@ func (m *TestSessionAnswerMutation) ClearField(name string) error {
 		return nil
 	case testsessionanswer.FieldPoints:
 		m.ClearPoints()
+		return nil
+	case testsessionanswer.FieldIsCorrect:
+		m.ClearIsCorrect()
 		return nil
 	}
 	return fmt.Errorf("unknown TestSessionAnswer nullable field %s", name)
@@ -12823,6 +12893,9 @@ func (m *TestSessionAnswerMutation) ResetField(name string) error {
 		return nil
 	case testsessionanswer.FieldOrder:
 		m.ResetOrder()
+		return nil
+	case testsessionanswer.FieldIsCorrect:
+		m.ResetIsCorrect()
 		return nil
 	}
 	return fmt.Errorf("unknown TestSessionAnswer field %s", name)

@@ -343,6 +343,7 @@ var (
 		{Name: "selected_option_text", Type: field.TypeString, Nullable: true},
 		{Name: "points", Type: field.TypeInt, Nullable: true},
 		{Name: "order", Type: field.TypeInt, Default: 1},
+		{Name: "is_correct", Type: field.TypeBool, Nullable: true},
 		{Name: "question_id", Type: field.TypeUUID},
 		{Name: "selected_option_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "session_id", Type: field.TypeUUID},
@@ -355,19 +356,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "test_session_answers_questions_user_question_answers",
-				Columns:    []*schema.Column{TestSessionAnswersColumns[7]},
+				Columns:    []*schema.Column{TestSessionAnswersColumns[8]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "test_session_answers_question_options_user_question_answers",
-				Columns:    []*schema.Column{TestSessionAnswersColumns[8]},
+				Columns:    []*schema.Column{TestSessionAnswersColumns[9]},
 				RefColumns: []*schema.Column{QuestionOptionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "test_session_answers_test_sessions_test_session_question_answers",
-				Columns:    []*schema.Column{TestSessionAnswersColumns[9]},
+				Columns:    []*schema.Column{TestSessionAnswersColumns[10]},
 				RefColumns: []*schema.Column{TestSessionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

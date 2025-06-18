@@ -101,6 +101,11 @@ func Order(v int) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldOrder, v))
 }
 
+// IsCorrect applies equality check predicate on the "is_correct" field. It's identical to IsCorrectEQ.
+func IsCorrect(v bool) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldEQ(FieldIsCorrect, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldCreatedAt, v))
@@ -464,6 +469,26 @@ func OrderLT(v int) predicate.TestSessionAnswer {
 // OrderLTE applies the LTE predicate on the "order" field.
 func OrderLTE(v int) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldLTE(FieldOrder, v))
+}
+
+// IsCorrectEQ applies the EQ predicate on the "is_correct" field.
+func IsCorrectEQ(v bool) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldEQ(FieldIsCorrect, v))
+}
+
+// IsCorrectNEQ applies the NEQ predicate on the "is_correct" field.
+func IsCorrectNEQ(v bool) predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNEQ(FieldIsCorrect, v))
+}
+
+// IsCorrectIsNil applies the IsNil predicate on the "is_correct" field.
+func IsCorrectIsNil() predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldIsNull(FieldIsCorrect))
+}
+
+// IsCorrectNotNil applies the NotNil predicate on the "is_correct" field.
+func IsCorrectNotNil() predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldIsCorrect))
 }
 
 // HasQuestion applies the HasEdge predicate on the "question" edge.

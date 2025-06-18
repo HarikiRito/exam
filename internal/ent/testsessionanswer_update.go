@@ -188,6 +188,26 @@ func (tsau *TestSessionAnswerUpdate) AddOrder(i int) *TestSessionAnswerUpdate {
 	return tsau
 }
 
+// SetIsCorrect sets the "is_correct" field.
+func (tsau *TestSessionAnswerUpdate) SetIsCorrect(b bool) *TestSessionAnswerUpdate {
+	tsau.mutation.SetIsCorrect(b)
+	return tsau
+}
+
+// SetNillableIsCorrect sets the "is_correct" field if the given value is not nil.
+func (tsau *TestSessionAnswerUpdate) SetNillableIsCorrect(b *bool) *TestSessionAnswerUpdate {
+	if b != nil {
+		tsau.SetIsCorrect(*b)
+	}
+	return tsau
+}
+
+// ClearIsCorrect clears the value of the "is_correct" field.
+func (tsau *TestSessionAnswerUpdate) ClearIsCorrect() *TestSessionAnswerUpdate {
+	tsau.mutation.ClearIsCorrect()
+	return tsau
+}
+
 // SetQuestion sets the "question" edge to the Question entity.
 func (tsau *TestSessionAnswerUpdate) SetQuestion(q *Question) *TestSessionAnswerUpdate {
 	return tsau.SetQuestionID(q.ID)
@@ -334,6 +354,12 @@ func (tsau *TestSessionAnswerUpdate) sqlSave(ctx context.Context) (n int, err er
 	}
 	if value, ok := tsau.mutation.AddedOrder(); ok {
 		_spec.AddField(testsessionanswer.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := tsau.mutation.IsCorrect(); ok {
+		_spec.SetField(testsessionanswer.FieldIsCorrect, field.TypeBool, value)
+	}
+	if tsau.mutation.IsCorrectCleared() {
+		_spec.ClearField(testsessionanswer.FieldIsCorrect, field.TypeBool)
 	}
 	if tsau.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -598,6 +624,26 @@ func (tsauo *TestSessionAnswerUpdateOne) AddOrder(i int) *TestSessionAnswerUpdat
 	return tsauo
 }
 
+// SetIsCorrect sets the "is_correct" field.
+func (tsauo *TestSessionAnswerUpdateOne) SetIsCorrect(b bool) *TestSessionAnswerUpdateOne {
+	tsauo.mutation.SetIsCorrect(b)
+	return tsauo
+}
+
+// SetNillableIsCorrect sets the "is_correct" field if the given value is not nil.
+func (tsauo *TestSessionAnswerUpdateOne) SetNillableIsCorrect(b *bool) *TestSessionAnswerUpdateOne {
+	if b != nil {
+		tsauo.SetIsCorrect(*b)
+	}
+	return tsauo
+}
+
+// ClearIsCorrect clears the value of the "is_correct" field.
+func (tsauo *TestSessionAnswerUpdateOne) ClearIsCorrect() *TestSessionAnswerUpdateOne {
+	tsauo.mutation.ClearIsCorrect()
+	return tsauo
+}
+
 // SetQuestion sets the "question" edge to the Question entity.
 func (tsauo *TestSessionAnswerUpdateOne) SetQuestion(q *Question) *TestSessionAnswerUpdateOne {
 	return tsauo.SetQuestionID(q.ID)
@@ -774,6 +820,12 @@ func (tsauo *TestSessionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *Te
 	}
 	if value, ok := tsauo.mutation.AddedOrder(); ok {
 		_spec.AddField(testsessionanswer.FieldOrder, field.TypeInt, value)
+	}
+	if value, ok := tsauo.mutation.IsCorrect(); ok {
+		_spec.SetField(testsessionanswer.FieldIsCorrect, field.TypeBool, value)
+	}
+	if tsauo.mutation.IsCorrectCleared() {
+		_spec.ClearField(testsessionanswer.FieldIsCorrect, field.TypeBool)
 	}
 	if tsauo.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{

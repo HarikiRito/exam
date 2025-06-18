@@ -24,6 +24,7 @@ func (TestSessionAnswer) Fields() []ent.Field {
 		field.String("selected_option_text").Optional().Nillable(),
 		field.Int("points").Optional().Nillable(),
 		field.Int("order").Default(1).Positive(),
+		field.Bool("is_correct").Optional().Nillable(),
 	}
 }
 
