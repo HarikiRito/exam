@@ -51,7 +51,7 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (
 		return nil, db.Rollback(tx, err)
 	}
 
-	err = GenerateTestSessionAnswers(ctx, tx, existingSession)
+	err = randomGenerateTestSessionAnswers(ctx, tx, existingSession)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
 	}
@@ -64,7 +64,7 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (
 }
 
 // Generate test_session_answers based on the settings of the test
-func GenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *ent.TestSession) error {
+func randomGenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *ent.TestSession) error {
 	testEntity, err := tx.Test.Query().
 		Where(test.ID(session.TestID)).
 		WithTestQuestionCounts().
@@ -118,7 +118,7 @@ func GenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *ent.Te
 			SetTestSessionID(session.ID).
 			SetQuestionID(question.ID).
 			SetPoints(question.Points).
-			SetOrder(index)
+			SetOrder(index + 1)
 	}
 
 	_, err = tx.TestSessionAnswer.CreateBulk(answers...).Save(ctx)
