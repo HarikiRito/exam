@@ -67,3 +67,13 @@ func HasDuplicates[T comparable](slice []T) bool {
 	}
 	return false
 }
+
+// Convert a slice to a map with a function that returns the key and the value
+func ToMap[T any, Key comparable, Value any](slice []T, fn func(T) (Key, Value)) map[Key]Value {
+	result := make(map[Key]Value)
+	for _, v := range slice {
+		key, value := fn(v)
+		result[key] = value
+	}
+	return result
+}
