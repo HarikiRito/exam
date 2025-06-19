@@ -85,3 +85,11 @@ func FlatMap[T any, R any](slice []T, fn func(T) []R) []R {
 	}
 	return result
 }
+
+func Reduce[T any, R any](slice []T, fn func(R, T) R, initialValue R) R {
+	result := initialValue
+	for _, v := range slice {
+		result = fn(result, v)
+	}
+	return result
+}

@@ -2,6 +2,7 @@ package test_session
 
 import (
 	"context"
+	"fmt"
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/graph/model"
@@ -14,13 +15,11 @@ func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) 
 		return nil, err
 	}
 
-	builder := client.TestSession.Create().
-		SetTestID(input.TestID).
-		SetNillableUserID(input.UserID)
+	builder := client.TestSession.Create().SetTestID(input.TestID).SetNillableUserID(input.UserID)
 
 	session, err := builder.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create test session: %w", err)
 	}
 
 	return session, nil

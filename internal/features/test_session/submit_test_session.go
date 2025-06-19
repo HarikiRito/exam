@@ -42,12 +42,17 @@ func SubmitTestSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 
 	// Update session status to completed and set score
 	selectFields := TestSessionSelectFields(ctx)
-	updatedSession, err := tx.TestSession.UpdateOneID(sessionID).
+
+	updateSessionQuery := tx.TestSession.UpdateOneID(sessionID).
 		SetStatus(testsession.StatusCompleted).
 		SetCompletedAt(time.Now()).
-		SetPointsEarned(totalPoints).
-		Select(testsession.FieldID, selectFields...).
-		Save(ctx)
+		SetPointsEarned(totalPoints)
+
+	if len(selectFields) > 0 {
+		updateSessionQuery = updateSessionQuery.Select(testsession.FieldID, selectFields...)
+	}
+
+	updatedSession, err := updateSessionQuery.Save(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
 	}

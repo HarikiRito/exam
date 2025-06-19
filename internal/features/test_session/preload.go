@@ -8,8 +8,13 @@ import (
 
 // TestSessionSelectFields returns the fields to select for a test session based on the query preloads.
 func TestSessionSelectFields(ctx context.Context) []string {
-	preloads := graphqlFields.GetPreloadsAsMap(ctx)
 
+	// Check if the context has the operation context
+	if !graphqlFields.IsOperationContextExist(ctx) {
+		return []string{}
+	}
+
+	preloads := graphqlFields.GetPreloadsAsMap(ctx)
 	selectFields := []string{}
 
 	if preloads["id"] {

@@ -57,3 +57,11 @@ func GetPreloadString(prefix, name string) string {
 	}
 	return name
 }
+
+func IsOperationContextExist(ctx context.Context) bool {
+	backgroundCtx := context.Background()
+	if val, ok := backgroundCtx.Value(ctx).(*graphqlBase.OperationContext); ok && val != nil {
+		return true
+	}
+	return false
+}

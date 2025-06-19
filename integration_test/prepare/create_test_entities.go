@@ -8,6 +8,7 @@ import (
 	"template/internal/features/question"
 	"template/internal/features/test"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 	"testing"
 
 	"github.com/google/uuid"
@@ -82,8 +83,17 @@ func CreateTestScenario(t *testing.T, questionCountConfigs []QuestionCountConfig
 		CollectionIds: []uuid.UUID{collectionEntity.ID},
 	})
 
+	// Update test question counts config
+
+	updateTestQuestionRequirementInput := slice.Map(questionCountConfigs, func(config QuestionCountConfig) model.UpdateTestQuestionRequirementInput {
+		return model.UpdateTestQuestionRequirementInput{
+			NumberOfQuestions: config.Count,
+			PointsPerQuestion: config.Points,
+		}
+	})
+	_, err = test.UpdateTestQuestionRequirement(context.Background(), userEntity.ID, testEntity.ID, updateTestQuestionRequirementInput)
 	if err != nil {
-		t.Fatalf("Failed to add multi collection to test: %v", err)
+		t.Fatalf("Failed to update test question requirement: %v", err)
 	}
 
 	return TestScenario{
