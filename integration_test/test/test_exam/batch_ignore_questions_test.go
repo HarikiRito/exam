@@ -17,7 +17,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("BatchIgnoreQuestions_Success_WithReasons", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 5)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 5, Points: 10}})
 
 		input := model.BatchIgnoreQuestionsInput{
 			TestID: scenario.Test.ID,
@@ -43,7 +43,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_Success_WithoutReasons", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		input := model.BatchIgnoreQuestionsInput{
 			TestID: scenario.Test.ID,
@@ -59,7 +59,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_Success_MixedReasons", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 4)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 4, Points: 10}})
 
 		input := model.BatchIgnoreQuestionsInput{
 			TestID: scenario.Test.ID,
@@ -82,7 +82,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_UpdateExistingIgnores", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// First ignore some questions
 		initialInput := model.BatchIgnoreQuestionsInput{
@@ -124,7 +124,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_SingleQuestion", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		input := model.BatchIgnoreQuestionsInput{
 			TestID: scenario.Test.ID,
@@ -142,7 +142,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_TestNotFound", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 		nonExistentTestID := uuid.New()
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -159,7 +159,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_EmptyQuestionData", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		input := model.BatchIgnoreQuestionsInput{
 			TestID:             scenario.Test.ID,
@@ -173,7 +173,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 
 	t.Run("BatchIgnoreQuestions_UnauthorizedQuestions", func(t *testing.T) {
 		// Create first user with test
-		scenario1 := prepare.CreateTestScenario(t, 3)
+		scenario1 := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Create second user with questions
 		userInput2 := model.RegisterInput{
@@ -181,7 +181,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 			Password: "testpassword123",
 		}
 		userEntity2 := prepare.CreateUser(t, userInput2)
-		_, unauthorizedQuestions := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, 3)
+		_, unauthorizedQuestions := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Try to ignore second user's questions in first user's test
 		input := model.BatchIgnoreQuestionsInput{
@@ -202,7 +202,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 
 	t.Run("BatchIgnoreQuestions_MixedAuthorizedUnauthorized", func(t *testing.T) {
 		// Create first user with test and questions
-		scenario1 := prepare.CreateTestScenario(t, 3)
+		scenario1 := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Create second user with questions
 		userInput2 := model.RegisterInput{
@@ -210,7 +210,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 			Password: "testpassword123",
 		}
 		userEntity2 := prepare.CreateUser(t, userInput2)
-		_, unauthorizedQuestions := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, 2)
+		_, unauthorizedQuestions := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, []prepare.QuestionCountConfig{{Count: 2, Points: 10}})
 
 		// Try to ignore mix of authorized and unauthorized questions
 		input := model.BatchIgnoreQuestionsInput{
@@ -234,7 +234,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_NonExistentQuestion", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 		nonExistentQuestionID := uuid.New()
 
 		input := model.BatchIgnoreQuestionsInput{
@@ -254,7 +254,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_DuplicateQuestionIds", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		input := model.BatchIgnoreQuestionsInput{
 			TestID: scenario.Test.ID,
@@ -278,7 +278,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_VeryLongReason", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		longReason := utils.Faker.Lorem().Text(500) // Very long reason
 
@@ -302,10 +302,10 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_LargeNumberOfQuestions", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 2)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 2, Points: 10}})
 
 		// Create a collection with many questions
-		_, manyQuestions := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 20)
+		_, manyQuestions := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, []prepare.QuestionCountConfig{{Count: 20, Points: 10}})
 
 		var questionIgnoreData []*model.QuestionIgnoreData
 		for i, question := range manyQuestions {
@@ -330,7 +330,7 @@ func TestBatchIgnoreQuestions(t *testing.T) {
 	})
 
 	t.Run("BatchIgnoreQuestions_ClearAllIgnores", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// First ignore some questions
 		initialInput := model.BatchIgnoreQuestionsInput{

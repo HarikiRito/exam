@@ -65,7 +65,7 @@ type TestScenario struct {
 }
 
 // CreateTestScenario creates a complete test scenario with user, course, test, collection and questions
-func CreateTestScenario(t *testing.T, questionCount int) TestScenario {
+func CreateTestScenario(t *testing.T, questionCountConfigs []QuestionCountConfig) TestScenario {
 	userInput := model.RegisterInput{
 		Email:    utils.Faker.Internet().Email(),
 		Password: "testpassword123",
@@ -75,7 +75,7 @@ func CreateTestScenario(t *testing.T, questionCount int) TestScenario {
 	testEntity := CreateTest(t, model.CreateTestInput{
 		Name: utils.Faker.Lorem().Word(),
 	})
-	collectionEntity, questions := CreateCollectionWithQuestions(t, userEntity.ID, questionCount)
+	collectionEntity, questions := CreateCollectionWithQuestions(t, userEntity.ID, questionCountConfigs)
 
 	_, err := test.UpdateQuestionCollectionsForTest(context.Background(), userEntity.ID, model.AddMultiCollectionToTestInput{
 		TestID:        testEntity.ID,

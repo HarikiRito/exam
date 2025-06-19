@@ -20,7 +20,9 @@ func TestAddMultiCollection(t *testing.T) {
 
 	t.Run("AddMultiCollection_Success", func(t *testing.T) {
 		// Create test scenario with user, course, test, and multiple collections
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{
+			{Count: 3, Points: 10},
+		})
 
 		input := model.AddMultiCollectionToTestInput{
 			TestID:        scenario.Test.ID,
@@ -34,7 +36,7 @@ func TestAddMultiCollection(t *testing.T) {
 
 	t.Run("AddMultiCollection_SingleCollection", func(t *testing.T) {
 		// Create test scenario with user, course, test, and one collection
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		input := model.AddMultiCollectionToTestInput{
 			TestID:        scenario.Test.ID,
@@ -48,7 +50,7 @@ func TestAddMultiCollection(t *testing.T) {
 
 	t.Run("AddMultiCollection_ReplaceExistingCollections", func(t *testing.T) {
 		// Create test scenario with user, course, test, and initial collection
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Add initial collection
 		initialInput := model.AddMultiCollectionToTestInput{
@@ -60,8 +62,8 @@ func TestAddMultiCollection(t *testing.T) {
 		assert.True(t, result)
 
 		// Create new collections and replace the existing ones
-		collection2, _ := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 4)
-		collection3, _ := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 6)
+		collection2, _ := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, []prepare.QuestionCountConfig{{Count: 4, Points: 10}})
+		collection3, _ := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, []prepare.QuestionCountConfig{{Count: 6, Points: 10}})
 
 		replaceInput := model.AddMultiCollectionToTestInput{
 			TestID:        scenario.Test.ID,
@@ -74,7 +76,7 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_TestNotFound", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 		nonExistentTestID := uuid.New()
 
 		input := model.AddMultiCollectionToTestInput{
@@ -90,7 +92,7 @@ func TestAddMultiCollection(t *testing.T) {
 
 	t.Run("AddMultiCollection_UnauthorizedCollection", func(t *testing.T) {
 		// Create first user with test and collection
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Create second user with collection
 		userInput2 := model.RegisterInput{
@@ -98,7 +100,7 @@ func TestAddMultiCollection(t *testing.T) {
 			Password: "testpassword123",
 		}
 		userEntity2 := prepare.CreateUser(t, userInput2)
-		unauthorizedCollection, _ := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, 3)
+		unauthorizedCollection, _ := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Try to add second user's collection to first user's test
 		input := model.AddMultiCollectionToTestInput{
@@ -114,7 +116,7 @@ func TestAddMultiCollection(t *testing.T) {
 
 	t.Run("AddMultiCollection_MixedAuthorizedUnauthorized", func(t *testing.T) {
 		// Create first user with test and collection
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Create second user with collection
 		userInput2 := model.RegisterInput{
@@ -122,7 +124,7 @@ func TestAddMultiCollection(t *testing.T) {
 			Password: "testpassword123",
 		}
 		userEntity2 := prepare.CreateUser(t, userInput2)
-		unauthorizedCollection, _ := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, 3)
+		unauthorizedCollection, _ := prepare.CreateCollectionWithQuestions(t, userEntity2.ID, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Try to add both authorized and unauthorized collections
 		input := model.AddMultiCollectionToTestInput{
@@ -137,7 +139,7 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_NonExistentCollection", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 		nonExistentCollectionID := uuid.New()
 
 		input := model.AddMultiCollectionToTestInput{
@@ -152,7 +154,7 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_DuplicateCollectionIds", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Try to add the same collection multiple times
 		input := model.AddMultiCollectionToTestInput{
@@ -167,7 +169,7 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_EmptyCollectionIds", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		input := model.AddMultiCollectionToTestInput{
 			TestID:        scenario.Test.ID,
@@ -181,7 +183,7 @@ func TestAddMultiCollection(t *testing.T) {
 	})
 
 	t.Run("AddMultiCollection_LargeNumberOfCollections", func(t *testing.T) {
-		scenario := prepare.CreateTestScenario(t, 3)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}})
 
 		// Create multiple collections concurrently
 		var wg sync.WaitGroup
@@ -193,7 +195,7 @@ func TestAddMultiCollection(t *testing.T) {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				collection, _ := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, 2)
+				collection, _ := prepare.CreateCollectionWithQuestions(t, scenario.User.ID, []prepare.QuestionCountConfig{{Count: 2, Points: 10}})
 				collectionIds = append(collectionIds, collection.ID)
 			}()
 		}

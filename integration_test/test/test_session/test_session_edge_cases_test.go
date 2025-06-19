@@ -23,7 +23,7 @@ func TestTestSessionEdgeCases(t *testing.T) {
 
 	t.Run("StartTestSession_NoTestQuestionCounts", func(t *testing.T) {
 		// Test scenario without test question counts should fail
-		scenario := prepare.CreateTestScenario(t, 20)
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 20, Points: 10}})
 		// Don't set up test question counts
 
 		createInput := model.CreateTestSessionInput{
@@ -41,7 +41,7 @@ func TestTestSessionEdgeCases(t *testing.T) {
 
 	t.Run("StartTestSession_InsufficientQuestionsInCollection", func(t *testing.T) {
 		// Create scenario with fewer questions than required by test question counts
-		scenario := prepare.CreateTestScenario(t, 3) // Only 3 questions
+		scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: 3, Points: 10}}) // Only 3 questions
 
 		// Set up test question counts requiring more questions than available
 		testQuestionRequirements := []model.UpdateTestQuestionRequirementInput{

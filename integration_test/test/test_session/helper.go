@@ -6,22 +6,12 @@ import (
 	"template/internal/ent/db"
 	"template/internal/ent/question"
 	"template/internal/ent/testsessionanswer"
-	"template/internal/features/test_session"
 	"template/internal/graph/model"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
-
-func preparePartiallyCorrectAnswers(t *testing.T, ctx context.Context, sessionID uuid.UUID) []*model.TestSessionAnswerInput {
-	sessionAnswers, err := test_session.GetSessionAnswers(ctx, sessionID)
-	require.NoError(t, err)
-
-	answers := make([]*model.TestSessionAnswerInput, len(sessionAnswers))
-
-	return answers
-}
 
 func getTestSessionAnswers(t *testing.T, ctx context.Context, sessionID uuid.UUID) []*ent.TestSessionAnswer {
 	client, err := db.OpenClient()

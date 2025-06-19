@@ -12,38 +12,45 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateCollectionWithQuestions(t *testing.T, userID uuid.UUID, questionCount int) (*ent.QuestionCollection, []*ent.Question) {
+type QuestionCountConfig struct {
+	Count  int
+	Points int
+}
+
+func CreateCollectionWithQuestions(t *testing.T, userID uuid.UUID, questionCountConfigs []QuestionCountConfig) (*ent.QuestionCollection, []*ent.Question) {
 	collectionInput := model.CreateQuestionCollectionInput{
 		Title:       utils.Faker.Lorem().Word(),
 		Description: utils.Ptr(utils.Faker.Lorem().Sentence(10)),
 	}
 	collectionEntity := CreateQuestionCollection(t, userID, collectionInput)
 
-	questionInputs := make([]*model.UpdateQuestionData, questionCount)
+	questionInputs := make([]*model.UpdateQuestionData, 0)
 
-	for i := 0; i < questionCount; i++ {
-		// Random options with at least one correct option
-		correctCount := utils.Faker.IntBetween(1, 3)
-		currentCorrectCount := 0
-		options := make([]*model.UpdateQuestionOptionInput, 0)
-		for {
-			isCorrect := utils.Faker.BoolWithChance(40)
-			option := &model.UpdateQuestionOptionInput{
-				OptionText: utils.Ptr(utils.Faker.Lorem().Word()),
-				IsCorrect:  utils.Ptr(isCorrect),
+	for _, questionCountConfig := range questionCountConfigs {
+		for i := 0; i < questionCountConfig.Count; i++ {
+			// Random options with at least one correct option
+			correctCount := utils.Faker.IntBetween(1, 3)
+			currentCorrectCount := 0
+			options := make([]*model.UpdateQuestionOptionInput, 0)
+			for {
+				isCorrect := utils.Faker.BoolWithChance(40)
+				option := &model.UpdateQuestionOptionInput{
+					OptionText: utils.Ptr(utils.Faker.Lorem().Word()),
+					IsCorrect:  utils.Ptr(isCorrect),
+				}
+				options = append(options, option)
+				if isCorrect {
+					currentCorrectCount++
+				}
+				if currentCorrectCount >= correctCount {
+					break
+				}
 			}
-			options = append(options, option)
-			if isCorrect {
-				currentCorrectCount++
-			}
-			if currentCorrectCount >= correctCount {
-				break
-			}
-		}
-		questionInputs[i] = &model.UpdateQuestionData{
-			QuestionText: utils.Ptr(utils.Faker.Lorem().Sentence(10)),
-			Options:      options,
-			Points:       utils.Faker.IntBetween(1, 10),
+			questionInputs = append(questionInputs, &model.UpdateQuestionData{
+				QuestionText: utils.Ptr(utils.Faker.Lorem().Sentence(10)),
+				Options:      options,
+				Points:       questionCountConfig.Points,
+			})
 		}
 	}
 

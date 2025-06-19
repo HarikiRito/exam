@@ -351,7 +351,7 @@ func TestTestSessionIntegration(t *testing.T) {
 // Helper functions for test setup and validation
 
 func createTestScenarioWithQuestionCounts(t *testing.T, questionCount int) prepare.TestScenario {
-	scenario := prepare.CreateTestScenario(t, questionCount)
+	scenario := prepare.CreateTestScenario(t, []prepare.QuestionCountConfig{{Count: questionCount, Points: 10}})
 
 	// Create test question counts with different point values
 	testQuestionRequirements := []model.UpdateTestQuestionRequirementInput{
