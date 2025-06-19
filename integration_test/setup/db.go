@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"template/internal/ent"
 	"template/internal/ent/db"
 	"testing"
 )
@@ -54,4 +55,12 @@ func initDatabase(t *testing.T, schema string) {
 	if err != nil {
 		t.Fatalf("Failed to initialize database: %v", err)
 	}
+}
+
+func OpenEntClient(t *testing.T) *ent.Client {
+	entClient, err := db.OpenClient()
+	if err != nil {
+		t.Fatalf("Failed to open ent client: %v", err)
+	}
+	return entClient
 }

@@ -27,7 +27,7 @@ func SubmitTestSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 		Where(testsession.ID(sessionID),
 			testsession.UserID(userID),
 			testsession.StatusEQ(testsession.StatusInProgress),
-			testsession.ExpiredAtGTE(time.Now()),
+			// testsession.ExpiredAtGTE(time.Now()),
 		).
 		Only(ctx)
 	if err != nil {
@@ -72,7 +72,7 @@ func calculatePoints(ctx context.Context, tx *ent.Tx, session *ent.TestSession, 
 
 	// Total empty answers must match the input sent
 	if len(blankAnswers) != len(input.Answers) {
-		return 0, fmt.Errorf("test answers doesn't match")
+		return 0, fmt.Errorf("test answers doesn't match. needed %d answers, got %d", len(blankAnswers), len(input.Answers))
 	}
 
 	questionIDs := slice.Map(blankAnswers, func(a *ent.TestSessionAnswer) uuid.UUID { return a.QuestionID })

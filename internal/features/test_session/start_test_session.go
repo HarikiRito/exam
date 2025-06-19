@@ -2,6 +2,7 @@ package test_session
 
 import (
 	"context"
+	"fmt"
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/question"
@@ -31,15 +32,13 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (
 		).
 		Select(testsession.FieldID, testsession.FieldTestID).
 		First(ctx)
-	if err == nil {
-		// Session already exists, return it
-		if err := tx.Commit(); err != nil {
-			return nil, err
-		}
-		return existingSession, nil
-	}
-	if !ent.IsNotFound(err) {
+
+	if err != nil {
 		return nil, db.Rollback(tx, err)
+	}
+
+	if ent.IsNotFound(err) {
+		return nil, db.Rollback(tx, fmt.Errorf("test session not found"))
 	}
 
 	// Update the session to in progress
@@ -68,8 +67,11 @@ func randomGenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *
 	testEntity, err := tx.Test.Query().
 		Where(test.ID(session.TestID)).
 		WithTestQuestionCounts().
-		WithQuestionCollections(func(qcq *ent.QuestionCollectionQuery) {
-			qcq.Select(questioncollection.FieldID)
+		WithQuestionCollections(func(questionCollectionQuery *ent.QuestionCollectionQuery) {
+			questionCollectionQuery.Select(questioncollection.FieldID)
+			questionCollectionQuery.WithQuestions(func(questionQuery *ent.QuestionQuery) {
+				questionQuery.Select(question.FieldID, question.FieldPoints)
+			})
 		}).
 		Only(ctx)
 	if err != nil {
@@ -77,6 +79,26 @@ func randomGenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *
 	}
 
 	questionCounts := testEntity.Edges.TestQuestionCounts
+
+	availableTestQuestions := slice.FlatMap(testEntity.Edges.QuestionCollections, func(c *ent.QuestionCollection) []*ent.Question {
+		return c.Edges.Questions
+	})
+
+	if len(questionCounts) == 0 {
+		return fmt.Errorf("no question counts found for test")
+	}
+
+	// Check if the questions is sufficient based on the question counts settings
+	for _, questionCount := range questionCounts {
+		totalAvailableQuestions := slice.Filter(availableTestQuestions, func(q *ent.Question) bool {
+			return q.Points == questionCount.Points
+		})
+
+		if len(totalAvailableQuestions) < questionCount.NumberOfQuestions {
+			return fmt.Errorf("insufficient questions available for test based on the question counts settings")
+		}
+	}
+
 	collectionIDs := slice.Map(testEntity.Edges.QuestionCollections, func(c *ent.QuestionCollection) uuid.UUID {
 		return c.ID
 	})
@@ -90,7 +112,7 @@ func randomGenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *
 
 	// Randomly select questions from the collections based on the question settings in the question_counts table
 	for _, questionCount := range questionCounts {
-		questions, err := tx.Client().Debug().Question.Query().
+		questions, err := tx.Question.Query().
 			Where(
 				question.CollectionIDIn(collectionIDs...),
 				question.PointsEQ(questionCount.Points),
@@ -117,7 +139,6 @@ func randomGenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *
 		answers[index] = tx.TestSessionAnswer.Create().
 			SetTestSessionID(session.ID).
 			SetQuestionID(question.ID).
-			SetPoints(question.Points).
 			SetOrder(index + 1)
 	}
 

@@ -77,3 +77,11 @@ func ToMap[T any, Key comparable, Value any](slice []T, fn func(T) (Key, Value))
 	}
 	return result
 }
+
+func FlatMap[T any, R any](slice []T, fn func(T) []R) []R {
+	result := make([]R, 0)
+	for _, v := range slice {
+		result = append(result, fn(v)...)
+	}
+	return result
+}

@@ -5,29 +5,9 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/testsession"
-	"template/internal/graph/model"
 
 	"github.com/google/uuid"
 )
-
-// CreateTestSession creates a new test session with the given input.
-func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*ent.TestSession, error) {
-	client, err := db.OpenClient()
-	if err != nil {
-		return nil, err
-	}
-
-	builder := client.TestSession.Create().
-		SetTestID(input.TestID).
-		SetNillableUserID(input.UserID)
-
-	session, err := builder.Save(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return session, nil
-}
 
 // GetTestSessionByID fetches a test session by its ID.
 func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSession, error) {
