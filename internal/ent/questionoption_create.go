@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/testsessionanswer"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -108,21 +107,6 @@ func (qoc *QuestionOptionCreate) SetNillableID(u *uuid.UUID) *QuestionOptionCrea
 // SetQuestion sets the "question" edge to the Question entity.
 func (qoc *QuestionOptionCreate) SetQuestion(q *Question) *QuestionOptionCreate {
 	return qoc.SetQuestionID(q.ID)
-}
-
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (qoc *QuestionOptionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionOptionCreate {
-	qoc.mutation.AddUserQuestionAnswerIDs(ids...)
-	return qoc
-}
-
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
-func (qoc *QuestionOptionCreate) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionOptionCreate {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return qoc.AddUserQuestionAnswerIDs(ids...)
 }
 
 // Mutation returns the QuestionOptionMutation object of the builder.
@@ -285,22 +269,6 @@ func (qoc *QuestionOptionCreate) createSpec() (*QuestionOption, *sqlgraph.Create
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.QuestionID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := qoc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

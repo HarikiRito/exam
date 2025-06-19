@@ -1691,22 +1691,6 @@ func (c *QuestionOptionClient) QueryQuestion(qo *QuestionOption) *QuestionQuery 
 	return query
 }
 
-// QueryUserQuestionAnswers queries the user_question_answers edge of a QuestionOption.
-func (c *QuestionOptionClient) QueryUserQuestionAnswers(qo *QuestionOption) *TestSessionAnswerQuery {
-	query := (&TestSessionAnswerClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := qo.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(questionoption.Table, questionoption.FieldID, id),
-			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, questionoption.UserQuestionAnswersTable, questionoption.UserQuestionAnswersColumn),
-		)
-		fromV = sqlgraph.Neighbors(qo.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *QuestionOptionClient) Hooks() []Hook {
 	hooks := c.hooks.QuestionOption
@@ -2766,22 +2750,6 @@ func (c *TestSessionAnswerClient) QueryQuestion(tsa *TestSessionAnswer) *Questio
 			sqlgraph.From(testsessionanswer.Table, testsessionanswer.FieldID, id),
 			sqlgraph.To(question.Table, question.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, testsessionanswer.QuestionTable, testsessionanswer.QuestionColumn),
-		)
-		fromV = sqlgraph.Neighbors(tsa.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QuerySelectedOption queries the selected_option edge of a TestSessionAnswer.
-func (c *TestSessionAnswerClient) QuerySelectedOption(tsa *TestSessionAnswer) *QuestionOptionQuery {
-	query := (&QuestionOptionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := tsa.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(testsessionanswer.Table, testsessionanswer.FieldID, id),
-			sqlgraph.To(questionoption.Table, questionoption.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, testsessionanswer.SelectedOptionTable, testsessionanswer.SelectedOptionColumn),
 		)
 		fromV = sqlgraph.Neighbors(tsa.driver.Dialect(), step)
 		return fromV, nil

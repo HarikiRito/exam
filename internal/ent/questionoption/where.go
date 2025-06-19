@@ -334,29 +334,6 @@ func HasQuestionWith(preds ...predicate.Question) predicate.QuestionOption {
 	})
 }
 
-// HasUserQuestionAnswers applies the HasEdge predicate on the "user_question_answers" edge.
-func HasUserQuestionAnswers() predicate.QuestionOption {
-	return predicate.QuestionOption(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasUserQuestionAnswersWith applies the HasEdge predicate on the "user_question_answers" edge with a given conditions (other predicates).
-func HasUserQuestionAnswersWith(preds ...predicate.TestSessionAnswer) predicate.QuestionOption {
-	return predicate.QuestionOption(func(s *sql.Selector) {
-		step := newUserQuestionAnswersStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.QuestionOption) predicate.QuestionOption {
 	return predicate.QuestionOption(sql.AndPredicates(predicates...))

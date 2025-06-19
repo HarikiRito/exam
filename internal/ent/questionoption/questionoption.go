@@ -30,8 +30,6 @@ const (
 	FieldIsCorrect = "is_correct"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
-	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
-	EdgeUserQuestionAnswers = "user_question_answers"
 	// Table holds the table name of the questionoption in the database.
 	Table = "question_options"
 	// QuestionTable is the table that holds the question relation/edge.
@@ -41,13 +39,6 @@ const (
 	QuestionInverseTable = "questions"
 	// QuestionColumn is the table column denoting the question relation/edge.
 	QuestionColumn = "question_id"
-	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "test_session_answers"
-	// UserQuestionAnswersInverseTable is the table name for the TestSessionAnswer entity.
-	// It exists in this package in order to avoid circular dependency with the "testsessionanswer" package.
-	UserQuestionAnswersInverseTable = "test_session_answers"
-	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
-	UserQuestionAnswersColumn = "selected_option_id"
 )
 
 // Columns holds all SQL columns for questionoption fields.
@@ -137,31 +128,10 @@ func ByQuestionField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newQuestionStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByUserQuestionAnswersCount orders the results by user_question_answers count.
-func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserQuestionAnswersStep(), opts...)
-	}
-}
-
-// ByUserQuestionAnswers orders the results by user_question_answers terms.
-func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
 func newQuestionStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(QuestionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, QuestionTable, QuestionColumn),
-	)
-}
-func newUserQuestionAnswersStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
 	)
 }

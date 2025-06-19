@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"template/internal/ent/question"
-	"template/internal/ent/questionoption"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
 	"time"
@@ -29,12 +28,8 @@ type TestSessionAnswer struct {
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 	// QuestionID holds the value of the "question_id" field.
 	QuestionID uuid.UUID `json:"question_id,omitempty"`
-	// SelectedOptionID holds the value of the "selected_option_id" field.
-	SelectedOptionID *uuid.UUID `json:"selected_option_id,omitempty"`
 	// SessionID holds the value of the "session_id" field.
 	SessionID uuid.UUID `json:"session_id,omitempty"`
-	// SelectedOptionText holds the value of the "selected_option_text" field.
-	SelectedOptionText *string `json:"selected_option_text,omitempty"`
 	// Points holds the value of the "points" field.
 	Points *int `json:"points,omitempty"`
 	// Order holds the value of the "order" field.
@@ -51,13 +46,11 @@ type TestSessionAnswer struct {
 type TestSessionAnswerEdges struct {
 	// Question holds the value of the question edge.
 	Question *Question `json:"question,omitempty"`
-	// SelectedOption holds the value of the selected_option edge.
-	SelectedOption *QuestionOption `json:"selected_option,omitempty"`
 	// TestSession holds the value of the test_session edge.
 	TestSession *TestSession `json:"test_session,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
 // QuestionOrErr returns the Question value or an error if the edge
@@ -71,23 +64,12 @@ func (e TestSessionAnswerEdges) QuestionOrErr() (*Question, error) {
 	return nil, &NotLoadedError{edge: "question"}
 }
 
-// SelectedOptionOrErr returns the SelectedOption value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e TestSessionAnswerEdges) SelectedOptionOrErr() (*QuestionOption, error) {
-	if e.SelectedOption != nil {
-		return e.SelectedOption, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: questionoption.Label}
-	}
-	return nil, &NotLoadedError{edge: "selected_option"}
-}
-
 // TestSessionOrErr returns the TestSession value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TestSessionAnswerEdges) TestSessionOrErr() (*TestSession, error) {
 	if e.TestSession != nil {
 		return e.TestSession, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: testsession.Label}
 	}
 	return nil, &NotLoadedError{edge: "test_session"}
@@ -98,14 +80,10 @@ func (*TestSessionAnswer) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case testsessionanswer.FieldSelectedOptionID:
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		case testsessionanswer.FieldIsCorrect:
 			values[i] = new(sql.NullBool)
 		case testsessionanswer.FieldPoints, testsessionanswer.FieldOrder:
 			values[i] = new(sql.NullInt64)
-		case testsessionanswer.FieldSelectedOptionText:
-			values[i] = new(sql.NullString)
 		case testsessionanswer.FieldCreatedAt, testsessionanswer.FieldUpdatedAt, testsessionanswer.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case testsessionanswer.FieldID, testsessionanswer.FieldQuestionID, testsessionanswer.FieldSessionID:
@@ -156,25 +134,11 @@ func (tsa *TestSessionAnswer) assignValues(columns []string, values []any) error
 			} else if value != nil {
 				tsa.QuestionID = *value
 			}
-		case testsessionanswer.FieldSelectedOptionID:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field selected_option_id", values[i])
-			} else if value.Valid {
-				tsa.SelectedOptionID = new(uuid.UUID)
-				*tsa.SelectedOptionID = *value.S.(*uuid.UUID)
-			}
 		case testsessionanswer.FieldSessionID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field session_id", values[i])
 			} else if value != nil {
 				tsa.SessionID = *value
-			}
-		case testsessionanswer.FieldSelectedOptionText:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field selected_option_text", values[i])
-			} else if value.Valid {
-				tsa.SelectedOptionText = new(string)
-				*tsa.SelectedOptionText = value.String
 			}
 		case testsessionanswer.FieldPoints:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -212,11 +176,6 @@ func (tsa *TestSessionAnswer) Value(name string) (ent.Value, error) {
 // QueryQuestion queries the "question" edge of the TestSessionAnswer entity.
 func (tsa *TestSessionAnswer) QueryQuestion() *QuestionQuery {
 	return NewTestSessionAnswerClient(tsa.config).QueryQuestion(tsa)
-}
-
-// QuerySelectedOption queries the "selected_option" edge of the TestSessionAnswer entity.
-func (tsa *TestSessionAnswer) QuerySelectedOption() *QuestionOptionQuery {
-	return NewTestSessionAnswerClient(tsa.config).QuerySelectedOption(tsa)
 }
 
 // QueryTestSession queries the "test_session" edge of the TestSessionAnswer entity.
@@ -261,18 +220,8 @@ func (tsa *TestSessionAnswer) String() string {
 	builder.WriteString("question_id=")
 	builder.WriteString(fmt.Sprintf("%v", tsa.QuestionID))
 	builder.WriteString(", ")
-	if v := tsa.SelectedOptionID; v != nil {
-		builder.WriteString("selected_option_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
 	builder.WriteString("session_id=")
 	builder.WriteString(fmt.Sprintf("%v", tsa.SessionID))
-	builder.WriteString(", ")
-	if v := tsa.SelectedOptionText; v != nil {
-		builder.WriteString("selected_option_text=")
-		builder.WriteString(*v)
-	}
 	builder.WriteString(", ")
 	if v := tsa.Points; v != nil {
 		builder.WriteString("points=")

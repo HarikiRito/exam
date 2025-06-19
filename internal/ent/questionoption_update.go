@@ -9,7 +9,6 @@ import (
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/testsessionanswer"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -118,21 +117,6 @@ func (qou *QuestionOptionUpdate) SetQuestion(q *Question) *QuestionOptionUpdate 
 	return qou.SetQuestionID(q.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (qou *QuestionOptionUpdate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionOptionUpdate {
-	qou.mutation.AddUserQuestionAnswerIDs(ids...)
-	return qou
-}
-
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
-func (qou *QuestionOptionUpdate) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionOptionUpdate {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return qou.AddUserQuestionAnswerIDs(ids...)
-}
-
 // Mutation returns the QuestionOptionMutation object of the builder.
 func (qou *QuestionOptionUpdate) Mutation() *QuestionOptionMutation {
 	return qou.mutation
@@ -142,27 +126,6 @@ func (qou *QuestionOptionUpdate) Mutation() *QuestionOptionMutation {
 func (qou *QuestionOptionUpdate) ClearQuestion() *QuestionOptionUpdate {
 	qou.mutation.ClearQuestion()
 	return qou
-}
-
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestSessionAnswer entity.
-func (qou *QuestionOptionUpdate) ClearUserQuestionAnswers() *QuestionOptionUpdate {
-	qou.mutation.ClearUserQuestionAnswers()
-	return qou
-}
-
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestSessionAnswer entities by IDs.
-func (qou *QuestionOptionUpdate) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionOptionUpdate {
-	qou.mutation.RemoveUserQuestionAnswerIDs(ids...)
-	return qou
-}
-
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestSessionAnswer entities.
-func (qou *QuestionOptionUpdate) RemoveUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionOptionUpdate {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return qou.RemoveUserQuestionAnswerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -279,51 +242,6 @@ func (qou *QuestionOptionUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if qou.mutation.UserQuestionAnswersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := qou.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !qou.mutation.UserQuestionAnswersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := qou.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, qou.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{questionoption.Label}
@@ -431,21 +349,6 @@ func (qouo *QuestionOptionUpdateOne) SetQuestion(q *Question) *QuestionOptionUpd
 	return qouo.SetQuestionID(q.ID)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (qouo *QuestionOptionUpdateOne) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionOptionUpdateOne {
-	qouo.mutation.AddUserQuestionAnswerIDs(ids...)
-	return qouo
-}
-
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
-func (qouo *QuestionOptionUpdateOne) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionOptionUpdateOne {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return qouo.AddUserQuestionAnswerIDs(ids...)
-}
-
 // Mutation returns the QuestionOptionMutation object of the builder.
 func (qouo *QuestionOptionUpdateOne) Mutation() *QuestionOptionMutation {
 	return qouo.mutation
@@ -455,27 +358,6 @@ func (qouo *QuestionOptionUpdateOne) Mutation() *QuestionOptionMutation {
 func (qouo *QuestionOptionUpdateOne) ClearQuestion() *QuestionOptionUpdateOne {
 	qouo.mutation.ClearQuestion()
 	return qouo
-}
-
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestSessionAnswer entity.
-func (qouo *QuestionOptionUpdateOne) ClearUserQuestionAnswers() *QuestionOptionUpdateOne {
-	qouo.mutation.ClearUserQuestionAnswers()
-	return qouo
-}
-
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestSessionAnswer entities by IDs.
-func (qouo *QuestionOptionUpdateOne) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionOptionUpdateOne {
-	qouo.mutation.RemoveUserQuestionAnswerIDs(ids...)
-	return qouo
-}
-
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestSessionAnswer entities.
-func (qouo *QuestionOptionUpdateOne) RemoveUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionOptionUpdateOne {
-	ids := make([]uuid.UUID, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
-	}
-	return qouo.RemoveUserQuestionAnswerIDs(ids...)
 }
 
 // Where appends a list predicates to the QuestionOptionUpdate builder.
@@ -615,51 +497,6 @@ func (qouo *QuestionOptionUpdateOne) sqlSave(ctx context.Context) (_node *Questi
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if qouo.mutation.UserQuestionAnswersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := qouo.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !qouo.mutation.UserQuestionAnswersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := qouo.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   questionoption.UserQuestionAnswersTable,
-			Columns: []string{questionoption.UserQuestionAnswersColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -24,12 +24,8 @@ const (
 	FieldDeletedAt = "deleted_at"
 	// FieldQuestionID holds the string denoting the question_id field in the database.
 	FieldQuestionID = "question_id"
-	// FieldSelectedOptionID holds the string denoting the selected_option_id field in the database.
-	FieldSelectedOptionID = "selected_option_id"
 	// FieldSessionID holds the string denoting the session_id field in the database.
 	FieldSessionID = "session_id"
-	// FieldSelectedOptionText holds the string denoting the selected_option_text field in the database.
-	FieldSelectedOptionText = "selected_option_text"
 	// FieldPoints holds the string denoting the points field in the database.
 	FieldPoints = "points"
 	// FieldOrder holds the string denoting the order field in the database.
@@ -38,8 +34,6 @@ const (
 	FieldIsCorrect = "is_correct"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
-	// EdgeSelectedOption holds the string denoting the selected_option edge name in mutations.
-	EdgeSelectedOption = "selected_option"
 	// EdgeTestSession holds the string denoting the test_session edge name in mutations.
 	EdgeTestSession = "test_session"
 	// Table holds the table name of the testsessionanswer in the database.
@@ -51,13 +45,6 @@ const (
 	QuestionInverseTable = "questions"
 	// QuestionColumn is the table column denoting the question relation/edge.
 	QuestionColumn = "question_id"
-	// SelectedOptionTable is the table that holds the selected_option relation/edge.
-	SelectedOptionTable = "test_session_answers"
-	// SelectedOptionInverseTable is the table name for the QuestionOption entity.
-	// It exists in this package in order to avoid circular dependency with the "questionoption" package.
-	SelectedOptionInverseTable = "question_options"
-	// SelectedOptionColumn is the table column denoting the selected_option relation/edge.
-	SelectedOptionColumn = "selected_option_id"
 	// TestSessionTable is the table that holds the test_session relation/edge.
 	TestSessionTable = "test_session_answers"
 	// TestSessionInverseTable is the table name for the TestSession entity.
@@ -74,9 +61,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeletedAt,
 	FieldQuestionID,
-	FieldSelectedOptionID,
 	FieldSessionID,
-	FieldSelectedOptionText,
 	FieldPoints,
 	FieldOrder,
 	FieldIsCorrect,
@@ -142,19 +127,9 @@ func ByQuestionID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldQuestionID, opts...).ToFunc()
 }
 
-// BySelectedOptionID orders the results by the selected_option_id field.
-func BySelectedOptionID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSelectedOptionID, opts...).ToFunc()
-}
-
 // BySessionID orders the results by the session_id field.
 func BySessionID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSessionID, opts...).ToFunc()
-}
-
-// BySelectedOptionText orders the results by the selected_option_text field.
-func BySelectedOptionText(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSelectedOptionText, opts...).ToFunc()
 }
 
 // ByPoints orders the results by the points field.
@@ -179,13 +154,6 @@ func ByQuestionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// BySelectedOptionField orders the results by selected_option field.
-func BySelectedOptionField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newSelectedOptionStep(), sql.OrderByField(field, opts...))
-	}
-}
-
 // ByTestSessionField orders the results by test_session field.
 func ByTestSessionField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -197,13 +165,6 @@ func newQuestionStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(QuestionInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, QuestionTable, QuestionColumn),
-	)
-}
-func newSelectedOptionStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(SelectedOptionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, SelectedOptionTable, SelectedOptionColumn),
 	)
 }
 func newTestSessionStep() *sqlgraph.Step {

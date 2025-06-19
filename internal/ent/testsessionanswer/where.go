@@ -76,19 +76,9 @@ func QuestionID(v uuid.UUID) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldQuestionID, v))
 }
 
-// SelectedOptionID applies equality check predicate on the "selected_option_id" field. It's identical to SelectedOptionIDEQ.
-func SelectedOptionID(v uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSelectedOptionID, v))
-}
-
 // SessionID applies equality check predicate on the "session_id" field. It's identical to SessionIDEQ.
 func SessionID(v uuid.UUID) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSessionID, v))
-}
-
-// SelectedOptionText applies equality check predicate on the "selected_option_text" field. It's identical to SelectedOptionTextEQ.
-func SelectedOptionText(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSelectedOptionText, v))
 }
 
 // Points applies equality check predicate on the "points" field. It's identical to PointsEQ.
@@ -256,36 +246,6 @@ func QuestionIDNotIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldQuestionID, vs...))
 }
 
-// SelectedOptionIDEQ applies the EQ predicate on the "selected_option_id" field.
-func SelectedOptionIDEQ(v uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSelectedOptionID, v))
-}
-
-// SelectedOptionIDNEQ applies the NEQ predicate on the "selected_option_id" field.
-func SelectedOptionIDNEQ(v uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNEQ(FieldSelectedOptionID, v))
-}
-
-// SelectedOptionIDIn applies the In predicate on the "selected_option_id" field.
-func SelectedOptionIDIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldIn(FieldSelectedOptionID, vs...))
-}
-
-// SelectedOptionIDNotIn applies the NotIn predicate on the "selected_option_id" field.
-func SelectedOptionIDNotIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldSelectedOptionID, vs...))
-}
-
-// SelectedOptionIDIsNil applies the IsNil predicate on the "selected_option_id" field.
-func SelectedOptionIDIsNil() predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldIsNull(FieldSelectedOptionID))
-}
-
-// SelectedOptionIDNotNil applies the NotNil predicate on the "selected_option_id" field.
-func SelectedOptionIDNotNil() predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldSelectedOptionID))
-}
-
 // SessionIDEQ applies the EQ predicate on the "session_id" field.
 func SessionIDEQ(v uuid.UUID) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSessionID, v))
@@ -304,81 +264,6 @@ func SessionIDIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
 // SessionIDNotIn applies the NotIn predicate on the "session_id" field.
 func SessionIDNotIn(vs ...uuid.UUID) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldSessionID, vs...))
-}
-
-// SelectedOptionTextEQ applies the EQ predicate on the "selected_option_text" field.
-func SelectedOptionTextEQ(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEQ(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextNEQ applies the NEQ predicate on the "selected_option_text" field.
-func SelectedOptionTextNEQ(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNEQ(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextIn applies the In predicate on the "selected_option_text" field.
-func SelectedOptionTextIn(vs ...string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldIn(FieldSelectedOptionText, vs...))
-}
-
-// SelectedOptionTextNotIn applies the NotIn predicate on the "selected_option_text" field.
-func SelectedOptionTextNotIn(vs ...string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNotIn(FieldSelectedOptionText, vs...))
-}
-
-// SelectedOptionTextGT applies the GT predicate on the "selected_option_text" field.
-func SelectedOptionTextGT(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldGT(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextGTE applies the GTE predicate on the "selected_option_text" field.
-func SelectedOptionTextGTE(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldGTE(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextLT applies the LT predicate on the "selected_option_text" field.
-func SelectedOptionTextLT(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldLT(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextLTE applies the LTE predicate on the "selected_option_text" field.
-func SelectedOptionTextLTE(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldLTE(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextContains applies the Contains predicate on the "selected_option_text" field.
-func SelectedOptionTextContains(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldContains(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextHasPrefix applies the HasPrefix predicate on the "selected_option_text" field.
-func SelectedOptionTextHasPrefix(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldHasPrefix(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextHasSuffix applies the HasSuffix predicate on the "selected_option_text" field.
-func SelectedOptionTextHasSuffix(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldHasSuffix(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextIsNil applies the IsNil predicate on the "selected_option_text" field.
-func SelectedOptionTextIsNil() predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldIsNull(FieldSelectedOptionText))
-}
-
-// SelectedOptionTextNotNil applies the NotNil predicate on the "selected_option_text" field.
-func SelectedOptionTextNotNil() predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldSelectedOptionText))
-}
-
-// SelectedOptionTextEqualFold applies the EqualFold predicate on the "selected_option_text" field.
-func SelectedOptionTextEqualFold(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldEqualFold(FieldSelectedOptionText, v))
-}
-
-// SelectedOptionTextContainsFold applies the ContainsFold predicate on the "selected_option_text" field.
-func SelectedOptionTextContainsFold(v string) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(sql.FieldContainsFold(FieldSelectedOptionText, v))
 }
 
 // PointsEQ applies the EQ predicate on the "points" field.
@@ -506,29 +391,6 @@ func HasQuestion() predicate.TestSessionAnswer {
 func HasQuestionWith(preds ...predicate.Question) predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(func(s *sql.Selector) {
 		step := newQuestionStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasSelectedOption applies the HasEdge predicate on the "selected_option" edge.
-func HasSelectedOption() predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, SelectedOptionTable, SelectedOptionColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasSelectedOptionWith applies the HasEdge predicate on the "selected_option" edge with a given conditions (other predicates).
-func HasSelectedOptionWith(preds ...predicate.QuestionOption) predicate.TestSessionAnswer {
-	return predicate.TestSessionAnswer(func(s *sql.Selector) {
-		step := newSelectedOptionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

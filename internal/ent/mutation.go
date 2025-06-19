@@ -6322,23 +6322,20 @@ func (m *QuestionCollectionMutation) ResetEdge(name string) error {
 // QuestionOptionMutation represents an operation that mutates the QuestionOption nodes in the graph.
 type QuestionOptionMutation struct {
 	config
-	op                           Op
-	typ                          string
-	id                           *uuid.UUID
-	created_at                   *time.Time
-	updated_at                   *time.Time
-	deleted_at                   *time.Time
-	option_text                  *string
-	is_correct                   *bool
-	clearedFields                map[string]struct{}
-	question                     *uuid.UUID
-	clearedquestion              bool
-	user_question_answers        map[uuid.UUID]struct{}
-	removeduser_question_answers map[uuid.UUID]struct{}
-	cleareduser_question_answers bool
-	done                         bool
-	oldValue                     func(context.Context) (*QuestionOption, error)
-	predicates                   []predicate.QuestionOption
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	created_at      *time.Time
+	updated_at      *time.Time
+	deleted_at      *time.Time
+	option_text     *string
+	is_correct      *bool
+	clearedFields   map[string]struct{}
+	question        *uuid.UUID
+	clearedquestion bool
+	done            bool
+	oldValue        func(context.Context) (*QuestionOption, error)
+	predicates      []predicate.QuestionOption
 }
 
 var _ ent.Mutation = (*QuestionOptionMutation)(nil)
@@ -6701,60 +6698,6 @@ func (m *QuestionOptionMutation) ResetQuestion() {
 	m.clearedquestion = false
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by ids.
-func (m *QuestionOptionMutation) AddUserQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.user_question_answers == nil {
-		m.user_question_answers = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.user_question_answers[ids[i]] = struct{}{}
-	}
-}
-
-// ClearUserQuestionAnswers clears the "user_question_answers" edge to the TestSessionAnswer entity.
-func (m *QuestionOptionMutation) ClearUserQuestionAnswers() {
-	m.cleareduser_question_answers = true
-}
-
-// UserQuestionAnswersCleared reports if the "user_question_answers" edge to the TestSessionAnswer entity was cleared.
-func (m *QuestionOptionMutation) UserQuestionAnswersCleared() bool {
-	return m.cleareduser_question_answers
-}
-
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (m *QuestionOptionMutation) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.removeduser_question_answers == nil {
-		m.removeduser_question_answers = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.user_question_answers, ids[i])
-		m.removeduser_question_answers[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedUserQuestionAnswers returns the removed IDs of the "user_question_answers" edge to the TestSessionAnswer entity.
-func (m *QuestionOptionMutation) RemovedUserQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.removeduser_question_answers {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// UserQuestionAnswersIDs returns the "user_question_answers" edge IDs in the mutation.
-func (m *QuestionOptionMutation) UserQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.user_question_answers {
-		ids = append(ids, id)
-	}
-	return
-}
-
-// ResetUserQuestionAnswers resets all changes to the "user_question_answers" edge.
-func (m *QuestionOptionMutation) ResetUserQuestionAnswers() {
-	m.user_question_answers = nil
-	m.cleareduser_question_answers = false
-	m.removeduser_question_answers = nil
-}
-
 // Where appends a list predicates to the QuestionOptionMutation builder.
 func (m *QuestionOptionMutation) Where(ps ...predicate.QuestionOption) {
 	m.predicates = append(m.predicates, ps...)
@@ -6982,12 +6925,9 @@ func (m *QuestionOptionMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *QuestionOptionMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	if m.question != nil {
 		edges = append(edges, questionoption.EdgeQuestion)
-	}
-	if m.user_question_answers != nil {
-		edges = append(edges, questionoption.EdgeUserQuestionAnswers)
 	}
 	return edges
 }
@@ -7000,47 +6940,27 @@ func (m *QuestionOptionMutation) AddedIDs(name string) []ent.Value {
 		if id := m.question; id != nil {
 			return []ent.Value{*id}
 		}
-	case questionoption.EdgeUserQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.user_question_answers))
-		for id := range m.user_question_answers {
-			ids = append(ids, id)
-		}
-		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *QuestionOptionMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.removeduser_question_answers != nil {
-		edges = append(edges, questionoption.EdgeUserQuestionAnswers)
-	}
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *QuestionOptionMutation) RemovedIDs(name string) []ent.Value {
-	switch name {
-	case questionoption.EdgeUserQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.removeduser_question_answers))
-		for id := range m.removeduser_question_answers {
-			ids = append(ids, id)
-		}
-		return ids
-	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *QuestionOptionMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	if m.clearedquestion {
 		edges = append(edges, questionoption.EdgeQuestion)
-	}
-	if m.cleareduser_question_answers {
-		edges = append(edges, questionoption.EdgeUserQuestionAnswers)
 	}
 	return edges
 }
@@ -7051,8 +6971,6 @@ func (m *QuestionOptionMutation) EdgeCleared(name string) bool {
 	switch name {
 	case questionoption.EdgeQuestion:
 		return m.clearedquestion
-	case questionoption.EdgeUserQuestionAnswers:
-		return m.cleareduser_question_answers
 	}
 	return false
 }
@@ -7074,9 +6992,6 @@ func (m *QuestionOptionMutation) ResetEdge(name string) error {
 	switch name {
 	case questionoption.EdgeQuestion:
 		m.ResetQuestion()
-		return nil
-	case questionoption.EdgeUserQuestionAnswers:
-		m.ResetUserQuestionAnswers()
 		return nil
 	}
 	return fmt.Errorf("unknown QuestionOption edge %s", name)
@@ -11869,28 +11784,25 @@ func (m *TestSessionMutation) ResetEdge(name string) error {
 // TestSessionAnswerMutation represents an operation that mutates the TestSessionAnswer nodes in the graph.
 type TestSessionAnswerMutation struct {
 	config
-	op                     Op
-	typ                    string
-	id                     *uuid.UUID
-	created_at             *time.Time
-	updated_at             *time.Time
-	deleted_at             *time.Time
-	selected_option_text   *string
-	points                 *int
-	addpoints              *int
-	_order                 *int
-	add_order              *int
-	is_correct             *bool
-	clearedFields          map[string]struct{}
-	question               *uuid.UUID
-	clearedquestion        bool
-	selected_option        *uuid.UUID
-	clearedselected_option bool
-	test_session           *uuid.UUID
-	clearedtest_session    bool
-	done                   bool
-	oldValue               func(context.Context) (*TestSessionAnswer, error)
-	predicates             []predicate.TestSessionAnswer
+	op                  Op
+	typ                 string
+	id                  *uuid.UUID
+	created_at          *time.Time
+	updated_at          *time.Time
+	deleted_at          *time.Time
+	points              *int
+	addpoints           *int
+	_order              *int
+	add_order           *int
+	is_correct          *bool
+	clearedFields       map[string]struct{}
+	question            *uuid.UUID
+	clearedquestion     bool
+	test_session        *uuid.UUID
+	clearedtest_session bool
+	done                bool
+	oldValue            func(context.Context) (*TestSessionAnswer, error)
+	predicates          []predicate.TestSessionAnswer
 }
 
 var _ ent.Mutation = (*TestSessionAnswerMutation)(nil)
@@ -12154,55 +12066,6 @@ func (m *TestSessionAnswerMutation) ResetQuestionID() {
 	m.question = nil
 }
 
-// SetSelectedOptionID sets the "selected_option_id" field.
-func (m *TestSessionAnswerMutation) SetSelectedOptionID(u uuid.UUID) {
-	m.selected_option = &u
-}
-
-// SelectedOptionID returns the value of the "selected_option_id" field in the mutation.
-func (m *TestSessionAnswerMutation) SelectedOptionID() (r uuid.UUID, exists bool) {
-	v := m.selected_option
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSelectedOptionID returns the old "selected_option_id" field's value of the TestSessionAnswer entity.
-// If the TestSessionAnswer object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestSessionAnswerMutation) OldSelectedOptionID(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSelectedOptionID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSelectedOptionID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSelectedOptionID: %w", err)
-	}
-	return oldValue.SelectedOptionID, nil
-}
-
-// ClearSelectedOptionID clears the value of the "selected_option_id" field.
-func (m *TestSessionAnswerMutation) ClearSelectedOptionID() {
-	m.selected_option = nil
-	m.clearedFields[testsessionanswer.FieldSelectedOptionID] = struct{}{}
-}
-
-// SelectedOptionIDCleared returns if the "selected_option_id" field was cleared in this mutation.
-func (m *TestSessionAnswerMutation) SelectedOptionIDCleared() bool {
-	_, ok := m.clearedFields[testsessionanswer.FieldSelectedOptionID]
-	return ok
-}
-
-// ResetSelectedOptionID resets all changes to the "selected_option_id" field.
-func (m *TestSessionAnswerMutation) ResetSelectedOptionID() {
-	m.selected_option = nil
-	delete(m.clearedFields, testsessionanswer.FieldSelectedOptionID)
-}
-
 // SetSessionID sets the "session_id" field.
 func (m *TestSessionAnswerMutation) SetSessionID(u uuid.UUID) {
 	m.test_session = &u
@@ -12237,55 +12100,6 @@ func (m *TestSessionAnswerMutation) OldSessionID(ctx context.Context) (v uuid.UU
 // ResetSessionID resets all changes to the "session_id" field.
 func (m *TestSessionAnswerMutation) ResetSessionID() {
 	m.test_session = nil
-}
-
-// SetSelectedOptionText sets the "selected_option_text" field.
-func (m *TestSessionAnswerMutation) SetSelectedOptionText(s string) {
-	m.selected_option_text = &s
-}
-
-// SelectedOptionText returns the value of the "selected_option_text" field in the mutation.
-func (m *TestSessionAnswerMutation) SelectedOptionText() (r string, exists bool) {
-	v := m.selected_option_text
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSelectedOptionText returns the old "selected_option_text" field's value of the TestSessionAnswer entity.
-// If the TestSessionAnswer object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TestSessionAnswerMutation) OldSelectedOptionText(ctx context.Context) (v *string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSelectedOptionText is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSelectedOptionText requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSelectedOptionText: %w", err)
-	}
-	return oldValue.SelectedOptionText, nil
-}
-
-// ClearSelectedOptionText clears the value of the "selected_option_text" field.
-func (m *TestSessionAnswerMutation) ClearSelectedOptionText() {
-	m.selected_option_text = nil
-	m.clearedFields[testsessionanswer.FieldSelectedOptionText] = struct{}{}
-}
-
-// SelectedOptionTextCleared returns if the "selected_option_text" field was cleared in this mutation.
-func (m *TestSessionAnswerMutation) SelectedOptionTextCleared() bool {
-	_, ok := m.clearedFields[testsessionanswer.FieldSelectedOptionText]
-	return ok
-}
-
-// ResetSelectedOptionText resets all changes to the "selected_option_text" field.
-func (m *TestSessionAnswerMutation) ResetSelectedOptionText() {
-	m.selected_option_text = nil
-	delete(m.clearedFields, testsessionanswer.FieldSelectedOptionText)
 }
 
 // SetPoints sets the "points" field.
@@ -12490,33 +12304,6 @@ func (m *TestSessionAnswerMutation) ResetQuestion() {
 	m.clearedquestion = false
 }
 
-// ClearSelectedOption clears the "selected_option" edge to the QuestionOption entity.
-func (m *TestSessionAnswerMutation) ClearSelectedOption() {
-	m.clearedselected_option = true
-	m.clearedFields[testsessionanswer.FieldSelectedOptionID] = struct{}{}
-}
-
-// SelectedOptionCleared reports if the "selected_option" edge to the QuestionOption entity was cleared.
-func (m *TestSessionAnswerMutation) SelectedOptionCleared() bool {
-	return m.SelectedOptionIDCleared() || m.clearedselected_option
-}
-
-// SelectedOptionIDs returns the "selected_option" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// SelectedOptionID instead. It exists only for internal usage by the builders.
-func (m *TestSessionAnswerMutation) SelectedOptionIDs() (ids []uuid.UUID) {
-	if id := m.selected_option; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetSelectedOption resets all changes to the "selected_option" edge.
-func (m *TestSessionAnswerMutation) ResetSelectedOption() {
-	m.selected_option = nil
-	m.clearedselected_option = false
-}
-
 // SetTestSessionID sets the "test_session" edge to the TestSession entity by id.
 func (m *TestSessionAnswerMutation) SetTestSessionID(id uuid.UUID) {
 	m.test_session = &id
@@ -12591,7 +12378,7 @@ func (m *TestSessionAnswerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TestSessionAnswerMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, testsessionanswer.FieldCreatedAt)
 	}
@@ -12604,14 +12391,8 @@ func (m *TestSessionAnswerMutation) Fields() []string {
 	if m.question != nil {
 		fields = append(fields, testsessionanswer.FieldQuestionID)
 	}
-	if m.selected_option != nil {
-		fields = append(fields, testsessionanswer.FieldSelectedOptionID)
-	}
 	if m.test_session != nil {
 		fields = append(fields, testsessionanswer.FieldSessionID)
-	}
-	if m.selected_option_text != nil {
-		fields = append(fields, testsessionanswer.FieldSelectedOptionText)
 	}
 	if m.points != nil {
 		fields = append(fields, testsessionanswer.FieldPoints)
@@ -12638,12 +12419,8 @@ func (m *TestSessionAnswerMutation) Field(name string) (ent.Value, bool) {
 		return m.DeletedAt()
 	case testsessionanswer.FieldQuestionID:
 		return m.QuestionID()
-	case testsessionanswer.FieldSelectedOptionID:
-		return m.SelectedOptionID()
 	case testsessionanswer.FieldSessionID:
 		return m.SessionID()
-	case testsessionanswer.FieldSelectedOptionText:
-		return m.SelectedOptionText()
 	case testsessionanswer.FieldPoints:
 		return m.Points()
 	case testsessionanswer.FieldOrder:
@@ -12667,12 +12444,8 @@ func (m *TestSessionAnswerMutation) OldField(ctx context.Context, name string) (
 		return m.OldDeletedAt(ctx)
 	case testsessionanswer.FieldQuestionID:
 		return m.OldQuestionID(ctx)
-	case testsessionanswer.FieldSelectedOptionID:
-		return m.OldSelectedOptionID(ctx)
 	case testsessionanswer.FieldSessionID:
 		return m.OldSessionID(ctx)
-	case testsessionanswer.FieldSelectedOptionText:
-		return m.OldSelectedOptionText(ctx)
 	case testsessionanswer.FieldPoints:
 		return m.OldPoints(ctx)
 	case testsessionanswer.FieldOrder:
@@ -12716,26 +12489,12 @@ func (m *TestSessionAnswerMutation) SetField(name string, value ent.Value) error
 		}
 		m.SetQuestionID(v)
 		return nil
-	case testsessionanswer.FieldSelectedOptionID:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSelectedOptionID(v)
-		return nil
 	case testsessionanswer.FieldSessionID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSessionID(v)
-		return nil
-	case testsessionanswer.FieldSelectedOptionText:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSelectedOptionText(v)
 		return nil
 	case testsessionanswer.FieldPoints:
 		v, ok := value.(int)
@@ -12818,12 +12577,6 @@ func (m *TestSessionAnswerMutation) ClearedFields() []string {
 	if m.FieldCleared(testsessionanswer.FieldDeletedAt) {
 		fields = append(fields, testsessionanswer.FieldDeletedAt)
 	}
-	if m.FieldCleared(testsessionanswer.FieldSelectedOptionID) {
-		fields = append(fields, testsessionanswer.FieldSelectedOptionID)
-	}
-	if m.FieldCleared(testsessionanswer.FieldSelectedOptionText) {
-		fields = append(fields, testsessionanswer.FieldSelectedOptionText)
-	}
 	if m.FieldCleared(testsessionanswer.FieldPoints) {
 		fields = append(fields, testsessionanswer.FieldPoints)
 	}
@@ -12846,12 +12599,6 @@ func (m *TestSessionAnswerMutation) ClearField(name string) error {
 	switch name {
 	case testsessionanswer.FieldDeletedAt:
 		m.ClearDeletedAt()
-		return nil
-	case testsessionanswer.FieldSelectedOptionID:
-		m.ClearSelectedOptionID()
-		return nil
-	case testsessionanswer.FieldSelectedOptionText:
-		m.ClearSelectedOptionText()
 		return nil
 	case testsessionanswer.FieldPoints:
 		m.ClearPoints()
@@ -12879,14 +12626,8 @@ func (m *TestSessionAnswerMutation) ResetField(name string) error {
 	case testsessionanswer.FieldQuestionID:
 		m.ResetQuestionID()
 		return nil
-	case testsessionanswer.FieldSelectedOptionID:
-		m.ResetSelectedOptionID()
-		return nil
 	case testsessionanswer.FieldSessionID:
 		m.ResetSessionID()
-		return nil
-	case testsessionanswer.FieldSelectedOptionText:
-		m.ResetSelectedOptionText()
 		return nil
 	case testsessionanswer.FieldPoints:
 		m.ResetPoints()
@@ -12903,12 +12644,9 @@ func (m *TestSessionAnswerMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *TestSessionAnswerMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	if m.question != nil {
 		edges = append(edges, testsessionanswer.EdgeQuestion)
-	}
-	if m.selected_option != nil {
-		edges = append(edges, testsessionanswer.EdgeSelectedOption)
 	}
 	if m.test_session != nil {
 		edges = append(edges, testsessionanswer.EdgeTestSession)
@@ -12924,10 +12662,6 @@ func (m *TestSessionAnswerMutation) AddedIDs(name string) []ent.Value {
 		if id := m.question; id != nil {
 			return []ent.Value{*id}
 		}
-	case testsessionanswer.EdgeSelectedOption:
-		if id := m.selected_option; id != nil {
-			return []ent.Value{*id}
-		}
 	case testsessionanswer.EdgeTestSession:
 		if id := m.test_session; id != nil {
 			return []ent.Value{*id}
@@ -12938,7 +12672,7 @@ func (m *TestSessionAnswerMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TestSessionAnswerMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -12950,12 +12684,9 @@ func (m *TestSessionAnswerMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *TestSessionAnswerMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 2)
 	if m.clearedquestion {
 		edges = append(edges, testsessionanswer.EdgeQuestion)
-	}
-	if m.clearedselected_option {
-		edges = append(edges, testsessionanswer.EdgeSelectedOption)
 	}
 	if m.clearedtest_session {
 		edges = append(edges, testsessionanswer.EdgeTestSession)
@@ -12969,8 +12700,6 @@ func (m *TestSessionAnswerMutation) EdgeCleared(name string) bool {
 	switch name {
 	case testsessionanswer.EdgeQuestion:
 		return m.clearedquestion
-	case testsessionanswer.EdgeSelectedOption:
-		return m.clearedselected_option
 	case testsessionanswer.EdgeTestSession:
 		return m.clearedtest_session
 	}
@@ -12983,9 +12712,6 @@ func (m *TestSessionAnswerMutation) ClearEdge(name string) error {
 	switch name {
 	case testsessionanswer.EdgeQuestion:
 		m.ClearQuestion()
-		return nil
-	case testsessionanswer.EdgeSelectedOption:
-		m.ClearSelectedOption()
 		return nil
 	case testsessionanswer.EdgeTestSession:
 		m.ClearTestSession()
@@ -13000,9 +12726,6 @@ func (m *TestSessionAnswerMutation) ResetEdge(name string) error {
 	switch name {
 	case testsessionanswer.EdgeQuestion:
 		m.ResetQuestion()
-		return nil
-	case testsessionanswer.EdgeSelectedOption:
-		m.ResetSelectedOption()
 		return nil
 	case testsessionanswer.EdgeTestSession:
 		m.ResetTestSession()

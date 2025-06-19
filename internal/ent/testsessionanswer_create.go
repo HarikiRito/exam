@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/question"
-	"template/internal/ent/questionoption"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
 	"time"
@@ -72,37 +71,9 @@ func (tsac *TestSessionAnswerCreate) SetQuestionID(u uuid.UUID) *TestSessionAnsw
 	return tsac
 }
 
-// SetSelectedOptionID sets the "selected_option_id" field.
-func (tsac *TestSessionAnswerCreate) SetSelectedOptionID(u uuid.UUID) *TestSessionAnswerCreate {
-	tsac.mutation.SetSelectedOptionID(u)
-	return tsac
-}
-
-// SetNillableSelectedOptionID sets the "selected_option_id" field if the given value is not nil.
-func (tsac *TestSessionAnswerCreate) SetNillableSelectedOptionID(u *uuid.UUID) *TestSessionAnswerCreate {
-	if u != nil {
-		tsac.SetSelectedOptionID(*u)
-	}
-	return tsac
-}
-
 // SetSessionID sets the "session_id" field.
 func (tsac *TestSessionAnswerCreate) SetSessionID(u uuid.UUID) *TestSessionAnswerCreate {
 	tsac.mutation.SetSessionID(u)
-	return tsac
-}
-
-// SetSelectedOptionText sets the "selected_option_text" field.
-func (tsac *TestSessionAnswerCreate) SetSelectedOptionText(s string) *TestSessionAnswerCreate {
-	tsac.mutation.SetSelectedOptionText(s)
-	return tsac
-}
-
-// SetNillableSelectedOptionText sets the "selected_option_text" field if the given value is not nil.
-func (tsac *TestSessionAnswerCreate) SetNillableSelectedOptionText(s *string) *TestSessionAnswerCreate {
-	if s != nil {
-		tsac.SetSelectedOptionText(*s)
-	}
 	return tsac
 }
 
@@ -165,11 +136,6 @@ func (tsac *TestSessionAnswerCreate) SetNillableID(u *uuid.UUID) *TestSessionAns
 // SetQuestion sets the "question" edge to the Question entity.
 func (tsac *TestSessionAnswerCreate) SetQuestion(q *Question) *TestSessionAnswerCreate {
 	return tsac.SetQuestionID(q.ID)
-}
-
-// SetSelectedOption sets the "selected_option" edge to the QuestionOption entity.
-func (tsac *TestSessionAnswerCreate) SetSelectedOption(q *QuestionOption) *TestSessionAnswerCreate {
-	return tsac.SetSelectedOptionID(q.ID)
 }
 
 // SetTestSessionID sets the "test_session" edge to the TestSession entity by ID.
@@ -323,10 +289,6 @@ func (tsac *TestSessionAnswerCreate) createSpec() (*TestSessionAnswer, *sqlgraph
 		_spec.SetField(testsessionanswer.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
 	}
-	if value, ok := tsac.mutation.SelectedOptionText(); ok {
-		_spec.SetField(testsessionanswer.FieldSelectedOptionText, field.TypeString, value)
-		_node.SelectedOptionText = &value
-	}
 	if value, ok := tsac.mutation.Points(); ok {
 		_spec.SetField(testsessionanswer.FieldPoints, field.TypeInt, value)
 		_node.Points = &value
@@ -354,23 +316,6 @@ func (tsac *TestSessionAnswerCreate) createSpec() (*TestSessionAnswer, *sqlgraph
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.QuestionID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := tsac.mutation.SelectedOptionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.SelectedOptionTable,
-			Columns: []string{testsessionanswer.SelectedOptionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.SelectedOptionID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := tsac.mutation.TestSessionIDs(); len(nodes) > 0 {

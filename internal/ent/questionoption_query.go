@@ -4,13 +4,11 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/testsessionanswer"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -22,12 +20,11 @@ import (
 // QuestionOptionQuery is the builder for querying QuestionOption entities.
 type QuestionOptionQuery struct {
 	config
-	ctx                     *QueryContext
-	order                   []questionoption.OrderOption
-	inters                  []Interceptor
-	predicates              []predicate.QuestionOption
-	withQuestion            *QuestionQuery
-	withUserQuestionAnswers *TestSessionAnswerQuery
+	ctx          *QueryContext
+	order        []questionoption.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.QuestionOption
+	withQuestion *QuestionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,28 +76,6 @@ func (qoq *QuestionOptionQuery) QueryQuestion() *QuestionQuery {
 			sqlgraph.From(questionoption.Table, questionoption.FieldID, selector),
 			sqlgraph.To(question.Table, question.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, questionoption.QuestionTable, questionoption.QuestionColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(qoq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryUserQuestionAnswers chains the current query on the "user_question_answers" edge.
-func (qoq *QuestionOptionQuery) QueryUserQuestionAnswers() *TestSessionAnswerQuery {
-	query := (&TestSessionAnswerClient{config: qoq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := qoq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := qoq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(questionoption.Table, questionoption.FieldID, selector),
-			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, questionoption.UserQuestionAnswersTable, questionoption.UserQuestionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(qoq.driver.Dialect(), step)
 		return fromU, nil
@@ -295,13 +270,12 @@ func (qoq *QuestionOptionQuery) Clone() *QuestionOptionQuery {
 		return nil
 	}
 	return &QuestionOptionQuery{
-		config:                  qoq.config,
-		ctx:                     qoq.ctx.Clone(),
-		order:                   append([]questionoption.OrderOption{}, qoq.order...),
-		inters:                  append([]Interceptor{}, qoq.inters...),
-		predicates:              append([]predicate.QuestionOption{}, qoq.predicates...),
-		withQuestion:            qoq.withQuestion.Clone(),
-		withUserQuestionAnswers: qoq.withUserQuestionAnswers.Clone(),
+		config:       qoq.config,
+		ctx:          qoq.ctx.Clone(),
+		order:        append([]questionoption.OrderOption{}, qoq.order...),
+		inters:       append([]Interceptor{}, qoq.inters...),
+		predicates:   append([]predicate.QuestionOption{}, qoq.predicates...),
+		withQuestion: qoq.withQuestion.Clone(),
 		// clone intermediate query.
 		sql:  qoq.sql.Clone(),
 		path: qoq.path,
@@ -316,17 +290,6 @@ func (qoq *QuestionOptionQuery) WithQuestion(opts ...func(*QuestionQuery)) *Ques
 		opt(query)
 	}
 	qoq.withQuestion = query
-	return qoq
-}
-
-// WithUserQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
-// the "user_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
-func (qoq *QuestionOptionQuery) WithUserQuestionAnswers(opts ...func(*TestSessionAnswerQuery)) *QuestionOptionQuery {
-	query := (&TestSessionAnswerClient{config: qoq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	qoq.withUserQuestionAnswers = query
 	return qoq
 }
 
@@ -408,9 +371,8 @@ func (qoq *QuestionOptionQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	var (
 		nodes       = []*QuestionOption{}
 		_spec       = qoq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [1]bool{
 			qoq.withQuestion != nil,
-			qoq.withUserQuestionAnswers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -434,15 +396,6 @@ func (qoq *QuestionOptionQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if query := qoq.withQuestion; query != nil {
 		if err := qoq.loadQuestion(ctx, query, nodes, nil,
 			func(n *QuestionOption, e *Question) { n.Edges.Question = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := qoq.withUserQuestionAnswers; query != nil {
-		if err := qoq.loadUserQuestionAnswers(ctx, query, nodes,
-			func(n *QuestionOption) { n.Edges.UserQuestionAnswers = []*TestSessionAnswer{} },
-			func(n *QuestionOption, e *TestSessionAnswer) {
-				n.Edges.UserQuestionAnswers = append(n.Edges.UserQuestionAnswers, e)
-			}); err != nil {
 			return nil, err
 		}
 	}
@@ -475,39 +428,6 @@ func (qoq *QuestionOptionQuery) loadQuestion(ctx context.Context, query *Questio
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
-	}
-	return nil
-}
-func (qoq *QuestionOptionQuery) loadUserQuestionAnswers(ctx context.Context, query *TestSessionAnswerQuery, nodes []*QuestionOption, init func(*QuestionOption), assign func(*QuestionOption, *TestSessionAnswer)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*QuestionOption)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(testsessionanswer.FieldSelectedOptionID)
-	}
-	query.Where(predicate.TestSessionAnswer(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(questionoption.UserQuestionAnswersColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.SelectedOptionID
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "selected_option_id" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "selected_option_id" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
 	}
 	return nil
 }

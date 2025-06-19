@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"template/internal/ent/predicate"
 	"template/internal/ent/question"
-	"template/internal/ent/questionoption"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
 	"time"
@@ -86,26 +85,6 @@ func (tsau *TestSessionAnswerUpdate) SetNillableQuestionID(u *uuid.UUID) *TestSe
 	return tsau
 }
 
-// SetSelectedOptionID sets the "selected_option_id" field.
-func (tsau *TestSessionAnswerUpdate) SetSelectedOptionID(u uuid.UUID) *TestSessionAnswerUpdate {
-	tsau.mutation.SetSelectedOptionID(u)
-	return tsau
-}
-
-// SetNillableSelectedOptionID sets the "selected_option_id" field if the given value is not nil.
-func (tsau *TestSessionAnswerUpdate) SetNillableSelectedOptionID(u *uuid.UUID) *TestSessionAnswerUpdate {
-	if u != nil {
-		tsau.SetSelectedOptionID(*u)
-	}
-	return tsau
-}
-
-// ClearSelectedOptionID clears the value of the "selected_option_id" field.
-func (tsau *TestSessionAnswerUpdate) ClearSelectedOptionID() *TestSessionAnswerUpdate {
-	tsau.mutation.ClearSelectedOptionID()
-	return tsau
-}
-
 // SetSessionID sets the "session_id" field.
 func (tsau *TestSessionAnswerUpdate) SetSessionID(u uuid.UUID) *TestSessionAnswerUpdate {
 	tsau.mutation.SetSessionID(u)
@@ -117,26 +96,6 @@ func (tsau *TestSessionAnswerUpdate) SetNillableSessionID(u *uuid.UUID) *TestSes
 	if u != nil {
 		tsau.SetSessionID(*u)
 	}
-	return tsau
-}
-
-// SetSelectedOptionText sets the "selected_option_text" field.
-func (tsau *TestSessionAnswerUpdate) SetSelectedOptionText(s string) *TestSessionAnswerUpdate {
-	tsau.mutation.SetSelectedOptionText(s)
-	return tsau
-}
-
-// SetNillableSelectedOptionText sets the "selected_option_text" field if the given value is not nil.
-func (tsau *TestSessionAnswerUpdate) SetNillableSelectedOptionText(s *string) *TestSessionAnswerUpdate {
-	if s != nil {
-		tsau.SetSelectedOptionText(*s)
-	}
-	return tsau
-}
-
-// ClearSelectedOptionText clears the value of the "selected_option_text" field.
-func (tsau *TestSessionAnswerUpdate) ClearSelectedOptionText() *TestSessionAnswerUpdate {
-	tsau.mutation.ClearSelectedOptionText()
 	return tsau
 }
 
@@ -213,11 +172,6 @@ func (tsau *TestSessionAnswerUpdate) SetQuestion(q *Question) *TestSessionAnswer
 	return tsau.SetQuestionID(q.ID)
 }
 
-// SetSelectedOption sets the "selected_option" edge to the QuestionOption entity.
-func (tsau *TestSessionAnswerUpdate) SetSelectedOption(q *QuestionOption) *TestSessionAnswerUpdate {
-	return tsau.SetSelectedOptionID(q.ID)
-}
-
 // SetTestSessionID sets the "test_session" edge to the TestSession entity by ID.
 func (tsau *TestSessionAnswerUpdate) SetTestSessionID(id uuid.UUID) *TestSessionAnswerUpdate {
 	tsau.mutation.SetTestSessionID(id)
@@ -237,12 +191,6 @@ func (tsau *TestSessionAnswerUpdate) Mutation() *TestSessionAnswerMutation {
 // ClearQuestion clears the "question" edge to the Question entity.
 func (tsau *TestSessionAnswerUpdate) ClearQuestion() *TestSessionAnswerUpdate {
 	tsau.mutation.ClearQuestion()
-	return tsau
-}
-
-// ClearSelectedOption clears the "selected_option" edge to the QuestionOption entity.
-func (tsau *TestSessionAnswerUpdate) ClearSelectedOption() *TestSessionAnswerUpdate {
-	tsau.mutation.ClearSelectedOption()
 	return tsau
 }
 
@@ -334,12 +282,6 @@ func (tsau *TestSessionAnswerUpdate) sqlSave(ctx context.Context) (n int, err er
 	if tsau.mutation.DeletedAtCleared() {
 		_spec.ClearField(testsessionanswer.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := tsau.mutation.SelectedOptionText(); ok {
-		_spec.SetField(testsessionanswer.FieldSelectedOptionText, field.TypeString, value)
-	}
-	if tsau.mutation.SelectedOptionTextCleared() {
-		_spec.ClearField(testsessionanswer.FieldSelectedOptionText, field.TypeString)
-	}
 	if value, ok := tsau.mutation.Points(); ok {
 		_spec.SetField(testsessionanswer.FieldPoints, field.TypeInt, value)
 	}
@@ -383,35 +325,6 @@ func (tsau *TestSessionAnswerUpdate) sqlSave(ctx context.Context) (n int, err er
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if tsau.mutation.SelectedOptionCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.SelectedOptionTable,
-			Columns: []string{testsessionanswer.SelectedOptionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tsau.mutation.SelectedOptionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.SelectedOptionTable,
-			Columns: []string{testsessionanswer.SelectedOptionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -522,26 +435,6 @@ func (tsauo *TestSessionAnswerUpdateOne) SetNillableQuestionID(u *uuid.UUID) *Te
 	return tsauo
 }
 
-// SetSelectedOptionID sets the "selected_option_id" field.
-func (tsauo *TestSessionAnswerUpdateOne) SetSelectedOptionID(u uuid.UUID) *TestSessionAnswerUpdateOne {
-	tsauo.mutation.SetSelectedOptionID(u)
-	return tsauo
-}
-
-// SetNillableSelectedOptionID sets the "selected_option_id" field if the given value is not nil.
-func (tsauo *TestSessionAnswerUpdateOne) SetNillableSelectedOptionID(u *uuid.UUID) *TestSessionAnswerUpdateOne {
-	if u != nil {
-		tsauo.SetSelectedOptionID(*u)
-	}
-	return tsauo
-}
-
-// ClearSelectedOptionID clears the value of the "selected_option_id" field.
-func (tsauo *TestSessionAnswerUpdateOne) ClearSelectedOptionID() *TestSessionAnswerUpdateOne {
-	tsauo.mutation.ClearSelectedOptionID()
-	return tsauo
-}
-
 // SetSessionID sets the "session_id" field.
 func (tsauo *TestSessionAnswerUpdateOne) SetSessionID(u uuid.UUID) *TestSessionAnswerUpdateOne {
 	tsauo.mutation.SetSessionID(u)
@@ -553,26 +446,6 @@ func (tsauo *TestSessionAnswerUpdateOne) SetNillableSessionID(u *uuid.UUID) *Tes
 	if u != nil {
 		tsauo.SetSessionID(*u)
 	}
-	return tsauo
-}
-
-// SetSelectedOptionText sets the "selected_option_text" field.
-func (tsauo *TestSessionAnswerUpdateOne) SetSelectedOptionText(s string) *TestSessionAnswerUpdateOne {
-	tsauo.mutation.SetSelectedOptionText(s)
-	return tsauo
-}
-
-// SetNillableSelectedOptionText sets the "selected_option_text" field if the given value is not nil.
-func (tsauo *TestSessionAnswerUpdateOne) SetNillableSelectedOptionText(s *string) *TestSessionAnswerUpdateOne {
-	if s != nil {
-		tsauo.SetSelectedOptionText(*s)
-	}
-	return tsauo
-}
-
-// ClearSelectedOptionText clears the value of the "selected_option_text" field.
-func (tsauo *TestSessionAnswerUpdateOne) ClearSelectedOptionText() *TestSessionAnswerUpdateOne {
-	tsauo.mutation.ClearSelectedOptionText()
 	return tsauo
 }
 
@@ -649,11 +522,6 @@ func (tsauo *TestSessionAnswerUpdateOne) SetQuestion(q *Question) *TestSessionAn
 	return tsauo.SetQuestionID(q.ID)
 }
 
-// SetSelectedOption sets the "selected_option" edge to the QuestionOption entity.
-func (tsauo *TestSessionAnswerUpdateOne) SetSelectedOption(q *QuestionOption) *TestSessionAnswerUpdateOne {
-	return tsauo.SetSelectedOptionID(q.ID)
-}
-
 // SetTestSessionID sets the "test_session" edge to the TestSession entity by ID.
 func (tsauo *TestSessionAnswerUpdateOne) SetTestSessionID(id uuid.UUID) *TestSessionAnswerUpdateOne {
 	tsauo.mutation.SetTestSessionID(id)
@@ -673,12 +541,6 @@ func (tsauo *TestSessionAnswerUpdateOne) Mutation() *TestSessionAnswerMutation {
 // ClearQuestion clears the "question" edge to the Question entity.
 func (tsauo *TestSessionAnswerUpdateOne) ClearQuestion() *TestSessionAnswerUpdateOne {
 	tsauo.mutation.ClearQuestion()
-	return tsauo
-}
-
-// ClearSelectedOption clears the "selected_option" edge to the QuestionOption entity.
-func (tsauo *TestSessionAnswerUpdateOne) ClearSelectedOption() *TestSessionAnswerUpdateOne {
-	tsauo.mutation.ClearSelectedOption()
 	return tsauo
 }
 
@@ -800,12 +662,6 @@ func (tsauo *TestSessionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *Te
 	if tsauo.mutation.DeletedAtCleared() {
 		_spec.ClearField(testsessionanswer.FieldDeletedAt, field.TypeTime)
 	}
-	if value, ok := tsauo.mutation.SelectedOptionText(); ok {
-		_spec.SetField(testsessionanswer.FieldSelectedOptionText, field.TypeString, value)
-	}
-	if tsauo.mutation.SelectedOptionTextCleared() {
-		_spec.ClearField(testsessionanswer.FieldSelectedOptionText, field.TypeString)
-	}
 	if value, ok := tsauo.mutation.Points(); ok {
 		_spec.SetField(testsessionanswer.FieldPoints, field.TypeInt, value)
 	}
@@ -849,35 +705,6 @@ func (tsauo *TestSessionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *Te
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(question.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if tsauo.mutation.SelectedOptionCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.SelectedOptionTable,
-			Columns: []string{testsessionanswer.SelectedOptionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tsauo.mutation.SelectedOptionIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   testsessionanswer.SelectedOptionTable,
-			Columns: []string{testsessionanswer.SelectedOptionColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(questionoption.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
