@@ -5,6 +5,8 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/testsession"
+	"template/internal/features/common"
+	"template/internal/graph/model"
 
 	"github.com/google/uuid"
 )
@@ -23,6 +25,32 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 	selectFields := TestSessionSelectFields(ctx)
 
 	return query.Select(selectFields...).Only(ctx)
+}
+
+// PaginatedTestSessions returns a paginated list of test sessions for the authenticated user.
+func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, paginationInput *model.PaginationInput) (*common.PaginatedResult[*ent.TestSession], error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+
+	// Build the query with authorization filter
+	query := client.TestSession.Query().
+		Where(testsession.UserID(userId))
+
+	// Extract pagination parameters
+	page := common.DefaultPage
+	limit := common.DefaultLimit
+	if paginationInput != nil {
+		if paginationInput.Page != nil {
+			page = *paginationInput.Page
+		}
+		if paginationInput.Limit != nil {
+			limit = *paginationInput.Limit
+		}
+	}
+
+	return common.EntQueryPaginated(ctx, query, page, limit)
 }
 
 // DeleteTestSession deletes a test session by its ID.

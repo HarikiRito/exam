@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"template/internal/features/test_session"
 	"template/internal/graph/model"
+	"template/internal/shared/utilities/slice"
 
 	"github.com/google/uuid"
 )
@@ -16,9 +17,13 @@ import (
 // CreateTestSession is the resolver for the createTestSession field.
 func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error) {
 	// Get user ID from auth context
-	_, err := GetUserIdFromRequestContext(ctx)
+	userID, err := GetUserIdFromRequestContext(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if input.UserID == nil {
+		input.UserID = &userID
 	}
 
 	session, err := test_session.CreateTestSession(ctx, input)
@@ -76,4 +81,31 @@ func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.T
 		return nil, err
 	}
 	return model.ConvertTestSessionToModel(session), nil
+}
+
+// PaginatedTestSessions is the resolver for the paginatedTestSessions field.
+func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error) {
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := test_session.PaginatedTestSessions(ctx, userId, paginationInput)
+	if err != nil {
+		return nil, err
+	}
+
+	items := slice.Map(result.Items, model.ConvertTestSessionToModel)
+	pagination := &model.Pagination{
+		CurrentPage:     result.CurrentPage,
+		TotalPages:      result.TotalPages,
+		TotalItems:      result.TotalItems,
+		HasNextPage:     result.HasNextPage,
+		HasPreviousPage: result.HasPrevPage,
+	}
+
+	return &model.PaginatedTestSession{
+		Pagination: pagination,
+		Items:      items,
+	}, nil
 }

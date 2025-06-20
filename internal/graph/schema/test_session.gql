@@ -7,6 +7,7 @@ extend type Mutation {
 
 extend type Query {
   testSession(id: ID!): TestSession!
+  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
 }
 
 enum TestSessionStatus {
