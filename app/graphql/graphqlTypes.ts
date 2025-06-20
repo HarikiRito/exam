@@ -397,6 +397,7 @@ export type Query = {
   paginatedCourses: PaginatedCourse;
   paginatedQuestionCollections: PaginatedQuestionCollection;
   paginatedQuestions: PaginatedQuestion;
+  paginatedTestSessions: PaginatedTestSession;
   paginatedTests: PaginatedTest;
   paginatedUserQuestionAnswers: PaginatedUserQuestionAnswer;
   question: Question;
@@ -441,6 +442,11 @@ export type QueryPaginatedQuestionCollectionsArgs = {
 
 
 export type QueryPaginatedQuestionsArgs = {
+  paginationInput?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryPaginatedTestSessionsArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
@@ -548,6 +554,7 @@ export type Test = {
   questionCollections: Array<QuestionCollection>;
   testIgnoreQuestions: Array<TestIgnoreQuestion>;
   testQuestionCounts: Array<TestQuestionCount>;
+  totalTime?: Maybe<Scalars['Int']['output']>;
 };
 
 export type TestIgnoreQuestion = {
@@ -577,6 +584,7 @@ export type TestSession = {
   pointsEarned: Scalars['Int']['output'];
   startedAt?: Maybe<Scalars['DateTime']['output']>;
   status: TestSessionStatus;
+  test: Test;
   testId: Scalars['ID']['output'];
   updatedAt: Scalars['DateTime']['output'];
   userId?: Maybe<Scalars['ID']['output']>;
@@ -650,9 +658,8 @@ export type UpdateQuestionPointsByCollectionInput = {
 };
 
 export type UpdateTestInput = {
-  courseId?: InputMaybe<Scalars['ID']['input']>;
-  courseSectionId?: InputMaybe<Scalars['ID']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  totalTime?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type UpdateTestQuestionRequirementInput = {

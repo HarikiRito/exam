@@ -18,6 +18,7 @@ import { testEditStore } from './testEditStore';
 // Validation schema
 const updateTestSchema = z.object({
   name: z.string().min(1, 'Test name is required').max(255, 'Test name must be less than 255 characters'),
+  totalTime: z.coerce.number().min(1, 'Total time is required'),
 });
 
 type UpdateTestFormData = z.infer<typeof updateTestSchema>;
@@ -43,6 +44,7 @@ export function UpdateTestForm() {
     resolver: zodResolver(updateTestSchema),
     defaultValues: {
       name: '',
+      totalTime: 0,
     },
     mode: 'onBlur',
   });
@@ -52,6 +54,7 @@ export function UpdateTestForm() {
     if (testEditState.testDetails) {
       form.reset({
         name: testEditState.testDetails.name,
+        totalTime: testEditState.testDetails.totalTime ?? 120,
       });
     }
   }, [testEditState.testDetails, form]);
@@ -64,6 +67,7 @@ export function UpdateTestForm() {
 
     const input: UpdateTestInput = {
       name: data.name,
+      totalTime: data.totalTime,
     };
 
     updateTest({
@@ -82,6 +86,20 @@ export function UpdateTestForm() {
               <AppForm.Label className='pb-1'>Test Name</AppForm.Label>
               <AppForm.Control>
                 <AppInput placeholder='Enter test name' {...field} />
+              </AppForm.Control>
+              <AppForm.Message />
+            </AppForm.Item>
+          )}
+        />
+
+        <AppForm.Field
+          control={form.control}
+          name='totalTime'
+          render={({ field }) => (
+            <AppForm.Item>
+              <AppForm.Label className='pb-1'>Total Time (minutes)</AppForm.Label>
+              <AppForm.Control>
+                <AppInput placeholder='Enter total time (minutes)' {...field} type='number' />
               </AppForm.Control>
               <AppForm.Message />
             </AppForm.Item>

@@ -1,13 +1,11 @@
+import { testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { createProxyWithReset } from 'app/shared/utils/valtio';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
-import { proxySet } from 'valtio/utils';
 import { FinishExamDialog } from './components/FinishExamDialog';
 import { QuestionOverviewSheet } from './components/QuestionOverviewSheet';
 import { QuestionSection } from './components/QuestionSection';
 import { TopNavBar } from './components/TopNavBar';
-import { testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
 
 // Helper function to format time
 function formatTime(ms: number) {

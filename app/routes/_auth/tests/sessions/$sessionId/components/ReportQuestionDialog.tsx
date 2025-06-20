@@ -4,7 +4,7 @@ import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
 import { AppLabel } from 'app/shared/components/label/AppLabel';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import { testSessionState, testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
+import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 
 const REPORT_REASONS = [
   'Question is incorrect',

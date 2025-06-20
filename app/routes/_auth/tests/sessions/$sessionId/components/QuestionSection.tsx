@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { ReportQuestionDialog } from './ReportQuestionDialog';
 import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
 import { AppCheckbox } from 'app/shared/components/checkbox/AppCheckbox';
-import { testSessionState, testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
+import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 
 interface Question {
   id: string;

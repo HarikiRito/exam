@@ -13,6 +13,7 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 import { cn } from 'app/shared/utils/className';
 import { testEditStore } from './testEditStore';
+import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
 type Question = NonNullable<GetTestQuery['test']>['questionCollections'][number]['questions'][number];
 
 export function TestQuestionsIgnore() {
@@ -98,7 +99,7 @@ export function TestQuestionsIgnore() {
               option.isCorrect && 'bg-green-50',
             )}>
             <div className='flex items-center gap-3'>
-              <span className='text-sm'>{option.optionText}</span>
+              <AppMarkdown>{option.optionText}</AppMarkdown>
             </div>
             {option.isCorrect && <CheckIcon className='h-4 w-4 text-green-600' />}
           </div>
@@ -117,9 +118,10 @@ export function TestQuestionsIgnore() {
             <AppAccordion.Trigger className='w-full items-center p-0 text-left hover:no-underline'>
               <div className='flex w-full items-center gap-3'>
                 <div className='flex w-full items-center gap-2'>
-                  <span className='truncate font-medium' title={question.questionText}>
-                    {question.questionText} ({question.points} pts)
-                  </span>
+                  <div className='flex items-center gap-2 truncate' title={question.questionText}>
+                    <AppMarkdown>{question.questionText}</AppMarkdown>
+                    <span className='text-muted-foreground'>({question.points.toString()} pts)</span>
+                  </div>
                   {isIgnore && <AppBadge className='text-xs'>Ignored</AppBadge>}
                 </div>
               </div>

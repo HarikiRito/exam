@@ -4,7 +4,6 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/reac
 import { Toaster } from 'app/shared/components/sonner/AppSonner';
 import './tailwind.css';
 
-
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {

@@ -1,0 +1,15 @@
+query PaginateTestSessions($paginationInput: PaginationInput) {
+  paginatedTestSessions(paginationInput: $paginationInput) {
+    pagination {
+      ...Pagination
+    }
+    items {
+      ...TestSessionFragment
+      test {
+        id
+        name
+        totalTime
+      }
+    }
+  }
+} 

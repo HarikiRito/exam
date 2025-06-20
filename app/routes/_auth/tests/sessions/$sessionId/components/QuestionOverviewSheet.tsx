@@ -1,6 +1,6 @@
 'use client';
 
-import { testSessionStore } from 'app/routes/_auth/test/session/$sessionId/state';
+import { testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 
 interface Question {

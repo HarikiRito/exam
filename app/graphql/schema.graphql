@@ -209,6 +209,7 @@ type Query {
   paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!
   paginatedQuestionCollections(paginationInput: PaginationInput): PaginatedQuestionCollection!
   paginatedQuestions(paginationInput: PaginationInput): PaginatedQuestion!
+  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
   paginatedTests(paginationInput: PaginationInput): PaginatedTest!
   paginatedUserQuestionAnswers(paginationInput: PaginationInput): PaginatedUserQuestionAnswer!
   question(id: ID!): Question!
@@ -280,6 +281,7 @@ type Test {
   questionCollections: [QuestionCollection!]!
   testIgnoreQuestions: [TestIgnoreQuestion!]!
   testQuestionCounts: [TestQuestionCount!]!
+  totalTime: Int
 }
 
 type TestIgnoreQuestion {
@@ -306,6 +308,7 @@ type TestSession {
   pointsEarned: Int!
   startedAt: DateTime
   status: TestSessionStatus!
+  test: Test!
   testId: ID!
   updatedAt: DateTime!
   userId: ID
@@ -380,9 +383,8 @@ input UpdateQuestionPointsByCollectionInput {
 }
 
 input UpdateTestInput {
-  courseId: ID
-  courseSectionId: ID
   name: String
+  totalTime: Int
 }
 
 input UpdateTestQuestionRequirementInput {
