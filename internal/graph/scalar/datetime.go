@@ -13,7 +13,8 @@ const dateTimeFormat = "2006-01-02T15:04:05.000"
 func MarshalDateTime(t time.Time) graphql.Marshaler {
 	return graphql.WriterFunc(func(w io.Writer) {
 		// Convert to UTC before formatting
-		io.WriteString(w, fmt.Sprintf("%q", t.UTC().Format(dateTimeFormat)))
+		// Add the Z to the end of the string so that the client can parse it correctly
+		io.WriteString(w, fmt.Sprintf("%q", t.UTC().Format(dateTimeFormat)+"Z"))
 	})
 }
 
