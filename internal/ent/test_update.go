@@ -150,6 +150,33 @@ func (tu *TestUpdate) AddTotalPoints(i int) *TestUpdate {
 	return tu
 }
 
+// SetTotalTime sets the "total_time" field.
+func (tu *TestUpdate) SetTotalTime(i int) *TestUpdate {
+	tu.mutation.ResetTotalTime()
+	tu.mutation.SetTotalTime(i)
+	return tu
+}
+
+// SetNillableTotalTime sets the "total_time" field if the given value is not nil.
+func (tu *TestUpdate) SetNillableTotalTime(i *int) *TestUpdate {
+	if i != nil {
+		tu.SetTotalTime(*i)
+	}
+	return tu
+}
+
+// AddTotalTime adds i to the "total_time" field.
+func (tu *TestUpdate) AddTotalTime(i int) *TestUpdate {
+	tu.mutation.AddTotalTime(i)
+	return tu
+}
+
+// ClearTotalTime clears the value of the "total_time" field.
+func (tu *TestUpdate) ClearTotalTime() *TestUpdate {
+	tu.mutation.ClearTotalTime()
+	return tu
+}
+
 // SetCourseSection sets the "course_section" edge to the CourseSection entity.
 func (tu *TestUpdate) SetCourseSection(c *CourseSection) *TestUpdate {
 	return tu.SetCourseSectionID(c.ID)
@@ -410,6 +437,15 @@ func (tu *TestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.AddedTotalPoints(); ok {
 		_spec.AddField(test.FieldTotalPoints, field.TypeInt, value)
+	}
+	if value, ok := tu.mutation.TotalTime(); ok {
+		_spec.SetField(test.FieldTotalTime, field.TypeInt, value)
+	}
+	if value, ok := tu.mutation.AddedTotalTime(); ok {
+		_spec.AddField(test.FieldTotalTime, field.TypeInt, value)
+	}
+	if tu.mutation.TotalTimeCleared() {
+		_spec.ClearField(test.FieldTotalTime, field.TypeInt)
 	}
 	if tu.mutation.CourseSectionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -784,6 +820,33 @@ func (tuo *TestUpdateOne) AddTotalPoints(i int) *TestUpdateOne {
 	return tuo
 }
 
+// SetTotalTime sets the "total_time" field.
+func (tuo *TestUpdateOne) SetTotalTime(i int) *TestUpdateOne {
+	tuo.mutation.ResetTotalTime()
+	tuo.mutation.SetTotalTime(i)
+	return tuo
+}
+
+// SetNillableTotalTime sets the "total_time" field if the given value is not nil.
+func (tuo *TestUpdateOne) SetNillableTotalTime(i *int) *TestUpdateOne {
+	if i != nil {
+		tuo.SetTotalTime(*i)
+	}
+	return tuo
+}
+
+// AddTotalTime adds i to the "total_time" field.
+func (tuo *TestUpdateOne) AddTotalTime(i int) *TestUpdateOne {
+	tuo.mutation.AddTotalTime(i)
+	return tuo
+}
+
+// ClearTotalTime clears the value of the "total_time" field.
+func (tuo *TestUpdateOne) ClearTotalTime() *TestUpdateOne {
+	tuo.mutation.ClearTotalTime()
+	return tuo
+}
+
 // SetCourseSection sets the "course_section" edge to the CourseSection entity.
 func (tuo *TestUpdateOne) SetCourseSection(c *CourseSection) *TestUpdateOne {
 	return tuo.SetCourseSectionID(c.ID)
@@ -1074,6 +1137,15 @@ func (tuo *TestUpdateOne) sqlSave(ctx context.Context) (_node *Test, err error) 
 	}
 	if value, ok := tuo.mutation.AddedTotalPoints(); ok {
 		_spec.AddField(test.FieldTotalPoints, field.TypeInt, value)
+	}
+	if value, ok := tuo.mutation.TotalTime(); ok {
+		_spec.SetField(test.FieldTotalTime, field.TypeInt, value)
+	}
+	if value, ok := tuo.mutation.AddedTotalTime(); ok {
+		_spec.AddField(test.FieldTotalTime, field.TypeInt, value)
+	}
+	if tuo.mutation.TotalTimeCleared() {
+		_spec.ClearField(test.FieldTotalTime, field.TypeInt)
 	}
 	if tuo.mutation.CourseSectionCleared() {
 		edge := &sqlgraph.EdgeSpec{

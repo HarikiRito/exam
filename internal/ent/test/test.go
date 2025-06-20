@@ -30,6 +30,8 @@ const (
 	FieldCourseID = "course_id"
 	// FieldTotalPoints holds the string denoting the total_points field in the database.
 	FieldTotalPoints = "total_points"
+	// FieldTotalTime holds the string denoting the total_time field in the database.
+	FieldTotalTime = "total_time"
 	// EdgeCourseSection holds the string denoting the course_section edge name in mutations.
 	EdgeCourseSection = "course_section"
 	// EdgeCourse holds the string denoting the course edge name in mutations.
@@ -96,6 +98,7 @@ var Columns = []string{
 	FieldCourseSectionID,
 	FieldCourseID,
 	FieldTotalPoints,
+	FieldTotalTime,
 }
 
 var (
@@ -179,6 +182,11 @@ func ByCourseID(opts ...sql.OrderTermOption) OrderOption {
 // ByTotalPoints orders the results by the total_points field.
 func ByTotalPoints(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTotalPoints, opts...).ToFunc()
+}
+
+// ByTotalTime orders the results by the total_time field.
+func ByTotalTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotalTime, opts...).ToFunc()
 }
 
 // ByCourseSectionField orders the results by course_section field.

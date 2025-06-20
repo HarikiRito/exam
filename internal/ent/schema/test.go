@@ -22,6 +22,7 @@ func (Test) Fields() []ent.Field {
 		field.UUID("course_section_id", uuid.UUID{}).Optional().Nillable(),
 		field.UUID("course_id", uuid.UUID{}).Optional().Nillable(),
 		field.Int("total_points").Default(0).NonNegative(),
+		field.Int("total_time").Optional().Nillable().Comment("Total time in minutes for the test"),
 	}
 }
 

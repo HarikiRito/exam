@@ -117,6 +117,20 @@ func (tc *TestCreate) SetNillableTotalPoints(i *int) *TestCreate {
 	return tc
 }
 
+// SetTotalTime sets the "total_time" field.
+func (tc *TestCreate) SetTotalTime(i int) *TestCreate {
+	tc.mutation.SetTotalTime(i)
+	return tc
+}
+
+// SetNillableTotalTime sets the "total_time" field if the given value is not nil.
+func (tc *TestCreate) SetNillableTotalTime(i *int) *TestCreate {
+	if i != nil {
+		tc.SetTotalTime(*i)
+	}
+	return tc
+}
+
 // SetID sets the "id" field.
 func (tc *TestCreate) SetID(u uuid.UUID) *TestCreate {
 	tc.mutation.SetID(u)
@@ -344,6 +358,10 @@ func (tc *TestCreate) createSpec() (*Test, *sqlgraph.CreateSpec) {
 	if value, ok := tc.mutation.TotalPoints(); ok {
 		_spec.SetField(test.FieldTotalPoints, field.TypeInt, value)
 		_node.TotalPoints = value
+	}
+	if value, ok := tc.mutation.TotalTime(); ok {
+		_spec.SetField(test.FieldTotalTime, field.TypeInt, value)
+		_node.TotalTime = &value
 	}
 	if nodes := tc.mutation.CourseSectionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -91,6 +91,11 @@ func TotalPoints(v int) predicate.Test {
 	return predicate.Test(sql.FieldEQ(FieldTotalPoints, v))
 }
 
+// TotalTime applies equality check predicate on the "total_time" field. It's identical to TotalTimeEQ.
+func TotalTime(v int) predicate.Test {
+	return predicate.Test(sql.FieldEQ(FieldTotalTime, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Test {
 	return predicate.Test(sql.FieldEQ(FieldCreatedAt, v))
@@ -384,6 +389,56 @@ func TotalPointsLT(v int) predicate.Test {
 // TotalPointsLTE applies the LTE predicate on the "total_points" field.
 func TotalPointsLTE(v int) predicate.Test {
 	return predicate.Test(sql.FieldLTE(FieldTotalPoints, v))
+}
+
+// TotalTimeEQ applies the EQ predicate on the "total_time" field.
+func TotalTimeEQ(v int) predicate.Test {
+	return predicate.Test(sql.FieldEQ(FieldTotalTime, v))
+}
+
+// TotalTimeNEQ applies the NEQ predicate on the "total_time" field.
+func TotalTimeNEQ(v int) predicate.Test {
+	return predicate.Test(sql.FieldNEQ(FieldTotalTime, v))
+}
+
+// TotalTimeIn applies the In predicate on the "total_time" field.
+func TotalTimeIn(vs ...int) predicate.Test {
+	return predicate.Test(sql.FieldIn(FieldTotalTime, vs...))
+}
+
+// TotalTimeNotIn applies the NotIn predicate on the "total_time" field.
+func TotalTimeNotIn(vs ...int) predicate.Test {
+	return predicate.Test(sql.FieldNotIn(FieldTotalTime, vs...))
+}
+
+// TotalTimeGT applies the GT predicate on the "total_time" field.
+func TotalTimeGT(v int) predicate.Test {
+	return predicate.Test(sql.FieldGT(FieldTotalTime, v))
+}
+
+// TotalTimeGTE applies the GTE predicate on the "total_time" field.
+func TotalTimeGTE(v int) predicate.Test {
+	return predicate.Test(sql.FieldGTE(FieldTotalTime, v))
+}
+
+// TotalTimeLT applies the LT predicate on the "total_time" field.
+func TotalTimeLT(v int) predicate.Test {
+	return predicate.Test(sql.FieldLT(FieldTotalTime, v))
+}
+
+// TotalTimeLTE applies the LTE predicate on the "total_time" field.
+func TotalTimeLTE(v int) predicate.Test {
+	return predicate.Test(sql.FieldLTE(FieldTotalTime, v))
+}
+
+// TotalTimeIsNil applies the IsNil predicate on the "total_time" field.
+func TotalTimeIsNil() predicate.Test {
+	return predicate.Test(sql.FieldIsNull(FieldTotalTime))
+}
+
+// TotalTimeNotNil applies the NotNil predicate on the "total_time" field.
+func TotalTimeNotNil() predicate.Test {
+	return predicate.Test(sql.FieldNotNull(FieldTotalTime))
 }
 
 // HasCourseSection applies the HasEdge predicate on the "course_section" edge.

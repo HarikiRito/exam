@@ -7774,6 +7774,8 @@ type TestMutation struct {
 	name                         *string
 	total_points                 *int
 	addtotal_points              *int
+	total_time                   *int
+	addtotal_time                *int
 	clearedFields                map[string]struct{}
 	course_section               *uuid.UUID
 	clearedcourse_section        bool
@@ -8211,6 +8213,76 @@ func (m *TestMutation) ResetTotalPoints() {
 	m.addtotal_points = nil
 }
 
+// SetTotalTime sets the "total_time" field.
+func (m *TestMutation) SetTotalTime(i int) {
+	m.total_time = &i
+	m.addtotal_time = nil
+}
+
+// TotalTime returns the value of the "total_time" field in the mutation.
+func (m *TestMutation) TotalTime() (r int, exists bool) {
+	v := m.total_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTotalTime returns the old "total_time" field's value of the Test entity.
+// If the Test object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestMutation) OldTotalTime(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTotalTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTotalTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTotalTime: %w", err)
+	}
+	return oldValue.TotalTime, nil
+}
+
+// AddTotalTime adds i to the "total_time" field.
+func (m *TestMutation) AddTotalTime(i int) {
+	if m.addtotal_time != nil {
+		*m.addtotal_time += i
+	} else {
+		m.addtotal_time = &i
+	}
+}
+
+// AddedTotalTime returns the value that was added to the "total_time" field in this mutation.
+func (m *TestMutation) AddedTotalTime() (r int, exists bool) {
+	v := m.addtotal_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTotalTime clears the value of the "total_time" field.
+func (m *TestMutation) ClearTotalTime() {
+	m.total_time = nil
+	m.addtotal_time = nil
+	m.clearedFields[test.FieldTotalTime] = struct{}{}
+}
+
+// TotalTimeCleared returns if the "total_time" field was cleared in this mutation.
+func (m *TestMutation) TotalTimeCleared() bool {
+	_, ok := m.clearedFields[test.FieldTotalTime]
+	return ok
+}
+
+// ResetTotalTime resets all changes to the "total_time" field.
+func (m *TestMutation) ResetTotalTime() {
+	m.total_time = nil
+	m.addtotal_time = nil
+	delete(m.clearedFields, test.FieldTotalTime)
+}
+
 // ClearCourseSection clears the "course_section" edge to the CourseSection entity.
 func (m *TestMutation) ClearCourseSection() {
 	m.clearedcourse_section = true
@@ -8515,7 +8587,7 @@ func (m *TestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TestMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, test.FieldCreatedAt)
 	}
@@ -8536,6 +8608,9 @@ func (m *TestMutation) Fields() []string {
 	}
 	if m.total_points != nil {
 		fields = append(fields, test.FieldTotalPoints)
+	}
+	if m.total_time != nil {
+		fields = append(fields, test.FieldTotalTime)
 	}
 	return fields
 }
@@ -8559,6 +8634,8 @@ func (m *TestMutation) Field(name string) (ent.Value, bool) {
 		return m.CourseID()
 	case test.FieldTotalPoints:
 		return m.TotalPoints()
+	case test.FieldTotalTime:
+		return m.TotalTime()
 	}
 	return nil, false
 }
@@ -8582,6 +8659,8 @@ func (m *TestMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCourseID(ctx)
 	case test.FieldTotalPoints:
 		return m.OldTotalPoints(ctx)
+	case test.FieldTotalTime:
+		return m.OldTotalTime(ctx)
 	}
 	return nil, fmt.Errorf("unknown Test field %s", name)
 }
@@ -8640,6 +8719,13 @@ func (m *TestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTotalPoints(v)
 		return nil
+	case test.FieldTotalTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTotalTime(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Test field %s", name)
 }
@@ -8651,6 +8737,9 @@ func (m *TestMutation) AddedFields() []string {
 	if m.addtotal_points != nil {
 		fields = append(fields, test.FieldTotalPoints)
 	}
+	if m.addtotal_time != nil {
+		fields = append(fields, test.FieldTotalTime)
+	}
 	return fields
 }
 
@@ -8661,6 +8750,8 @@ func (m *TestMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case test.FieldTotalPoints:
 		return m.AddedTotalPoints()
+	case test.FieldTotalTime:
+		return m.AddedTotalTime()
 	}
 	return nil, false
 }
@@ -8676,6 +8767,13 @@ func (m *TestMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddTotalPoints(v)
+		return nil
+	case test.FieldTotalTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalTime(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Test numeric field %s", name)
@@ -8693,6 +8791,9 @@ func (m *TestMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(test.FieldCourseID) {
 		fields = append(fields, test.FieldCourseID)
+	}
+	if m.FieldCleared(test.FieldTotalTime) {
+		fields = append(fields, test.FieldTotalTime)
 	}
 	return fields
 }
@@ -8716,6 +8817,9 @@ func (m *TestMutation) ClearField(name string) error {
 		return nil
 	case test.FieldCourseID:
 		m.ClearCourseID()
+		return nil
+	case test.FieldTotalTime:
+		m.ClearTotalTime()
 		return nil
 	}
 	return fmt.Errorf("unknown Test nullable field %s", name)
@@ -8745,6 +8849,9 @@ func (m *TestMutation) ResetField(name string) error {
 		return nil
 	case test.FieldTotalPoints:
 		m.ResetTotalPoints()
+		return nil
+	case test.FieldTotalTime:
+		m.ResetTotalTime()
 		return nil
 	}
 	return fmt.Errorf("unknown Test field %s", name)

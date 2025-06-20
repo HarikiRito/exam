@@ -30,22 +30,32 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (
 			testsession.TestID(testID),
 			testsession.UserID(userID),
 			testsession.StatusEQ(testsession.StatusPending),
+			testsession.ExpiredAtIsNil(),
 		).
 		Select(testsession.FieldID, testsession.FieldTestID).
 		First(ctx)
 
+	if err != nil && !ent.IsNotFound(err) {
+		return nil, db.Rollback(tx, err)
+	}
+
+	// Fetch the Test entity to get total_time
+	testEntity, err := tx.Test.Get(ctx, testID)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
 	}
 
-	if ent.IsNotFound(err) {
-		return nil, db.Rollback(tx, fmt.Errorf("test session not found"))
+	var expiryTime *time.Time
+	if testEntity.TotalTime != nil {
+		calculatedExpiry := time.Now().Add(time.Duration(*testEntity.TotalTime) * time.Minute)
+		expiryTime = &calculatedExpiry
 	}
 
-	// Update the session to in progress
+	// Update the session to in progress and set expiry_time if available
 	existingSession, err = tx.TestSession.UpdateOneID(existingSession.ID).
 		SetStatus(testsession.StatusInProgress).
 		SetStartedAt(time.Now()).
+		SetNillableExpiredAt(expiryTime).
 		Save(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
