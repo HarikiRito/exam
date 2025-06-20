@@ -2,6 +2,7 @@ package test
 
 import (
 	"context"
+	"errors"
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/features/common"
@@ -15,6 +16,10 @@ func CreateTest(ctx context.Context, input model.CreateTestInput) (*ent.Test, er
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
+	}
+
+	if input.TotalTime == 0 {
+		return nil, errors.New("total_time must be greater than 0")
 	}
 
 	// Build the creation with required Name field

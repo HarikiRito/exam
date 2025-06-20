@@ -74,7 +74,8 @@ func CreateTestScenario(t *testing.T, questionCountConfigs []QuestionCountConfig
 	userEntity := CreateUser(t, userInput)
 
 	testEntity := CreateTest(t, model.CreateTestInput{
-		Name: utils.Faker.Lorem().Word(),
+		Name:      utils.Faker.Lorem().Word(),
+		TotalTime: 120,
 	})
 	collectionEntity, questions := CreateCollectionWithQuestions(t, userEntity.ID, questionCountConfigs)
 
@@ -82,6 +83,10 @@ func CreateTestScenario(t *testing.T, questionCountConfigs []QuestionCountConfig
 		TestID:        testEntity.ID,
 		CollectionIds: []uuid.UUID{collectionEntity.ID},
 	})
+
+	if err != nil {
+		t.Fatalf("Failed to add multi collection to test: %v", err)
+	}
 
 	// Update test question counts config
 
