@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { CreateTestInput } from 'app/graphql/graphqlTypes';
-import { usePaginateCoursesQuery } from 'app/graphql/operations/course/paginateCourse.query.generated';
 import { useCreateTestMutation } from 'app/graphql/operations/test/createTest.mutation.generated';
 import { PaginateTestsDocument } from 'app/graphql/operations/test/paginateTests.query.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
@@ -18,6 +17,7 @@ import { apolloService } from 'app/shared/services/apollo.service';
 // Validation schema
 const createTestSchema = z.object({
   name: z.string().min(1, 'Test name is required').max(255, 'Test name must be less than 255 characters'),
+  totalTime: z.coerce.number().min(1, 'Total time must be at least 1 minute'),
 });
 
 type CreateTestFormData = z.infer<typeof createTestSchema>;
@@ -42,6 +42,7 @@ export default function CreateTest() {
     resolver: zodResolver(createTestSchema),
     defaultValues: {
       name: '',
+      totalTime: 120,
     },
     mode: 'onBlur',
   });
@@ -49,6 +50,7 @@ export default function CreateTest() {
   function onSubmit(data: CreateTestFormData) {
     const input: CreateTestInput = {
       name: data.name,
+      totalTime: data.totalTime,
     };
 
     createTest({
@@ -74,6 +76,20 @@ export default function CreateTest() {
                   <AppInput placeholder='Enter test name' {...field} />
                 </AppForm.Control>
                 <AppForm.Description>Choose a descriptive name for your test.</AppForm.Description>
+                <AppForm.Message />
+              </AppForm.Item>
+            )}
+          />
+          <AppForm.Field
+            control={form.control}
+            name='totalTime'
+            render={({ field }) => (
+              <AppForm.Item>
+                <AppForm.Label>Total Time (minutes)</AppForm.Label>
+                <AppForm.Control>
+                  <AppInput type='number' placeholder='Enter total time in minutes' {...field} />
+                </AppForm.Control>
+                <AppForm.Description>Set the maximum duration for the test in minutes.</AppForm.Description>
                 <AppForm.Message />
               </AppForm.Item>
             )}

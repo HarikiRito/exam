@@ -100,11 +100,12 @@ export type CreateTestInput = {
   courseId?: InputMaybe<Scalars['ID']['input']>;
   courseSectionId?: InputMaybe<Scalars['ID']['input']>;
   name: Scalars['String']['input'];
+  totalTime: Scalars['Int']['input'];
 };
 
 export type CreateTestSessionInput = {
-  courseSectionId?: InputMaybe<Scalars['ID']['input']>;
   testId: Scalars['ID']['input'];
+  userId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type CreateUserQuestionAnswerInput = {
@@ -123,7 +124,6 @@ export type Mutation = {
   __typename?: 'Mutation';
   addMultiCollectionToTest: Scalars['Boolean']['output'];
   batchIgnoreQuestions: Scalars['Boolean']['output'];
-  completeTestSession: TestSession;
   createCourse: Course;
   createCourseSection: CourseSection;
   createQuestion: Question;
@@ -143,6 +143,8 @@ export type Mutation = {
   removeCourse: Scalars['Boolean']['output'];
   removeCourseSection: Scalars['Boolean']['output'];
   renewToken: Auth;
+  startTestSession: TestSession;
+  submitTestSession: TestSession;
   updateBatchQuestionsByCollection: Scalars['Boolean']['output'];
   updateCourse: Course;
   updateCourseSection: CourseSection;
@@ -162,11 +164,6 @@ export type MutationAddMultiCollectionToTestArgs = {
 
 export type MutationBatchIgnoreQuestionsArgs = {
   input: BatchIgnoreQuestionsInput;
-};
-
-
-export type MutationCompleteTestSessionArgs = {
-  id: Scalars['ID']['input'];
 };
 
 
@@ -262,6 +259,17 @@ export type MutationRemoveCourseSectionArgs = {
 
 export type MutationRenewTokenArgs = {
   refreshToken: Scalars['String']['input'];
+};
+
+
+export type MutationStartTestSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSubmitTestSessionArgs = {
+  input: SubmitTestSessionInput;
+  sessionId: Scalars['ID']['input'];
 };
 
 
@@ -524,6 +532,15 @@ export type RegisterInput = {
   password: Scalars['String']['input'];
 };
 
+export type StartTestSessionInput = {
+  expiredAt?: InputMaybe<Scalars['DateTime']['input']>;
+  testTimeTaken: Scalars['Int']['input'];
+};
+
+export type SubmitTestSessionInput = {
+  answers: Array<TestSessionAnswerInput>;
+};
+
 export type Test = {
   __typename?: 'Test';
   id: Scalars['ID']['output'];
@@ -553,15 +570,32 @@ export type TestQuestionCount = {
 export type TestSession = {
   __typename?: 'TestSession';
   completedAt?: Maybe<Scalars['DateTime']['output']>;
-  courseSection?: Maybe<CourseSection>;
   createdAt: Scalars['DateTime']['output'];
+  expiredAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
-  test: Test;
-  totalScore: Scalars['Int']['output'];
+  maxPoints: Scalars['Int']['output'];
+  pointsEarned: Scalars['Int']['output'];
+  startedAt?: Maybe<Scalars['DateTime']['output']>;
+  status: TestSessionStatus;
+  testId: Scalars['ID']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  user: User;
-  userQuestionAnswers: Array<UserQuestionAnswer>;
+  userId?: Maybe<Scalars['ID']['output']>;
 };
+
+export type TestSessionAnswerInput = {
+  order: Scalars['Int']['input'];
+  points?: InputMaybe<Scalars['Int']['input']>;
+  questionId: Scalars['ID']['input'];
+  questionOptionIds: Array<Scalars['ID']['input']>;
+};
+
+export enum TestSessionStatus {
+  Cancelled = 'CANCELLED',
+  Completed = 'COMPLETED',
+  Expired = 'EXPIRED',
+  InProgress = 'IN_PROGRESS',
+  Pending = 'PENDING'
+}
 
 export type Todo = {
   __typename?: 'Todo';

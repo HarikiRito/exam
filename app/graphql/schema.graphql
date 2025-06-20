@@ -89,11 +89,12 @@ input CreateTestInput {
   courseId: ID
   courseSectionId: ID
   name: String!
+  totalTime: Int!
 }
 
 input CreateTestSessionInput {
-  courseSectionId: ID
   testId: ID!
+  userId: ID
 }
 
 input CreateUserQuestionAnswerInput {
@@ -113,7 +114,6 @@ input LoginInput {
 type Mutation {
   addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
   batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
-  completeTestSession(id: ID!): TestSession!
   createCourse(input: CreateCourseInput!): Course!
   createCourseSection(input: CreateCourseSectionInput!): CourseSection!
   createQuestion(input: CreateQuestionInput!): Question!
@@ -133,6 +133,8 @@ type Mutation {
   removeCourse(id: ID!): Boolean!
   removeCourseSection(id: ID!): Boolean!
   renewToken(refreshToken: String!): Auth!
+  startTestSession(id: ID!): TestSession!
+  submitTestSession(input: SubmitTestSessionInput!, sessionId: ID!): TestSession!
   updateBatchQuestionsByCollection(input: UpdateBatchQuestionsByCollectionInput!): Boolean!
   updateCourse(id: ID!, input: UpdateCourseInput!): Course!
   updateCourseSection(id: ID!, input: UpdateCourseSectionInput!): CourseSection!
@@ -263,6 +265,15 @@ input RegisterInput {
   password: String!
 }
 
+input StartTestSessionInput {
+  expiredAt: DateTime
+  testTimeTaken: Int!
+}
+
+input SubmitTestSessionInput {
+  answers: [TestSessionAnswerInput!]!
+}
+
 type Test {
   id: ID!
   name: String!
@@ -288,14 +299,31 @@ type TestQuestionCount {
 
 type TestSession {
   completedAt: DateTime
-  courseSection: CourseSection
   createdAt: DateTime!
+  expiredAt: DateTime
   id: ID!
-  test: Test!
-  totalScore: Int!
+  maxPoints: Int!
+  pointsEarned: Int!
+  startedAt: DateTime
+  status: TestSessionStatus!
+  testId: ID!
   updatedAt: DateTime!
-  user: User!
-  userQuestionAnswers: [UserQuestionAnswer!]!
+  userId: ID
+}
+
+input TestSessionAnswerInput {
+  order: Int!
+  points: Int
+  questionId: ID!
+  questionOptionIds: [ID!]!
+}
+
+enum TestSessionStatus {
+  CANCELLED
+  COMPLETED
+  EXPIRED
+  IN_PROGRESS
+  PENDING
 }
 
 type Todo {
