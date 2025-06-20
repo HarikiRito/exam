@@ -49,7 +49,6 @@ type ResolverRoot interface {
 	QuestionCollection() QuestionCollectionResolver
 	QuestionOption() QuestionOptionResolver
 	Test() TestResolver
-	TestSession() TestSessionResolver
 }
 
 type DirectiveRoot struct {
@@ -235,9 +234,9 @@ type ComplexityRoot struct {
 		PointsEarned func(childComplexity int) int
 		StartedAt    func(childComplexity int) int
 		Status       func(childComplexity int) int
-		Test         func(childComplexity int) int
+		TestID       func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
-		User         func(childComplexity int) int
+		UserID       func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -333,10 +332,6 @@ type TestResolver interface {
 	QuestionCollections(ctx context.Context, obj *model.Test) ([]*model.QuestionCollection, error)
 	TestQuestionCounts(ctx context.Context, obj *model.Test) ([]*model.TestQuestionCount, error)
 	TestIgnoreQuestions(ctx context.Context, obj *model.Test) ([]*model.TestIgnoreQuestion, error)
-}
-type TestSessionResolver interface {
-	User(ctx context.Context, obj *model.TestSession) (*model.User, error)
-	Test(ctx context.Context, obj *model.TestSession) (*model.Test, error)
 }
 
 type executableSchema struct {
@@ -1440,12 +1435,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TestSession.Status(childComplexity), true
 
-	case "TestSession.test":
-		if e.complexity.TestSession.Test == nil {
+	case "TestSession.testId":
+		if e.complexity.TestSession.TestID == nil {
 			break
 		}
 
-		return e.complexity.TestSession.Test(childComplexity), true
+		return e.complexity.TestSession.TestID(childComplexity), true
 
 	case "TestSession.updatedAt":
 		if e.complexity.TestSession.UpdatedAt == nil {
@@ -1454,12 +1449,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TestSession.UpdatedAt(childComplexity), true
 
-	case "TestSession.user":
-		if e.complexity.TestSession.User == nil {
+	case "TestSession.userId":
+		if e.complexity.TestSession.UserID == nil {
 			break
 		}
 
-		return e.complexity.TestSession.User(childComplexity), true
+		return e.complexity.TestSession.UserID(childComplexity), true
 
 	case "Todo.id":
 		if e.complexity.Todo.ID == nil {
@@ -5193,10 +5188,6 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
 			case "status":
 				return ec.fieldContext_TestSession_status(ctx, field)
 			case "startedAt":
@@ -5213,6 +5204,10 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			case "testId":
+				return ec.fieldContext_TestSession_testId(ctx, field)
+			case "userId":
+				return ec.fieldContext_TestSession_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -5327,10 +5322,6 @@ func (ec *executionContext) fieldContext_Mutation_submitTestSession(ctx context.
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
 			case "status":
 				return ec.fieldContext_TestSession_status(ctx, field)
 			case "startedAt":
@@ -5347,6 +5338,10 @@ func (ec *executionContext) fieldContext_Mutation_submitTestSession(ctx context.
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			case "testId":
+				return ec.fieldContext_TestSession_testId(ctx, field)
+			case "userId":
+				return ec.fieldContext_TestSession_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -5406,10 +5401,6 @@ func (ec *executionContext) fieldContext_Mutation_startTestSession(ctx context.C
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
 			case "status":
 				return ec.fieldContext_TestSession_status(ctx, field)
 			case "startedAt":
@@ -5426,6 +5417,10 @@ func (ec *executionContext) fieldContext_Mutation_startTestSession(ctx context.C
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			case "testId":
+				return ec.fieldContext_TestSession_testId(ctx, field)
+			case "userId":
+				return ec.fieldContext_TestSession_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -6363,10 +6358,6 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
 			case "status":
 				return ec.fieldContext_TestSession_status(ctx, field)
 			case "startedAt":
@@ -6383,6 +6374,10 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			case "testId":
+				return ec.fieldContext_TestSession_testId(ctx, field)
+			case "userId":
+				return ec.fieldContext_TestSession_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -7643,10 +7638,6 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
 			case "status":
 				return ec.fieldContext_TestSession_status(ctx, field)
 			case "startedAt":
@@ -7663,6 +7654,10 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			case "testId":
+				return ec.fieldContext_TestSession_testId(ctx, field)
+			case "userId":
+				return ec.fieldContext_TestSession_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -9450,112 +9445,6 @@ func (ec *executionContext) fieldContext_TestSession_id(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _TestSession_user(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestSession_user(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TestSession().User(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestSession_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestSession",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _TestSession_test(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_TestSession_test(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TestSession().Test(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Test)
-	fc.Result = res
-	return ec.marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_TestSession_test(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "TestSession",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Test_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Test_name(ctx, field)
-			case "questionCollections":
-				return ec.fieldContext_Test_questionCollections(ctx, field)
-			case "testQuestionCounts":
-				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
-			case "testIgnoreQuestions":
-				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Test", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _TestSession_status(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TestSession_status(ctx, field)
 	if err != nil {
@@ -9894,6 +9783,91 @@ func (ec *executionContext) fieldContext_TestSession_updatedAt(_ context.Context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSession_testId(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_testId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TestID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_testId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TestSession_userId(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*uuid.UUID)
+	fc.Result = res
+	return ec.marshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_userId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10320,10 +10294,6 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ contex
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_TestSession_id(ctx, field)
-			case "user":
-				return ec.fieldContext_TestSession_user(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
 			case "status":
 				return ec.fieldContext_TestSession_status(ctx, field)
 			case "startedAt":
@@ -10340,6 +10310,10 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ contex
 				return ec.fieldContext_TestSession_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_TestSession_updatedAt(ctx, field)
+			case "testId":
+				return ec.fieldContext_TestSession_testId(ctx, field)
+			case "userId":
+				return ec.fieldContext_TestSession_userId(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -15384,84 +15358,12 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 		case "id":
 			out.Values[i] = ec._TestSession_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
-		case "user":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TestSession_user(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "test":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._TestSession_test(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
 			out.Values[i] = ec._TestSession_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "startedAt":
 			out.Values[i] = ec._TestSession_startedAt(ctx, field, obj)
@@ -15472,23 +15374,30 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 		case "maxPoints":
 			out.Values[i] = ec._TestSession_maxPoints(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "pointsEarned":
 			out.Values[i] = ec._TestSession_pointsEarned(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "createdAt":
 			out.Values[i] = ec._TestSession_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "updatedAt":
 			out.Values[i] = ec._TestSession_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
+		case "testId":
+			out.Values[i] = ec._TestSession_testId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userId":
+			out.Values[i] = ec._TestSession_userId(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

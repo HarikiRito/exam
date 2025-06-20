@@ -19,6 +19,8 @@ type TestSession struct {
 	Status       TestSessionStatus `json:"status"`
 	StartedAt    *time.Time        `json:"startedAt,omitempty"`
 	ExpiredAt    *time.Time        `json:"expiredAt,omitempty"`
+	TestID       uuid.UUID         `json:"testId"`
+	UserID       *uuid.UUID        `json:"userId"`
 }
 
 // ConvertTestSessionToModel converts an ent.TestSession to a GraphQL model TestSession.
@@ -33,6 +35,8 @@ func ConvertTestSessionToModel(ts *ent.TestSession) *TestSession {
 		StartedAt:    ts.StartedAt,
 		ExpiredAt:    ts.ExpiredAt,
 		Status:       convertEntStatusToGraphQLStatus(ts.Status),
+		TestID:       ts.TestID,
+		UserID:       ts.UserID,
 	}
 
 	return result

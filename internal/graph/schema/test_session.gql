@@ -19,8 +19,6 @@ enum TestSessionStatus {
 
 type TestSession {
   id: ID!
-  user: User!
-  test: Test!
   status: TestSessionStatus!
   startedAt: DateTime
   expiredAt: DateTime
@@ -29,6 +27,8 @@ type TestSession {
   pointsEarned: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
+  testId: ID!
+  userId: ID
 }
 
 type PaginatedTestSession {
