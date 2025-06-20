@@ -12,12 +12,14 @@ func ConvertTestToModel(entTest *ent.Test) *Test {
 		return nil
 	}
 	return &Test{
-		ID:   entTest.ID,
-		Name: entTest.Name,
+		ID:        entTest.ID,
+		Name:      entTest.Name,
+		TotalTime: entTest.TotalTime,
 	}
 }
 
 type Test struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	TotalTime *int      `json:"totalTime"`
 }

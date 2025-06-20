@@ -5,6 +5,7 @@ import (
 	"errors"
 	"template/internal/ent"
 	"template/internal/ent/db"
+	"template/internal/ent/test"
 	"template/internal/features/common"
 	"template/internal/graph/model"
 
@@ -50,8 +51,7 @@ func UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) 
 
 	update := client.Test.UpdateOneID(id).
 		SetNillableName(input.Name).
-		SetNillableCourseSectionID(input.CourseSectionID).
-		SetNillableCourseID(input.CourseID)
+		SetNillableTotalTime(input.TotalTime)
 
 	updatedTest, err := update.Save(ctx)
 	if err != nil {
@@ -91,6 +91,16 @@ func GetTestByID(ctx context.Context, id uuid.UUID) (*ent.Test, error) {
 	}
 
 	return client.Test.Get(ctx, id)
+}
+
+// GetTestsByIDs fetches multiple tests by their IDs.
+func GetTestsByIDs(ctx context.Context, ids []uuid.UUID) ([]*ent.Test, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return client.Test.Query().Where(test.IDIn(ids...)).All(ctx)
 }
 
 // PaginatedTests returns a paginated list of tests.

@@ -256,9 +256,8 @@ type UpdateQuestionPointsByCollectionInput struct {
 }
 
 type UpdateTestInput struct {
-	Name            *string    `json:"name,omitempty"`
-	CourseSectionID *uuid.UUID `json:"courseSectionId,omitempty"`
-	CourseID        *uuid.UUID `json:"courseId,omitempty"`
+	Name      *string `json:"name,omitempty"`
+	TotalTime *int    `json:"totalTime,omitempty"`
 }
 
 type UpdateTestQuestionRequirementInput struct {

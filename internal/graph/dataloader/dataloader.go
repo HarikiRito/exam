@@ -24,6 +24,7 @@ type Loaders struct {
 	QuestionCollectionsByTestLoader *dataloadgen.Loader[uuid.UUID, []*model.QuestionCollection]
 	TestQuestionCountsByTestLoader  *dataloadgen.Loader[uuid.UUID, []*model.TestQuestionCount]
 	TestIgnoreQuestionsByTestLoader *dataloadgen.Loader[uuid.UUID, []*model.TestIgnoreQuestion]
+	TestLoader                      *dataloadgen.Loader[uuid.UUID, *model.Test]
 }
 
 // NewLoaders instantiates and returns a new Loaders struct with a UserLoader.
@@ -37,6 +38,7 @@ func NewLoaders() *Loaders {
 		QuestionCollectionsByTestLoader: dataloadgen.NewLoader(getQuestionCollectionsByTestIDs, dataloadgen.WithWait(time.Millisecond)),
 		TestQuestionCountsByTestLoader:  dataloadgen.NewLoader(getTestQuestionCountsByTestIDs, dataloadgen.WithWait(time.Millisecond)),
 		TestIgnoreQuestionsByTestLoader: dataloadgen.NewLoader(getTestIgnoreQuestionsByTestIDs, dataloadgen.WithWait(time.Millisecond)),
+		TestLoader:                      dataloadgen.NewLoader(getTests, dataloadgen.WithWait(time.Millisecond)),
 	}
 }
 

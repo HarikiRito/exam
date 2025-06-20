@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"template/internal/features/test_session"
+	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 
@@ -109,3 +110,13 @@ func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInp
 		Items:      items,
 	}, nil
 }
+
+// Test is the resolver for the test field.
+func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) (*model.Test, error) {
+	return dataloader.GetTest(ctx, obj.TestID)
+}
+
+// TestSession returns TestSessionResolver implementation.
+func (r *Resolver) TestSession() TestSessionResolver { return &testSessionResolver{r} }
+
+type testSessionResolver struct{ *Resolver }

@@ -49,6 +49,7 @@ type ResolverRoot interface {
 	QuestionCollection() QuestionCollectionResolver
 	QuestionOption() QuestionOptionResolver
 	Test() TestResolver
+	TestSession() TestSessionResolver
 }
 
 type DirectiveRoot struct {
@@ -209,6 +210,7 @@ type ComplexityRoot struct {
 		QuestionCollections func(childComplexity int) int
 		TestIgnoreQuestions func(childComplexity int) int
 		TestQuestionCounts  func(childComplexity int) int
+		TotalTime           func(childComplexity int) int
 	}
 
 	TestIgnoreQuestion struct {
@@ -235,6 +237,7 @@ type ComplexityRoot struct {
 		PointsEarned func(childComplexity int) int
 		StartedAt    func(childComplexity int) int
 		Status       func(childComplexity int) int
+		Test         func(childComplexity int) int
 		TestID       func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
 		UserID       func(childComplexity int) int
@@ -334,6 +337,9 @@ type TestResolver interface {
 	QuestionCollections(ctx context.Context, obj *model.Test) ([]*model.QuestionCollection, error)
 	TestQuestionCounts(ctx context.Context, obj *model.Test) ([]*model.TestQuestionCount, error)
 	TestIgnoreQuestions(ctx context.Context, obj *model.Test) ([]*model.TestIgnoreQuestion, error)
+}
+type TestSessionResolver interface {
+	Test(ctx context.Context, obj *model.TestSession) (*model.Test, error)
 }
 
 type executableSchema struct {
@@ -1330,6 +1336,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Test.TestQuestionCounts(childComplexity), true
 
+	case "Test.totalTime":
+		if e.complexity.Test.TotalTime == nil {
+			break
+		}
+
+		return e.complexity.Test.TotalTime(childComplexity), true
+
 	case "TestIgnoreQuestion.id":
 		if e.complexity.TestIgnoreQuestion.ID == nil {
 			break
@@ -1448,6 +1461,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TestSession.Status(childComplexity), true
+
+	case "TestSession.test":
+		if e.complexity.TestSession.Test == nil {
+			break
+		}
+
+		return e.complexity.TestSession.Test(childComplexity), true
 
 	case "TestSession.testId":
 		if e.complexity.TestSession.TestID == nil {
@@ -4873,6 +4893,8 @@ func (ec *executionContext) fieldContext_Mutation_createTest(ctx context.Context
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
+			case "totalTime":
+				return ec.fieldContext_Test_totalTime(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
@@ -4940,6 +4962,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTest(ctx context.Context
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
+			case "totalTime":
+				return ec.fieldContext_Test_totalTime(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
@@ -5245,6 +5269,8 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 				return ec.fieldContext_TestSession_testId(ctx, field)
 			case "userId":
 				return ec.fieldContext_TestSession_userId(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -5379,6 +5405,8 @@ func (ec *executionContext) fieldContext_Mutation_submitTestSession(ctx context.
 				return ec.fieldContext_TestSession_testId(ctx, field)
 			case "userId":
 				return ec.fieldContext_TestSession_userId(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -5458,6 +5486,8 @@ func (ec *executionContext) fieldContext_Mutation_startTestSession(ctx context.C
 				return ec.fieldContext_TestSession_testId(ctx, field)
 			case "userId":
 				return ec.fieldContext_TestSession_userId(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -6285,6 +6315,8 @@ func (ec *executionContext) fieldContext_PaginatedTest_items(_ context.Context, 
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
+			case "totalTime":
+				return ec.fieldContext_Test_totalTime(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
@@ -6415,6 +6447,8 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 				return ec.fieldContext_TestSession_testId(ctx, field)
 			case "userId":
 				return ec.fieldContext_TestSession_userId(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -7549,6 +7583,8 @@ func (ec *executionContext) fieldContext_Query_test(ctx context.Context, field g
 				return ec.fieldContext_Test_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Test_name(ctx, field)
+			case "totalTime":
+				return ec.fieldContext_Test_totalTime(ctx, field)
 			case "questionCollections":
 				return ec.fieldContext_Test_questionCollections(ctx, field)
 			case "testQuestionCounts":
@@ -7695,6 +7731,8 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 				return ec.fieldContext_TestSession_testId(ctx, field)
 			case "userId":
 				return ec.fieldContext_TestSession_userId(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -8927,6 +8965,47 @@ func (ec *executionContext) fieldContext_Test_name(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Test_totalTime(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Test_totalTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Test_totalTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Test",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Test_questionCollections(ctx context.Context, field graphql.CollectedField, obj *model.Test) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Test_questionCollections(ctx, field)
 	if err != nil {
@@ -9971,6 +10050,64 @@ func (ec *executionContext) fieldContext_TestSession_userId(_ context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _TestSession_test(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_test(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TestSession().Test(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Test)
+	fc.Result = res
+	return ec.marshalNTest2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTest(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_test(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Test_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Test_name(ctx, field)
+			case "totalTime":
+				return ec.fieldContext_Test_totalTime(ctx, field)
+			case "questionCollections":
+				return ec.fieldContext_Test_questionCollections(ctx, field)
+			case "testQuestionCounts":
+				return ec.fieldContext_Test_testQuestionCounts(ctx, field)
+			case "testIgnoreQuestions":
+				return ec.fieldContext_Test_testIgnoreQuestions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Test", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Todo_id(ctx, field)
 	if err != nil {
@@ -10412,6 +10549,8 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ contex
 				return ec.fieldContext_TestSession_testId(ctx, field)
 			case "userId":
 				return ec.fieldContext_TestSession_userId(ctx, field)
+			case "test":
+				return ec.fieldContext_TestSession_test(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -13446,7 +13585,7 @@ func (ec *executionContext) unmarshalInputUpdateTestInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId"}
+	fieldsInOrder := [...]string{"name", "totalTime"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13460,20 +13599,13 @@ func (ec *executionContext) unmarshalInputUpdateTestInput(ctx context.Context, o
 				return it, err
 			}
 			it.Name = data
-		case "courseSectionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseSectionId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+		case "totalTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalTime"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.CourseSectionID = data
-		case "courseId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("courseId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CourseID = data
+			it.TotalTime = data
 		}
 	}
 
@@ -15233,6 +15365,8 @@ func (ec *executionContext) _Test(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "totalTime":
+			out.Values[i] = ec._Test_totalTime(ctx, field, obj)
 		case "questionCollections":
 			field := field
 
@@ -15485,12 +15619,12 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 		case "id":
 			out.Values[i] = ec._TestSession_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
 			out.Values[i] = ec._TestSession_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "startedAt":
 			out.Values[i] = ec._TestSession_startedAt(ctx, field, obj)
@@ -15501,30 +15635,66 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 		case "maxPoints":
 			out.Values[i] = ec._TestSession_maxPoints(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "pointsEarned":
 			out.Values[i] = ec._TestSession_pointsEarned(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._TestSession_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._TestSession_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "testId":
 			out.Values[i] = ec._TestSession_testId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "userId":
 			out.Values[i] = ec._TestSession_userId(ctx, field, obj)
+		case "test":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestSession_test(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
