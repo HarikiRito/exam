@@ -20,7 +20,7 @@ func CreateTest(ctx context.Context, input model.CreateTestInput) (*ent.Test, er
 	// Build the creation with required Name field
 	query := client.Test.Create().SetName(input.Name).
 		SetNillableCourseSectionID(input.CourseSectionID).
-		SetNillableCourseID(input.CourseID)
+		SetNillableCourseID(input.CourseID).SetTotalTime(input.TotalTime)
 
 	testEntity, err := query.Save(ctx)
 	if err != nil {

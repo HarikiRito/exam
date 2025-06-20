@@ -12557,7 +12557,7 @@ func (ec *executionContext) unmarshalInputCreateTestInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId"}
+	fieldsInOrder := [...]string{"name", "courseSectionId", "courseId", "totalTime"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12585,6 +12585,13 @@ func (ec *executionContext) unmarshalInputCreateTestInput(ctx context.Context, o
 				return it, err
 			}
 			it.CourseID = data
+		case "totalTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("totalTime"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TotalTime = data
 		}
 	}
 

@@ -74,6 +74,7 @@ type CreateTestInput struct {
 	Name            string     `json:"name"`
 	CourseSectionID *uuid.UUID `json:"courseSectionId,omitempty"`
 	CourseID        *uuid.UUID `json:"courseId,omitempty"`
+	TotalTime       int        `json:"totalTime"`
 }
 
 type CreateTestSessionInput struct {

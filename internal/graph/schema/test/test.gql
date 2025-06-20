@@ -50,6 +50,7 @@ input CreateTestInput {
   name: String!
   courseSectionId: ID
   courseId: ID
+  totalTime: Int!
 }
 
 input UpdateTestInput {
