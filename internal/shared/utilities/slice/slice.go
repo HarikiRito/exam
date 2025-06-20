@@ -45,6 +45,12 @@ func Find[T any](slice []T, fn func(T) bool) *T {
 	return nil
 }
 
+func Contains[T comparable](slice []T, value T) bool {
+	v := Find(slice, func(v T) bool {
+		return v == value
+	})
+	return v != nil
+}
 func Unique[T comparable](slice []T) []T {
 	seen := make(map[T]bool)
 	result := make([]T, 0)

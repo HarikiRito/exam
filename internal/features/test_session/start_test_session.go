@@ -8,6 +8,7 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/test"
+	"template/internal/ent/testignorequestion"
 	"template/internal/ent/testsession"
 	"template/internal/shared/utilities/slice"
 	"time"
@@ -73,15 +74,24 @@ func randomGenerateTestSessionAnswers(ctx context.Context, tx *ent.Tx, session *
 				questionQuery.Select(question.FieldID, question.FieldPoints)
 			})
 		}).
+		WithTestIgnoreQuestions(func(testIgnoreQuestionQuery *ent.TestIgnoreQuestionQuery) {
+			testIgnoreQuestionQuery.Select(testignorequestion.FieldQuestionID)
+		}).
 		Only(ctx)
 	if err != nil {
 		return err
 	}
 
+	ignoreQuestionIds := slice.Map(testEntity.Edges.TestIgnoreQuestions, func(i *ent.TestIgnoreQuestion) uuid.UUID {
+		return i.QuestionID
+	})
+
 	questionCounts := testEntity.Edges.TestQuestionCounts
 
 	availableTestQuestions := slice.FlatMap(testEntity.Edges.QuestionCollections, func(c *ent.QuestionCollection) []*ent.Question {
-		return c.Edges.Questions
+		return slice.Filter(c.Edges.Questions, func(q *ent.Question) bool {
+			return !slice.Contains(ignoreQuestionIds, q.ID)
+		})
 	})
 
 	if len(questionCounts) == 0 {
