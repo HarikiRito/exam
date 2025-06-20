@@ -258,13 +258,13 @@ var (
 				Symbol:     "test_ignore_questions_tests_test",
 				Columns:    []*schema.Column{TestIgnoreQuestionsColumns[5]},
 				RefColumns: []*schema.Column{TestsColumns[0]},
-				OnDelete:   schema.Cascade,
+				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "test_ignore_questions_questions_question",
 				Columns:    []*schema.Column{TestIgnoreQuestionsColumns[6]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
-				OnDelete:   schema.Cascade,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}

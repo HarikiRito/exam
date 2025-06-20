@@ -4,7 +4,6 @@ import (
 	"template/internal/ent/schema/mixin"
 
 	"entgo.io/ent"
-	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -30,13 +29,11 @@ func (TestIgnoreQuestion) Edges() []ent.Edge {
 		edge.To("test", Test.Type).
 			Field("test_id").
 			Unique().
-			Required().
-			Annotations(entsql.OnDelete(entsql.Cascade)),
+			Required(),
 		edge.To("question", Question.Type).
 			Field("question_id").
 			Unique().
-			Required().
-			Annotations(entsql.OnDelete(entsql.Cascade)),
+			Required(),
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"template/internal/ent/db"
 	"template/internal/ent/testsession"
 	"template/internal/ent/testsessionanswer"
+	"template/internal/features/test"
 	"template/internal/features/test_session"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
@@ -25,6 +26,11 @@ func TestSessionFlow(t *testing.T) {
 		t.Fatalf("failed to open db client: %v", err)
 	}
 
+	type newSession struct {
+		Session *ent.TestSession
+		Answers []*ent.TestSessionAnswer
+	}
+
 	maxQuestionCount := 10
 
 	questionCountConfigs := []prepare.QuestionCountConfig{
@@ -38,6 +44,27 @@ func TestSessionFlow(t *testing.T) {
 	}, 0)
 
 	scenario := prepare.CreateTestScenario(t, questionCountConfigs)
+
+	setupNewSession := func() newSession {
+		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID: scenario.Test.ID,
+			UserID: &scenario.User.ID,
+		})
+		require.NoError(t, err)
+
+		newSessionEntity, err := test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
+
+		require.NoError(t, err)
+		require.NotNil(t, newSessionEntity)
+
+		answers, err := getAnswers(context.Background(), newSessionEntity.ID)
+		require.NoError(t, err)
+
+		return newSession{
+			Session: newSessionEntity,
+			Answers: answers,
+		}
+	}
 
 	// Create the test session
 	session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
@@ -57,6 +84,36 @@ func TestSessionFlow(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, answers)
 	})
+
+	t.Run("Cannot start test session due to insufficient questions", func(t *testing.T) {
+		questionCollection, err := scenario.Test.QueryQuestionCollections().WithQuestions().Only(context.Background())
+
+		if err != nil {
+			t.Fatalf("failed to get question collection: %v", err)
+		}
+
+		questionIds := slice.Map(questionCollection.Edges.Questions, func(question *ent.Question) uuid.UUID {
+			return question.ID
+		})
+
+		test.BatchIgnoreQuestions(context.Background(), scenario.User.ID, model.BatchIgnoreQuestionsInput{
+			TestID: scenario.Test.ID,
+			QuestionIgnoreData: []*model.QuestionIgnoreData{
+				{QuestionID: questionIds[0]},
+			},
+		})
+
+		_, err = test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
+		require.Error(t, err)
+
+		_, err = test.BatchIgnoreQuestions(context.Background(), scenario.User.ID, model.BatchIgnoreQuestionsInput{
+			TestID:             scenario.Test.ID,
+			QuestionIgnoreData: []*model.QuestionIgnoreData{},
+		})
+		require.NoError(t, err)
+	})
+
+	require.NoError(t, err)
 
 	// Start the test session
 	session, err = test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
@@ -118,32 +175,6 @@ func TestSessionFlow(t *testing.T) {
 			})
 		})
 
-		type newSession struct {
-			Session *ent.TestSession
-			Answers []*ent.TestSessionAnswer
-		}
-
-		setupNewSession := func() newSession {
-			_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-				TestID: scenario.Test.ID,
-				UserID: &scenario.User.ID,
-			})
-			require.NoError(t, err)
-
-			newSessionEntity, err := test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
-
-			require.NoError(t, err)
-			require.NotNil(t, newSessionEntity)
-
-			answers, err := getAnswers(context.Background(), newSessionEntity.ID)
-			require.NoError(t, err)
-
-			return newSession{
-				Session: newSessionEntity,
-				Answers: answers,
-			}
-		}
-
 		t.Run("Submit with all answers randomly", func(t *testing.T) {
 			newSession := setupNewSession()
 			answerInputs := slice.Map(newSession.Answers, func(answer *ent.TestSessionAnswer) *model.TestSessionAnswerInput {
@@ -190,6 +221,7 @@ func TestSessionFlow(t *testing.T) {
 			}, 0)
 			assert.Equal(t, updatedSession.PointsEarned, maxPoints)
 		})
+
 	})
 }
 
