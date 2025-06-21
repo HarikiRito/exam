@@ -116,6 +116,11 @@ func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) 
 	return dataloader.GetTest(ctx, obj.TestID)
 }
 
+// Questions is the resolver for the questions field.
+func (r *testSessionResolver) Questions(ctx context.Context, obj *model.TestSession) ([]*model.Question, error) {
+	return dataloader.GetQuestionsBySessionID(ctx, obj.ID)
+}
+
 // TestSession returns TestSessionResolver implementation.
 func (r *Resolver) TestSession() TestSessionResolver { return &testSessionResolver{r} }
 
