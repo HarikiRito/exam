@@ -173,6 +173,7 @@ type ComplexityRoot struct {
 		Question                     func(childComplexity int, id uuid.UUID) int
 		QuestionCollection           func(childComplexity int, id uuid.UUID) int
 		QuestionOption               func(childComplexity int, id uuid.UUID) int
+		Questions                    func(childComplexity int, ids []uuid.UUID) int
 		Test                         func(childComplexity int, id uuid.UUID) int
 		TestSession                  func(childComplexity int, id uuid.UUID) int
 		Todos                        func(childComplexity int) int
@@ -204,6 +205,11 @@ type ComplexityRoot struct {
 		Question   func(childComplexity int) int
 	}
 
+	QuestionOrder struct {
+		Order      func(childComplexity int) int
+		QuestionID func(childComplexity int) int
+	}
+
 	Test struct {
 		ID                  func(childComplexity int) int
 		Name                func(childComplexity int) int
@@ -229,19 +235,20 @@ type ComplexityRoot struct {
 	}
 
 	TestSession struct {
-		CompletedAt  func(childComplexity int) int
-		CreatedAt    func(childComplexity int) int
-		ExpiredAt    func(childComplexity int) int
-		ID           func(childComplexity int) int
-		MaxPoints    func(childComplexity int) int
-		PointsEarned func(childComplexity int) int
-		Questions    func(childComplexity int) int
-		StartedAt    func(childComplexity int) int
-		Status       func(childComplexity int) int
-		Test         func(childComplexity int) int
-		TestID       func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
-		UserID       func(childComplexity int) int
+		CompletedAt      func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		ExpiredAt        func(childComplexity int) int
+		ID               func(childComplexity int) int
+		MaxPoints        func(childComplexity int) int
+		OrderedQuestions func(childComplexity int) int
+		PointsEarned     func(childComplexity int) int
+		Questions        func(childComplexity int) int
+		StartedAt        func(childComplexity int) int
+		Status           func(childComplexity int) int
+		Test             func(childComplexity int) int
+		TestID           func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
+		UserID           func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -311,6 +318,7 @@ type QueryResolver interface {
 	CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error)
 	CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID, filter *model.CourseSectionFilterInput) ([]*model.CourseSection, error)
 	Question(ctx context.Context, id uuid.UUID) (*model.Question, error)
+	Questions(ctx context.Context, ids []uuid.UUID) ([]*model.Question, error)
 	PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error)
 	QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error)
 	PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error)
@@ -342,6 +350,7 @@ type TestResolver interface {
 type TestSessionResolver interface {
 	Test(ctx context.Context, obj *model.TestSession) (*model.Test, error)
 	Questions(ctx context.Context, obj *model.TestSession) ([]*model.Question, error)
+	OrderedQuestions(ctx context.Context, obj *model.TestSession) ([]*model.QuestionOrder, error)
 }
 
 type executableSchema struct {
@@ -1148,6 +1157,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.QuestionOption(childComplexity, args["id"].(uuid.UUID)), true
 
+	case "Query.questions":
+		if e.complexity.Query.Questions == nil {
+			break
+		}
+
+		args, err := ec.field_Query_questions_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Questions(childComplexity, args["ids"].([]uuid.UUID)), true
+
 	case "Query.test":
 		if e.complexity.Query.Test == nil {
 			break
@@ -1303,6 +1324,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.QuestionOption.Question(childComplexity), true
 
+	case "QuestionOrder.order":
+		if e.complexity.QuestionOrder.Order == nil {
+			break
+		}
+
+		return e.complexity.QuestionOrder.Order(childComplexity), true
+
+	case "QuestionOrder.questionId":
+		if e.complexity.QuestionOrder.QuestionID == nil {
+			break
+		}
+
+		return e.complexity.QuestionOrder.QuestionID(childComplexity), true
+
 	case "Test.id":
 		if e.complexity.Test.ID == nil {
 			break
@@ -1442,6 +1477,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TestSession.MaxPoints(childComplexity), true
+
+	case "TestSession.orderedQuestions":
+		if e.complexity.TestSession.OrderedQuestions == nil {
+			break
+		}
+
+		return e.complexity.TestSession.OrderedQuestions(childComplexity), true
 
 	case "TestSession.pointsEarned":
 		if e.complexity.TestSession.PointsEarned == nil {
@@ -2983,6 +3025,29 @@ func (ec *executionContext) field_Query_question_argsID(
 	}
 
 	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_questions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_questions_argsIds(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["ids"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_questions_argsIds(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) ([]uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("ids"))
+	if tmp, ok := rawArgs["ids"]; ok {
+		return ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, tmp)
+	}
+
+	var zeroVal []uuid.UUID
 	return zeroVal, nil
 }
 
@@ -5282,6 +5347,8 @@ func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.
 				return ec.fieldContext_TestSession_test(ctx, field)
 			case "questions":
 				return ec.fieldContext_TestSession_questions(ctx, field)
+			case "orderedQuestions":
+				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -5420,6 +5487,8 @@ func (ec *executionContext) fieldContext_Mutation_submitTestSession(ctx context.
 				return ec.fieldContext_TestSession_test(ctx, field)
 			case "questions":
 				return ec.fieldContext_TestSession_questions(ctx, field)
+			case "orderedQuestions":
+				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -5503,6 +5572,8 @@ func (ec *executionContext) fieldContext_Mutation_startTestSession(ctx context.C
 				return ec.fieldContext_TestSession_test(ctx, field)
 			case "questions":
 				return ec.fieldContext_TestSession_questions(ctx, field)
+			case "orderedQuestions":
+				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -6466,6 +6537,8 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 				return ec.fieldContext_TestSession_test(ctx, field)
 			case "questions":
 				return ec.fieldContext_TestSession_questions(ctx, field)
+			case "orderedQuestions":
+				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -7299,6 +7372,73 @@ func (ec *executionContext) fieldContext_Query_question(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_questions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_questions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Questions(rctx, fc.Args["ids"].([]uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Question)
+	fc.Result = res
+	return ec.marshalNQuestion2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "questionText":
+				return ec.fieldContext_Question_questionText(ctx, field)
+			case "collection":
+				return ec.fieldContext_Question_collection(ctx, field)
+			case "options":
+				return ec.fieldContext_Question_options(ctx, field)
+			case "points":
+				return ec.fieldContext_Question_points(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_questions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_paginatedQuestions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_paginatedQuestions(ctx, field)
 	if err != nil {
@@ -7752,6 +7892,8 @@ func (ec *executionContext) fieldContext_Query_testSession(ctx context.Context, 
 				return ec.fieldContext_TestSession_test(ctx, field)
 			case "questions":
 				return ec.fieldContext_TestSession_questions(ctx, field)
+			case "orderedQuestions":
+				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -8891,6 +9033,94 @@ func (ec *executionContext) fieldContext_QuestionOption_isCorrect(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionOrder_questionId(ctx context.Context, field graphql.CollectedField, obj *model.QuestionOrder) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionOrder_questionId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QuestionID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionOrder_questionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionOrder",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionOrder_order(ctx context.Context, field graphql.CollectedField, obj *model.QuestionOrder) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionOrder_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionOrder_order(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionOrder",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -10183,6 +10413,56 @@ func (ec *executionContext) fieldContext_TestSession_questions(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _TestSession_orderedQuestions(ctx context.Context, field graphql.CollectedField, obj *model.TestSession) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TestSession_orderedQuestions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TestSession().OrderedQuestions(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.QuestionOrder)
+	fc.Result = res
+	return ec.marshalNQuestionOrder2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOrderᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TestSession_orderedQuestions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TestSession",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "questionId":
+				return ec.fieldContext_QuestionOrder_questionId(ctx, field)
+			case "order":
+				return ec.fieldContext_QuestionOrder_order(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionOrder", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Todo_id(ctx, field)
 	if err != nil {
@@ -10628,6 +10908,8 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ contex
 				return ec.fieldContext_TestSession_test(ctx, field)
 			case "questions":
 				return ec.fieldContext_TestSession_questions(ctx, field)
+			case "orderedQuestions":
+				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
 		},
@@ -14817,6 +15099,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "questions":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_questions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "paginatedQuestions":
 			field := field
 
@@ -15421,6 +15725,50 @@ func (ec *executionContext) _QuestionOption(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var questionOrderImplementors = []string{"QuestionOrder"}
+
+func (ec *executionContext) _QuestionOrder(ctx context.Context, sel ast.SelectionSet, obj *model.QuestionOrder) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, questionOrderImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("QuestionOrder")
+		case "questionId":
+			out.Values[i] = ec._QuestionOrder_questionId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "order":
+			out.Values[i] = ec._QuestionOrder_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var testImplementors = []string{"Test"}
 
 func (ec *executionContext) _Test(ctx context.Context, sel ast.SelectionSet, obj *model.Test) graphql.Marshaler {
@@ -15782,6 +16130,42 @@ func (ec *executionContext) _TestSession(ctx context.Context, sel ast.SelectionS
 					}
 				}()
 				res = ec._TestSession_questions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "orderedQuestions":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TestSession_orderedQuestions(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -16906,6 +17290,60 @@ func (ec *executionContext) unmarshalNQuestionOptionInput2ᚕᚖtemplateᚋinter
 func (ec *executionContext) unmarshalNQuestionOptionInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOptionInput(ctx context.Context, v interface{}) (*model.QuestionOptionInput, error) {
 	res, err := ec.unmarshalInputQuestionOptionInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNQuestionOrder2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOrderᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.QuestionOrder) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNQuestionOrder2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOrder(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNQuestionOrder2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOrder(ctx context.Context, sel ast.SelectionSet, v *model.QuestionOrder) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._QuestionOrder(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNQuestionPointsInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsInputᚄ(ctx context.Context, v interface{}) ([]*model.QuestionPointsInput, error) {

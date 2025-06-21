@@ -84,7 +84,7 @@ func GetQuestionByID(ctx context.Context, userId uuid.UUID, questionID uuid.UUID
 	return q, nil
 }
 
-func GetByIDs(ctx context.Context, userId uuid.UUID, questionIDs []uuid.UUID) ([]*ent.Question, error) {
+func GetByIDs(ctx context.Context, questionIDs []uuid.UUID) ([]*ent.Question, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err

@@ -192,8 +192,8 @@ Table test_sessions {
 Table tests {
   id varchar [pk]
   name varchar [not null]
-  course_section_id varchar
-  course_id varchar
+  course_section_id varchar [null]
+  course_id varchar [null]
   total_points integer [not null, default: 0, note: 'Computed field for total points from test_question_counts']
   total_time integer [note: 'Total time in minutes for the test']
 }

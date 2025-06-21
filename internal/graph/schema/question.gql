@@ -6,6 +6,7 @@ extend type Mutation {
 
 extend type Query {
   question(id: ID!): Question!
+  questions(ids: [ID!]!): [Question!]!
   paginatedQuestions(paginationInput: PaginationInput): PaginatedQuestion!
 }
 

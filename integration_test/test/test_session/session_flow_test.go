@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -46,13 +46,13 @@ func TestSessionFlow(t *testing.T) {
 	scenario := prepare.CreateTestScenario(t, questionCountConfigs)
 
 	setupNewSession := func() newSession {
-		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+		session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
 			TestID: scenario.Test.ID,
 			UserID: &scenario.User.ID,
 		})
 		require.NoError(t, err)
 
-		newSessionEntity, err := test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
+		newSessionEntity, err := test_session.StartTestSession(context.Background(), scenario.User.ID, session.ID)
 
 		require.NoError(t, err)
 		require.NotNil(t, newSessionEntity)
@@ -75,24 +75,28 @@ func TestSessionFlow(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, session)
 
-	t.Run("Test session in pending state", func(t *testing.T) {
+	t.Run("test_session_in_pending_state", func(t *testing.T) {
 		require.Equal(t, session.Status, testsession.StatusPending)
 	})
 
-	t.Run("Test session don't have any question yet", func(t *testing.T) {
+	t.Run("test_session_dont_have_any_question_yet", func(t *testing.T) {
 		answers, err := getAnswers(context.Background(), session.ID)
 		require.NoError(t, err)
 		require.Empty(t, answers)
 	})
 
-	t.Run("Cannot start test session due to insufficient questions", func(t *testing.T) {
-		questionCollection, err := scenario.Test.QueryQuestionCollections().WithQuestions().Only(context.Background())
+	t.Run("cannot_start_test_session_due_to_insufficient_questions", func(t *testing.T) {
+		questionCollection, err := scenario.Test.QueryQuestionCollections().WithQuestions().All(context.Background())
 
 		if err != nil {
 			t.Fatalf("failed to get question collection: %v", err)
 		}
 
-		questionIds := slice.Map(questionCollection.Edges.Questions, func(question *ent.Question) uuid.UUID {
+		questions := slice.FlatMap(questionCollection, func(collection *ent.QuestionCollection) []*ent.Question {
+			return collection.Edges.Questions
+		})
+
+		questionIds := slice.Map(questions, func(question *ent.Question) uuid.UUID {
 			return question.ID
 		})
 
@@ -103,7 +107,7 @@ func TestSessionFlow(t *testing.T) {
 			},
 		})
 
-		_, err = test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
+		_, err = test_session.StartTestSession(context.Background(), scenario.User.ID, session.ID)
 		require.Error(t, err)
 
 		_, err = test.BatchIgnoreQuestions(context.Background(), scenario.User.ID, model.BatchIgnoreQuestionsInput{
@@ -113,35 +117,33 @@ func TestSessionFlow(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	require.NoError(t, err)
-
 	// Start the test session
-	session, err = test_session.StartTestSession(context.Background(), scenario.User.ID, scenario.Test.ID)
+	session, err = test_session.StartTestSession(context.Background(), scenario.User.ID, session.ID)
 	require.NoError(t, err)
 	require.NotNil(t, session)
 
-	t.Run("Test session is in progress state", func(t *testing.T) {
+	t.Run("test_session_is_in_progress_state", func(t *testing.T) {
 		require.Equal(t, session.Status, testsession.StatusInProgress)
 	})
 
-	t.Run("Test session has exact number of questions", func(t *testing.T) {
+	t.Run("test_session_has_exact_number_of_questions", func(t *testing.T) {
 		answers, err := getAnswers(context.Background(), session.ID)
 		require.NoError(t, err)
 		require.Equal(t, len(answers), totalQuestionCount)
 
-		t.Run("All answers points must be nil", func(t *testing.T) {
+		t.Run("all_answers_points_must_be_nil", func(t *testing.T) {
 			require.True(t, slice.Every(answers, func(answer *ent.TestSessionAnswer) bool {
 				return answer.Points == nil
 			}))
 		})
 	})
 
-	t.Run("Submit the test session", func(t *testing.T) {
-		t.Run("Submit but not with all answers", func(t *testing.T) {
+	t.Run("submit_the_test_session", func(t *testing.T) {
+		t.Run("submit_but_not_with_all_answers", func(t *testing.T) {
 			answers, err := getAnswers(context.Background(), session.ID)
 			require.NoError(t, err)
 
-			t.Run("Empty answers", func(t *testing.T) {
+			t.Run("empty_answers", func(t *testing.T) {
 				_, err = test_session.SubmitTestSession(context.Background(), scenario.User.ID, session.ID, model.SubmitTestSessionInput{
 					Answers: []*model.TestSessionAnswerInput{},
 				})
@@ -163,7 +165,7 @@ func TestSessionFlow(t *testing.T) {
 
 			// Remove the first answer if length of answerInputs is greater than 1 to simulate the case that user didn't answer all questions
 
-			t.Run("Not all answers are submitted", func(t *testing.T) {
+			t.Run("not_all_answers_are_submitted", func(t *testing.T) {
 				if len(answerInputs) > 1 {
 					answerInputs = answerInputs[1:]
 				}
@@ -175,7 +177,7 @@ func TestSessionFlow(t *testing.T) {
 			})
 		})
 
-		t.Run("Submit with all answers randomly", func(t *testing.T) {
+		t.Run("submit_with_all_answers_randomly", func(t *testing.T) {
 			newSession := setupNewSession()
 			answerInputs := slice.Map(newSession.Answers, func(answer *ent.TestSessionAnswer) *model.TestSessionAnswerInput {
 				optionIds := slice.Map(answer.Edges.Question.Edges.QuestionOptions, func(option *ent.QuestionOption) uuid.UUID {
@@ -196,7 +198,7 @@ func TestSessionFlow(t *testing.T) {
 			require.NoError(t, err)
 		})
 
-		t.Run("Submit with all answers correctly", func(t *testing.T) {
+		t.Run("submit_with_all_answers_correctly", func(t *testing.T) {
 			newSession := setupNewSession()
 			answerInputs := slice.Map(newSession.Answers, func(answer *ent.TestSessionAnswer) *model.TestSessionAnswerInput {
 				optionIds := slice.Map(

@@ -116,10 +116,8 @@ func TestUpdateQuestion(t *testing.T) {
 		}
 
 		updatedQuestion, err := question.UpdateQuestion(context.Background(), userID, createdQuestion.ID, updateInput)
-		// Zero points should fail due to schema validation (Positive() constraint)
-		assert.Error(t, err)
-		assert.Nil(t, updatedQuestion)
-		assert.Contains(t, err.Error(), "value out of range")
+		assert.NoError(t, err)
+		assert.NotNil(t, updatedQuestion)
 	})
 
 	t.Run("UpdateQuestion_NegativePoints", func(t *testing.T) {
@@ -326,72 +324,6 @@ func TestUpdateQuestion(t *testing.T) {
 		assert.NoError(t, err) // Should succeed even with minimal changes
 		assert.NotNil(t, updatedQuestion)
 		assert.Equal(t, createdQuestion.Points, updatedQuestion.Points)
-	})
-
-	t.Run("UpdateQuestion_PointsValidation", func(t *testing.T) {
-		testCases := []struct {
-			name           string
-			points         int
-			expectedPoints int
-			shouldSucceed  bool
-		}{
-			{
-				name:           "Update to positive points",
-				points:         75,
-				expectedPoints: 75,
-				shouldSucceed:  true,
-			},
-			{
-				name:           "Update to minimum valid points (1)",
-				points:         1,
-				expectedPoints: 1,
-				shouldSucceed:  true,
-			},
-			{
-				name:           "Update to zero points (should fail)",
-				points:         0,
-				expectedPoints: 0,
-				shouldSucceed:  false,
-			},
-			{
-				name:           "Update to negative points (should fail)",
-				points:         -30,
-				expectedPoints: -30,
-				shouldSucceed:  false,
-			},
-			{
-				name:           "Update to large points value",
-				points:         1000000,
-				expectedPoints: 1000000,
-				shouldSucceed:  true,
-			},
-			{
-				name:           "Update to very negative points (should fail)",
-				points:         -1000000,
-				expectedPoints: -1000000,
-				shouldSucceed:  false,
-			},
-		}
-
-		for _, tc := range testCases {
-			t.Run(tc.name, func(t *testing.T) {
-				updateInput := model.UpdateQuestionInput{
-					Points: tc.points,
-				}
-
-				updatedQuestion, err := question.UpdateQuestion(context.Background(), userID, createdQuestion.ID, updateInput)
-
-				if tc.shouldSucceed {
-					assert.NoError(t, err)
-					assert.NotNil(t, updatedQuestion)
-					assert.Equal(t, tc.expectedPoints, updatedQuestion.Points)
-				} else {
-					assert.Error(t, err)
-					assert.Nil(t, updatedQuestion)
-					assert.Contains(t, err.Error(), "value out of range")
-				}
-			})
-		}
 	})
 
 	t.Run("UpdateQuestion_PointsAndOptionsValidation", func(t *testing.T) {

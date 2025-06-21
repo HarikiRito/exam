@@ -32,6 +32,12 @@ type TestSession {
   userId: ID
   test: Test!
   questions: [Question!]!
+  orderedQuestions: [QuestionOrder!]!
+}
+
+type QuestionOrder {
+  questionId: ID!
+  order: Int!
 }
 
 type PaginatedTestSession {

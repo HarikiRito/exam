@@ -45,19 +45,20 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 	}
 
 	// Check if email already exists
-	existingUserQuery, err := tx.User.Query().
+	exists, err := tx.User.Query().
 		Where(
 			user.EmailEQ(
 				input.Email,
 			),
 		).
-		First(ctx)
-	if existingUserQuery != nil {
-		return nil, db.Rollback(tx, fmt.Errorf("email or username already exists"))
-	}
-	// If the error is not a "not found" error, return it
-	if err != nil && !ent.IsNotFound(err) {
+		Exist(ctx)
+
+	if err != nil {
 		return nil, db.Rollback(tx, err)
+	}
+
+	if exists {
+		return nil, db.Rollback(tx, fmt.Errorf("email or username already exists"))
 	}
 
 	// Hash the password

@@ -35,7 +35,7 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, sessionId uuid.UUID
 		Select(testsession.FieldID, testsession.FieldTestID).
 		First(ctx)
 
-	if err != nil && !ent.IsNotFound(err) {
+	if err != nil {
 		return nil, db.Rollback(tx, err)
 	}
 

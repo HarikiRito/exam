@@ -163,6 +163,11 @@ type QuestionOptionInput struct {
 	IsCorrect  bool   `json:"isCorrect"`
 }
 
+type QuestionOrder struct {
+	QuestionID uuid.UUID `json:"questionId"`
+	Order      int       `json:"order"`
+}
+
 type QuestionPointsInput struct {
 	QuestionID uuid.UUID `json:"questionId"`
 	Points     int       `json:"points"`

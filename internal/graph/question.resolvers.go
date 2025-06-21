@@ -80,6 +80,18 @@ func (r *queryResolver) Question(ctx context.Context, id uuid.UUID) (*model.Ques
 	return model.ConvertQuestionToModel(q), nil
 }
 
+// Questions is the resolver for the questions field.
+func (r *queryResolver) Questions(ctx context.Context, ids []uuid.UUID) ([]*model.Question, error) {
+	// Get the questions by IDs
+	questions, err := question.GetByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL models using the model package conversion function
+	return slice.Map(questions, model.ConvertQuestionToModel), nil
+}
+
 // PaginatedQuestions is the resolver for the paginatedQuestions field.
 func (r *queryResolver) PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error) {
 	// Get the authenticated user

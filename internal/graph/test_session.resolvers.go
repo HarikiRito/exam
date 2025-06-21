@@ -121,6 +121,11 @@ func (r *testSessionResolver) Questions(ctx context.Context, obj *model.TestSess
 	return dataloader.GetQuestionsBySessionID(ctx, obj.ID)
 }
 
+// OrderedQuestions is the resolver for the orderedQuestions field.
+func (r *testSessionResolver) OrderedQuestions(ctx context.Context, obj *model.TestSession) ([]*model.QuestionOrder, error) {
+	return dataloader.GetOrderedQuestionsBySessionID(ctx, obj.ID)
+}
+
 // TestSession returns TestSessionResolver implementation.
 func (r *Resolver) TestSession() TestSessionResolver { return &testSessionResolver{r} }
 
