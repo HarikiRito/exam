@@ -18,7 +18,7 @@ import (
 )
 
 // StartTestSession starts a test session for a user
-func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (*ent.TestSession, error) {
+func StartTestSession(ctx context.Context, userID uuid.UUID, sessionId uuid.UUID) (*ent.TestSession, error) {
 	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (
 	// Check if user already has an active session for this test
 	existingSession, err := tx.TestSession.Query().
 		Where(
-			testsession.TestID(testID),
+			testsession.ID(sessionId),
 			testsession.UserID(userID),
 			testsession.StatusEQ(testsession.StatusPending),
 			testsession.ExpiredAtIsNil(),
@@ -40,7 +40,7 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, testID uuid.UUID) (
 	}
 
 	// Fetch the Test entity to get total_time
-	testEntity, err := tx.Test.Get(ctx, testID)
+	testEntity, err := tx.Test.Get(ctx, existingSession.TestID)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
 	}
