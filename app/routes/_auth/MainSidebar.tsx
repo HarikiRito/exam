@@ -27,6 +27,10 @@ const navMain: NavItem[] = [
         title: 'Profile',
         url: APP_ROUTES.profile,
       },
+      {
+        title: 'Tests',
+        url: APP_ROUTES.tests,
+      },
     ],
   },
   {

@@ -9,14 +9,14 @@ import { useSnapshot } from 'valtio';
 import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 export default function Page() {
-  const { data } = useIsAuthenticatedQuery();
+  const { data, error } = useIsAuthenticatedQuery();
   const pathname = useLocation();
 
-  if (data && !data.isAuthenticated) {
+  if ((data && !data.isAuthenticated) || error) {
     return <Navigate to={APP_ROUTES.login} />;
   }
 
-  if (pathname.pathname.startsWith('/test/session/')) {
+  if (pathname.pathname.startsWith('/tests/sessions/')) {
     return <Outlet />;
   }
 

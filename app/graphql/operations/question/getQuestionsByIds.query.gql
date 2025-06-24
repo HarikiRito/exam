@@ -1,0 +1,10 @@
+query GetQuestionsByIds($ids: [ID!]!) {
+  questions(ids: $ids) {
+    ...QuestionItem
+    options {
+      id
+      optionText
+    }
+    correctOptionCount
+  }
+} 

@@ -403,6 +403,7 @@ export type Query = {
   question: Question;
   questionCollection: QuestionCollection;
   questionOption: QuestionOption;
+  questions: Array<Question>;
   test: Test;
   testSession: TestSession;
   todos: Array<Todo>;
@@ -476,6 +477,11 @@ export type QueryQuestionOptionArgs = {
 };
 
 
+export type QueryQuestionsArgs = {
+  ids: Array<Scalars['ID']['input']>;
+};
+
+
 export type QueryTestArgs = {
   id: Scalars['ID']['input'];
 };
@@ -493,6 +499,7 @@ export type QueryUserQuestionAnswerArgs = {
 export type Question = {
   __typename?: 'Question';
   collection?: Maybe<QuestionCollection>;
+  correctOptionCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   options: Array<QuestionOption>;
   points: Scalars['Int']['output'];
@@ -526,6 +533,12 @@ export type QuestionOption = {
 export type QuestionOptionInput = {
   isCorrect: Scalars['Boolean']['input'];
   optionText: Scalars['String']['input'];
+};
+
+export type QuestionOrder = {
+  __typename?: 'QuestionOrder';
+  order: Scalars['Int']['output'];
+  questionId: Scalars['ID']['output'];
 };
 
 export type QuestionPointsInput = {
@@ -581,7 +594,9 @@ export type TestSession = {
   expiredAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   maxPoints: Scalars['Int']['output'];
+  orderedQuestions: Array<QuestionOrder>;
   pointsEarned: Scalars['Int']['output'];
+  questions: Array<Question>;
   startedAt?: Maybe<Scalars['DateTime']['output']>;
   status: TestSessionStatus;
   test: Test;

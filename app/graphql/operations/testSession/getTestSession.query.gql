@@ -1,0 +1,12 @@
+query GetTestSession($id: ID!) {
+  testSession(id: $id) {
+    ...TestSessionFragment
+    orderedQuestions {
+      questionId
+      order
+    }
+    test {
+      ...TestFragment
+    }
+  }
+} 

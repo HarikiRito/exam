@@ -1,35 +1,35 @@
 import { useNavigate } from '@remix-run/react';
-import { CalendarIcon, ClockIcon, TrophyIcon, PlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { CalendarIcon, ClockIcon, PlusIcon, TrophyIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { TestSessionStatus } from 'app/graphql/graphqlTypes';
+import { usePaginateTestsQuery } from 'app/graphql/operations/test/paginateTests.query.generated';
+import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
 import {
-  usePaginateTestSessionsQuery,
   PaginateTestSessionsDocument,
   PaginateTestSessionsQuery,
+  usePaginateTestSessionsQuery,
 } from 'app/graphql/operations/testSession/paginateTestSessions.query.generated';
-import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
 import { useStartTestSessionMutation } from 'app/graphql/operations/testSession/startTestSession.mutation.generated';
-import { usePaginateTestsQuery } from 'app/graphql/operations/test/paginateTests.query.generated';
-import { TestSessionFragmentFragment } from 'app/graphql/operations/testSession/testSession.fragment.generated';
-import { TestSessionStatus } from 'app/graphql/graphqlTypes';
-import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppBadge } from 'app/shared/components/badge/AppBadge';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
 import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppDialog } from 'app/shared/components/dialog/AppDialog';
 import { AppSelect } from 'app/shared/components/select/AppSelect';
+import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
+import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 import dayjs from 'dayjs';
 
-type TestEntity = PaginateTestSessionsQuery['paginatedTestSessions']['items'][number]['test'];
+type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['items'][number];
 export default function TestSessionsIndex() {
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTestId, setSelectedTestId] = useState<string>('');
   const [isStartConfirmModalOpen, setIsStartConfirmModalOpen] = useState(false);
-  const [sessionToStart, setSessionToStart] = useState<string>('');
+
+  const selectedSession = useRef<TestSessionEntity | null>(null);
 
   const { data, loading, error } = usePaginateTestSessionsQuery({
     variables: {
@@ -68,7 +68,7 @@ export default function TestSessionsIndex() {
     onCompleted: (data) => {
       toast.success('Test session started successfully!');
       setIsStartConfirmModalOpen(false);
-      setSessionToStart('');
+      selectedSession.current = null;
       apolloService.invalidateQueries([PaginateTestSessionsDocument]);
       // Navigate to the started test session
       navigate(`/tests/sessions/${data.startTestSession.id}`);
@@ -117,13 +117,13 @@ export default function TestSessionsIndex() {
     }
   }
 
-  function handleSessionAction(session: TestSessionFragmentFragment) {
+  function handleSessionAction(session: TestSessionEntity) {
     if (session.status === TestSessionStatus.InProgress) {
       // Resume test - navigate directly
       navigate(`/tests/sessions/${session.id}`);
     } else if (session.status === TestSessionStatus.Pending) {
       // Start test - show confirmation modal
-      setSessionToStart(session.id);
+      selectedSession.current = session;
       setIsStartConfirmModalOpen(true);
     } else {
       // View results or session details
@@ -132,11 +132,11 @@ export default function TestSessionsIndex() {
   }
 
   function handleConfirmStartSession() {
-    if (!sessionToStart) return;
+    if (!selectedSession.current) return;
 
     startTestSession({
       variables: {
-        id: sessionToStart,
+        id: selectedSession.current.id,
       },
     });
   }
@@ -247,7 +247,7 @@ export default function TestSessionsIndex() {
               variant='outline'
               onClick={() => {
                 setIsStartConfirmModalOpen(false);
-                setSessionToStart('');
+                selectedSession.current = null;
               }}>
               Cancel
             </AppButton>
@@ -260,7 +260,7 @@ export default function TestSessionsIndex() {
     );
   }
 
-  function _renderTestSessionCard(session: TestSessionFragmentFragment & { test: TestEntity }) {
+  function _renderTestSessionCard(session: TestSessionEntity) {
     const canStart = session.status === TestSessionStatus.Pending || session.status === TestSessionStatus.InProgress;
 
     return (
