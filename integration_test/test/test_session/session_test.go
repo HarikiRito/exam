@@ -64,6 +64,28 @@ func TestStartTestSession(t *testing.T) {
 		require.Error(t, err)
 	})
 
+	t.Run("MaxPointsCalculation", func(t *testing.T) {
+		// Create a test scenario with specific question count requirements
+		questionCountConfigs := []prepare.QuestionCountConfig{
+			{Count: 5, Points: 10}, // 5 questions * 10 points = 50 points
+			{Count: 3, Points: 20}, // 3 questions * 20 points = 60 points
+		}
+		// Expected max points: 50 + 60 = 110
+
+		scenario := prepare.CreateTestScenario(t, questionCountConfigs)
+
+		session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID: scenario.Test.ID,
+			UserID: &scenario.User.ID,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, session)
+
+		// Verify that max points are correctly calculated
+		expectedMaxPoints := 110 // (5 * 10) + (3 * 20)
+		require.Equal(t, expectedMaxPoints, session.MaxPoints)
+	})
+
 	// Business Logic Tests
 	t.Run("DuplicateTestSession", func(t *testing.T) {
 		// Create the first session

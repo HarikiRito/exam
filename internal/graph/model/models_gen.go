@@ -205,8 +205,6 @@ type TestQuestionCount struct {
 type TestSessionAnswerInput struct {
 	QuestionID        uuid.UUID   `json:"questionId"`
 	QuestionOptionIds []uuid.UUID `json:"questionOptionIds"`
-	Points            *int        `json:"points,omitempty"`
-	Order             int         `json:"order"`
 }
 
 type Todo struct {
