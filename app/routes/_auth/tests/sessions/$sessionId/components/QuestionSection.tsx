@@ -14,13 +14,12 @@ export function QuestionSection() {
   const question = snapshot.questions[snapshot.currentQuestionIndex];
 
   const selectedAnswerByQuestionIdMap = snapshot.selectedAnswers;
-  const isFlagged = false;
 
   if (!question) {
     return null;
   }
 
-  console.log('QuestionSection.tsx 23', snapshot.selectedAnswers);
+  const isFlagged = snapshot.flaggedQuestions.has(question.id);
 
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
@@ -34,7 +33,7 @@ export function QuestionSection() {
             aria-pressed={isFlagged}
             aria-label={isFlagged ? 'Unflag question' : 'Flag question'}>
             {isFlagged ? (
-              <Flag className='h-6 w-6 fill-blue-500 text-blue-500' />
+              <Flag className='h-6 w-6 fill-yellow-500 text-yellow-500' />
             ) : (
               <FlagOff className='h-6 w-6 text-gray-400' />
             )}

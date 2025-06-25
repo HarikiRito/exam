@@ -606,8 +606,6 @@ export type TestSession = {
 };
 
 export type TestSessionAnswerInput = {
-  order: Scalars['Int']['input'];
-  points?: InputMaybe<Scalars['Int']['input']>;
   questionId: Scalars['ID']['input'];
   questionOptionIds: Array<Scalars['ID']['input']>;
 };

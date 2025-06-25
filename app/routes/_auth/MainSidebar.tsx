@@ -29,7 +29,7 @@ const navMain: NavItem[] = [
       },
       {
         title: 'Tests',
-        url: APP_ROUTES.tests,
+        url: APP_ROUTES.testSessions,
       },
     ],
   },

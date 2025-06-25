@@ -19,8 +19,15 @@ startTransition(() => {
       <ApolloProvider client={client}>
         <StagewiseToolbar config={{ plugins: [stagewise.ReactPlugin] }} />
 
-        <RemixBrowser />
+        <OnlyClient />
       </ApolloProvider>
     </StrictMode>,
   );
 });
+
+function OnlyClient() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return <RemixBrowser />;
+}

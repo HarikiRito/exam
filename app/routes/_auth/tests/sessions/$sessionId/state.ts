@@ -12,8 +12,9 @@ export class State {
   examStarted = false;
   isFinishExamDialogOpen = false;
   isReportQuestionDialogOpen = false;
-  timerInterval = null;
+  timerInterval: NodeJS.Timeout | null = null;
   questions = [] as QuestionItem[];
+  timeLeft = 0;
 
   get isFirstQuestion() {
     return this.currentQuestionIndex === 0;
@@ -26,6 +27,14 @@ export class State {
     return this.questions.length;
   }
 
+  get currentQuestion() {
+    return this.questions[this.currentQuestionIndex];
+  }
+
+  get totalAnsweredQuestions() {
+    return Object.values(this.selectedAnswers).filter((answers) => answers.size > 0).length;
+  }
+
   handleToggleFlag(questionId: string) {
     const flaggedQuestions = state.flaggedQuestions;
     if (flaggedQuestions.has(questionId)) {
@@ -36,7 +45,7 @@ export class State {
   }
 
   handleSelectAnswer(question: QuestionItem, optionId: string) {
-    const selectedAnswers = state.selectedAnswers;
+    const selectedAnswers = this.selectedAnswers;
     const correctOptionCount = question.correctOptionCount;
 
     if (!selectedAnswers[question.id]) {
@@ -55,16 +64,21 @@ export class State {
 
     if (correctOptionCount === 1) {
       currentSelectedAnswers.clear();
-      currentSelectedAnswers.add(optionId);
-    } else {
-      if (isCurrentOptionSelected) {
-        currentSelectedAnswers.delete(optionId);
-      } else {
-        currentSelectedAnswers.add(optionId);
-      }
     }
 
-    state.selectedAnswers[question.id] = currentSelectedAnswers;
+    if (correctOptionCount === 1 && !isCurrentOptionSelected) {
+      currentSelectedAnswers.add(optionId);
+      this.selectedAnswers[question.id] = currentSelectedAnswers;
+      return;
+    }
+
+    if (isCurrentOptionSelected) {
+      currentSelectedAnswers.delete(optionId);
+    } else {
+      currentSelectedAnswers.add(optionId);
+    }
+
+    this.selectedAnswers[question.id] = currentSelectedAnswers;
   }
 
   handleStartExam() {
@@ -81,15 +95,11 @@ export class State {
     }
 
     // Start new timer that decreases timeLeft every second
-    // state.timerInterval = setInterval(() => {
-    //   if (state.timeLeft > 0) {
-    //     state.timeLeft -= 1000; // Decrease by 1 second (1000ms)
-    //   } else {
-    //     // Time's up - auto-submit exam
-    //     testSessionActions.handleFinishExamConfirmed();
-    //     testSessionActions.stopTimer();
-    //   }
-    // }, 1000);
+    state.timerInterval = setInterval(() => {
+      if (state.timeLeft > 0) {
+        state.timeLeft -= 1;
+      }
+    }, 1000);
   }
 
   stopTimer() {
@@ -100,13 +110,7 @@ export class State {
   }
 
   handleFinishExam() {
-    state.isFinishExamDialogOpen = true;
-  }
-
-  handleFinishExamConfirmed() {
-    console.info('Exam Finished! Submitting answers:', state.selectedAnswers);
-    this.stopTimer();
-    state.isFinishExamDialogOpen = false;
+    state.isFinishExamDialogOpen = !state.isFinishExamDialogOpen;
   }
 
   handleJumpToQuestion(index: number) {
@@ -114,11 +118,11 @@ export class State {
   }
 
   handlePrevious() {
-    state.currentQuestionIndex = Math.max(0, state.currentQuestionIndex - 1);
+    state.currentQuestionIndex--;
   }
 
   handleNext() {
-    state.currentQuestionIndex = Math.max(0, state.currentQuestionIndex + 1);
+    state.currentQuestionIndex++;
   }
 
   submitReportQuestion(reason: string, details: string) {
@@ -129,4 +133,4 @@ export class State {
 export const testSessionStore = createProxyWithReset(new State());
 const state = testSessionStore.proxyState;
 
-export { state as testSessionState, State as testSessionActions };
+export { state as testSessionState };

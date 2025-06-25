@@ -19,5 +19,5 @@ export const APP_ROUTES = {
   adminTestDetail: (testId: string) => `/admin/tests/${testId}`,
   adminTestEdit: (testId: string) => `/admin/tests/${testId}/edit`,
   adminTestCreate: '/admin/tests/create',
-  tests: '/tests/sessions',
+  testSessions: '/tests/sessions',
 };

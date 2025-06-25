@@ -324,8 +324,6 @@ type TestSession {
 }
 
 input TestSessionAnswerInput {
-  order: Int!
-  points: Int
   questionId: ID!
   questionOptionIds: [ID!]!
 }

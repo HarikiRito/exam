@@ -1,14 +1,11 @@
-import { useState } from 'react';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
+import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
+import { AppDialog } from 'app/shared/components/dialog/AppDialog';
 import { AppLabel } from 'app/shared/components/label/AppLabel';
+import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
 import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import {
-  testSessionActions,
-  testSessionState,
-  testSessionStore,
-} from 'app/routes/_auth/tests/sessions/$sessionId/state';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 const REPORT_REASONS = [
   'Question is incorrect',
@@ -23,14 +20,17 @@ export function ReportQuestionDialog() {
   const [selectedReason, setSelectedReason] = useState('');
   const [otherReasonDetails, setOtherReasonDetails] = useState('');
 
-  const handleSubmit = () => {
-    if (selectedReason) {
-      const details = selectedReason === 'Other' ? otherReasonDetails : '';
-      testSessionActions.submitReportQuestion(selectedReason, details);
-      setSelectedReason('');
-      setOtherReasonDetails('');
+  function handleSubmit() {
+    if (!selectedReason) {
+      toast.error('Please select a reason for reporting this question.');
+      return;
     }
-  };
+
+    const details = selectedReason === 'Other' ? otherReasonDetails : '';
+    testSessionState.submitReportQuestion(selectedReason, details);
+    setSelectedReason('');
+    setOtherReasonDetails('');
+  }
 
   function onDialogOpenChange(open: boolean) {
     snapshot.isReportQuestionDialogOpen = open;
