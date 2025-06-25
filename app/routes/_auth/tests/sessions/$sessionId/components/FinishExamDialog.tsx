@@ -55,7 +55,9 @@ export function FinishExamDialog() {
   }
 
   return (
-    <AppAlertDialog.Root open={snapshot.isFinishExamDialogOpen} onOpenChange={testSessionState.handleFinishExam}>
+    <AppAlertDialog.Root
+      open={snapshot.isFinishExamDialogOpen}
+      onOpenChange={(open) => (testSessionState.isFinishExamDialogOpen = open)}>
       <AppAlertDialog.Content>
         <AppAlertDialog.Header>
           <AppAlertDialog.Title>Are you sure you want to finish the exam and submit your answers?</AppAlertDialog.Title>
@@ -74,7 +76,7 @@ export function FinishExamDialog() {
         </AppAlertDialog.Header>
         <AppAlertDialog.Footer>
           <AppAlertDialog.Cancel asChild>
-            <AppButton variant='outline' onClick={testSessionState.handleFinishExam}>
+            <AppButton variant='outline' onClick={() => (testSessionState.isFinishExamDialogOpen = false)}>
               Cancel
             </AppButton>
           </AppAlertDialog.Cancel>
