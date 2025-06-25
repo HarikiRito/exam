@@ -1,13 +1,11 @@
-import { AppCard } from 'app/shared/components/card/AppCard';
+import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
-import { Flag, FlagOff, AlertCircle } from 'lucide-react';
-import { cn } from 'app/shared/utils/className';
-import { ReportQuestionDialog } from './ReportQuestionDialog';
-import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
+import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppCheckbox } from 'app/shared/components/checkbox/AppCheckbox';
-import { testSessionActions, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
-
-const state = testSessionStore.proxyState;
+import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
+import { cn } from 'app/shared/utils/className';
+import { AlertCircle, Flag, FlagOff } from 'lucide-react';
+import { ReportQuestionDialog } from './ReportQuestionDialog';
 
 export function QuestionSection() {
   const snapshot = testSessionStore.useStateSnapshot();
@@ -22,6 +20,8 @@ export function QuestionSection() {
     return null;
   }
 
+  console.log('QuestionSection.tsx 23', snapshot.selectedAnswers);
+
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
       <div className='mb-8 flex items-start justify-between'>
@@ -30,7 +30,7 @@ export function QuestionSection() {
           <AppButton
             variant='ghost'
             size='icon'
-            onClick={() => testSessionActions.handleToggleFlag(question.id)}
+            onClick={() => testSessionState.handleToggleFlag(question.id)}
             aria-pressed={isFlagged}
             aria-label={isFlagged ? 'Unflag question' : 'Flag question'}>
             {isFlagged ? (
@@ -43,7 +43,7 @@ export function QuestionSection() {
             variant='ghost'
             size='icon'
             onClick={() => {
-              state.isReportQuestionDialogOpen = true;
+              testSessionState.isReportQuestionDialogOpen = true;
             }}
             aria-label='Report question'>
             <AlertCircle className='h-6 w-6 text-gray-400' />
@@ -60,12 +60,12 @@ export function QuestionSection() {
                 'cursor-pointer transition-all duration-200 hover:border-blue-500 hover:shadow-sm',
                 isSelected && 'border-blue-500 ring-2 ring-blue-500',
               )}
-              onClick={() => testSessionActions.handleSelectAnswer(question, !isSelected)}>
+              onClick={() => testSessionState.handleSelectAnswer(question, option.id)}>
               <AppCard.Content className='flex h-full min-h-24 items-center p-4'>
                 <AppCheckbox
                   id={`option-${question.id}-${index}`}
                   checked={isSelected}
-                  onCheckedChange={(checked: boolean) => testSessionActions.handleSelectAnswer(question, checked)}
+                  onCheckedChange={() => testSessionState.handleSelectAnswer(question, option.id)}
                   className='mr-3'
                   aria-labelledby={`label-option-${question.id}-${index}`}
                 />

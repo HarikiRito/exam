@@ -1,7 +1,7 @@
 import { useParams } from '@remix-run/react';
 import { useGetQuestionsByIdsQuery } from 'app/graphql/operations/question/getQuestionsByIds.query.generated';
 import { useGetTestSessionQuery } from 'app/graphql/operations/testSession/getTestSession.query.generated';
-import { testSessionActions, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
+import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
@@ -12,8 +12,6 @@ import { FinishExamDialog } from './components/FinishExamDialog';
 import { QuestionOverviewSheet } from './components/QuestionOverviewSheet';
 import { QuestionSection } from './components/QuestionSection';
 import { TopNavBar } from './components/TopNavBar';
-
-const state = testSessionStore.proxyState;
 
 export default function ExamInterface() {
   testSessionStore.useResetHook();
@@ -74,33 +72,33 @@ export default function ExamInterface() {
   useEffect(() => {
     if (questions.length === 0) return;
 
-    state.questions = questions;
+    testSessionState.questions = questions;
   }, [questions]);
 
   // Calculate remaining time based on test expiration
   const remainingTime = useMemo(() => {
-    if (!testSessionData?.testSession?.expiredAt) return snapshot.timeLeft;
+    if (!testSessionData?.testSession?.expiredAt) return 0;
 
     const expiredAt = new Date(testSessionData.testSession.expiredAt).getTime();
     const now = Date.now();
     const remaining = Math.max(0, expiredAt - now);
 
     return remaining;
-  }, [testSessionData?.testSession?.expiredAt, snapshot.timeLeft]);
+  }, [testSessionData?.testSession?.expiredAt]);
 
   // Update state when data is loaded
   useEffect(() => {
     if (testSessionData?.testSession) {
-      testSessionActions.handleStartExam();
+      testSessionState.handleStartExam();
       // Initialize time with calculated remaining time
-      state.timeLeft = remainingTime;
+      // state.timeLeft = remainingTime;
     }
   }, [testSessionData, remainingTime]);
 
   // Cleanup timer on unmount
   useEffect(() => {
     return () => {
-      testSessionActions.stopTimer();
+      testSessionState.stopTimer();
     };
   }, []);
 
@@ -176,6 +174,8 @@ export default function ExamInterface() {
     );
   }
 
+  console.log('ExamInterface.tsx 180', snapshot.isFirstQuestion, snapshot.isLastQuestion);
+
   return (
     <div className='flex h-screen flex-col bg-white'>
       {/* Test Information Header */}
@@ -215,7 +215,7 @@ export default function ExamInterface() {
       <footer className='flex h-[80px] items-center justify-between border-t bg-white px-4 md:px-6 lg:px-8'>
         <AppButton
           variant='outline'
-          onClick={testSessionActions.handlePrevious}
+          onClick={testSessionState.handlePrevious}
           disabled={snapshot.isFirstQuestion}
           aria-label='Previous question'>
           <ChevronLeft className='mr-2 h-5 w-5' />
@@ -223,7 +223,7 @@ export default function ExamInterface() {
         </AppButton>
 
         <AppButton
-          onClick={testSessionActions.handleNext}
+          onClick={testSessionState.handleNext}
           aria-label={snapshot.isLastQuestion ? 'Finish exam' : 'Next question'}>
           {snapshot.isLastQuestion ? 'Finish Exam' : 'Next'}
           <ChevronRight className='ml-2 h-5 w-5' />

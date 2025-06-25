@@ -1,20 +1,22 @@
 'use client';
 
-import { testSessionActions, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
+import {
+  testSessionActions,
+  testSessionState,
+  testSessionStore,
+} from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppProgress } from 'app/shared/components/progress/AppProgress';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { useMemo } from 'react';
-
-const state = testSessionStore.proxyState;
 
 export function TopNavBar() {
   const snapshot = testSessionStore.useStateSnapshot();
   const [ref, { width }] = useElementSpace<HTMLButtonElement>();
 
   const formattedTimeLeft = useMemo(() => {
-    const minutes = Math.floor(state.timeLeft / 60000);
-    const seconds = Math.floor((state.timeLeft % 60000) / 1000);
+    const minutes = Math.floor(0 / 60000);
+    const seconds = Math.floor((0 % 60000) / 1000);
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }, []);
 
@@ -40,7 +42,7 @@ export function TopNavBar() {
           Question {snapshot.currentQuestionIndex + 1} of {snapshot.questions.length}
         </div>
       </div>
-      <AppButton ref={ref} onClick={testSessionActions.handleFinishExam} variant='default' aria-label='Finish exam'>
+      <AppButton ref={ref} onClick={testSessionState.handleFinishExam} variant='default' aria-label='Finish exam'>
         Finish Exam
       </AppButton>
     </header>
