@@ -37,3 +37,36 @@ func GetQuestionOptions(ctx context.Context, questionID uuid.UUID) ([]*model.Que
 	loaders := For(ctx)
 	return loaders.QuestionOptionLoader.Load(ctx, questionID)
 }
+
+func GetCorrectOptionCountByQuestionIds(ctx context.Context, questionIDs []uuid.UUID) ([]int, []error) {
+	// Get the correct option counts from the database
+	countMap, err := question_option.GetCorrectOptionCountByQuestionIDs(ctx, questionIDs)
+	if err != nil {
+		// Return errors for all question IDs
+		errors := make([]error, len(questionIDs))
+		for i := range errors {
+			errors[i] = err
+		}
+		return make([]int, len(questionIDs)), errors
+	}
+
+	// Build result slice maintaining the order of input questionIDs
+	result := make([]int, len(questionIDs))
+	errors := make([]error, len(questionIDs))
+	for i, questionID := range questionIDs {
+		if count, exists := countMap[questionID]; exists {
+			result[i] = count
+		} else {
+			result[i] = 0 // Default to 0 if no correct options found
+		}
+		errors[i] = nil
+	}
+
+	return result, errors
+}
+
+// GetCorrectOptionCount returns the count of correct options for a question ID using the dataloader.
+func GetCorrectOptionCount(ctx context.Context, questionID uuid.UUID) (int, error) {
+	loaders := For(ctx)
+	return loaders.CorrectOptionCountLoader.Load(ctx, questionID)
+}

@@ -4,6 +4,7 @@ import (
 	"template/internal/ent/schema/mixin"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -53,7 +54,7 @@ func (TestSession) Edges() []ent.Edge {
 			Field("test_id").
 			Unique().
 			Required(),
-		edge.To("test_session_question_answers", TestSessionAnswer.Type),
+		edge.To("test_session_question_answers", TestSessionAnswer.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

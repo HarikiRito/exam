@@ -181,11 +181,12 @@ type ComplexityRoot struct {
 	}
 
 	Question struct {
-		Collection   func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Options      func(childComplexity int) int
-		Points       func(childComplexity int) int
-		QuestionText func(childComplexity int) int
+		Collection         func(childComplexity int) int
+		CorrectOptionCount func(childComplexity int) int
+		ID                 func(childComplexity int) int
+		Options            func(childComplexity int) int
+		Points             func(childComplexity int) int
+		QuestionText       func(childComplexity int) int
 	}
 
 	QuestionCollection struct {
@@ -334,6 +335,8 @@ type QueryResolver interface {
 type QuestionResolver interface {
 	Collection(ctx context.Context, obj *model.Question) (*model.QuestionCollection, error)
 	Options(ctx context.Context, obj *model.Question) ([]*model.QuestionOption, error)
+
+	CorrectOptionCount(ctx context.Context, obj *model.Question) (int, error)
 }
 type QuestionCollectionResolver interface {
 	Creator(ctx context.Context, obj *model.QuestionCollection) (*model.User, error)
@@ -1218,6 +1221,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Question.Collection(childComplexity), true
+
+	case "Question.correctOptionCount":
+		if e.complexity.Question.CorrectOptionCount == nil {
+			break
+		}
+
+		return e.complexity.Question.CorrectOptionCount(childComplexity), true
 
 	case "Question.id":
 		if e.complexity.Question.ID == nil {
@@ -4347,6 +4357,8 @@ func (ec *executionContext) fieldContext_Mutation_createQuestion(ctx context.Con
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -4414,6 +4426,8 @@ func (ec *executionContext) fieldContext_Mutation_updateQuestion(ctx context.Con
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -6069,6 +6083,8 @@ func (ec *executionContext) fieldContext_PaginatedQuestion_items(_ context.Conte
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -7354,6 +7370,8 @@ func (ec *executionContext) fieldContext_Query_question(ctx context.Context, fie
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -7421,6 +7439,8 @@ func (ec *executionContext) fieldContext_Query_questions(ctx context.Context, fi
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -8527,6 +8547,50 @@ func (ec *executionContext) fieldContext_Question_points(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Question_correctOptionCount(ctx context.Context, field graphql.CollectedField, obj *model.Question) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Question_correctOptionCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Question().CorrectOptionCount(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Question_correctOptionCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Question",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _QuestionCollection_id(ctx context.Context, field graphql.CollectedField, obj *model.QuestionCollection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_QuestionCollection_id(ctx, field)
 	if err != nil {
@@ -8755,6 +8819,8 @@ func (ec *executionContext) fieldContext_QuestionCollection_questions(_ context.
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -8943,6 +9009,8 @@ func (ec *executionContext) fieldContext_QuestionOption_question(_ context.Conte
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -9644,6 +9712,8 @@ func (ec *executionContext) fieldContext_TestIgnoreQuestion_question(_ context.C
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -10406,6 +10476,8 @@ func (ec *executionContext) fieldContext_TestSession_questions(_ context.Context
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -10782,6 +10854,8 @@ func (ec *executionContext) fieldContext_UserQuestionAnswer_question(_ context.C
 				return ec.fieldContext_Question_options(ctx, field)
 			case "points":
 				return ec.fieldContext_Question_points(ctx, field)
+			case "correctOptionCount":
+				return ec.fieldContext_Question_correctOptionCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
 		},
@@ -15489,6 +15563,42 @@ func (ec *executionContext) _Question(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "correctOptionCount":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Question_correctOptionCount(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

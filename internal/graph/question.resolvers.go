@@ -129,6 +129,11 @@ func (r *questionResolver) Options(ctx context.Context, obj *model.Question) ([]
 	return dataloader.GetQuestionOptions(ctx, obj.ID)
 }
 
+// CorrectOptionCount is the resolver for the correctOptionCount field.
+func (r *questionResolver) CorrectOptionCount(ctx context.Context, obj *model.Question) (int, error) {
+	return dataloader.GetCorrectOptionCount(ctx, obj.ID)
+}
+
 // Question returns QuestionResolver implementation.
 func (r *Resolver) Question() QuestionResolver { return &questionResolver{r} }
 

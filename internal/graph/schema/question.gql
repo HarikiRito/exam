@@ -16,6 +16,7 @@ type Question {
   collection: QuestionCollection
   options: [QuestionOption!]!
   points: Int!
+  correctOptionCount: Int!
 }
 
 type PaginatedQuestion {

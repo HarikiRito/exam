@@ -357,13 +357,13 @@ var (
 				Symbol:     "test_session_answers_questions_user_question_answers",
 				Columns:    []*schema.Column{TestSessionAnswersColumns[7]},
 				RefColumns: []*schema.Column{QuestionsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "test_session_answers_test_sessions_test_session_question_answers",
 				Columns:    []*schema.Column{TestSessionAnswersColumns[8]},
 				RefColumns: []*schema.Column{TestSessionsColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}

@@ -144,3 +144,25 @@ func GetQuestionOptionsByQuestionIDs(ctx context.Context, questionIDs []uuid.UUI
 	}
 	return options, nil
 }
+
+func GetCorrectOptionCountByQuestionIDs(ctx context.Context, questionIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+
+	correctOptionCount, err := client.QuestionOption.Query().
+		Where(questionoption.QuestionIDIn(questionIDs...), questionoption.IsCorrect(true)).
+		Select(questionoption.FieldQuestionID).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	countMap := make(map[uuid.UUID]int)
+	for _, option := range correctOptionCount {
+		countMap[option.QuestionID]++
+	}
+
+	return countMap, nil
+}

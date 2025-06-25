@@ -19,6 +19,7 @@ type Loaders struct {
 	UserLoader                      *dataloadgen.Loader[uuid.UUID, *model.User]
 	CourseSectionLoader             *dataloadgen.Loader[uuid.UUID, *model.CourseSection]
 	QuestionOptionLoader            *dataloadgen.Loader[uuid.UUID, []*model.QuestionOption]
+	CorrectOptionCountLoader        *dataloadgen.Loader[uuid.UUID, int]
 	QuestionCollectionLoader        *dataloadgen.Loader[uuid.UUID, *model.QuestionCollection]
 	QuestionsByCollectionLoader     *dataloadgen.Loader[uuid.UUID, []*model.Question]
 	QuestionsBySessionLoader        *dataloadgen.Loader[uuid.UUID, []*model.Question]
@@ -35,6 +36,7 @@ func NewLoaders() *Loaders {
 		UserLoader:                      dataloadgen.NewLoader(getUsers, dataloadgen.WithWait(time.Millisecond)),
 		CourseSectionLoader:             dataloadgen.NewLoader(getCourseSections, dataloadgen.WithWait(time.Millisecond)),
 		QuestionOptionLoader:            dataloadgen.NewLoader(getQuestionOptionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
+		CorrectOptionCountLoader:        dataloadgen.NewLoader(GetCorrectOptionCountByQuestionIds, dataloadgen.WithWait(time.Millisecond)),
 		QuestionCollectionLoader:        dataloadgen.NewLoader(getQuestionCollectionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
 		QuestionsByCollectionLoader:     dataloadgen.NewLoader(getQuestionsByCollectionIDs, dataloadgen.WithWait(time.Millisecond)),
 		QuestionsBySessionLoader:        dataloadgen.NewLoader(getQuestionsBySessionIDs, dataloadgen.WithWait(time.Millisecond)),
