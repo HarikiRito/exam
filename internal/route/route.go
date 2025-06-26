@@ -10,12 +10,4 @@ func GenerateRoute(router *gin.Engine) {
 			"message": "pong",
 		})
 	})
-
-	// g := router.Group("/api")
-	// {
-	// 	g.GET("/status", func(c *gin.Context) {
-	// 		c.JSON(200, gin.H{"message": "bad23"})
-	// 	})
-	// }
-
 }

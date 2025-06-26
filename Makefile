@@ -23,3 +23,8 @@ test_fail:
 	@echo "Running tests and showing only failed tests..."
 	@/usr/bin/time -f "Total time: %e seconds" go test ./integration_test/... -v 2> /dev/stderr | grep -E "FAIL|NAME" || true
 	@echo "Done"
+
+seed:
+	@echo "Running seeder..."
+	@go run ./cmd/seeder/main.go
+	@echo "Done"
