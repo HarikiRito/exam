@@ -1,12 +1,16 @@
-import { BookOpen, SquareTerminal } from 'lucide-react';
+import { BookOpen, SquareTerminal, LogOut } from 'lucide-react';
 
+import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { themeStore } from 'app/shared/stores/theme.store';
+import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
+import client from 'app/shared/utils/apollo';
 import { NavItem, NavMain } from './NavMain';
 import { NavUser } from './NavUser';
 import { TeamSwitcher } from './TeamSwitcher';
+import { useNavigate } from 'react-router-dom';
 
 const navMain: NavItem[] = [
   {
@@ -62,6 +66,16 @@ export function MainSidebar() {
   const [ref] = useElementSpace<HTMLDivElement>((space) => {
     themeStore.sideBarWidth = space.width;
   });
+
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    CookieService.removeValue(CookieKey.AccessToken);
+    CookieService.removeValue(CookieKey.RefreshToken);
+    await client.resetStore();
+    navigate(APP_ROUTES.login);
+  }
+
   return (
     <AppSidebar.Root collapsible='icon' ref={ref}>
       <AppSidebar.Header>
@@ -72,6 +86,15 @@ export function MainSidebar() {
       </AppSidebar.Content>
       <AppSidebar.Footer>
         <NavUser />
+        <AppButton
+          onClick={handleLogout}
+          variant='ghost'
+          className='w-full justify-start text-sm font-normal'
+          aria-label='Logout'
+          tabIndex={0}>
+          <LogOut className='mr-2 h-4 w-4' />
+          Logout
+        </AppButton>
       </AppSidebar.Footer>
       <AppSidebar.Rail />
     </AppSidebar.Root>

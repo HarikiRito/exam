@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@remix-run/react';
+import { IsAuthenticatedDocument } from 'app/graphql/operations/auth/isAuthenticated.generated';
 import { useLoginLazyQuery } from 'app/graphql/operations/auth/login.generated';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCard } from 'app/shared/components/card/AppCard';
@@ -8,6 +9,7 @@ import { AppInput } from 'app/shared/components/input/AppInput';
 import { AppLink } from 'app/shared/components/link/AppLink';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
+import client from 'app/shared/utils/apollo';
 import { cn } from 'app/shared/utils/className';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -38,8 +40,8 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
     resolver: zodResolver(loginSchema),
     mode: 'onBlur',
     defaultValues: {
-      email: 'test@test.com',
-      password: '123123',
+      email: 'owner@example.com',
+      password: 'password123',
     },
   });
 
@@ -74,6 +76,13 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
     CookieService.setValue(CookieKey.RefreshToken, refreshToken);
 
     toast.success('Login successful!');
+
+    client.writeQuery({
+      query: IsAuthenticatedDocument,
+      data: {
+        isAuthenticated: true,
+      },
+    });
 
     navigate(APP_ROUTES.dashboard);
   }
