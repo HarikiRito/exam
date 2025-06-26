@@ -92,7 +92,6 @@ export default function ExamInterface() {
 
   // Loading state
   if (loading) {
-    console.log('loading', questionIds);
     return (
       <div className='flex h-screen flex-col bg-white'>
         {/* Top Navigation Bar Skeleton */}

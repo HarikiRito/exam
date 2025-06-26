@@ -22,8 +22,8 @@ declare module '@remix-run/node' {
 const isVitest = Boolean(process.env.VITEST);
 
 export default defineConfig({
-  ssr: {
-    // noExternal: true,
+  optimizeDeps: {
+    entries: ['app/**/*.{tsx,ts}', '!app/**/*.tests.{tsx,ts}'],
   },
   plugins: [
     !isVitest &&

@@ -18,16 +18,8 @@ startTransition(() => {
     <StrictMode>
       <ApolloProvider client={client}>
         <StagewiseToolbar config={{ plugins: [stagewise.ReactPlugin] }} />
-
-        <OnlyClient />
+        <RemixBrowser />;
       </ApolloProvider>
     </StrictMode>,
   );
 });
-
-function OnlyClient() {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  return <RemixBrowser />;
-}

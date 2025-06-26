@@ -286,10 +286,9 @@ export default function TestSessionsIndex() {
               <span className='font-medium'>{formatDateTime(session.expiredAt)}</span>
             </div>
 
-            {/* Max Points */}
             <div className='flex items-center gap-2 text-sm'>
               <TrophyIcon className='text-muted-foreground h-4 w-4' />
-              <span className='text-muted-foreground'>Max Points:</span>
+              <span className='text-muted-foreground'>Total score:</span>
               <span className='font-medium'>{session.maxPoints}</span>
             </div>
 
@@ -297,10 +296,8 @@ export default function TestSessionsIndex() {
             {session.status === TestSessionStatus.Completed && (
               <div className='flex items-center gap-2 text-sm'>
                 <TrophyIcon className='h-4 w-4 text-green-600' />
-                <span className='text-muted-foreground'>Points Earned:</span>
-                <span className='font-medium text-green-600'>
-                  {session.pointsEarned} / {session.maxPoints}
-                </span>
+                <span className='text-muted-foreground'>Score:</span>
+                <span className='font-medium text-green-600'>{session.pointsEarned}</span>
               </div>
             )}
 

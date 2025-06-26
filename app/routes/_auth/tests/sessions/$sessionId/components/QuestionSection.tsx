@@ -6,6 +6,7 @@ import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
 import { cn } from 'app/shared/utils/className';
 import { AlertCircle, Flag, FlagOff } from 'lucide-react';
 import { ReportQuestionDialog } from './ReportQuestionDialog';
+import { useMemo } from 'react';
 
 export function QuestionSection() {
   const snapshot = testSessionStore.useStateSnapshot();
@@ -21,10 +22,20 @@ export function QuestionSection() {
 
   const isFlagged = snapshot.flaggedQuestions.has(question.id);
 
+  const isMultipleAnswer = question.correctOptionCount > 1;
+
+  const text = useMemo(() => {
+    let questionText = question.questionText;
+    if (isMultipleAnswer) {
+      questionText += `\n\n*(Select ${question.correctOptionCount} options)*`;
+    }
+    return questionText;
+  }, [isMultipleAnswer, question.correctOptionCount, question.questionText]);
+
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
       <div className='mb-8 flex items-start justify-between'>
-        <AppMarkdown className='text-3xl font-bold'>{question.questionText}</AppMarkdown>
+        <AppMarkdown className='text-3xl'>{text}</AppMarkdown>
         <div className='ml-4 flex flex-shrink-0 gap-2'>
           <AppButton
             variant='ghost'
