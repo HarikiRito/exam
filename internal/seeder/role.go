@@ -6,6 +6,8 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/role"
+	"template/internal/features/permission"
+	permissionFeat "template/internal/features/permission"
 	"template/internal/shared/utilities/pointer"
 	"template/internal/shared/utilities/slice"
 
@@ -29,25 +31,27 @@ func GetDefaultRoles() []RoleData {
 		{
 			Name:        RoleOwner,
 			Description: pointer.From("System owner with full unrestricted access"),
-			Permissions: []string{}, // Owner doesn't need explicit permissions
+			Permissions: slice.Map(permissionFeat.OwnerPermissions, func(p permissionFeat.Permission) string {
+				return string(p)
+			}),
 		},
 		{
 			Name:        RoleAdmin,
 			Description: pointer.From("Administrator with elevated privileges"),
 			Permissions: []string{
-				PermissionUserCreate,
-				PermissionUserRead,
-				PermissionSessionCreate,
-				PermissionSessionRead,
-				PermissionSessionUpdate,
+				string(permission.PermissionUserCreate),
+				string(permission.PermissionUserRead),
+				string(permission.PermissionSessionCreate),
+				string(permission.PermissionSessionRead),
+				string(permission.PermissionSessionUpdate),
 			},
 		},
 		{
 			Name:        RoleUser,
 			Description: pointer.From("Standard user with basic access rights"),
 			Permissions: []string{
-				PermissionSessionRead,
-				PermissionSessionUpdate,
+				string(permission.PermissionSessionRead),
+				string(permission.PermissionSessionUpdate),
 			},
 		},
 	}

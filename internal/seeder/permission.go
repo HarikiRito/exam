@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"template/internal/ent/db"
 	"template/internal/ent/permission"
+	permissionFeat "template/internal/features/permission"
 	"template/internal/shared/utilities/pointer"
 )
 
@@ -14,40 +15,31 @@ type PermissionData struct {
 	Description *string
 }
 
-const (
-	PermissionUserCreate    = "user:create"
-	PermissionUserRead      = "user:read"
-	PermissionSessionCreate = "session:create"
-	PermissionSessionRead   = "session:read"
-	PermissionSessionUpdate = "session:update"
-	PermissionSessionDelete = "session:delete"
-)
-
 // GetDefaultPermissions returns the default set of permissions to be seeded
 func GetDefaultPermissions() []PermissionData {
 	return []PermissionData{
 		{
-			Name:        PermissionUserCreate,
+			Name:        string(permissionFeat.PermissionUserCreate),
 			Description: pointer.From("Create a new user"),
 		},
 		{
-			Name:        PermissionUserRead,
+			Name:        string(permissionFeat.PermissionUserRead),
 			Description: pointer.From("Read user information"),
 		},
 		{
-			Name:        PermissionSessionCreate,
+			Name:        string(permissionFeat.PermissionSessionCreate),
 			Description: pointer.From("Create a new session"),
 		},
 		{
-			Name:        PermissionSessionRead,
+			Name:        string(permissionFeat.PermissionSessionRead),
 			Description: pointer.From("Read session information"),
 		},
 		{
-			Name:        PermissionSessionUpdate,
+			Name:        string(permissionFeat.PermissionSessionUpdate),
 			Description: pointer.From("Update session information"),
 		},
 		{
-			Name:        PermissionSessionDelete,
+			Name:        string(permissionFeat.PermissionSessionDelete),
 			Description: pointer.From("Delete session information"),
 		},
 	}
