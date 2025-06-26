@@ -80,21 +80,32 @@ func SeedRoles(ctx context.Context) error {
 			return p.ID
 		})
 		// Check if role already exists
-		roleEntity, err := tx.Role.Query().
+		exists, err := tx.Role.Query().
 			Where(role.Name(roleData.Name)).
-			Only(ctx)
+			Exist(ctx)
 		if err != nil {
 			return db.Rollback(tx, fmt.Errorf("failed to check if role '%s' exists: %w", roleData.Name, err))
 		}
 
 		// Skip if role already exists
-		if roleEntity != nil {
-			fmt.Printf("Role '%s' already exists, update permissions to the role only\n", roleData.Name)
-			tx.Role.Update().
+		if exists {
+			fmt.Printf("Role '%s' already exists, updating permissions...\n", roleData.Name)
+			// Get the existing role to update its permissions
+			roleEntity, err := tx.Role.Query().
+				Where(role.Name(roleData.Name)).
+				Only(ctx)
+			if err != nil {
+				return db.Rollback(tx, fmt.Errorf("failed to get existing role '%s': %w", roleData.Name, err))
+			}
+
+			_, err = tx.Role.Update().
 				Where(role.ID(roleEntity.ID)).
 				ClearPermissions().
 				AddPermissionIDs(permissionIDs...).
 				Save(ctx)
+			if err != nil {
+				return db.Rollback(tx, fmt.Errorf("failed to update permissions for role '%s': %w", roleData.Name, err))
+			}
 			continue
 		}
 
