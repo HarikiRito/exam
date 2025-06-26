@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"template/internal/ent/db"
 	"template/internal/ent/permission"
+	"template/internal/ent/predicate"
 	"template/internal/ent/role"
 	"template/internal/ent/user"
 	permissionFeat "template/internal/features/permission"
@@ -14,32 +15,34 @@ import (
 	"github.com/google/uuid"
 )
 
-func CheckUserPermissions(ctx context.Context, userID uuid.UUID, permissions []permissionFeat.Permission) (bool, error) {
+func CheckUserPermissions(ctx context.Context, userID uuid.UUID, permissions []permissionFeat.Permission) error {
 	client, err := db.OpenClient()
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	permissionNames := slice.Map(permissions, func(p permissionFeat.Permission) string {
-		return string(p)
+	permissionPredicates := slice.Map(permissions, func(p permissionFeat.Permission) predicate.Permission {
+		return permission.NameEQ(string(p))
 	})
 
 	// Get the user's role
 	exist, err := client.User.Query().
 		Where(user.ID(userID),
 			user.HasRolesWith(
-				role.HasPermissionsWith(permission.NameIn(permissionNames...)),
+				role.HasPermissionsWith(
+					permissionPredicates...,
+				),
 			),
 		).
 		Exist(ctx)
 
 	if err != nil {
-		return false, fmt.Errorf("failed to check user permissions: %w", err)
+		return fmt.Errorf("failed to check user permissions: %w", err)
 	}
 
 	if !exist {
-		return false, errors.New("insufficient permissions")
+		return errors.New("insufficient permissions")
 	}
 
-	return true, nil
+	return nil
 }

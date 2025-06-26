@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"template/internal/features/jwt"
+	"template/internal/features/permission"
+	"template/internal/features/role"
 	"template/internal/features/user"
 	"template/internal/graph/model"
 
@@ -70,4 +72,16 @@ func GetUserFromRequestContext(ctx context.Context) (*model.User, error) {
 		ID:    user.ID,
 		Email: user.Email,
 	}, nil
+}
+
+func CheckUserPermissions(ctx context.Context, permissions []permission.Permission) (uuid.UUID, error) {
+	userId, err := GetUserIdFromRequestContext(ctx)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	err = role.CheckUserPermissions(ctx, userId, permissions)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return userId, nil
 }

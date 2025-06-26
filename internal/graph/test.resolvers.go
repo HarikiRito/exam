@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"template/internal/features/permission"
 	"template/internal/features/test"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -15,6 +16,12 @@ import (
 
 // CreateTest is the resolver for the createTest field.
 func (r *mutationResolver) CreateTest(ctx context.Context, input model.CreateTestInput) (*model.Test, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestCreate,
+	})
+	if err != nil {
+		return nil, err
+	}
 	entTest, err := test.CreateTest(ctx, input)
 	if err != nil {
 		return nil, err
@@ -24,6 +31,12 @@ func (r *mutationResolver) CreateTest(ctx context.Context, input model.CreateTes
 
 // UpdateTest is the resolver for the updateTest field.
 func (r *mutationResolver) UpdateTest(ctx context.Context, id uuid.UUID, input model.UpdateTestInput) (*model.Test, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestUpdate,
+	})
+	if err != nil {
+		return nil, err
+	}
 	entTest, err := test.UpdateTest(ctx, id, input)
 	if err != nil {
 		return nil, err
@@ -38,7 +51,9 @@ func (r *mutationResolver) DeleteTest(ctx context.Context, id uuid.UUID) (bool, 
 
 // AddMultiCollectionToTest is the resolver for the addMultiCollectionToTest field.
 func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestUpdate,
+	})
 	if err != nil {
 		return false, err
 	}
@@ -47,7 +62,9 @@ func (r *mutationResolver) AddMultiCollectionToTest(ctx context.Context, input m
 
 // UpdateTestQuestionRequirement is the resolver for the updateTestQuestionRequirement field.
 func (r *mutationResolver) UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestUpdate,
+	})
 	if err != nil {
 		return false, err
 	}
