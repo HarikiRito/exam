@@ -74,25 +74,29 @@ func SeedRoles(ctx context.Context) error {
 	}
 
 	for _, roleData := range roles {
-		// Check if role already exists
-		exists, err := tx.Role.Query().
-			Where(role.Name(roleData.Name)).
-			Exist(ctx)
-		if err != nil {
-			return db.Rollback(tx, fmt.Errorf("failed to check if role '%s' exists: %w", roleData.Name, err))
-		}
-
-		// Skip if role already exists
-		if exists {
-			fmt.Printf("Role '%s' already exists, skipping...\n", roleData.Name)
-			continue
-		}
-
 		permissionIDs := slice.Map(slice.Filter(permissions, func(p *ent.Permission) bool {
 			return slice.Contains(roleData.Permissions, p.Name)
 		}), func(p *ent.Permission) uuid.UUID {
 			return p.ID
 		})
+		// Check if role already exists
+		roleEntity, err := tx.Role.Query().
+			Where(role.Name(roleData.Name)).
+			Only(ctx)
+		if err != nil {
+			return db.Rollback(tx, fmt.Errorf("failed to check if role '%s' exists: %w", roleData.Name, err))
+		}
+
+		// Skip if role already exists
+		if roleEntity != nil {
+			fmt.Printf("Role '%s' already exists, update permissions to the role only\n", roleData.Name)
+			tx.Role.Update().
+				Where(role.ID(roleEntity.ID)).
+				ClearPermissions().
+				AddPermissionIDs(permissionIDs...).
+				Save(ctx)
+			continue
+		}
 
 		// Create the role with permissions
 		roleCreate := tx.Role.Create().

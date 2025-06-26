@@ -42,6 +42,42 @@ func GetDefaultPermissions() []PermissionData {
 			Name:        string(permissionFeat.PermissionSessionDelete),
 			Description: pointer.From("Delete session information"),
 		},
+		{
+			Name:        string(permissionFeat.CollectionCreate),
+			Description: pointer.From("Create a new collection"),
+		},
+		{
+			Name:        string(permissionFeat.CollectionRead),
+			Description: pointer.From("Read collection information"),
+		},
+		{
+			Name:        string(permissionFeat.CollectionUpdate),
+			Description: pointer.From("Update collection information"),
+		},
+		{
+			Name:        string(permissionFeat.CollectionDelete),
+			Description: pointer.From("Delete collection information"),
+		},
+		{
+			Name:        string(permissionFeat.TestRead),
+			Description: pointer.From("Read test information"),
+		},
+		{
+			Name:        string(permissionFeat.TestUpdate),
+			Description: pointer.From("Update test information"),
+		},
+		{
+			Name:        string(permissionFeat.TestCreate),
+			Description: pointer.From("Create a new test"),
+		},
+		{
+			Name:        string(permissionFeat.TestDelete),
+			Description: pointer.From("Delete test information"),
+		},
+		{
+			Name:        string(permissionFeat.TestCreate),
+			Description: pointer.From("Create a new test"),
+		},
 	}
 }
 

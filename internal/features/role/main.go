@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"errors"
+	"fmt"
 	"template/internal/ent/db"
 	"template/internal/ent/permission"
 	"template/internal/ent/role"
@@ -33,7 +34,7 @@ func CheckUserPermissions(ctx context.Context, userID uuid.UUID, permissions []p
 		Exist(ctx)
 
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("failed to check user permissions: %w", err)
 	}
 
 	if !exist {
