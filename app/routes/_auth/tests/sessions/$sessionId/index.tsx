@@ -1,21 +1,19 @@
-import { useParams } from '@remix-run/react';
-import { useGetQuestionsByIdsQuery } from 'app/graphql/operations/question/getQuestionsByIds.query.generated';
+import { useNavigate, useParams } from '@remix-run/react';
+import { TestSessionStatus } from 'app/graphql/graphqlTypes';
 import { useGetTestSessionQuery } from 'app/graphql/operations/testSession/getTestSession.query.generated';
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import dayjs from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { FinishExamDialog } from './components/FinishExamDialog';
 import { QuestionOverviewSheet } from './components/QuestionOverviewSheet';
 import { QuestionSection } from './components/QuestionSection';
 import { TopNavBar } from './components/TopNavBar';
-import dayjs from 'dayjs';
-import { TestSessionStatus } from 'app/graphql/graphqlTypes';
-import { APP_ROUTES } from 'app/shared/constants/routes';
-import { useNavigate } from '@remix-run/react';
 
 export default function ExamInterface() {
   testSessionStore.useResetHook();
@@ -37,23 +35,9 @@ export default function ExamInterface() {
   const testStatus = testSessionData?.testSession?.status;
   const isTestInProgress = testStatus === TestSessionStatus.InProgress;
 
-  // Extract question IDs from ordered questions
-  const questionIds = useMemo(() => {
-    return testSessionData?.testSession?.orderedQuestions?.map((item) => item.questionId) || [];
-  }, [testSessionData]);
-
-  // Fetch questions by IDs
-  const {
-    data: questionsData,
-    loading: questionsLoading,
-    error: questionsError,
-  } = useGetQuestionsByIdsQuery({
-    variables: { ids: questionIds },
-    skip: questionIds.length === 0 || !isTestInProgress,
-  });
-
   useEffect(() => {
-    if (!testSession?.orderedQuestions || !questionsData?.questions) return;
+    const questions = testSession?.questions;
+    if (!testSession?.orderedQuestions || !questions) return;
 
     const orderedQuestions = testSession.orderedQuestions;
 
@@ -63,7 +47,7 @@ export default function ExamInterface() {
       return acc;
     }, {});
 
-    const items = questionsData.questions.map((question) => {
+    const items = questions.map((question) => {
       const order = orderMap[question.id] || 0;
       return {
         question,
@@ -74,7 +58,7 @@ export default function ExamInterface() {
     items.sort((a, b) => a.order - b.order);
 
     testSessionState.questions = items.map((item) => item.question);
-  }, [testSession, questionsData]);
+  }, [testSession]);
 
   useEffect(() => {
     if (!testSession) return;
@@ -87,8 +71,8 @@ export default function ExamInterface() {
   }, [testSession]);
 
   // Combined loading state
-  const loading = testSessionLoading || questionsLoading;
-  const error = testSessionError || questionsError;
+  const loading = testSessionLoading;
+  const error = testSessionError;
 
   // Loading state
   if (loading) {

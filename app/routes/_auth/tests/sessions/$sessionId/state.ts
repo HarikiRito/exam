@@ -1,9 +1,9 @@
-import { GetQuestionsByIdsQuery } from 'app/graphql/operations/question/getQuestionsByIds.query.generated';
+import { GetTestSessionQuery } from 'app/graphql/operations/testSession/getTestSession.query.generated';
 import { createProxyWithReset } from 'app/shared/utils/valtio';
 import { toast } from 'sonner';
 import { proxySet } from 'valtio/utils';
 
-type QuestionItem = GetQuestionsByIdsQuery['questions'][number];
+type QuestionItem = GetTestSessionQuery['testSession']['questions'][number];
 
 export class State {
   currentQuestionIndex = 0;

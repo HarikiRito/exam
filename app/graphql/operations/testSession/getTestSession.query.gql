@@ -8,5 +8,14 @@ query GetTestSession($id: ID!) {
     test {
       ...TestFragment
     }
+    questions {
+      id
+      questionText
+      correctOptionCount
+      options {
+        id
+        optionText
+      }
+    }
   }
 } 
