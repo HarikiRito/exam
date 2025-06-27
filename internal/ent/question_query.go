@@ -32,7 +32,7 @@ type QuestionQuery struct {
 	withCollection                      *QuestionCollectionQuery
 	withQuestionOptions                 *QuestionOptionQuery
 	withVideoQuestionTimestampsQuestion *VideoQuestionTimestampQuery
-	withUserQuestionAnswers             *TestSessionAnswerQuery
+	withTestSessionAnswers              *TestSessionAnswerQuery
 	withTestIgnoreQuestions             *TestIgnoreQuestionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -136,8 +136,8 @@ func (qq *QuestionQuery) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTi
 	return query
 }
 
-// QueryUserQuestionAnswers chains the current query on the "user_question_answers" edge.
-func (qq *QuestionQuery) QueryUserQuestionAnswers() *TestSessionAnswerQuery {
+// QueryTestSessionAnswers chains the current query on the "test_session_answers" edge.
+func (qq *QuestionQuery) QueryTestSessionAnswers() *TestSessionAnswerQuery {
 	query := (&TestSessionAnswerClient{config: qq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := qq.prepareQuery(ctx); err != nil {
@@ -150,7 +150,7 @@ func (qq *QuestionQuery) QueryUserQuestionAnswers() *TestSessionAnswerQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(question.Table, question.FieldID, selector),
 			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, question.UserQuestionAnswersTable, question.UserQuestionAnswersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, question.TestSessionAnswersTable, question.TestSessionAnswersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(qq.driver.Dialect(), step)
 		return fromU, nil
@@ -375,7 +375,7 @@ func (qq *QuestionQuery) Clone() *QuestionQuery {
 		withCollection:                      qq.withCollection.Clone(),
 		withQuestionOptions:                 qq.withQuestionOptions.Clone(),
 		withVideoQuestionTimestampsQuestion: qq.withVideoQuestionTimestampsQuestion.Clone(),
-		withUserQuestionAnswers:             qq.withUserQuestionAnswers.Clone(),
+		withTestSessionAnswers:              qq.withTestSessionAnswers.Clone(),
 		withTestIgnoreQuestions:             qq.withTestIgnoreQuestions.Clone(),
 		// clone intermediate query.
 		sql:  qq.sql.Clone(),
@@ -416,14 +416,14 @@ func (qq *QuestionQuery) WithVideoQuestionTimestampsQuestion(opts ...func(*Video
 	return qq
 }
 
-// WithUserQuestionAnswers tells the query-builder to eager-load the nodes that are connected to
-// the "user_question_answers" edge. The optional arguments are used to configure the query builder of the edge.
-func (qq *QuestionQuery) WithUserQuestionAnswers(opts ...func(*TestSessionAnswerQuery)) *QuestionQuery {
+// WithTestSessionAnswers tells the query-builder to eager-load the nodes that are connected to
+// the "test_session_answers" edge. The optional arguments are used to configure the query builder of the edge.
+func (qq *QuestionQuery) WithTestSessionAnswers(opts ...func(*TestSessionAnswerQuery)) *QuestionQuery {
 	query := (&TestSessionAnswerClient{config: qq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	qq.withUserQuestionAnswers = query
+	qq.withTestSessionAnswers = query
 	return qq
 }
 
@@ -520,7 +520,7 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 			qq.withCollection != nil,
 			qq.withQuestionOptions != nil,
 			qq.withVideoQuestionTimestampsQuestion != nil,
-			qq.withUserQuestionAnswers != nil,
+			qq.withTestSessionAnswers != nil,
 			qq.withTestIgnoreQuestions != nil,
 		}
 	)
@@ -564,11 +564,11 @@ func (qq *QuestionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Que
 			return nil, err
 		}
 	}
-	if query := qq.withUserQuestionAnswers; query != nil {
-		if err := qq.loadUserQuestionAnswers(ctx, query, nodes,
-			func(n *Question) { n.Edges.UserQuestionAnswers = []*TestSessionAnswer{} },
+	if query := qq.withTestSessionAnswers; query != nil {
+		if err := qq.loadTestSessionAnswers(ctx, query, nodes,
+			func(n *Question) { n.Edges.TestSessionAnswers = []*TestSessionAnswer{} },
 			func(n *Question, e *TestSessionAnswer) {
-				n.Edges.UserQuestionAnswers = append(n.Edges.UserQuestionAnswers, e)
+				n.Edges.TestSessionAnswers = append(n.Edges.TestSessionAnswers, e)
 			}); err != nil {
 			return nil, err
 		}
@@ -674,7 +674,7 @@ func (qq *QuestionQuery) loadVideoQuestionTimestampsQuestion(ctx context.Context
 	}
 	return nil
 }
-func (qq *QuestionQuery) loadUserQuestionAnswers(ctx context.Context, query *TestSessionAnswerQuery, nodes []*Question, init func(*Question), assign func(*Question, *TestSessionAnswer)) error {
+func (qq *QuestionQuery) loadTestSessionAnswers(ctx context.Context, query *TestSessionAnswerQuery, nodes []*Question, init func(*Question), assign func(*Question, *TestSessionAnswer)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*Question)
 	for i := range nodes {
@@ -688,7 +688,7 @@ func (qq *QuestionQuery) loadUserQuestionAnswers(ctx context.Context, query *Tes
 		query.ctx.AppendFieldOnce(testsessionanswer.FieldQuestionID)
 	}
 	query.Where(predicate.TestSessionAnswer(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(question.UserQuestionAnswersColumn), fks...))
+		s.Where(sql.InValues(s.C(question.TestSessionAnswersColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

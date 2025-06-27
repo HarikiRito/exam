@@ -59,8 +59,8 @@ type TestSessionEdges struct {
 	CourseSection *CourseSection `json:"course_section,omitempty"`
 	// Test holds the value of the test edge.
 	Test *Test `json:"test,omitempty"`
-	// TestSessionQuestionAnswers holds the value of the test_session_question_answers edge.
-	TestSessionQuestionAnswers []*TestSessionAnswer `json:"test_session_question_answers,omitempty"`
+	// TestSessionAnswers holds the value of the test_session_answers edge.
+	TestSessionAnswers []*TestSessionAnswer `json:"test_session_answers,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [4]bool
@@ -99,13 +99,13 @@ func (e TestSessionEdges) TestOrErr() (*Test, error) {
 	return nil, &NotLoadedError{edge: "test"}
 }
 
-// TestSessionQuestionAnswersOrErr returns the TestSessionQuestionAnswers value or an error if the edge
+// TestSessionAnswersOrErr returns the TestSessionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e TestSessionEdges) TestSessionQuestionAnswersOrErr() ([]*TestSessionAnswer, error) {
+func (e TestSessionEdges) TestSessionAnswersOrErr() ([]*TestSessionAnswer, error) {
 	if e.loadedTypes[3] {
-		return e.TestSessionQuestionAnswers, nil
+		return e.TestSessionAnswers, nil
 	}
-	return nil, &NotLoadedError{edge: "test_session_question_answers"}
+	return nil, &NotLoadedError{edge: "test_session_answers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -250,9 +250,9 @@ func (ts *TestSession) QueryTest() *TestQuery {
 	return NewTestSessionClient(ts.config).QueryTest(ts)
 }
 
-// QueryTestSessionQuestionAnswers queries the "test_session_question_answers" edge of the TestSession entity.
-func (ts *TestSession) QueryTestSessionQuestionAnswers() *TestSessionAnswerQuery {
-	return NewTestSessionClient(ts.config).QueryTestSessionQuestionAnswers(ts)
+// QueryTestSessionAnswers queries the "test_session_answers" edge of the TestSession entity.
+func (ts *TestSession) QueryTestSessionAnswers() *TestSessionAnswerQuery {
+	return NewTestSessionClient(ts.config).QueryTestSessionAnswers(ts)
 }
 
 // Update returns a builder for updating this TestSession.

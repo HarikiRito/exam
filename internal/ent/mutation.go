@@ -4308,9 +4308,9 @@ type QuestionMutation struct {
 	video_question_timestamps_question        map[uuid.UUID]struct{}
 	removedvideo_question_timestamps_question map[uuid.UUID]struct{}
 	clearedvideo_question_timestamps_question bool
-	user_question_answers                     map[uuid.UUID]struct{}
-	removeduser_question_answers              map[uuid.UUID]struct{}
-	cleareduser_question_answers              bool
+	test_session_answers                      map[uuid.UUID]struct{}
+	removedtest_session_answers               map[uuid.UUID]struct{}
+	clearedtest_session_answers               bool
 	test_ignore_questions                     map[uuid.UUID]struct{}
 	removedtest_ignore_questions              map[uuid.UUID]struct{}
 	clearedtest_ignore_questions              bool
@@ -4807,58 +4807,58 @@ func (m *QuestionMutation) ResetVideoQuestionTimestampsQuestion() {
 	m.removedvideo_question_timestamps_question = nil
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by ids.
-func (m *QuestionMutation) AddUserQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.user_question_answers == nil {
-		m.user_question_answers = make(map[uuid.UUID]struct{})
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by ids.
+func (m *QuestionMutation) AddTestSessionAnswerIDs(ids ...uuid.UUID) {
+	if m.test_session_answers == nil {
+		m.test_session_answers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.user_question_answers[ids[i]] = struct{}{}
+		m.test_session_answers[ids[i]] = struct{}{}
 	}
 }
 
-// ClearUserQuestionAnswers clears the "user_question_answers" edge to the TestSessionAnswer entity.
-func (m *QuestionMutation) ClearUserQuestionAnswers() {
-	m.cleareduser_question_answers = true
+// ClearTestSessionAnswers clears the "test_session_answers" edge to the TestSessionAnswer entity.
+func (m *QuestionMutation) ClearTestSessionAnswers() {
+	m.clearedtest_session_answers = true
 }
 
-// UserQuestionAnswersCleared reports if the "user_question_answers" edge to the TestSessionAnswer entity was cleared.
-func (m *QuestionMutation) UserQuestionAnswersCleared() bool {
-	return m.cleareduser_question_answers
+// TestSessionAnswersCleared reports if the "test_session_answers" edge to the TestSessionAnswer entity was cleared.
+func (m *QuestionMutation) TestSessionAnswersCleared() bool {
+	return m.clearedtest_session_answers
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (m *QuestionMutation) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.removeduser_question_answers == nil {
-		m.removeduser_question_answers = make(map[uuid.UUID]struct{})
+// RemoveTestSessionAnswerIDs removes the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (m *QuestionMutation) RemoveTestSessionAnswerIDs(ids ...uuid.UUID) {
+	if m.removedtest_session_answers == nil {
+		m.removedtest_session_answers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.user_question_answers, ids[i])
-		m.removeduser_question_answers[ids[i]] = struct{}{}
+		delete(m.test_session_answers, ids[i])
+		m.removedtest_session_answers[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedUserQuestionAnswers returns the removed IDs of the "user_question_answers" edge to the TestSessionAnswer entity.
-func (m *QuestionMutation) RemovedUserQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.removeduser_question_answers {
+// RemovedTestSessionAnswers returns the removed IDs of the "test_session_answers" edge to the TestSessionAnswer entity.
+func (m *QuestionMutation) RemovedTestSessionAnswersIDs() (ids []uuid.UUID) {
+	for id := range m.removedtest_session_answers {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// UserQuestionAnswersIDs returns the "user_question_answers" edge IDs in the mutation.
-func (m *QuestionMutation) UserQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.user_question_answers {
+// TestSessionAnswersIDs returns the "test_session_answers" edge IDs in the mutation.
+func (m *QuestionMutation) TestSessionAnswersIDs() (ids []uuid.UUID) {
+	for id := range m.test_session_answers {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetUserQuestionAnswers resets all changes to the "user_question_answers" edge.
-func (m *QuestionMutation) ResetUserQuestionAnswers() {
-	m.user_question_answers = nil
-	m.cleareduser_question_answers = false
-	m.removeduser_question_answers = nil
+// ResetTestSessionAnswers resets all changes to the "test_session_answers" edge.
+func (m *QuestionMutation) ResetTestSessionAnswers() {
+	m.test_session_answers = nil
+	m.clearedtest_session_answers = false
+	m.removedtest_session_answers = nil
 }
 
 // AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by ids.
@@ -5167,8 +5167,8 @@ func (m *QuestionMutation) AddedEdges() []string {
 	if m.video_question_timestamps_question != nil {
 		edges = append(edges, question.EdgeVideoQuestionTimestampsQuestion)
 	}
-	if m.user_question_answers != nil {
-		edges = append(edges, question.EdgeUserQuestionAnswers)
+	if m.test_session_answers != nil {
+		edges = append(edges, question.EdgeTestSessionAnswers)
 	}
 	if m.test_ignore_questions != nil {
 		edges = append(edges, question.EdgeTestIgnoreQuestions)
@@ -5196,9 +5196,9 @@ func (m *QuestionMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case question.EdgeUserQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.user_question_answers))
-		for id := range m.user_question_answers {
+	case question.EdgeTestSessionAnswers:
+		ids := make([]ent.Value, 0, len(m.test_session_answers))
+		for id := range m.test_session_answers {
 			ids = append(ids, id)
 		}
 		return ids
@@ -5221,8 +5221,8 @@ func (m *QuestionMutation) RemovedEdges() []string {
 	if m.removedvideo_question_timestamps_question != nil {
 		edges = append(edges, question.EdgeVideoQuestionTimestampsQuestion)
 	}
-	if m.removeduser_question_answers != nil {
-		edges = append(edges, question.EdgeUserQuestionAnswers)
+	if m.removedtest_session_answers != nil {
+		edges = append(edges, question.EdgeTestSessionAnswers)
 	}
 	if m.removedtest_ignore_questions != nil {
 		edges = append(edges, question.EdgeTestIgnoreQuestions)
@@ -5246,9 +5246,9 @@ func (m *QuestionMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case question.EdgeUserQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.removeduser_question_answers))
-		for id := range m.removeduser_question_answers {
+	case question.EdgeTestSessionAnswers:
+		ids := make([]ent.Value, 0, len(m.removedtest_session_answers))
+		for id := range m.removedtest_session_answers {
 			ids = append(ids, id)
 		}
 		return ids
@@ -5274,8 +5274,8 @@ func (m *QuestionMutation) ClearedEdges() []string {
 	if m.clearedvideo_question_timestamps_question {
 		edges = append(edges, question.EdgeVideoQuestionTimestampsQuestion)
 	}
-	if m.cleareduser_question_answers {
-		edges = append(edges, question.EdgeUserQuestionAnswers)
+	if m.clearedtest_session_answers {
+		edges = append(edges, question.EdgeTestSessionAnswers)
 	}
 	if m.clearedtest_ignore_questions {
 		edges = append(edges, question.EdgeTestIgnoreQuestions)
@@ -5293,8 +5293,8 @@ func (m *QuestionMutation) EdgeCleared(name string) bool {
 		return m.clearedquestion_options
 	case question.EdgeVideoQuestionTimestampsQuestion:
 		return m.clearedvideo_question_timestamps_question
-	case question.EdgeUserQuestionAnswers:
-		return m.cleareduser_question_answers
+	case question.EdgeTestSessionAnswers:
+		return m.clearedtest_session_answers
 	case question.EdgeTestIgnoreQuestions:
 		return m.clearedtest_ignore_questions
 	}
@@ -5325,8 +5325,8 @@ func (m *QuestionMutation) ResetEdge(name string) error {
 	case question.EdgeVideoQuestionTimestampsQuestion:
 		m.ResetVideoQuestionTimestampsQuestion()
 		return nil
-	case question.EdgeUserQuestionAnswers:
-		m.ResetUserQuestionAnswers()
+	case question.EdgeTestSessionAnswers:
+		m.ResetTestSessionAnswers()
 		return nil
 	case question.EdgeTestIgnoreQuestions:
 		m.ResetTestIgnoreQuestions()
@@ -10548,33 +10548,33 @@ func (m *TestQuestionCountMutation) ResetEdge(name string) error {
 // TestSessionMutation represents an operation that mutates the TestSession nodes in the graph.
 type TestSessionMutation struct {
 	config
-	op                                   Op
-	typ                                  string
-	id                                   *uuid.UUID
-	created_at                           *time.Time
-	updated_at                           *time.Time
-	deleted_at                           *time.Time
-	started_at                           *time.Time
-	expired_at                           *time.Time
-	completed_at                         *time.Time
-	max_points                           *int
-	addmax_points                        *int
-	points_earned                        *int
-	addpoints_earned                     *int
-	status                               *testsession.Status
-	clearedFields                        map[string]struct{}
-	user                                 *uuid.UUID
-	cleareduser                          bool
-	course_section                       *uuid.UUID
-	clearedcourse_section                bool
-	test                                 *uuid.UUID
-	clearedtest                          bool
-	test_session_question_answers        map[uuid.UUID]struct{}
-	removedtest_session_question_answers map[uuid.UUID]struct{}
-	clearedtest_session_question_answers bool
-	done                                 bool
-	oldValue                             func(context.Context) (*TestSession, error)
-	predicates                           []predicate.TestSession
+	op                          Op
+	typ                         string
+	id                          *uuid.UUID
+	created_at                  *time.Time
+	updated_at                  *time.Time
+	deleted_at                  *time.Time
+	started_at                  *time.Time
+	expired_at                  *time.Time
+	completed_at                *time.Time
+	max_points                  *int
+	addmax_points               *int
+	points_earned               *int
+	addpoints_earned            *int
+	status                      *testsession.Status
+	clearedFields               map[string]struct{}
+	user                        *uuid.UUID
+	cleareduser                 bool
+	course_section              *uuid.UUID
+	clearedcourse_section       bool
+	test                        *uuid.UUID
+	clearedtest                 bool
+	test_session_answers        map[uuid.UUID]struct{}
+	removedtest_session_answers map[uuid.UUID]struct{}
+	clearedtest_session_answers bool
+	done                        bool
+	oldValue                    func(context.Context) (*TestSession, error)
+	predicates                  []predicate.TestSession
 }
 
 var _ ent.Mutation = (*TestSessionMutation)(nil)
@@ -11312,58 +11312,58 @@ func (m *TestSessionMutation) ResetTest() {
 	m.clearedtest = false
 }
 
-// AddTestSessionQuestionAnswerIDs adds the "test_session_question_answers" edge to the TestSessionAnswer entity by ids.
-func (m *TestSessionMutation) AddTestSessionQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.test_session_question_answers == nil {
-		m.test_session_question_answers = make(map[uuid.UUID]struct{})
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by ids.
+func (m *TestSessionMutation) AddTestSessionAnswerIDs(ids ...uuid.UUID) {
+	if m.test_session_answers == nil {
+		m.test_session_answers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.test_session_question_answers[ids[i]] = struct{}{}
+		m.test_session_answers[ids[i]] = struct{}{}
 	}
 }
 
-// ClearTestSessionQuestionAnswers clears the "test_session_question_answers" edge to the TestSessionAnswer entity.
-func (m *TestSessionMutation) ClearTestSessionQuestionAnswers() {
-	m.clearedtest_session_question_answers = true
+// ClearTestSessionAnswers clears the "test_session_answers" edge to the TestSessionAnswer entity.
+func (m *TestSessionMutation) ClearTestSessionAnswers() {
+	m.clearedtest_session_answers = true
 }
 
-// TestSessionQuestionAnswersCleared reports if the "test_session_question_answers" edge to the TestSessionAnswer entity was cleared.
-func (m *TestSessionMutation) TestSessionQuestionAnswersCleared() bool {
-	return m.clearedtest_session_question_answers
+// TestSessionAnswersCleared reports if the "test_session_answers" edge to the TestSessionAnswer entity was cleared.
+func (m *TestSessionMutation) TestSessionAnswersCleared() bool {
+	return m.clearedtest_session_answers
 }
 
-// RemoveTestSessionQuestionAnswerIDs removes the "test_session_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (m *TestSessionMutation) RemoveTestSessionQuestionAnswerIDs(ids ...uuid.UUID) {
-	if m.removedtest_session_question_answers == nil {
-		m.removedtest_session_question_answers = make(map[uuid.UUID]struct{})
+// RemoveTestSessionAnswerIDs removes the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (m *TestSessionMutation) RemoveTestSessionAnswerIDs(ids ...uuid.UUID) {
+	if m.removedtest_session_answers == nil {
+		m.removedtest_session_answers = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.test_session_question_answers, ids[i])
-		m.removedtest_session_question_answers[ids[i]] = struct{}{}
+		delete(m.test_session_answers, ids[i])
+		m.removedtest_session_answers[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedTestSessionQuestionAnswers returns the removed IDs of the "test_session_question_answers" edge to the TestSessionAnswer entity.
-func (m *TestSessionMutation) RemovedTestSessionQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.removedtest_session_question_answers {
+// RemovedTestSessionAnswers returns the removed IDs of the "test_session_answers" edge to the TestSessionAnswer entity.
+func (m *TestSessionMutation) RemovedTestSessionAnswersIDs() (ids []uuid.UUID) {
+	for id := range m.removedtest_session_answers {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// TestSessionQuestionAnswersIDs returns the "test_session_question_answers" edge IDs in the mutation.
-func (m *TestSessionMutation) TestSessionQuestionAnswersIDs() (ids []uuid.UUID) {
-	for id := range m.test_session_question_answers {
+// TestSessionAnswersIDs returns the "test_session_answers" edge IDs in the mutation.
+func (m *TestSessionMutation) TestSessionAnswersIDs() (ids []uuid.UUID) {
+	for id := range m.test_session_answers {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetTestSessionQuestionAnswers resets all changes to the "test_session_question_answers" edge.
-func (m *TestSessionMutation) ResetTestSessionQuestionAnswers() {
-	m.test_session_question_answers = nil
-	m.clearedtest_session_question_answers = false
-	m.removedtest_session_question_answers = nil
+// ResetTestSessionAnswers resets all changes to the "test_session_answers" edge.
+func (m *TestSessionMutation) ResetTestSessionAnswers() {
+	m.test_session_answers = nil
+	m.clearedtest_session_answers = false
+	m.removedtest_session_answers = nil
 }
 
 // Where appends a list predicates to the TestSessionMutation builder.
@@ -11762,8 +11762,8 @@ func (m *TestSessionMutation) AddedEdges() []string {
 	if m.test != nil {
 		edges = append(edges, testsession.EdgeTest)
 	}
-	if m.test_session_question_answers != nil {
-		edges = append(edges, testsession.EdgeTestSessionQuestionAnswers)
+	if m.test_session_answers != nil {
+		edges = append(edges, testsession.EdgeTestSessionAnswers)
 	}
 	return edges
 }
@@ -11784,9 +11784,9 @@ func (m *TestSessionMutation) AddedIDs(name string) []ent.Value {
 		if id := m.test; id != nil {
 			return []ent.Value{*id}
 		}
-	case testsession.EdgeTestSessionQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.test_session_question_answers))
-		for id := range m.test_session_question_answers {
+	case testsession.EdgeTestSessionAnswers:
+		ids := make([]ent.Value, 0, len(m.test_session_answers))
+		for id := range m.test_session_answers {
 			ids = append(ids, id)
 		}
 		return ids
@@ -11797,8 +11797,8 @@ func (m *TestSessionMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *TestSessionMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 4)
-	if m.removedtest_session_question_answers != nil {
-		edges = append(edges, testsession.EdgeTestSessionQuestionAnswers)
+	if m.removedtest_session_answers != nil {
+		edges = append(edges, testsession.EdgeTestSessionAnswers)
 	}
 	return edges
 }
@@ -11807,9 +11807,9 @@ func (m *TestSessionMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *TestSessionMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case testsession.EdgeTestSessionQuestionAnswers:
-		ids := make([]ent.Value, 0, len(m.removedtest_session_question_answers))
-		for id := range m.removedtest_session_question_answers {
+	case testsession.EdgeTestSessionAnswers:
+		ids := make([]ent.Value, 0, len(m.removedtest_session_answers))
+		for id := range m.removedtest_session_answers {
 			ids = append(ids, id)
 		}
 		return ids
@@ -11829,8 +11829,8 @@ func (m *TestSessionMutation) ClearedEdges() []string {
 	if m.clearedtest {
 		edges = append(edges, testsession.EdgeTest)
 	}
-	if m.clearedtest_session_question_answers {
-		edges = append(edges, testsession.EdgeTestSessionQuestionAnswers)
+	if m.clearedtest_session_answers {
+		edges = append(edges, testsession.EdgeTestSessionAnswers)
 	}
 	return edges
 }
@@ -11845,8 +11845,8 @@ func (m *TestSessionMutation) EdgeCleared(name string) bool {
 		return m.clearedcourse_section
 	case testsession.EdgeTest:
 		return m.clearedtest
-	case testsession.EdgeTestSessionQuestionAnswers:
-		return m.clearedtest_session_question_answers
+	case testsession.EdgeTestSessionAnswers:
+		return m.clearedtest_session_answers
 	}
 	return false
 }
@@ -11881,8 +11881,8 @@ func (m *TestSessionMutation) ResetEdge(name string) error {
 	case testsession.EdgeTest:
 		m.ResetTest()
 		return nil
-	case testsession.EdgeTestSessionQuestionAnswers:
-		m.ResetTestSessionQuestionAnswers()
+	case testsession.EdgeTestSessionAnswers:
+		m.ResetTestSessionAnswers()
 		return nil
 	}
 	return fmt.Errorf("unknown TestSession edge %s", name)

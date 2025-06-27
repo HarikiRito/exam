@@ -34,8 +34,8 @@ const (
 	EdgeQuestionOptions = "question_options"
 	// EdgeVideoQuestionTimestampsQuestion holds the string denoting the video_question_timestamps_question edge name in mutations.
 	EdgeVideoQuestionTimestampsQuestion = "video_question_timestamps_question"
-	// EdgeUserQuestionAnswers holds the string denoting the user_question_answers edge name in mutations.
-	EdgeUserQuestionAnswers = "user_question_answers"
+	// EdgeTestSessionAnswers holds the string denoting the test_session_answers edge name in mutations.
+	EdgeTestSessionAnswers = "test_session_answers"
 	// EdgeTestIgnoreQuestions holds the string denoting the test_ignore_questions edge name in mutations.
 	EdgeTestIgnoreQuestions = "test_ignore_questions"
 	// Table holds the table name of the question in the database.
@@ -61,13 +61,13 @@ const (
 	VideoQuestionTimestampsQuestionInverseTable = "video_question_timestamps"
 	// VideoQuestionTimestampsQuestionColumn is the table column denoting the video_question_timestamps_question relation/edge.
 	VideoQuestionTimestampsQuestionColumn = "question_id"
-	// UserQuestionAnswersTable is the table that holds the user_question_answers relation/edge.
-	UserQuestionAnswersTable = "test_session_answers"
-	// UserQuestionAnswersInverseTable is the table name for the TestSessionAnswer entity.
+	// TestSessionAnswersTable is the table that holds the test_session_answers relation/edge.
+	TestSessionAnswersTable = "test_session_answers"
+	// TestSessionAnswersInverseTable is the table name for the TestSessionAnswer entity.
 	// It exists in this package in order to avoid circular dependency with the "testsessionanswer" package.
-	UserQuestionAnswersInverseTable = "test_session_answers"
-	// UserQuestionAnswersColumn is the table column denoting the user_question_answers relation/edge.
-	UserQuestionAnswersColumn = "question_id"
+	TestSessionAnswersInverseTable = "test_session_answers"
+	// TestSessionAnswersColumn is the table column denoting the test_session_answers relation/edge.
+	TestSessionAnswersColumn = "question_id"
 	// TestIgnoreQuestionsTable is the table that holds the test_ignore_questions relation/edge.
 	TestIgnoreQuestionsTable = "test_ignore_questions"
 	// TestIgnoreQuestionsInverseTable is the table name for the TestIgnoreQuestion entity.
@@ -195,17 +195,17 @@ func ByVideoQuestionTimestampsQuestion(term sql.OrderTerm, terms ...sql.OrderTer
 	}
 }
 
-// ByUserQuestionAnswersCount orders the results by user_question_answers count.
-func ByUserQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
+// ByTestSessionAnswersCount orders the results by test_session_answers count.
+func ByTestSessionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newUserQuestionAnswersStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newTestSessionAnswersStep(), opts...)
 	}
 }
 
-// ByUserQuestionAnswers orders the results by user_question_answers terms.
-func ByUserQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByTestSessionAnswers orders the results by test_session_answers terms.
+func ByTestSessionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newTestSessionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -243,11 +243,11 @@ func newVideoQuestionTimestampsQuestionStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, VideoQuestionTimestampsQuestionTable, VideoQuestionTimestampsQuestionColumn),
 	)
 }
-func newUserQuestionAnswersStep() *sqlgraph.Step {
+func newTestSessionAnswersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserQuestionAnswersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+		sqlgraph.To(TestSessionAnswersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionAnswersTable, TestSessionAnswersColumn),
 	)
 }
 func newTestIgnoreQuestionsStep() *sqlgraph.Step {

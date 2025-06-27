@@ -45,8 +45,8 @@ type QuestionEdges struct {
 	QuestionOptions []*QuestionOption `json:"question_options,omitempty"`
 	// VideoQuestionTimestampsQuestion holds the value of the video_question_timestamps_question edge.
 	VideoQuestionTimestampsQuestion []*VideoQuestionTimestamp `json:"video_question_timestamps_question,omitempty"`
-	// UserQuestionAnswers holds the value of the user_question_answers edge.
-	UserQuestionAnswers []*TestSessionAnswer `json:"user_question_answers,omitempty"`
+	// TestSessionAnswers holds the value of the test_session_answers edge.
+	TestSessionAnswers []*TestSessionAnswer `json:"test_session_answers,omitempty"`
 	// TestIgnoreQuestions holds the value of the test_ignore_questions edge.
 	TestIgnoreQuestions []*TestIgnoreQuestion `json:"test_ignore_questions,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -83,13 +83,13 @@ func (e QuestionEdges) VideoQuestionTimestampsQuestionOrErr() ([]*VideoQuestionT
 	return nil, &NotLoadedError{edge: "video_question_timestamps_question"}
 }
 
-// UserQuestionAnswersOrErr returns the UserQuestionAnswers value or an error if the edge
+// TestSessionAnswersOrErr returns the TestSessionAnswers value or an error if the edge
 // was not loaded in eager-loading.
-func (e QuestionEdges) UserQuestionAnswersOrErr() ([]*TestSessionAnswer, error) {
+func (e QuestionEdges) TestSessionAnswersOrErr() ([]*TestSessionAnswer, error) {
 	if e.loadedTypes[3] {
-		return e.UserQuestionAnswers, nil
+		return e.TestSessionAnswers, nil
 	}
-	return nil, &NotLoadedError{edge: "user_question_answers"}
+	return nil, &NotLoadedError{edge: "test_session_answers"}
 }
 
 // TestIgnoreQuestionsOrErr returns the TestIgnoreQuestions value or an error if the edge
@@ -200,9 +200,9 @@ func (q *Question) QueryVideoQuestionTimestampsQuestion() *VideoQuestionTimestam
 	return NewQuestionClient(q.config).QueryVideoQuestionTimestampsQuestion(q)
 }
 
-// QueryUserQuestionAnswers queries the "user_question_answers" edge of the Question entity.
-func (q *Question) QueryUserQuestionAnswers() *TestSessionAnswerQuery {
-	return NewQuestionClient(q.config).QueryUserQuestionAnswers(q)
+// QueryTestSessionAnswers queries the "test_session_answers" edge of the Question entity.
+func (q *Question) QueryTestSessionAnswers() *TestSessionAnswerQuery {
+	return NewQuestionClient(q.config).QueryTestSessionAnswers(q)
 }
 
 // QueryTestIgnoreQuestions queries the "test_ignore_questions" edge of the Question entity.

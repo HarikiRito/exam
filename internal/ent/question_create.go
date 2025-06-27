@@ -143,19 +143,19 @@ func (qc *QuestionCreate) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestion
 	return qc.AddVideoQuestionTimestampsQuestionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (qc *QuestionCreate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionCreate {
-	qc.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (qc *QuestionCreate) AddTestSessionAnswerIDs(ids ...uuid.UUID) *QuestionCreate {
+	qc.mutation.AddTestSessionAnswerIDs(ids...)
 	return qc
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
-func (qc *QuestionCreate) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionCreate {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (qc *QuestionCreate) AddTestSessionAnswers(t ...*TestSessionAnswer) *QuestionCreate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return qc.AddUserQuestionAnswerIDs(ids...)
+	return qc.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by IDs.
@@ -372,12 +372,12 @@ func (qc *QuestionCreate) createSpec() (*Question, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := qc.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := qc.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),

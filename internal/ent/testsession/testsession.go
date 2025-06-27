@@ -47,8 +47,8 @@ const (
 	EdgeCourseSection = "course_section"
 	// EdgeTest holds the string denoting the test edge name in mutations.
 	EdgeTest = "test"
-	// EdgeTestSessionQuestionAnswers holds the string denoting the test_session_question_answers edge name in mutations.
-	EdgeTestSessionQuestionAnswers = "test_session_question_answers"
+	// EdgeTestSessionAnswers holds the string denoting the test_session_answers edge name in mutations.
+	EdgeTestSessionAnswers = "test_session_answers"
 	// Table holds the table name of the testsession in the database.
 	Table = "test_sessions"
 	// UserTable is the table that holds the user relation/edge.
@@ -72,13 +72,13 @@ const (
 	TestInverseTable = "tests"
 	// TestColumn is the table column denoting the test relation/edge.
 	TestColumn = "test_id"
-	// TestSessionQuestionAnswersTable is the table that holds the test_session_question_answers relation/edge.
-	TestSessionQuestionAnswersTable = "test_session_answers"
-	// TestSessionQuestionAnswersInverseTable is the table name for the TestSessionAnswer entity.
+	// TestSessionAnswersTable is the table that holds the test_session_answers relation/edge.
+	TestSessionAnswersTable = "test_session_answers"
+	// TestSessionAnswersInverseTable is the table name for the TestSessionAnswer entity.
 	// It exists in this package in order to avoid circular dependency with the "testsessionanswer" package.
-	TestSessionQuestionAnswersInverseTable = "test_session_answers"
-	// TestSessionQuestionAnswersColumn is the table column denoting the test_session_question_answers relation/edge.
-	TestSessionQuestionAnswersColumn = "session_id"
+	TestSessionAnswersInverseTable = "test_session_answers"
+	// TestSessionAnswersColumn is the table column denoting the test_session_answers relation/edge.
+	TestSessionAnswersColumn = "session_id"
 )
 
 // Columns holds all SQL columns for testsession fields.
@@ -248,17 +248,17 @@ func ByTestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByTestSessionQuestionAnswersCount orders the results by test_session_question_answers count.
-func ByTestSessionQuestionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
+// ByTestSessionAnswersCount orders the results by test_session_answers count.
+func ByTestSessionAnswersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newTestSessionQuestionAnswersStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newTestSessionAnswersStep(), opts...)
 	}
 }
 
-// ByTestSessionQuestionAnswers orders the results by test_session_question_answers terms.
-func ByTestSessionQuestionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByTestSessionAnswers orders the results by test_session_answers terms.
+func ByTestSessionAnswers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTestSessionQuestionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newTestSessionAnswersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newUserStep() *sqlgraph.Step {
@@ -282,10 +282,10 @@ func newTestStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, TestTable, TestColumn),
 	)
 }
-func newTestSessionQuestionAnswersStep() *sqlgraph.Step {
+func newTestSessionAnswersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(TestSessionQuestionAnswersInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionQuestionAnswersTable, TestSessionQuestionAnswersColumn),
+		sqlgraph.To(TestSessionAnswersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionAnswersTable, TestSessionAnswersColumn),
 	)
 }

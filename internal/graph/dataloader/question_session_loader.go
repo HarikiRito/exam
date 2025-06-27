@@ -2,6 +2,7 @@ package dataloader
 
 import (
 	"context"
+	"fmt"
 	"template/internal/ent"
 	"template/internal/features/question"
 	"template/internal/graph/model"
@@ -11,27 +12,23 @@ import (
 )
 
 func getQuestionsBySessionIDs(ctx context.Context, sessionIDs []uuid.UUID) ([][]*model.Question, []error) {
-	lu := NewLoaderByIds[ent.Question, model.Question](sessionIDs)
+	questionMapBySessionID, err := question.GetQuestionsBySessionIDs(ctx, sessionIDs)
+	if err != nil {
+		return nil, []error{err}
+	}
 
-	items, errs := lu.LoadItemsOneToMany(ctx, question.GetQuestionsBySessionIDs, func(sessionID uuid.UUID, items []*ent.Question) []*ent.Question {
-		// Filter questions that belong to the specific session
-		return slice.Filter(items, func(item *ent.Question) bool {
-			// Check if this question has an answer for the given session
-			if item.Edges.UserQuestionAnswers != nil {
-				for _, edge := range item.Edges.UserQuestionAnswers {
-					if edge.SessionID == sessionID {
-						return true
-					}
-				}
-			}
-			return false
-		})
-	}, func(items []*ent.Question) ([]*model.Question, error) {
-		result := slice.Map(items, func(question *ent.Question) *model.Question {
+	items := make([][]*model.Question, len(sessionIDs))
+	errs := make([]error, len(sessionIDs))
+	for i, sessionID := range sessionIDs {
+		questions, ok := questionMapBySessionID[sessionID]
+		if !ok {
+			errs[i] = fmt.Errorf("no questions found for session %s", sessionID)
+			continue
+		}
+		items[i] = slice.Map(questions, func(question *ent.Question) *model.Question {
 			return model.ConvertQuestionToModel(question)
 		})
-		return result, nil
-	})
+	}
 
 	return items, errs
 }

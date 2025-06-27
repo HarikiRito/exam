@@ -214,19 +214,19 @@ func (tsc *TestSessionCreate) SetTest(t *Test) *TestSessionCreate {
 	return tsc.SetTestID(t.ID)
 }
 
-// AddTestSessionQuestionAnswerIDs adds the "test_session_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (tsc *TestSessionCreate) AddTestSessionQuestionAnswerIDs(ids ...uuid.UUID) *TestSessionCreate {
-	tsc.mutation.AddTestSessionQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (tsc *TestSessionCreate) AddTestSessionAnswerIDs(ids ...uuid.UUID) *TestSessionCreate {
+	tsc.mutation.AddTestSessionAnswerIDs(ids...)
 	return tsc
 }
 
-// AddTestSessionQuestionAnswers adds the "test_session_question_answers" edges to the TestSessionAnswer entity.
-func (tsc *TestSessionCreate) AddTestSessionQuestionAnswers(t ...*TestSessionAnswer) *TestSessionCreate {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (tsc *TestSessionCreate) AddTestSessionAnswers(t ...*TestSessionAnswer) *TestSessionCreate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return tsc.AddTestSessionQuestionAnswerIDs(ids...)
+	return tsc.AddTestSessionAnswerIDs(ids...)
 }
 
 // Mutation returns the TestSessionMutation object of the builder.
@@ -452,12 +452,12 @@ func (tsc *TestSessionCreate) createSpec() (*TestSession, *sqlgraph.CreateSpec) 
 		_node.TestID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := tsc.mutation.TestSessionQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := tsc.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   testsession.TestSessionQuestionAnswersTable,
-			Columns: []string{testsession.TestSessionQuestionAnswersColumn},
+			Table:   testsession.TestSessionAnswersTable,
+			Columns: []string{testsession.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),

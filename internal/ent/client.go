@@ -1309,15 +1309,15 @@ func (c *QuestionClient) QueryVideoQuestionTimestampsQuestion(q *Question) *Vide
 	return query
 }
 
-// QueryUserQuestionAnswers queries the user_question_answers edge of a Question.
-func (c *QuestionClient) QueryUserQuestionAnswers(q *Question) *TestSessionAnswerQuery {
+// QueryTestSessionAnswers queries the test_session_answers edge of a Question.
+func (c *QuestionClient) QueryTestSessionAnswers(q *Question) *TestSessionAnswerQuery {
 	query := (&TestSessionAnswerClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := q.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(question.Table, question.FieldID, id),
 			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, question.UserQuestionAnswersTable, question.UserQuestionAnswersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, question.TestSessionAnswersTable, question.TestSessionAnswersColumn),
 		)
 		fromV = sqlgraph.Neighbors(q.driver.Dialect(), step)
 		return fromV, nil
@@ -2590,15 +2590,15 @@ func (c *TestSessionClient) QueryTest(ts *TestSession) *TestQuery {
 	return query
 }
 
-// QueryTestSessionQuestionAnswers queries the test_session_question_answers edge of a TestSession.
-func (c *TestSessionClient) QueryTestSessionQuestionAnswers(ts *TestSession) *TestSessionAnswerQuery {
+// QueryTestSessionAnswers queries the test_session_answers edge of a TestSession.
+func (c *TestSessionClient) QueryTestSessionAnswers(ts *TestSession) *TestSessionAnswerQuery {
 	query := (&TestSessionAnswerClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ts.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(testsession.Table, testsession.FieldID, id),
 			sqlgraph.To(testsessionanswer.Table, testsessionanswer.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, testsession.TestSessionQuestionAnswersTable, testsession.TestSessionQuestionAnswersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, testsession.TestSessionAnswersTable, testsession.TestSessionAnswersColumn),
 		)
 		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
 		return fromV, nil

@@ -54,7 +54,7 @@ func (TestSession) Edges() []ent.Edge {
 			Field("test_id").
 			Unique().
 			Required(),
-		edge.To("test_session_question_answers", TestSessionAnswer.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.To("test_session_answers", TestSessionAnswer.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

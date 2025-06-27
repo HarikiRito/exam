@@ -158,19 +158,19 @@ func (qu *QuestionUpdate) AddVideoQuestionTimestampsQuestion(v ...*VideoQuestion
 	return qu.AddVideoQuestionTimestampsQuestionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (qu *QuestionUpdate) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionUpdate {
-	qu.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (qu *QuestionUpdate) AddTestSessionAnswerIDs(ids ...uuid.UUID) *QuestionUpdate {
+	qu.mutation.AddTestSessionAnswerIDs(ids...)
 	return qu
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
-func (qu *QuestionUpdate) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionUpdate {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (qu *QuestionUpdate) AddTestSessionAnswers(t ...*TestSessionAnswer) *QuestionUpdate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return qu.AddUserQuestionAnswerIDs(ids...)
+	return qu.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by IDs.
@@ -241,25 +241,25 @@ func (qu *QuestionUpdate) RemoveVideoQuestionTimestampsQuestion(v ...*VideoQuest
 	return qu.RemoveVideoQuestionTimestampsQuestionIDs(ids...)
 }
 
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestSessionAnswer entity.
-func (qu *QuestionUpdate) ClearUserQuestionAnswers() *QuestionUpdate {
-	qu.mutation.ClearUserQuestionAnswers()
+// ClearTestSessionAnswers clears all "test_session_answers" edges to the TestSessionAnswer entity.
+func (qu *QuestionUpdate) ClearTestSessionAnswers() *QuestionUpdate {
+	qu.mutation.ClearTestSessionAnswers()
 	return qu
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestSessionAnswer entities by IDs.
-func (qu *QuestionUpdate) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionUpdate {
-	qu.mutation.RemoveUserQuestionAnswerIDs(ids...)
+// RemoveTestSessionAnswerIDs removes the "test_session_answers" edge to TestSessionAnswer entities by IDs.
+func (qu *QuestionUpdate) RemoveTestSessionAnswerIDs(ids ...uuid.UUID) *QuestionUpdate {
+	qu.mutation.RemoveTestSessionAnswerIDs(ids...)
 	return qu
 }
 
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestSessionAnswer entities.
-func (qu *QuestionUpdate) RemoveUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionUpdate {
+// RemoveTestSessionAnswers removes "test_session_answers" edges to TestSessionAnswer entities.
+func (qu *QuestionUpdate) RemoveTestSessionAnswers(t ...*TestSessionAnswer) *QuestionUpdate {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return qu.RemoveUserQuestionAnswerIDs(ids...)
+	return qu.RemoveTestSessionAnswerIDs(ids...)
 }
 
 // ClearTestIgnoreQuestions clears all "test_ignore_questions" edges to the TestIgnoreQuestion entity.
@@ -495,12 +495,12 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if qu.mutation.UserQuestionAnswersCleared() {
+	if qu.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
@@ -508,12 +508,12 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := qu.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !qu.mutation.UserQuestionAnswersCleared() {
+	if nodes := qu.mutation.RemovedTestSessionAnswersIDs(); len(nodes) > 0 && !qu.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
@@ -524,12 +524,12 @@ func (qu *QuestionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := qu.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := qu.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
@@ -729,19 +729,19 @@ func (quo *QuestionUpdateOne) AddVideoQuestionTimestampsQuestion(v ...*VideoQues
 	return quo.AddVideoQuestionTimestampsQuestionIDs(ids...)
 }
 
-// AddUserQuestionAnswerIDs adds the "user_question_answers" edge to the TestSessionAnswer entity by IDs.
-func (quo *QuestionUpdateOne) AddUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionUpdateOne {
-	quo.mutation.AddUserQuestionAnswerIDs(ids...)
+// AddTestSessionAnswerIDs adds the "test_session_answers" edge to the TestSessionAnswer entity by IDs.
+func (quo *QuestionUpdateOne) AddTestSessionAnswerIDs(ids ...uuid.UUID) *QuestionUpdateOne {
+	quo.mutation.AddTestSessionAnswerIDs(ids...)
 	return quo
 }
 
-// AddUserQuestionAnswers adds the "user_question_answers" edges to the TestSessionAnswer entity.
-func (quo *QuestionUpdateOne) AddUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionUpdateOne {
+// AddTestSessionAnswers adds the "test_session_answers" edges to the TestSessionAnswer entity.
+func (quo *QuestionUpdateOne) AddTestSessionAnswers(t ...*TestSessionAnswer) *QuestionUpdateOne {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return quo.AddUserQuestionAnswerIDs(ids...)
+	return quo.AddTestSessionAnswerIDs(ids...)
 }
 
 // AddTestIgnoreQuestionIDs adds the "test_ignore_questions" edge to the TestIgnoreQuestion entity by IDs.
@@ -812,25 +812,25 @@ func (quo *QuestionUpdateOne) RemoveVideoQuestionTimestampsQuestion(v ...*VideoQ
 	return quo.RemoveVideoQuestionTimestampsQuestionIDs(ids...)
 }
 
-// ClearUserQuestionAnswers clears all "user_question_answers" edges to the TestSessionAnswer entity.
-func (quo *QuestionUpdateOne) ClearUserQuestionAnswers() *QuestionUpdateOne {
-	quo.mutation.ClearUserQuestionAnswers()
+// ClearTestSessionAnswers clears all "test_session_answers" edges to the TestSessionAnswer entity.
+func (quo *QuestionUpdateOne) ClearTestSessionAnswers() *QuestionUpdateOne {
+	quo.mutation.ClearTestSessionAnswers()
 	return quo
 }
 
-// RemoveUserQuestionAnswerIDs removes the "user_question_answers" edge to TestSessionAnswer entities by IDs.
-func (quo *QuestionUpdateOne) RemoveUserQuestionAnswerIDs(ids ...uuid.UUID) *QuestionUpdateOne {
-	quo.mutation.RemoveUserQuestionAnswerIDs(ids...)
+// RemoveTestSessionAnswerIDs removes the "test_session_answers" edge to TestSessionAnswer entities by IDs.
+func (quo *QuestionUpdateOne) RemoveTestSessionAnswerIDs(ids ...uuid.UUID) *QuestionUpdateOne {
+	quo.mutation.RemoveTestSessionAnswerIDs(ids...)
 	return quo
 }
 
-// RemoveUserQuestionAnswers removes "user_question_answers" edges to TestSessionAnswer entities.
-func (quo *QuestionUpdateOne) RemoveUserQuestionAnswers(t ...*TestSessionAnswer) *QuestionUpdateOne {
+// RemoveTestSessionAnswers removes "test_session_answers" edges to TestSessionAnswer entities.
+func (quo *QuestionUpdateOne) RemoveTestSessionAnswers(t ...*TestSessionAnswer) *QuestionUpdateOne {
 	ids := make([]uuid.UUID, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
-	return quo.RemoveUserQuestionAnswerIDs(ids...)
+	return quo.RemoveTestSessionAnswerIDs(ids...)
 }
 
 // ClearTestIgnoreQuestions clears all "test_ignore_questions" edges to the TestIgnoreQuestion entity.
@@ -1096,12 +1096,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if quo.mutation.UserQuestionAnswersCleared() {
+	if quo.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
@@ -1109,12 +1109,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := quo.mutation.RemovedUserQuestionAnswersIDs(); len(nodes) > 0 && !quo.mutation.UserQuestionAnswersCleared() {
+	if nodes := quo.mutation.RemovedTestSessionAnswersIDs(); len(nodes) > 0 && !quo.mutation.TestSessionAnswersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),
@@ -1125,12 +1125,12 @@ func (quo *QuestionUpdateOne) sqlSave(ctx context.Context) (_node *Question, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := quo.mutation.UserQuestionAnswersIDs(); len(nodes) > 0 {
+	if nodes := quo.mutation.TestSessionAnswersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   question.UserQuestionAnswersTable,
-			Columns: []string{question.UserQuestionAnswersColumn},
+			Table:   question.TestSessionAnswersTable,
+			Columns: []string{question.TestSessionAnswersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsessionanswer.FieldID, field.TypeUUID),

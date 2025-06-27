@@ -30,13 +30,13 @@ func (TestSessionAnswer) Fields() []ent.Field {
 func (TestSessionAnswer) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("question", Question.Type).
-			Ref("user_question_answers").
+			Ref("test_session_answers").
 			Field("question_id").
 			Unique().
 			Required().
 			Annotations(entsql.OnDelete(entsql.Cascade)),
 		edge.From("test_session", TestSession.Type).
-			Ref("test_session_question_answers").
+			Ref("test_session_answers").
 			Field("session_id").
 			Unique().
 			Required().

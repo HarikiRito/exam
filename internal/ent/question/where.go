@@ -410,21 +410,21 @@ func HasVideoQuestionTimestampsQuestionWith(preds ...predicate.VideoQuestionTime
 	})
 }
 
-// HasUserQuestionAnswers applies the HasEdge predicate on the "user_question_answers" edge.
-func HasUserQuestionAnswers() predicate.Question {
+// HasTestSessionAnswers applies the HasEdge predicate on the "test_session_answers" edge.
+func HasTestSessionAnswers() predicate.Question {
 	return predicate.Question(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserQuestionAnswersTable, UserQuestionAnswersColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, TestSessionAnswersTable, TestSessionAnswersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserQuestionAnswersWith applies the HasEdge predicate on the "user_question_answers" edge with a given conditions (other predicates).
-func HasUserQuestionAnswersWith(preds ...predicate.TestSessionAnswer) predicate.Question {
+// HasTestSessionAnswersWith applies the HasEdge predicate on the "test_session_answers" edge with a given conditions (other predicates).
+func HasTestSessionAnswersWith(preds ...predicate.TestSessionAnswer) predicate.Question {
 	return predicate.Question(func(s *sql.Selector) {
-		step := newUserQuestionAnswersStep()
+		step := newTestSessionAnswersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
