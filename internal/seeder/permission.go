@@ -75,8 +75,100 @@ func GetDefaultPermissions() []PermissionData {
 			Description: pointer.From("Delete test information"),
 		},
 		{
-			Name:        string(permissionFeat.TestCreate),
-			Description: pointer.From("Create a new test"),
+			Name:        string(permissionFeat.CourseCreate),
+			Description: pointer.From("Create a new course"),
+		},
+		{
+			Name:        string(permissionFeat.CourseRead),
+			Description: pointer.From("Read course information"),
+		},
+		{
+			Name:        string(permissionFeat.CourseUpdate),
+			Description: pointer.From("Update course information"),
+		},
+		{
+			Name:        string(permissionFeat.CourseDelete),
+			Description: pointer.From("Delete course information"),
+		},
+		{
+			Name:        string(permissionFeat.CourseSectionCreate),
+			Description: pointer.From("Create a new course section"),
+		},
+		{
+			Name:        string(permissionFeat.CourseSectionRead),
+			Description: pointer.From("Read course section information"),
+		},
+		{
+			Name:        string(permissionFeat.CourseSectionUpdate),
+			Description: pointer.From("Update course section information"),
+		},
+		{
+			Name:        string(permissionFeat.CourseSectionDelete),
+			Description: pointer.From("Delete course section information"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionCreate),
+			Description: pointer.From("Create a new question"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionRead),
+			Description: pointer.From("Read question information"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionUpdate),
+			Description: pointer.From("Update question information"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionDelete),
+			Description: pointer.From("Delete question information"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionOptionCreate),
+			Description: pointer.From("Create a new question option"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionOptionRead),
+			Description: pointer.From("Read question option information"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionOptionUpdate),
+			Description: pointer.From("Update question option information"),
+		},
+		{
+			Name:        string(permissionFeat.QuestionOptionDelete),
+			Description: pointer.From("Delete question option information"),
+		},
+		{
+			Name:        string(permissionFeat.VideoCreate),
+			Description: pointer.From("Create a new video"),
+		},
+		{
+			Name:        string(permissionFeat.VideoRead),
+			Description: pointer.From("Read video information"),
+		},
+		{
+			Name:        string(permissionFeat.VideoUpdate),
+			Description: pointer.From("Update video information"),
+		},
+		{
+			Name:        string(permissionFeat.VideoDelete),
+			Description: pointer.From("Delete video information"),
+		},
+		{
+			Name:        string(permissionFeat.MediaCreate),
+			Description: pointer.From("Create a new media file"),
+		},
+		{
+			Name:        string(permissionFeat.MediaRead),
+			Description: pointer.From("Read media file information"),
+		},
+		{
+			Name:        string(permissionFeat.MediaUpdate),
+			Description: pointer.From("Update media file information"),
+		},
+		{
+			Name:        string(permissionFeat.MediaDelete),
+			Description: pointer.From("Delete media file information"),
 		},
 	}
 }

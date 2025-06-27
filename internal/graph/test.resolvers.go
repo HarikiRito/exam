@@ -46,6 +46,13 @@ func (r *mutationResolver) UpdateTest(ctx context.Context, id uuid.UUID, input m
 
 // DeleteTest is the resolver for the deleteTest field.
 func (r *mutationResolver) DeleteTest(ctx context.Context, id uuid.UUID) (bool, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestDelete,
+	})
+	if err != nil {
+		return false, err
+	}
+
 	return test.DeleteTest(ctx, id)
 }
 
@@ -80,7 +87,9 @@ func (r *mutationResolver) UpdateTestQuestionRequirement(ctx context.Context, te
 
 // BatchIgnoreQuestions is the resolver for the batchIgnoreQuestions field.
 func (r *mutationResolver) BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestUpdate,
+	})
 	if err != nil {
 		return false, err
 	}
@@ -89,6 +98,13 @@ func (r *mutationResolver) BatchIgnoreQuestions(ctx context.Context, input model
 
 // Test is the resolver for the test field.
 func (r *queryResolver) Test(ctx context.Context, id uuid.UUID) (*model.Test, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	entTest, err := test.GetTestByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -98,6 +114,13 @@ func (r *queryResolver) Test(ctx context.Context, id uuid.UUID) (*model.Test, er
 
 // PaginatedTests is the resolver for the paginatedTests field.
 func (r *queryResolver) PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.TestRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	paginated, err := test.PaginatedTests(ctx, paginationInput)
 	if err != nil {
 		return nil, err

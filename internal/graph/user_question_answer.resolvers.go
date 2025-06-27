@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"template/internal/features/permission"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
@@ -14,25 +15,60 @@ import (
 
 // CreateUserQuestionAnswer is the resolver for the createUserQuestionAnswer field.
 func (r *mutationResolver) CreateUserQuestionAnswer(ctx context.Context, input model.CreateUserQuestionAnswerInput) (*model.UserQuestionAnswer, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionUpdate,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	panic(fmt.Errorf("not implemented: CreateUserQuestionAnswer - createUserQuestionAnswer"))
 }
 
 // UpdateUserQuestionAnswer is the resolver for the updateUserQuestionAnswer field.
 func (r *mutationResolver) UpdateUserQuestionAnswer(ctx context.Context, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) (*model.UserQuestionAnswer, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionUpdate,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	panic(fmt.Errorf("not implemented: UpdateUserQuestionAnswer - updateUserQuestionAnswer"))
 }
 
 // DeleteUserQuestionAnswer is the resolver for the deleteUserQuestionAnswer field.
 func (r *mutationResolver) DeleteUserQuestionAnswer(ctx context.Context, id uuid.UUID) (bool, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionDelete,
+	})
+	if err != nil {
+		return false, err
+	}
+
 	panic(fmt.Errorf("not implemented: DeleteUserQuestionAnswer - deleteUserQuestionAnswer"))
 }
 
 // UserQuestionAnswer is the resolver for the userQuestionAnswer field.
 func (r *queryResolver) UserQuestionAnswer(ctx context.Context, id uuid.UUID) (*model.UserQuestionAnswer, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	panic(fmt.Errorf("not implemented: UserQuestionAnswer - userQuestionAnswer"))
 }
 
 // PaginatedUserQuestionAnswers is the resolver for the paginatedUserQuestionAnswers field.
 func (r *queryResolver) PaginatedUserQuestionAnswers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUserQuestionAnswer, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	panic(fmt.Errorf("not implemented: PaginatedUserQuestionAnswers - paginatedUserQuestionAnswers"))
 }

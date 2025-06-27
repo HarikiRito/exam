@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"template/internal/features/course"
+	"template/internal/features/permission"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
@@ -22,7 +23,9 @@ func (r *courseResolver) Creator(ctx context.Context, obj *model.Course) (*model
 
 // CreateCourse is the resolver for the createCourse field.
 func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateCourseInput) (*model.Course, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseCreate,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -37,19 +40,25 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CreateC
 
 // RemoveCourse is the resolver for the removeCourse field.
 func (r *mutationResolver) RemoveCourse(ctx context.Context, id uuid.UUID) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseDelete,
+	})
 	if err != nil {
 		return false, err
 	}
+
 	return course.RemoveCourse(ctx, userId, id)
 }
 
 // UpdateCourse is the resolver for the updateCourse field.
 func (r *mutationResolver) UpdateCourse(ctx context.Context, id uuid.UUID, input model.UpdateCourseInput) (*model.Course, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseUpdate,
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	updatedCourse, err := course.UpdateCourse(ctx, userId, id, input)
 	if err != nil {
 		return nil, err
@@ -59,6 +68,13 @@ func (r *mutationResolver) UpdateCourse(ctx context.Context, id uuid.UUID, input
 
 // Course is the resolver for the course field.
 func (r *queryResolver) Course(ctx context.Context, id uuid.UUID) (*model.Course, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	foundCourse, err := course.GetCourseByID(ctx, id)
 	if err != nil {
 		return nil, errors.New("course not found")
@@ -69,10 +85,13 @@ func (r *queryResolver) Course(ctx context.Context, id uuid.UUID) (*model.Course
 
 // PaginatedCourses is the resolver for the paginatedCourses field.
 func (r *queryResolver) PaginatedCourses(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedCourse, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseRead,
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	paginatedCourse, err := course.PaginatedCourses(ctx, userId, paginationInput)
 	if err != nil {
 		return nil, err

@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"template/internal/features/permission"
 	"template/internal/features/question_collection"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -16,22 +17,25 @@ import (
 
 // CreateQuestionCollection is the resolver for the createQuestionCollection field.
 func (r *mutationResolver) CreateQuestionCollection(ctx context.Context, input model.CreateQuestionCollectionInput) (*model.QuestionCollection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CollectionCreate,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	collection, err := question_collection.CreateQuestionCollection(ctx, userId, input)
+	questionCollection, err := question_collection.CreateQuestionCollection(ctx, userId, input)
 	if err != nil {
 		return nil, err
 	}
-
-	return model.ConvertQuestionCollectionToModel(collection), nil
+	return model.ConvertQuestionCollectionToModel(questionCollection), nil
 }
 
 // UpdateQuestionCollection is the resolver for the updateQuestionCollection field.
 func (r *mutationResolver) UpdateQuestionCollection(ctx context.Context, id uuid.UUID, input model.UpdateQuestionCollectionInput) (*model.QuestionCollection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CollectionUpdate,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -40,13 +44,14 @@ func (r *mutationResolver) UpdateQuestionCollection(ctx context.Context, id uuid
 	if err != nil {
 		return nil, err
 	}
-
 	return model.ConvertQuestionCollectionToModel(collection), nil
 }
 
 // DeleteQuestionCollection is the resolver for the deleteQuestionCollection field.
 func (r *mutationResolver) DeleteQuestionCollection(ctx context.Context, id uuid.UUID) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CollectionDelete,
+	})
 	if err != nil {
 		return false, err
 	}
@@ -56,7 +61,9 @@ func (r *mutationResolver) DeleteQuestionCollection(ctx context.Context, id uuid
 
 // UpdateBatchQuestionsByCollection is the resolver for the updateBatchQuestionsByCollection field.
 func (r *mutationResolver) UpdateBatchQuestionsByCollection(ctx context.Context, input model.UpdateBatchQuestionsByCollectionInput) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CollectionUpdate,
+	})
 	if err != nil {
 		return false, err
 	}
@@ -71,7 +78,9 @@ func (r *mutationResolver) UpdateBatchQuestionsByCollection(ctx context.Context,
 
 // QuestionCollection is the resolver for the questionCollection field.
 func (r *queryResolver) QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CollectionRead,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -80,13 +89,14 @@ func (r *queryResolver) QuestionCollection(ctx context.Context, id uuid.UUID) (*
 	if err != nil {
 		return nil, err
 	}
-
 	return model.ConvertQuestionCollectionToModel(collection), nil
 }
 
 // PaginatedQuestionCollections is the resolver for the paginatedQuestionCollections field.
 func (r *queryResolver) PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CollectionRead,
+	})
 	if err != nil {
 		return nil, err
 	}

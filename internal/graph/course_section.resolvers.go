@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"template/internal/features/course_section"
+	"template/internal/features/permission"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 
@@ -15,7 +16,9 @@ import (
 
 // CreateCourseSection is the resolver for the createCourseSection field.
 func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.CreateCourseSectionInput) (*model.CourseSection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseSectionCreate,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +32,13 @@ func (r *mutationResolver) CreateCourseSection(ctx context.Context, input model.
 
 // UpdateCourseSection is the resolver for the updateCourseSection field.
 func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id uuid.UUID, input model.UpdateCourseSectionInput) (*model.CourseSection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseSectionUpdate,
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	courseSection, err := course_section.UpdateCourseSection(ctx, userId, id, input)
 	if err != nil {
 		return nil, err
@@ -42,19 +48,25 @@ func (r *mutationResolver) UpdateCourseSection(ctx context.Context, id uuid.UUID
 
 // RemoveCourseSection is the resolver for the removeCourseSection field.
 func (r *mutationResolver) RemoveCourseSection(ctx context.Context, id uuid.UUID) (bool, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseSectionDelete,
+	})
 	if err != nil {
 		return false, err
 	}
+
 	return course_section.RemoveCourseSection(ctx, userId, id)
 }
 
 // CourseSection is the resolver for the courseSection field.
 func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseSectionRead,
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	cs, err := course_section.GetCourseSectionByID(ctx, userId, id)
 	if err != nil {
 		return nil, err
@@ -64,7 +76,9 @@ func (r *queryResolver) CourseSection(ctx context.Context, id uuid.UUID) (*model
 
 // CourseSectionsByCourseID is the resolver for the courseSectionsByCourseId field.
 func (r *queryResolver) CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID, filter *model.CourseSectionFilterInput) ([]*model.CourseSection, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.CourseSectionRead,
+	})
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"template/internal/features/permission"
 	"template/internal/features/question"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -16,8 +17,9 @@ import (
 
 // CreateQuestion is the resolver for the createQuestion field.
 func (r *mutationResolver) CreateQuestion(ctx context.Context, input model.CreateQuestionInput) (*model.Question, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionCreate,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +36,9 @@ func (r *mutationResolver) CreateQuestion(ctx context.Context, input model.Creat
 
 // UpdateQuestion is the resolver for the updateQuestion field.
 func (r *mutationResolver) UpdateQuestion(ctx context.Context, id uuid.UUID, input model.UpdateQuestionInput) (*model.Question, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionUpdate,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +55,9 @@ func (r *mutationResolver) UpdateQuestion(ctx context.Context, id uuid.UUID, inp
 
 // DeleteQuestion is the resolver for the deleteQuestion field.
 func (r *mutationResolver) DeleteQuestion(ctx context.Context, id uuid.UUID) (bool, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionDelete,
+	})
 	if err != nil {
 		return false, err
 	}
@@ -64,8 +68,9 @@ func (r *mutationResolver) DeleteQuestion(ctx context.Context, id uuid.UUID) (bo
 
 // Question is the resolver for the question field.
 func (r *queryResolver) Question(ctx context.Context, id uuid.UUID) (*model.Question, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionRead,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -76,12 +81,19 @@ func (r *queryResolver) Question(ctx context.Context, id uuid.UUID) (*model.Ques
 		return nil, err
 	}
 
-	// Convert to GraphQL model using the model package conversion function
+	// Convert to GraphQL model
 	return model.ConvertQuestionToModel(q), nil
 }
 
 // Questions is the resolver for the questions field.
 func (r *queryResolver) Questions(ctx context.Context, ids []uuid.UUID) ([]*model.Question, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	// Get the questions by IDs
 	questions, err := question.GetByIDs(ctx, ids)
 	if err != nil {
@@ -94,8 +106,9 @@ func (r *queryResolver) Questions(ctx context.Context, ids []uuid.UUID) ([]*mode
 
 // PaginatedQuestions is the resolver for the paginatedQuestions field.
 func (r *queryResolver) PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionRead,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -106,16 +119,19 @@ func (r *queryResolver) PaginatedQuestions(ctx context.Context, paginationInput 
 		return nil, err
 	}
 
-	// Convert to GraphQL model using the model package conversion functions
+	// Convert to GraphQL models
+	items := slice.Map(result.Items, model.ConvertQuestionToModel)
+	pagination := &model.Pagination{
+		CurrentPage:     result.CurrentPage,
+		TotalPages:      result.TotalPages,
+		TotalItems:      result.TotalItems,
+		HasNextPage:     result.HasNextPage,
+		HasPreviousPage: result.HasPrevPage,
+	}
+
 	return &model.PaginatedQuestion{
-		Pagination: &model.Pagination{
-			CurrentPage:     result.CurrentPage,
-			TotalPages:      result.TotalPages,
-			TotalItems:      result.TotalItems,
-			HasNextPage:     result.HasNextPage,
-			HasPreviousPage: result.HasPrevPage,
-		},
-		Items: slice.Map(result.Items, model.ConvertQuestionToModel),
+		Pagination: pagination,
+		Items:      items,
 	}, nil
 }
 

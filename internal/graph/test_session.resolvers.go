@@ -6,7 +6,7 @@ package graph
 
 import (
 	"context"
-	"fmt"
+	"template/internal/features/permission"
 	"template/internal/features/test_session"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -17,8 +17,9 @@ import (
 
 // CreateTestSession is the resolver for the createTestSession field.
 func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error) {
-	// Get user ID from auth context
-	userID, err := GetUserIdFromRequestContext(ctx)
+	userID, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionCreate,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -36,15 +37,23 @@ func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.Cr
 
 // DeleteTestSession is the resolver for the deleteTestSession field.
 func (r *mutationResolver) DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionDelete,
+	})
+	if err != nil {
+		return false, err
+	}
+
 	return test_session.DeleteTestSession(ctx, id)
 }
 
 // SubmitTestSession is the resolver for the submitTestSession field.
 func (r *mutationResolver) SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error) {
-	// Get current user from context
-	userID, err := GetUserIdFromRequestContext(ctx)
+	userID, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionUpdate,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("unauthorized: %w", err)
+		return nil, err
 	}
 
 	// Submit the test session
@@ -59,10 +68,11 @@ func (r *mutationResolver) SubmitTestSession(ctx context.Context, sessionID uuid
 
 // StartTestSession is the resolver for the startTestSession field.
 func (r *mutationResolver) StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
-	// Get current user from context
-	userID, err := GetUserIdFromRequestContext(ctx)
+	userID, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionUpdate,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("unauthorized: %w", err)
+		return nil, err
 	}
 
 	// Start the test session
@@ -77,6 +87,13 @@ func (r *mutationResolver) StartTestSession(ctx context.Context, id uuid.UUID) (
 
 // TestSession is the resolver for the testSession field.
 func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	session, err := test_session.GetTestSessionByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -86,7 +103,9 @@ func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.T
 
 // PaginatedTestSessions is the resolver for the paginatedTestSessions field.
 func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error) {
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionSessionRead,
+	})
 	if err != nil {
 		return nil, err
 	}

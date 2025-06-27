@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"template/internal/features/permission"
 	"template/internal/features/todo"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/id"
@@ -13,6 +14,13 @@ import (
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionUserCreate,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	todoRes, err := todo.CreateTodo(ctx, input)
 	if err != nil {
 		return nil, err
@@ -26,6 +34,13 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.PermissionUserRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	// Rest of your resolver logic
 	return []*model.Todo{
 		{

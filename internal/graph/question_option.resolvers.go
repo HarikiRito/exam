@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"fmt"
+	"template/internal/features/permission"
 	"template/internal/features/question_option"
 	"template/internal/graph/model"
 
@@ -15,67 +16,64 @@ import (
 
 // CreateQuestionOption is the resolver for the createQuestionOption field.
 func (r *mutationResolver) CreateQuestionOption(ctx context.Context, input model.CreateQuestionOptionInput) (*model.QuestionOption, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionOptionCreate,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Create the question option
 	option, err := question_option.CreateQuestionOption(ctx, userId, input)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert to GraphQL model
 	return model.ConvertQuestionOptionToModel(option), nil
 }
 
 // UpdateQuestionOption is the resolver for the updateQuestionOption field.
 func (r *mutationResolver) UpdateQuestionOption(ctx context.Context, id uuid.UUID, input model.UpdateQuestionOptionInput) (*model.QuestionOption, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionOptionUpdate,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Update the question option
 	option, err := question_option.UpdateQuestionOption(ctx, userId, id, input)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert to GraphQL model
 	return model.ConvertQuestionOptionToModel(option), nil
 }
 
 // DeleteQuestionOption is the resolver for the deleteQuestionOption field.
 func (r *mutationResolver) DeleteQuestionOption(ctx context.Context, id uuid.UUID) (bool, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionOptionDelete,
+	})
 	if err != nil {
 		return false, err
 	}
 
-	// Delete the question option
 	return question_option.DeleteQuestionOption(ctx, userId, id)
 }
 
 // QuestionOption is the resolver for the questionOption field.
 func (r *queryResolver) QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error) {
-	// Get the authenticated user
-	userId, err := GetUserIdFromRequestContext(ctx)
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionOptionRead,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	// Get the question option
 	option, err := question_option.GetQuestionOptionByID(ctx, userId, id)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert to GraphQL model
 	return model.ConvertQuestionOptionToModel(option), nil
 }
 
