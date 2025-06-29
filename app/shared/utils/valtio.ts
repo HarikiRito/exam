@@ -3,15 +3,13 @@ import { proxy, useSnapshot } from 'valtio';
 import { deepClone } from 'valtio/utils';
 
 export function createProxyWithReset<T extends object>(initialState: T) {
-  const proxyState = proxy(initialState);
+  const proxyState = proxy(deepClone(initialState));
 
   function reset() {
-    const resetState = initialState;
-    for (const key in resetState) {
-      if (typeof resetState[key] !== 'function') {
-        proxyState[key] = deepClone(resetState[key]);
-      }
-    }
+    const resetObj = deepClone(initialState);
+    Object.keys(resetObj).forEach((key) => {
+      proxyState[key as keyof T] = resetObj[key as keyof T];
+    });
   }
 
   function useResetHook() {

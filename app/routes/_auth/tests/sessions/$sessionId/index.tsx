@@ -9,7 +9,7 @@ import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import dayjs from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { FinishExamDialog } from './components/FinishExamDialog';
 import { QuestionOverviewSheet } from './components/QuestionOverviewSheet';
 import { QuestionSection } from './components/QuestionSection';
