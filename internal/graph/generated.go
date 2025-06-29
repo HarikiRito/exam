@@ -90,13 +90,11 @@ type ComplexityRoot struct {
 		CreateTest                       func(childComplexity int, input model.CreateTestInput) int
 		CreateTestSession                func(childComplexity int, input model.CreateTestSessionInput) int
 		CreateTodo                       func(childComplexity int, input model.NewTodo) int
-		CreateUserQuestionAnswer         func(childComplexity int, input model.CreateUserQuestionAnswerInput) int
 		DeleteQuestion                   func(childComplexity int, id uuid.UUID) int
 		DeleteQuestionCollection         func(childComplexity int, id uuid.UUID) int
 		DeleteQuestionOption             func(childComplexity int, id uuid.UUID) int
 		DeleteTest                       func(childComplexity int, id uuid.UUID) int
 		DeleteTestSession                func(childComplexity int, id uuid.UUID) int
-		DeleteUserQuestionAnswer         func(childComplexity int, id uuid.UUID) int
 		Register                         func(childComplexity int, input model.RegisterInput) int
 		RemoveCourse                     func(childComplexity int, id uuid.UUID) int
 		RemoveCourseSection              func(childComplexity int, id uuid.UUID) int
@@ -111,7 +109,6 @@ type ComplexityRoot struct {
 		UpdateQuestionOption             func(childComplexity int, id uuid.UUID, input model.UpdateQuestionOptionInput) int
 		UpdateTest                       func(childComplexity int, id uuid.UUID, input model.UpdateTestInput) int
 		UpdateTestQuestionRequirement    func(childComplexity int, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) int
-		UpdateUserQuestionAnswer         func(childComplexity int, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) int
 	}
 
 	PaginatedCourse struct {
@@ -144,7 +141,7 @@ type ComplexityRoot struct {
 		Pagination func(childComplexity int) int
 	}
 
-	PaginatedUserQuestionAnswer struct {
+	PaginatedUser struct {
 		Items      func(childComplexity int) int
 		Pagination func(childComplexity int) int
 	}
@@ -169,7 +166,7 @@ type ComplexityRoot struct {
 		PaginatedQuestions           func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedTestSessions        func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedTests               func(childComplexity int, paginationInput *model.PaginationInput) int
-		PaginatedUserQuestionAnswers func(childComplexity int, paginationInput *model.PaginationInput) int
+		PaginatedUsers               func(childComplexity int, paginationInput *model.PaginationInput) int
 		Question                     func(childComplexity int, id uuid.UUID) int
 		QuestionCollection           func(childComplexity int, id uuid.UUID) int
 		QuestionOption               func(childComplexity int, id uuid.UUID) int
@@ -177,7 +174,6 @@ type ComplexityRoot struct {
 		Test                         func(childComplexity int, id uuid.UUID) int
 		TestSession                  func(childComplexity int, id uuid.UUID) int
 		Todos                        func(childComplexity int) int
-		UserQuestionAnswer           func(childComplexity int, id uuid.UUID) int
 	}
 
 	Question struct {
@@ -258,18 +254,12 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Email func(childComplexity int) int
-		ID    func(childComplexity int) int
-	}
-
-	UserQuestionAnswer struct {
-		CreatedAt      func(childComplexity int) int
-		ID             func(childComplexity int) int
-		Question       func(childComplexity int) int
-		SelectedOption func(childComplexity int) int
-		TestSession    func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
-		User           func(childComplexity int) int
+		Email     func(childComplexity int) int
+		FirstName func(childComplexity int) int
+		ID        func(childComplexity int) int
+		IsActive  func(childComplexity int) int
+		LastName  func(childComplexity int) int
+		Username  func(childComplexity int) int
 	}
 }
 
@@ -306,9 +296,6 @@ type MutationResolver interface {
 	SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error)
 	StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
 	CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error)
-	CreateUserQuestionAnswer(ctx context.Context, input model.CreateUserQuestionAnswerInput) (*model.UserQuestionAnswer, error)
-	UpdateUserQuestionAnswer(ctx context.Context, id uuid.UUID, input model.UpdateUserQuestionAnswerInput) (*model.UserQuestionAnswer, error)
-	DeleteUserQuestionAnswer(ctx context.Context, id uuid.UUID) (bool, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.User, error)
@@ -329,8 +316,7 @@ type QueryResolver interface {
 	TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
 	PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
-	UserQuestionAnswer(ctx context.Context, id uuid.UUID) (*model.UserQuestionAnswer, error)
-	PaginatedUserQuestionAnswers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUserQuestionAnswer, error)
+	PaginatedUsers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUser, error)
 }
 type QuestionResolver interface {
 	Collection(ctx context.Context, obj *model.Question) (*model.QuestionCollection, error)
@@ -593,18 +579,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(model.NewTodo)), true
 
-	case "Mutation.createUserQuestionAnswer":
-		if e.complexity.Mutation.CreateUserQuestionAnswer == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createUserQuestionAnswer_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateUserQuestionAnswer(childComplexity, args["input"].(model.CreateUserQuestionAnswerInput)), true
-
 	case "Mutation.deleteQuestion":
 		if e.complexity.Mutation.DeleteQuestion == nil {
 			break
@@ -664,18 +638,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteTestSession(childComplexity, args["id"].(uuid.UUID)), true
-
-	case "Mutation.deleteUserQuestionAnswer":
-		if e.complexity.Mutation.DeleteUserQuestionAnswer == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deleteUserQuestionAnswer_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.DeleteUserQuestionAnswer(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Mutation.register":
 		if e.complexity.Mutation.Register == nil {
@@ -845,18 +807,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateTestQuestionRequirement(childComplexity, args["testId"].(uuid.UUID), args["input"].([]*model.UpdateTestQuestionRequirementInput)), true
 
-	case "Mutation.updateUserQuestionAnswer":
-		if e.complexity.Mutation.UpdateUserQuestionAnswer == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_updateUserQuestionAnswer_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.UpdateUserQuestionAnswer(childComplexity, args["id"].(uuid.UUID), args["input"].(model.UpdateUserQuestionAnswerInput)), true
-
 	case "PaginatedCourse.items":
 		if e.complexity.PaginatedCourse.Items == nil {
 			break
@@ -941,19 +891,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PaginatedTestSession.Pagination(childComplexity), true
 
-	case "PaginatedUserQuestionAnswer.items":
-		if e.complexity.PaginatedUserQuestionAnswer.Items == nil {
+	case "PaginatedUser.items":
+		if e.complexity.PaginatedUser.Items == nil {
 			break
 		}
 
-		return e.complexity.PaginatedUserQuestionAnswer.Items(childComplexity), true
+		return e.complexity.PaginatedUser.Items(childComplexity), true
 
-	case "PaginatedUserQuestionAnswer.pagination":
-		if e.complexity.PaginatedUserQuestionAnswer.Pagination == nil {
+	case "PaginatedUser.pagination":
+		if e.complexity.PaginatedUser.Pagination == nil {
 			break
 		}
 
-		return e.complexity.PaginatedUserQuestionAnswer.Pagination(childComplexity), true
+		return e.complexity.PaginatedUser.Pagination(childComplexity), true
 
 	case "Pagination.currentPage":
 		if e.complexity.Pagination.CurrentPage == nil {
@@ -1112,17 +1062,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.PaginatedTests(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
-	case "Query.paginatedUserQuestionAnswers":
-		if e.complexity.Query.PaginatedUserQuestionAnswers == nil {
+	case "Query.paginatedUsers":
+		if e.complexity.Query.PaginatedUsers == nil {
 			break
 		}
 
-		args, err := ec.field_Query_paginatedUserQuestionAnswers_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_paginatedUsers_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.PaginatedUserQuestionAnswers(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
+		return e.complexity.Query.PaginatedUsers(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
 
 	case "Query.question":
 		if e.complexity.Query.Question == nil {
@@ -1202,18 +1152,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Todos(childComplexity), true
-
-	case "Query.userQuestionAnswer":
-		if e.complexity.Query.UserQuestionAnswer == nil {
-			break
-		}
-
-		args, err := ec.field_Query_userQuestionAnswer_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.UserQuestionAnswer(childComplexity, args["id"].(uuid.UUID)), true
 
 	case "Question.collection":
 		if e.complexity.Question.Collection == nil {
@@ -1572,6 +1510,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
+	case "User.firstName":
+		if e.complexity.User.FirstName == nil {
+			break
+		}
+
+		return e.complexity.User.FirstName(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -1579,54 +1524,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ID(childComplexity), true
 
-	case "UserQuestionAnswer.createdAt":
-		if e.complexity.UserQuestionAnswer.CreatedAt == nil {
+	case "User.isActive":
+		if e.complexity.User.IsActive == nil {
 			break
 		}
 
-		return e.complexity.UserQuestionAnswer.CreatedAt(childComplexity), true
+		return e.complexity.User.IsActive(childComplexity), true
 
-	case "UserQuestionAnswer.id":
-		if e.complexity.UserQuestionAnswer.ID == nil {
+	case "User.lastName":
+		if e.complexity.User.LastName == nil {
 			break
 		}
 
-		return e.complexity.UserQuestionAnswer.ID(childComplexity), true
+		return e.complexity.User.LastName(childComplexity), true
 
-	case "UserQuestionAnswer.question":
-		if e.complexity.UserQuestionAnswer.Question == nil {
+	case "User.username":
+		if e.complexity.User.Username == nil {
 			break
 		}
 
-		return e.complexity.UserQuestionAnswer.Question(childComplexity), true
-
-	case "UserQuestionAnswer.selectedOption":
-		if e.complexity.UserQuestionAnswer.SelectedOption == nil {
-			break
-		}
-
-		return e.complexity.UserQuestionAnswer.SelectedOption(childComplexity), true
-
-	case "UserQuestionAnswer.testSession":
-		if e.complexity.UserQuestionAnswer.TestSession == nil {
-			break
-		}
-
-		return e.complexity.UserQuestionAnswer.TestSession(childComplexity), true
-
-	case "UserQuestionAnswer.updatedAt":
-		if e.complexity.UserQuestionAnswer.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.UserQuestionAnswer.UpdatedAt(childComplexity), true
-
-	case "UserQuestionAnswer.user":
-		if e.complexity.UserQuestionAnswer.User == nil {
-			break
-		}
-
-		return e.complexity.UserQuestionAnswer.User(childComplexity), true
+		return e.complexity.User.Username(childComplexity), true
 
 	}
 	return 0, false
@@ -1648,7 +1565,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateQuestionOptionInput,
 		ec.unmarshalInputCreateTestInput,
 		ec.unmarshalInputCreateTestSessionInput,
-		ec.unmarshalInputCreateUserQuestionAnswerInput,
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputNewTodo,
 		ec.unmarshalInputPaginationInput,
@@ -1670,7 +1586,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateTestInput,
 		ec.unmarshalInputUpdateTestQuestionRequirementInput,
 		ec.unmarshalInputUpdateTestSessionInput,
-		ec.unmarshalInputUpdateUserQuestionAnswerInput,
 	)
 	first := true
 
@@ -1767,7 +1682,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql" "schema/user_question_answer.gql"
+//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1792,7 +1707,6 @@ var sources = []*ast.Source{
 	{Name: "schema/todo/models.gql", Input: sourceData("schema/todo/models.gql"), BuiltIn: false},
 	{Name: "schema/todo/todo.gql", Input: sourceData("schema/todo/todo.gql"), BuiltIn: false},
 	{Name: "schema/user.gql", Input: sourceData("schema/user.gql"), BuiltIn: false},
-	{Name: "schema/user_question_answer.gql", Input: sourceData("schema/user_question_answer.gql"), BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -2030,29 +1944,6 @@ func (ec *executionContext) field_Mutation_createTodo_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createUserQuestionAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_createUserQuestionAnswer_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_createUserQuestionAnswer_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.CreateUserQuestionAnswerInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNCreateUserQuestionAnswerInput2templateᚋinternalᚋgraphᚋmodelᚐCreateUserQuestionAnswerInput(ctx, tmp)
-	}
-
-	var zeroVal model.CreateUserQuestionAnswerInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_deleteQuestionCollection_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2156,29 +2047,6 @@ func (ec *executionContext) field_Mutation_deleteTest_args(ctx context.Context, 
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_deleteTest_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal uuid.UUID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_deleteUserQuestionAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_deleteUserQuestionAnswer_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_deleteUserQuestionAnswer_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (uuid.UUID, error) {
@@ -2657,47 +2525,6 @@ func (ec *executionContext) field_Mutation_updateTest_argsInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_updateUserQuestionAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Mutation_updateUserQuestionAnswer_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	arg1, err := ec.field_Mutation_updateUserQuestionAnswer_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_updateUserQuestionAnswer_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal uuid.UUID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_updateUserQuestionAnswer_argsInput(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (model.UpdateUserQuestionAnswerInput, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNUpdateUserQuestionAnswerInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateUserQuestionAnswerInput(ctx, tmp)
-	}
-
-	var zeroVal model.UpdateUserQuestionAnswerInput
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -2946,17 +2773,17 @@ func (ec *executionContext) field_Query_paginatedTests_argsPaginationInput(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_paginatedUserQuestionAnswers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_paginatedUsers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_paginatedUserQuestionAnswers_argsPaginationInput(ctx, rawArgs)
+	arg0, err := ec.field_Query_paginatedUsers_argsPaginationInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["paginationInput"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_paginatedUserQuestionAnswers_argsPaginationInput(
+func (ec *executionContext) field_Query_paginatedUsers_argsPaginationInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (*model.PaginationInput, error) {
@@ -3095,29 +2922,6 @@ func (ec *executionContext) field_Query_test_args(ctx context.Context, rawArgs m
 	return args, nil
 }
 func (ec *executionContext) field_Query_test_argsID(
-	ctx context.Context,
-	rawArgs map[string]interface{},
-) (uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal uuid.UUID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_userQuestionAnswer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_userQuestionAnswer_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_userQuestionAnswer_argsID(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (uuid.UUID, error) {
@@ -3444,6 +3248,14 @@ func (ec *executionContext) fieldContext_Course_creator(_ context.Context, field
 				return ec.fieldContext_User_id(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "firstName":
+				return ec.fieldContext_User_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_User_lastName(ctx, field)
+			case "isActive":
+				return ec.fieldContext_User_isActive(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -5667,203 +5479,6 @@ func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createUserQuestionAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createUserQuestionAnswer(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUserQuestionAnswer(rctx, fc.Args["input"].(model.CreateUserQuestionAnswerInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.UserQuestionAnswer)
-	fc.Result = res
-	return ec.marshalNUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswer(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createUserQuestionAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_UserQuestionAnswer_id(ctx, field)
-			case "user":
-				return ec.fieldContext_UserQuestionAnswer_user(ctx, field)
-			case "question":
-				return ec.fieldContext_UserQuestionAnswer_question(ctx, field)
-			case "selectedOption":
-				return ec.fieldContext_UserQuestionAnswer_selectedOption(ctx, field)
-			case "testSession":
-				return ec.fieldContext_UserQuestionAnswer_testSession(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_UserQuestionAnswer_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_UserQuestionAnswer_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserQuestionAnswer", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createUserQuestionAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateUserQuestionAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateUserQuestionAnswer(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateUserQuestionAnswer(rctx, fc.Args["id"].(uuid.UUID), fc.Args["input"].(model.UpdateUserQuestionAnswerInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.UserQuestionAnswer)
-	fc.Result = res
-	return ec.marshalNUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswer(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateUserQuestionAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_UserQuestionAnswer_id(ctx, field)
-			case "user":
-				return ec.fieldContext_UserQuestionAnswer_user(ctx, field)
-			case "question":
-				return ec.fieldContext_UserQuestionAnswer_question(ctx, field)
-			case "selectedOption":
-				return ec.fieldContext_UserQuestionAnswer_selectedOption(ctx, field)
-			case "testSession":
-				return ec.fieldContext_UserQuestionAnswer_testSession(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_UserQuestionAnswer_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_UserQuestionAnswer_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserQuestionAnswer", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateUserQuestionAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_deleteUserQuestionAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteUserQuestionAnswer(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteUserQuestionAnswer(rctx, fc.Args["id"].(uuid.UUID))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_deleteUserQuestionAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteUserQuestionAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _PaginatedCourse_pagination(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedCourse) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PaginatedCourse_pagination(ctx, field)
 	if err != nil {
@@ -6562,8 +6177,8 @@ func (ec *executionContext) fieldContext_PaginatedTestSession_items(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _PaginatedUserQuestionAnswer_pagination(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PaginatedUserQuestionAnswer_pagination(ctx, field)
+func (ec *executionContext) _PaginatedUser_pagination(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedUser_pagination(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6593,9 +6208,9 @@ func (ec *executionContext) _PaginatedUserQuestionAnswer_pagination(ctx context.
 	return ec.marshalNPagination2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPagination(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PaginatedUserQuestionAnswer_pagination(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PaginatedUser_pagination(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PaginatedUserQuestionAnswer",
+		Object:     "PaginatedUser",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -6618,8 +6233,8 @@ func (ec *executionContext) fieldContext_PaginatedUserQuestionAnswer_pagination(
 	return fc, nil
 }
 
-func (ec *executionContext) _PaginatedUserQuestionAnswer_items(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PaginatedUserQuestionAnswer_items(ctx, field)
+func (ec *executionContext) _PaginatedUser_items(ctx context.Context, field graphql.CollectedField, obj *model.PaginatedUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedUser_items(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -6644,35 +6259,33 @@ func (ec *executionContext) _PaginatedUserQuestionAnswer_items(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.UserQuestionAnswer)
+	res := resTmp.([]*model.User)
 	fc.Result = res
-	return ec.marshalNUserQuestionAnswer2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswerᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_PaginatedUserQuestionAnswer_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PaginatedUser_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PaginatedUserQuestionAnswer",
+		Object:     "PaginatedUser",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_UserQuestionAnswer_id(ctx, field)
-			case "user":
-				return ec.fieldContext_UserQuestionAnswer_user(ctx, field)
-			case "question":
-				return ec.fieldContext_UserQuestionAnswer_question(ctx, field)
-			case "selectedOption":
-				return ec.fieldContext_UserQuestionAnswer_selectedOption(ctx, field)
-			case "testSession":
-				return ec.fieldContext_UserQuestionAnswer_testSession(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_UserQuestionAnswer_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_UserQuestionAnswer_updatedAt(ctx, field)
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "firstName":
+				return ec.fieldContext_User_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_User_lastName(ctx, field)
+			case "isActive":
+				return ec.fieldContext_User_isActive(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type UserQuestionAnswer", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
@@ -6941,6 +6554,14 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_User_id(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "firstName":
+				return ec.fieldContext_User_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_User_lastName(ctx, field)
+			case "isActive":
+				return ec.fieldContext_User_isActive(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8043,8 +7664,8 @@ func (ec *executionContext) fieldContext_Query_todos(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_userQuestionAnswer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_userQuestionAnswer(ctx, field)
+func (ec *executionContext) _Query_paginatedUsers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_paginatedUsers(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8057,7 +7678,7 @@ func (ec *executionContext) _Query_userQuestionAnswer(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserQuestionAnswer(rctx, fc.Args["id"].(uuid.UUID))
+		return ec.resolvers.Query().PaginatedUsers(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8069,83 +7690,12 @@ func (ec *executionContext) _Query_userQuestionAnswer(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.UserQuestionAnswer)
+	res := resTmp.(*model.PaginatedUser)
 	fc.Result = res
-	return ec.marshalNUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswer(ctx, field.Selections, res)
+	return ec.marshalNPaginatedUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_userQuestionAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_UserQuestionAnswer_id(ctx, field)
-			case "user":
-				return ec.fieldContext_UserQuestionAnswer_user(ctx, field)
-			case "question":
-				return ec.fieldContext_UserQuestionAnswer_question(ctx, field)
-			case "selectedOption":
-				return ec.fieldContext_UserQuestionAnswer_selectedOption(ctx, field)
-			case "testSession":
-				return ec.fieldContext_UserQuestionAnswer_testSession(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_UserQuestionAnswer_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_UserQuestionAnswer_updatedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type UserQuestionAnswer", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_userQuestionAnswer_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_paginatedUserQuestionAnswers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_paginatedUserQuestionAnswers(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaginatedUserQuestionAnswers(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.PaginatedUserQuestionAnswer)
-	fc.Result = res
-	return ec.marshalNPaginatedUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedUserQuestionAnswer(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_paginatedUserQuestionAnswers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_paginatedUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -8154,11 +7704,11 @@ func (ec *executionContext) fieldContext_Query_paginatedUserQuestionAnswers(ctx 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "pagination":
-				return ec.fieldContext_PaginatedUserQuestionAnswer_pagination(ctx, field)
+				return ec.fieldContext_PaginatedUser_pagination(ctx, field)
 			case "items":
-				return ec.fieldContext_PaginatedUserQuestionAnswer_items(ctx, field)
+				return ec.fieldContext_PaginatedUser_items(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PaginatedUserQuestionAnswer", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedUser", field.Name)
 		},
 	}
 	defer func() {
@@ -8168,7 +7718,7 @@ func (ec *executionContext) fieldContext_Query_paginatedUserQuestionAnswers(ctx 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_paginatedUserQuestionAnswers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_paginatedUsers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -8763,6 +8313,14 @@ func (ec *executionContext) fieldContext_QuestionCollection_creator(_ context.Co
 				return ec.fieldContext_User_id(ctx, field)
 			case "email":
 				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "firstName":
+				return ec.fieldContext_User_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_User_lastName(ctx, field)
+			case "isActive":
+				return ec.fieldContext_User_isActive(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -10711,8 +10269,8 @@ func (ec *executionContext) fieldContext_User_email(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _UserQuestionAnswer_id(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_id(ctx, field)
+func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_username(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10725,7 +10283,7 @@ func (ec *executionContext) _UserQuestionAnswer_id(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.Username, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10737,26 +10295,26 @@ func (ec *executionContext) _UserQuestionAnswer_id(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(uuid.UUID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserQuestionAnswer_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
+		Object:     "User",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UserQuestionAnswer_user(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_user(ctx, field)
+func (ec *executionContext) _User_firstName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_firstName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10769,44 +10327,35 @@ func (ec *executionContext) _UserQuestionAnswer_user(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		return obj.FirstName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserQuestionAnswer_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_firstName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
+		Object:     "User",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UserQuestionAnswer_question(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_question(ctx, field)
+func (ec *executionContext) _User_lastName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_lastName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10819,52 +10368,35 @@ func (ec *executionContext) _UserQuestionAnswer_question(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Question, nil
+		return obj.LastName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Question)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNQuestion2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestion(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserQuestionAnswer_question(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_lastName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
+		Object:     "User",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Question_id(ctx, field)
-			case "questionText":
-				return ec.fieldContext_Question_questionText(ctx, field)
-			case "collection":
-				return ec.fieldContext_Question_collection(ctx, field)
-			case "options":
-				return ec.fieldContext_Question_options(ctx, field)
-			case "points":
-				return ec.fieldContext_Question_points(ctx, field)
-			case "correctOptionCount":
-				return ec.fieldContext_Question_correctOptionCount(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UserQuestionAnswer_selectedOption(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_selectedOption(ctx, field)
+func (ec *executionContext) _User_isActive(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_isActive(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10877,7 +10409,7 @@ func (ec *executionContext) _UserQuestionAnswer_selectedOption(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.SelectedOption, nil
+		return obj.IsActive, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10889,191 +10421,19 @@ func (ec *executionContext) _UserQuestionAnswer_selectedOption(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.QuestionOption)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNQuestionOption2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionOption(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserQuestionAnswer_selectedOption(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_isActive(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
+		Object:     "User",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_QuestionOption_id(ctx, field)
-			case "question":
-				return ec.fieldContext_QuestionOption_question(ctx, field)
-			case "optionText":
-				return ec.fieldContext_QuestionOption_optionText(ctx, field)
-			case "isCorrect":
-				return ec.fieldContext_QuestionOption_isCorrect(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type QuestionOption", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserQuestionAnswer_testSession(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_testSession(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TestSession, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.TestSession)
-	fc.Result = res
-	return ec.marshalNTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSession(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserQuestionAnswer_testSession(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_TestSession_id(ctx, field)
-			case "status":
-				return ec.fieldContext_TestSession_status(ctx, field)
-			case "startedAt":
-				return ec.fieldContext_TestSession_startedAt(ctx, field)
-			case "expiredAt":
-				return ec.fieldContext_TestSession_expiredAt(ctx, field)
-			case "completedAt":
-				return ec.fieldContext_TestSession_completedAt(ctx, field)
-			case "maxPoints":
-				return ec.fieldContext_TestSession_maxPoints(ctx, field)
-			case "pointsEarned":
-				return ec.fieldContext_TestSession_pointsEarned(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_TestSession_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_TestSession_updatedAt(ctx, field)
-			case "testId":
-				return ec.fieldContext_TestSession_testId(ctx, field)
-			case "userId":
-				return ec.fieldContext_TestSession_userId(ctx, field)
-			case "test":
-				return ec.fieldContext_TestSession_test(ctx, field)
-			case "questions":
-				return ec.fieldContext_TestSession_questions(ctx, field)
-			case "orderedQuestions":
-				return ec.fieldContext_TestSession_orderedQuestions(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type TestSession", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserQuestionAnswer_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserQuestionAnswer_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _UserQuestionAnswer_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.UserQuestionAnswer) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuestionAnswer_updatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	fc.Result = res
-	return ec.marshalNDateTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_UserQuestionAnswer_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "UserQuestionAnswer",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type DateTime does not have child fields")
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -13302,54 +12662,6 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateUserQuestionAnswerInput(ctx context.Context, obj interface{}) (model.CreateUserQuestionAnswerInput, error) {
-	var it model.CreateUserQuestionAnswerInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"userId", "questionId", "selectedOptionId", "testSessionId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UserID = data
-		case "questionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.QuestionID = data
-		case "selectedOptionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("selectedOptionId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SelectedOptionID = data
-		case "testSessionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("testSessionId"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TestSessionID = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (model.LoginInput, error) {
 	var it model.LoginInput
 	asMap := map[string]interface{}{}
@@ -14099,33 +13411,6 @@ func (ec *executionContext) unmarshalInputUpdateTestSessionInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateUserQuestionAnswerInput(ctx context.Context, obj interface{}) (model.UpdateUserQuestionAnswerInput, error) {
-	var it model.UpdateUserQuestionAnswerInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"selectedOptionId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "selectedOptionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("selectedOptionId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.SelectedOptionID = data
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -14553,27 +13838,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createUserQuestionAnswer":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createUserQuestionAnswer(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateUserQuestionAnswer":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateUserQuestionAnswer(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "deleteUserQuestionAnswer":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteUserQuestionAnswer(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -14861,24 +14125,24 @@ func (ec *executionContext) _PaginatedTestSession(ctx context.Context, sel ast.S
 	return out
 }
 
-var paginatedUserQuestionAnswerImplementors = []string{"PaginatedUserQuestionAnswer"}
+var paginatedUserImplementors = []string{"PaginatedUser"}
 
-func (ec *executionContext) _PaginatedUserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedUserQuestionAnswer) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedUserQuestionAnswerImplementors)
+func (ec *executionContext) _PaginatedUser(ctx context.Context, sel ast.SelectionSet, obj *model.PaginatedUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedUserImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PaginatedUserQuestionAnswer")
+			out.Values[i] = graphql.MarshalString("PaginatedUser")
 		case "pagination":
-			out.Values[i] = ec._PaginatedUserQuestionAnswer_pagination(ctx, field, obj)
+			out.Values[i] = ec._PaginatedUser_pagination(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "items":
-			out.Values[i] = ec._PaginatedUserQuestionAnswer_items(ctx, field, obj)
+			out.Values[i] = ec._PaginatedUser_items(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -15379,7 +14643,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "userQuestionAnswer":
+		case "paginatedUsers":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -15388,29 +14652,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_userQuestionAnswer(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "paginatedUserQuestionAnswers":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_paginatedUserQuestionAnswers(ctx, field)
+				res = ec._Query_paginatedUsers(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -16376,72 +15618,17 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var userQuestionAnswerImplementors = []string{"UserQuestionAnswer"}
-
-func (ec *executionContext) _UserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, obj *model.UserQuestionAnswer) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, userQuestionAnswerImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("UserQuestionAnswer")
-		case "id":
-			out.Values[i] = ec._UserQuestionAnswer_id(ctx, field, obj)
+		case "username":
+			out.Values[i] = ec._User_username(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "user":
-			out.Values[i] = ec._UserQuestionAnswer_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "question":
-			out.Values[i] = ec._UserQuestionAnswer_question(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "selectedOption":
-			out.Values[i] = ec._UserQuestionAnswer_selectedOption(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "testSession":
-			out.Values[i] = ec._UserQuestionAnswer_testSession(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._UserQuestionAnswer_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updatedAt":
-			out.Values[i] = ec._UserQuestionAnswer_updatedAt(ctx, field, obj)
+		case "firstName":
+			out.Values[i] = ec._User_firstName(ctx, field, obj)
+		case "lastName":
+			out.Values[i] = ec._User_lastName(ctx, field, obj)
+		case "isActive":
+			out.Values[i] = ec._User_isActive(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -16984,11 +16171,6 @@ func (ec *executionContext) unmarshalNCreateTestSessionInput2templateᚋinternal
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateUserQuestionAnswerInput2templateᚋinternalᚋgraphᚋmodelᚐCreateUserQuestionAnswerInput(ctx context.Context, v interface{}) (model.CreateUserQuestionAnswerInput, error) {
-	res, err := ec.unmarshalInputCreateUserQuestionAnswerInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
 	res, err := scalar.UnmarshalDateTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -17146,18 +16328,18 @@ func (ec *executionContext) marshalNPaginatedTestSession2ᚖtemplateᚋinternal�
 	return ec._PaginatedTestSession(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPaginatedUserQuestionAnswer2templateᚋinternalᚋgraphᚋmodelᚐPaginatedUserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, v model.PaginatedUserQuestionAnswer) graphql.Marshaler {
-	return ec._PaginatedUserQuestionAnswer(ctx, sel, &v)
+func (ec *executionContext) marshalNPaginatedUser2templateᚋinternalᚋgraphᚋmodelᚐPaginatedUser(ctx context.Context, sel ast.SelectionSet, v model.PaginatedUser) graphql.Marshaler {
+	return ec._PaginatedUser(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPaginatedUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedUserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedUserQuestionAnswer) graphql.Marshaler {
+func (ec *executionContext) marshalNPaginatedUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPaginatedUser(ctx context.Context, sel ast.SelectionSet, v *model.PaginatedUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PaginatedUserQuestionAnswer(ctx, sel, v)
+	return ec._PaginatedUser(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPagination2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPagination(ctx context.Context, sel ast.SelectionSet, v *model.Pagination) graphql.Marshaler {
@@ -17925,30 +17107,11 @@ func (ec *executionContext) unmarshalNUpdateTestQuestionRequirementInput2ᚖtemp
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNUpdateUserQuestionAnswerInput2templateᚋinternalᚋgraphᚋmodelᚐUpdateUserQuestionAnswerInput(ctx context.Context, v interface{}) (model.UpdateUserQuestionAnswerInput, error) {
-	res, err := ec.unmarshalInputUpdateUserQuestionAnswerInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalNUser2templateᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNUserQuestionAnswer2templateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, v model.UserQuestionAnswer) graphql.Marshaler {
-	return ec._UserQuestionAnswer(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNUserQuestionAnswer2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswerᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserQuestionAnswer) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -17972,7 +17135,7 @@ func (ec *executionContext) marshalNUserQuestionAnswer2ᚕᚖtemplateᚋinternal
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswer(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -17992,14 +17155,14 @@ func (ec *executionContext) marshalNUserQuestionAnswer2ᚕᚖtemplateᚋinternal
 	return ret
 }
 
-func (ec *executionContext) marshalNUserQuestionAnswer2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUserQuestionAnswer(ctx context.Context, sel ast.SelectionSet, v *model.UserQuestionAnswer) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UserQuestionAnswer(ctx, sel, v)
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

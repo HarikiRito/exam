@@ -82,13 +82,6 @@ type CreateTestSessionInput struct {
 	UserID *uuid.UUID `json:"userId,omitempty"`
 }
 
-type CreateUserQuestionAnswerInput struct {
-	UserID           uuid.UUID `json:"userId"`
-	QuestionID       uuid.UUID `json:"questionId"`
-	SelectedOptionID uuid.UUID `json:"selectedOptionId"`
-	TestSessionID    uuid.UUID `json:"testSessionId"`
-}
-
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -131,9 +124,9 @@ type PaginatedTestSession struct {
 	Items      []*TestSession `json:"items"`
 }
 
-type PaginatedUserQuestionAnswer struct {
-	Pagination *Pagination           `json:"pagination"`
-	Items      []*UserQuestionAnswer `json:"items"`
+type PaginatedUser struct {
+	Pagination *Pagination `json:"pagination"`
+	Items      []*User     `json:"items"`
 }
 
 type Pagination struct {
@@ -273,23 +266,13 @@ type UpdateTestSessionInput struct {
 	TotalScore  *int       `json:"totalScore,omitempty"`
 }
 
-type UpdateUserQuestionAnswerInput struct {
-	SelectedOptionID *uuid.UUID `json:"selectedOptionId,omitempty"`
-}
-
 type User struct {
-	ID    uuid.UUID `json:"id"`
-	Email string    `json:"email"`
-}
-
-type UserQuestionAnswer struct {
-	ID             uuid.UUID       `json:"id"`
-	User           *User           `json:"user"`
-	Question       *Question       `json:"question"`
-	SelectedOption *QuestionOption `json:"selectedOption"`
-	TestSession    *TestSession    `json:"testSession"`
-	CreatedAt      time.Time       `json:"createdAt"`
-	UpdatedAt      time.Time       `json:"updatedAt"`
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	Username  string    `json:"username"`
+	FirstName *string   `json:"firstName,omitempty"`
+	LastName  *string   `json:"lastName,omitempty"`
+	IsActive  bool      `json:"isActive"`
 }
 
 type TestSessionStatus string
