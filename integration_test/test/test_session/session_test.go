@@ -23,18 +23,64 @@ func TestStartTestSession(t *testing.T) {
 	scenario := prepare.CreateTestScenario(t, questionCountConfigs)
 
 	t.Run("CreateTestSession", func(t *testing.T) {
-		session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &scenario.User.ID,
+		sessions, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.NoError(t, err)
-		require.NotNil(t, session)
+		require.NotNil(t, sessions)
+		require.Len(t, sessions, 1) // Should return one session for backward compatibility
+		require.Equal(t, scenario.Test.ID, sessions[0].TestID)
+		require.Equal(t, &scenario.User.ID, sessions[0].UserID)
+	})
+
+	// Bulk creation tests
+	t.Run("BulkCreateTestSessions", func(t *testing.T) {
+		// Create additional users for bulk testing
+		user2 := prepare.CreateUser(t, model.RegisterInput{
+			Email:    "user2@example.com",
+			Password: "password123",
+		})
+		user3 := prepare.CreateUser(t, model.RegisterInput{
+			Email:    "user3@example.com",
+			Password: "password123",
+		})
+
+		userIds := []uuid.UUID{scenario.User.ID, user2.ID, user3.ID}
+
+		sessions, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: userIds,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, sessions)
+		require.Len(t, sessions, 3) // Should return three sessions
+
+		// Verify each session was created correctly
+		for i, session := range sessions {
+			require.Equal(t, scenario.Test.ID, session.TestID)
+			require.Equal(t, &userIds[i], session.UserID)
+			require.Equal(t, 1800, session.MaxPoints) // Expected max points based on config
+		}
+	})
+
+	t.Run("BulkCreateWithEmptyUserIds", func(t *testing.T) {
+		// Test with empty userIds array - should fall back to single creation
+		sessions, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
+		})
+		require.NoError(t, err)
+		require.NotNil(t, sessions)
+		require.Len(t, sessions, 1) // Should create single session
+		require.Equal(t, scenario.Test.ID, sessions[0].TestID)
+		require.Equal(t, &scenario.User.ID, sessions[0].UserID)
 	})
 
 	// Input Validation Tests
 	t.Run("MissingTestID", func(t *testing.T) {
 		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			UserID: &scenario.User.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.Error(t, err)
 	})
@@ -42,26 +88,38 @@ func TestStartTestSession(t *testing.T) {
 	t.Run("InvalidTestID", func(t *testing.T) {
 		invalidTestID := uuid.New()
 		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: invalidTestID,
-			UserID: &scenario.User.ID,
+			TestID:  invalidTestID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.Error(t, err)
 	})
 
 	t.Run("MissingUserID", func(t *testing.T) {
 		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{},
 		})
-		require.NoError(t, err)
+		require.Error(t, err)
 	})
 
 	t.Run("InvalidUserID", func(t *testing.T) {
 		invalidUserID := uuid.New()
 		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &invalidUserID,
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{invalidUserID},
 		})
 		require.Error(t, err)
+	})
+
+	t.Run("BulkCreateWithInvalidUserID", func(t *testing.T) {
+		invalidUserID := uuid.New()
+		userIds := []uuid.UUID{scenario.User.ID, invalidUserID}
+
+		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: userIds,
+		})
+		require.Error(t, err) // Should fail on invalid user ID
 	})
 
 	t.Run("MaxPointsCalculation", func(t *testing.T) {
@@ -74,31 +132,32 @@ func TestStartTestSession(t *testing.T) {
 
 		scenario := prepare.CreateTestScenario(t, questionCountConfigs)
 
-		session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &scenario.User.ID,
+		sessions, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.NoError(t, err)
-		require.NotNil(t, session)
+		require.NotNil(t, sessions)
+		require.Len(t, sessions, 1)
 
 		// Verify that max points are correctly calculated
 		expectedMaxPoints := 110 // (5 * 10) + (3 * 20)
-		require.Equal(t, expectedMaxPoints, session.MaxPoints)
+		require.Equal(t, expectedMaxPoints, sessions[0].MaxPoints)
 	})
 
 	// Business Logic Tests
 	t.Run("DuplicateTestSession", func(t *testing.T) {
 		// Create the first session
 		_, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &scenario.User.ID,
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.NoError(t, err)
 
 		// Attempt to create a duplicate session
 		_, err = test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &scenario.User.ID,
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.NoError(t, err)
 	})

@@ -46,13 +46,14 @@ func TestSessionFlow(t *testing.T) {
 	scenario := prepare.CreateTestScenario(t, questionCountConfigs)
 
 	setupNewSession := func() newSession {
-		session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &scenario.User.ID,
+		sessions, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.NoError(t, err)
+		require.Len(t, sessions, 1)
 
-		newSessionEntity, err := test_session.StartTestSession(context.Background(), scenario.User.ID, session.ID)
+		newSessionEntity, err := test_session.StartTestSession(context.Background(), scenario.User.ID, sessions[0].ID)
 
 		require.NoError(t, err)
 		require.NotNil(t, newSessionEntity)
@@ -67,13 +68,15 @@ func TestSessionFlow(t *testing.T) {
 	}
 
 	// Create the test session
-	session, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
-		TestID: scenario.Test.ID,
-		UserID: &scenario.User.ID,
+	sessions, err := test_session.CreateTestSession(context.Background(), model.CreateTestSessionInput{
+		TestID:  scenario.Test.ID,
+		UserIds: []uuid.UUID{scenario.User.ID},
 	})
 
 	require.NoError(t, err)
-	require.NotNil(t, session)
+	require.NotNil(t, sessions)
+	require.Len(t, sessions, 1)
+	session := sessions[0]
 
 	t.Run("test_session_in_pending_state", func(t *testing.T) {
 		require.Equal(t, session.Status, testsession.StatusPending)
@@ -118,9 +121,10 @@ func TestSessionFlow(t *testing.T) {
 	})
 
 	// Start the test session
-	session, err = test_session.StartTestSession(context.Background(), scenario.User.ID, session.ID)
+	startedSession, err := test_session.StartTestSession(context.Background(), scenario.User.ID, session.ID)
 	require.NoError(t, err)
-	require.NotNil(t, session)
+	require.NotNil(t, startedSession)
+	session = startedSession
 
 	t.Run("test_session_is_in_progress_state", func(t *testing.T) {
 		require.Equal(t, session.Status, testsession.StatusInProgress)

@@ -298,7 +298,7 @@ type MutationResolver interface {
 	AddMultiCollectionToTest(ctx context.Context, input model.AddMultiCollectionToTestInput) (bool, error)
 	UpdateTestQuestionRequirement(ctx context.Context, testID uuid.UUID, input []*model.UpdateTestQuestionRequirementInput) (bool, error)
 	BatchIgnoreQuestions(ctx context.Context, input model.BatchIgnoreQuestionsInput) (bool, error)
-	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error)
+	CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) ([]*model.TestSession, error)
 	DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error)
 	SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error)
 	StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
@@ -5167,9 +5167,9 @@ func (ec *executionContext) _Mutation_createTestSession(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.TestSession)
+	res := resTmp.([]*model.TestSession)
 	fc.Result = res
-	return ec.marshalNTestSession2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSession(ctx, field.Selections, res)
+	return ec.marshalNTestSession2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createTestSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12812,7 +12812,7 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"testId", "userId"}
+	fieldsInOrder := [...]string{"testId", "userIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12826,13 +12826,13 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 				return it, err
 			}
 			it.TestID = data
-		case "userId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+		case "userIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userIds"))
+			data, err := ec.unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.UserID = data
+			it.UserIds = data
 		}
 	}
 
@@ -17777,6 +17777,44 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 	}
 	res := scalar.MarshalDateTime(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, v interface{}) ([]uuid.UUID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]uuid.UUID, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx context.Context, sel ast.SelectionSet, v []uuid.UUID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, v interface{}) (*uuid.UUID, error) {

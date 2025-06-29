@@ -7,6 +7,7 @@ import (
 	"template/internal/graph/model"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,12 +25,13 @@ func TestPaginatedTestSessions(t *testing.T) {
 	// Create multiple test sessions for the user
 	var sessionIDs []string
 	for i := 0; i < 15; i++ {
-		session, err := test_session.CreateTestSession(ctx, model.CreateTestSessionInput{
-			TestID: scenario.Test.ID,
-			UserID: &scenario.User.ID,
+		sessions, err := test_session.CreateTestSession(ctx, model.CreateTestSessionInput{
+			TestID:  scenario.Test.ID,
+			UserIds: []uuid.UUID{scenario.User.ID},
 		})
 		require.NoError(t, err)
-		sessionIDs = append(sessionIDs, session.ID.String())
+		require.Len(t, sessions, 1)
+		sessionIDs = append(sessionIDs, sessions[0].ID.String())
 	}
 
 	t.Run("PaginatedTestSessions_DefaultPagination", func(t *testing.T) {
@@ -130,11 +132,12 @@ func TestPaginatedTestSessions(t *testing.T) {
 
 		// Create test sessions for the other user
 		for i := 0; i < 3; i++ {
-			_, err := test_session.CreateTestSession(ctx, model.CreateTestSessionInput{
-				TestID: scenario.Test.ID,
-				UserID: &anotherUser.ID,
+			sessions, err := test_session.CreateTestSession(ctx, model.CreateTestSessionInput{
+				TestID:  scenario.Test.ID,
+				UserIds: []uuid.UUID{anotherUser.ID},
 			})
 			require.NoError(t, err)
+			require.Len(t, sessions, 1)
 		}
 
 		// First user should still see only their sessions

@@ -78,8 +78,8 @@ type CreateTestInput struct {
 }
 
 type CreateTestSessionInput struct {
-	TestID uuid.UUID  `json:"testId"`
-	UserID *uuid.UUID `json:"userId,omitempty"`
+	TestID  uuid.UUID   `json:"testId"`
+	UserIds []uuid.UUID `json:"userIds,omitempty"`
 }
 
 type LoginInput struct {

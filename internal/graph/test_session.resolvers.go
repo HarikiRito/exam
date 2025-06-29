@@ -16,7 +16,7 @@ import (
 )
 
 // CreateTestSession is the resolver for the createTestSession field.
-func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*model.TestSession, error) {
+func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) ([]*model.TestSession, error) {
 	userID, err := CheckUserPermissions(ctx, []permission.Permission{
 		permission.PermissionSessionCreate,
 	})
@@ -24,15 +24,18 @@ func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.Cr
 		return nil, err
 	}
 
-	if input.UserID == nil {
-		input.UserID = &userID
+	// Handle backward compatibility - if no userIds provided and no userId provided, use authenticated user
+	if len(input.UserIds) == 0 {
+		input.UserIds = []uuid.UUID{userID}
 	}
 
-	session, err := test_session.CreateTestSession(ctx, input)
+	sessions, err := test_session.CreateTestSession(ctx, input)
 	if err != nil {
 		return nil, err
 	}
-	return model.ConvertTestSessionToModel(session), nil
+
+	// Convert all sessions to GraphQL models
+	return slice.Map(sessions, model.ConvertTestSessionToModel), nil
 }
 
 // DeleteTestSession is the resolver for the deleteTestSession field.

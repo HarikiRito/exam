@@ -12,8 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateTestSession creates a new test session with the given input.
-func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) (*ent.TestSession, error) {
+// CreateTestSession creates test session(s) with the given input.
+// It supports both single session creation (using userId) and bulk creation (using userIds).
+// Returns a slice of test sessions - single element for single creation, multiple for bulk.
+func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) ([]*ent.TestSession, error) {
 	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return nil, err
@@ -25,21 +27,30 @@ func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) 
 		return nil, db.Rollback(tx, fmt.Errorf("failed to calculate max points: %w", err))
 	}
 
-	builder := tx.TestSession.Create().
-		SetTestID(input.TestID).
-		SetNillableUserID(input.UserID).
-		SetMaxPoints(maxPoints)
+	if len(input.UserIds) == 0 {
+		return nil, db.Rollback(tx, fmt.Errorf("at least one userID is required to create a test session"))
+	}
 
-	session, err := builder.Save(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, fmt.Errorf("failed to create test session: %w", err))
+	var sessions []*ent.TestSession
+
+	for _, userID := range input.UserIds {
+		builder := tx.TestSession.Create().
+			SetTestID(input.TestID).
+			SetUserID(userID).
+			SetMaxPoints(maxPoints)
+
+		session, err := builder.Save(ctx)
+		if err != nil {
+			return nil, db.Rollback(tx, fmt.Errorf("failed to create test session for user %s: %w", userID, err))
+		}
+		sessions = append(sessions, session)
 	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
-	return session, nil
+	return sessions, nil
 }
 
 // calculateMaxPointsForTest calculates the maximum points for a test based on its question count requirements

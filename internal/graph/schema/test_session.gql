@@ -1,5 +1,5 @@
 extend type Mutation {
-  createTestSession(input: CreateTestSessionInput!): TestSession!
+  createTestSession(input: CreateTestSessionInput!): [TestSession!]!
   deleteTestSession(id: ID!): Boolean!
   submitTestSession(sessionId: ID!, input: SubmitTestSessionInput!): TestSession!
   startTestSession(id: ID!): TestSession!
@@ -47,7 +47,7 @@ type PaginatedTestSession {
 
 input CreateTestSessionInput {
   testId: ID!
-  userId: ID
+  userIds: [ID!]
 }
 
 input UpdateTestSessionInput {
