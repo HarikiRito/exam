@@ -52,3 +52,29 @@ func CheckUserPermissions(ctx context.Context, userID uuid.UUID, permissions []p
 
 	return nil
 }
+
+// GetRolesByUserIDs fetches roles for multiple users and returns a map with user ID as key and roles array as value
+func GetRolesByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*ent.Role, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get users with their roles
+	users, err := client.User.Query().
+		Where(user.IDIn(userIDs...)).
+		WithRoles().
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create map with user ID as key and roles array as value
+	userRolesMap := make(map[uuid.UUID][]*ent.Role)
+	for _, user := range users {
+		// Add all roles for this user
+		userRolesMap[user.ID] = user.Edges.Roles
+	}
+
+	return userRolesMap, nil
+}

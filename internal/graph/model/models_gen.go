@@ -171,6 +171,11 @@ type RegisterInput struct {
 	Password string `json:"password"`
 }
 
+type Role struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
 type StartTestSessionInput struct {
 	TestTimeTaken int        `json:"testTimeTaken"`
 	ExpiredAt     *time.Time `json:"expiredAt,omitempty"`
@@ -264,15 +269,6 @@ type UpdateTestQuestionRequirementInput struct {
 type UpdateTestSessionInput struct {
 	CompletedAt *time.Time `json:"completedAt,omitempty"`
 	TotalScore  *int       `json:"totalScore,omitempty"`
-}
-
-type User struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	Username  string    `json:"username"`
-	FirstName *string   `json:"firstName,omitempty"`
-	LastName  *string   `json:"lastName,omitempty"`
-	IsActive  bool      `json:"isActive"`
 }
 
 type TestSessionStatus string

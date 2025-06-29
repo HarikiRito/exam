@@ -8,6 +8,7 @@ import (
 	"context"
 	"template/internal/features/permission"
 	"template/internal/features/user"
+	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 )
@@ -40,3 +41,13 @@ func (r *queryResolver) PaginatedUsers(ctx context.Context, paginationInput *mod
 		Items:      items,
 	}, nil
 }
+
+// Roles is the resolver for the roles field.
+func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Role, error) {
+	return dataloader.GetRolesByUserID(ctx, obj.ID)
+}
+
+// User returns UserResolver implementation.
+func (r *Resolver) User() UserResolver { return &userResolver{r} }
+
+type userResolver struct{ *Resolver }

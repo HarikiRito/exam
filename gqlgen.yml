@@ -124,3 +124,6 @@ models:
   QuestionCollection:
     model:
       - template/internal/graph/model.QuestionCollection
+  User:
+    model:
+      - template/internal/graph/model.User
