@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strings"
 	"template/internal/features/jwt"
@@ -17,12 +16,12 @@ import (
 func ExtractJwtTokenFromRequestContext(ctx context.Context) (string, error) {
 	httpRequest, ok := ctx.Value(RequestKey{}).(*http.Request)
 	if !ok {
-		return "", errors.New("could not extract HTTP request from context")
+		return "", NewUnauthorizedError("could not extract HTTP request from context")
 	}
 
 	authHeader := httpRequest.Header.Get("Authorization")
 	if authHeader == "" {
-		return "", errors.New("no authorization header found")
+		return "", NewUnauthorizedError("no authorization header found")
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
@@ -32,7 +31,7 @@ func ExtractJwtTokenFromRequestContext(ctx context.Context) (string, error) {
 func GetUserIdFromJwtToken(token string) (string, error) {
 	claims, err := jwt.ValidateAccessToken(token)
 	if err != nil {
-		return "", errors.New("Unauthorized")
+		return "", NewUnauthorizedError("invalid or expired token")
 	}
 
 	return claims.UserID, nil
@@ -51,7 +50,7 @@ func GetUserIdFromRequestContext(ctx context.Context) (uuid.UUID, error) {
 
 	uuidValue, err := uuid.Parse(userID)
 	if err != nil {
-		return uuid.Nil, errors.New("invalid user ID format")
+		return uuid.Nil, NewUnauthorizedError("invalid user ID format")
 	}
 
 	return uuidValue, nil
@@ -81,7 +80,7 @@ func CheckUserPermissions(ctx context.Context, permissions []permission.Permissi
 	}
 	err = role.CheckUserPermissions(ctx, userId, permissions)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, NewUnauthorizedError("insufficient permissions")
 	}
 	return userId, nil
 }
