@@ -1,11 +1,9 @@
 import { useNavigate } from '@remix-run/react';
-import { CalendarIcon, ClockIcon, PlusIcon, TrophyIcon } from 'lucide-react';
+import { CalendarIcon, ClockIcon, TrophyIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { TestSessionStatus } from 'app/graphql/graphqlTypes';
-import { usePaginateTestsQuery } from 'app/graphql/operations/test/paginateTests.query.generated';
-import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
 import {
   PaginateTestSessionsDocument,
   PaginateTestSessionsQuery,
@@ -16,7 +14,6 @@ import { AppBadge } from 'app/shared/components/badge/AppBadge';
 import { AppButton } from 'app/shared/components/button/AppButton';
 import { AppCard } from 'app/shared/components/card/AppCard';
 import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppSelect } from 'app/shared/components/select/AppSelect';
 import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
 import { AppTypography } from 'app/shared/components/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
@@ -25,8 +22,6 @@ import dayjs from 'dayjs';
 type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['items'][number];
 export default function TestSessionsIndex() {
   const navigate = useNavigate();
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedTestId, setSelectedTestId] = useState<string>('');
   const [isStartConfirmModalOpen, setIsStartConfirmModalOpen] = useState(false);
 
   const selectedSession = useRef<TestSessionEntity | null>(null);
@@ -37,29 +32,6 @@ export default function TestSessionsIndex() {
         page: 1,
         limit: 50, // Display more items since we're using cards
       },
-    },
-  });
-
-  // Fetch available tests for the create modal
-  const { data: testsData, loading: testsLoading } = usePaginateTestsQuery({
-    variables: {
-      paginationInput: {
-        page: 1,
-        limit: 100, // Get all available tests
-      },
-    },
-  });
-
-  // Create test session mutation
-  const [createTestSession, { loading: createLoading }] = useCreateTestSessionMutation({
-    onCompleted: (data) => {
-      toast.success('Test session created successfully!');
-      setIsCreateModalOpen(false);
-      setSelectedTestId('');
-      apolloService.invalidateQueries([PaginateTestSessionsDocument]);
-    },
-    onError: (error) => {
-      toast.error(`Failed to create test session: ${error.message}`);
     },
   });
 
@@ -139,80 +111,6 @@ export default function TestSessionsIndex() {
         id: selectedSession.current.id,
       },
     });
-  }
-
-  function handleCreateTestSession() {
-    if (!selectedTestId) {
-      toast.error('Please select a test first');
-      return;
-    }
-
-    createTestSession({
-      variables: {
-        input: {
-          testId: selectedTestId,
-        },
-      },
-    });
-  }
-
-  function _renderCreateTestSessionModal() {
-    const availableTests = testsData?.paginatedTests.items || [];
-
-    return (
-      <AppDialog.Root open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-        <AppDialog.Content className='sm:max-w-md'>
-          <AppDialog.Header>
-            <AppDialog.Title>Create Test Session</AppDialog.Title>
-            <AppDialog.Description>
-              Select a test to create a new test session. You can start the session immediately after creation.
-            </AppDialog.Description>
-          </AppDialog.Header>
-
-          <div className='space-y-4'>
-            <div className='space-y-2'>
-              <AppTypography.p className='text-sm font-medium'>Select Test</AppTypography.p>
-              <AppSelect.Root value={selectedTestId} onValueChange={setSelectedTestId}>
-                <AppSelect.Trigger>
-                  <AppSelect.Value placeholder='Choose a test...' />
-                </AppSelect.Trigger>
-                <AppSelect.Content>
-                  {testsLoading ? (
-                    <div className='p-2'>
-                      <AppTypography.p className='text-muted-foreground text-sm'>Loading tests...</AppTypography.p>
-                    </div>
-                  ) : availableTests.length === 0 ? (
-                    <div className='p-2'>
-                      <AppTypography.p className='text-muted-foreground text-sm'>No tests available</AppTypography.p>
-                    </div>
-                  ) : (
-                    availableTests.map((test) => (
-                      <AppSelect.Item key={test.id} value={test.id}>
-                        {test.name}
-                      </AppSelect.Item>
-                    ))
-                  )}
-                </AppSelect.Content>
-              </AppSelect.Root>
-            </div>
-          </div>
-
-          <AppDialog.Footer>
-            <AppButton
-              variant='outline'
-              onClick={() => {
-                setIsCreateModalOpen(false);
-                setSelectedTestId('');
-              }}>
-              Cancel
-            </AppButton>
-            <AppButton onClick={handleCreateTestSession} disabled={createLoading || !selectedTestId}>
-              {createLoading ? 'Creating...' : 'Create Session'}
-            </AppButton>
-          </AppDialog.Footer>
-        </AppDialog.Content>
-      </AppDialog.Root>
-    );
   }
 
   function _renderStartConfirmationModal() {
@@ -404,10 +302,6 @@ export default function TestSessionsIndex() {
               : `Showing ${testSessions.length} of ${totalItems} test sessions`}
           </AppTypography.p>
         </div>
-        <AppButton onClick={() => setIsCreateModalOpen(true)} className='flex items-center gap-2'>
-          <PlusIcon className='h-4 w-4' />
-          Create Session
-        </AppButton>
       </div>
 
       {testSessions.length === 0 ? (
@@ -422,7 +316,6 @@ export default function TestSessionsIndex() {
         </div>
       )}
 
-      {_renderCreateTestSessionModal()}
       {_renderStartConfirmationModal()}
     </div>
   );
