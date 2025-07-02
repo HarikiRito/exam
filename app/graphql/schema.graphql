@@ -94,14 +94,7 @@ input CreateTestInput {
 
 input CreateTestSessionInput {
   testId: ID!
-  userId: ID
-}
-
-input CreateUserQuestionAnswerInput {
-  questionId: ID!
-  selectedOptionId: ID!
-  testSessionId: ID!
-  userId: ID!
+  userIds: [ID!]
 }
 
 scalar DateTime
@@ -120,15 +113,13 @@ type Mutation {
   createQuestionCollection(input: CreateQuestionCollectionInput!): QuestionCollection!
   createQuestionOption(input: CreateQuestionOptionInput!): QuestionOption!
   createTest(input: CreateTestInput!): Test!
-  createTestSession(input: CreateTestSessionInput!): TestSession!
+  createTestSession(input: CreateTestSessionInput!): [TestSession!]!
   createTodo(input: NewTodo!): Todo!
-  createUserQuestionAnswer(input: CreateUserQuestionAnswerInput!): UserQuestionAnswer!
   deleteQuestion(id: ID!): Boolean!
   deleteQuestionCollection(id: ID!): Boolean!
   deleteQuestionOption(id: ID!): Boolean!
   deleteTest(id: ID!): Boolean!
   deleteTestSession(id: ID!): Boolean!
-  deleteUserQuestionAnswer(id: ID!): Boolean!
   register(input: RegisterInput!): Auth!
   removeCourse(id: ID!): Boolean!
   removeCourseSection(id: ID!): Boolean!
@@ -143,7 +134,6 @@ type Mutation {
   updateQuestionOption(id: ID!, input: UpdateQuestionOptionInput!): QuestionOption!
   updateTest(id: ID!, input: UpdateTestInput!): Test!
   updateTestQuestionRequirement(input: [UpdateTestQuestionRequirementInput!]!, testId: ID!): Boolean!
-  updateUserQuestionAnswer(id: ID!, input: UpdateUserQuestionAnswerInput!): UserQuestionAnswer!
 }
 
 input NewTodo {
@@ -180,8 +170,8 @@ type PaginatedTestSession {
   pagination: Pagination!
 }
 
-type PaginatedUserQuestionAnswer {
-  items: [UserQuestionAnswer!]!
+type PaginatedUser {
+  items: [User!]!
   pagination: Pagination!
 }
 
@@ -211,7 +201,7 @@ type Query {
   paginatedQuestions(paginationInput: PaginationInput): PaginatedQuestion!
   paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
   paginatedTests(paginationInput: PaginationInput): PaginatedTest!
-  paginatedUserQuestionAnswers(paginationInput: PaginationInput): PaginatedUserQuestionAnswer!
+  paginatedUsers(paginationInput: PaginationInput): PaginatedUser!
   question(id: ID!): Question!
   questionCollection(id: ID!): QuestionCollection!
   questionOption(id: ID!): QuestionOption!
@@ -219,7 +209,6 @@ type Query {
   test(id: ID!): Test!
   testSession(id: ID!): TestSession!
   todos: [Todo!]!
-  userQuestionAnswer(id: ID!): UserQuestionAnswer!
 }
 
 type Question {
@@ -271,6 +260,11 @@ input QuestionPointsInput {
 input RegisterInput {
   email: String!
   password: String!
+}
+
+type Role {
+  id: ID!
+  name: String!
 }
 
 input StartTestSessionInput {
@@ -404,21 +398,12 @@ input UpdateTestSessionInput {
   totalScore: Int
 }
 
-input UpdateUserQuestionAnswerInput {
-  selectedOptionId: ID
-}
-
 type User {
   email: String!
+  firstName: String
   id: ID!
-}
-
-type UserQuestionAnswer {
-  createdAt: DateTime!
-  id: ID!
-  question: Question!
-  selectedOption: QuestionOption!
-  testSession: TestSession!
-  updatedAt: DateTime!
-  user: User!
+  isActive: Boolean!
+  lastName: String
+  roles: [Role!]!
+  username: String!
 }

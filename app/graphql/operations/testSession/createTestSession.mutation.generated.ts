@@ -10,10 +10,10 @@ export type CreateTestSessionMutationVariables = Types.Exact<{
 }>;
 
 
-export type CreateTestSessionMutation = { __typename?: 'Mutation', createTestSession: (
+export type CreateTestSessionMutation = { __typename?: 'Mutation', createTestSession: Array<(
     { __typename?: 'TestSession' }
     & TestSessionFragmentFragment
-  ) };
+  )> };
 
 
 export const CreateTestSessionDocument = gql`

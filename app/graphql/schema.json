@@ -893,87 +893,19 @@
             "deprecationReason": null
           },
           {
-            "name": "userId",
+            "name": "userIds",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "INPUT_OBJECT",
-        "name": "CreateUserQuestionAnswerInput",
-        "description": null,
-        "isOneOf": false,
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "questionId",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
+              "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "selectedOptionId",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "testSessionId",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "userId",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
               }
             },
             "defaultValue": null,
@@ -1368,9 +1300,17 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "TestSession",
-                "ofType": null
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "TestSession",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": false,
@@ -1403,39 +1343,6 @@
               "ofType": {
                 "kind": "OBJECT",
                 "name": "Todo",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "createUserQuestionAnswer",
-            "description": null,
-            "args": [
-              {
-                "name": "input",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "CreateUserQuestionAnswerInput",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "UserQuestionAnswer",
                 "ofType": null
               }
             },
@@ -1576,39 +1483,6 @@
           },
           {
             "name": "deleteTestSession",
-            "description": null,
-            "args": [
-              {
-                "name": "id",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "deleteUserQuestionAnswer",
             "description": null,
             "args": [
               {
@@ -2237,55 +2111,6 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
-          },
-          {
-            "name": "updateUserQuestionAnswer",
-            "description": null,
-            "args": [
-              {
-                "name": "id",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "input",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "INPUT_OBJECT",
-                    "name": "UpdateUserQuestionAnswerInput",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "UserQuestionAnswer",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -2635,7 +2460,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "PaginatedUserQuestionAnswer",
+        "name": "PaginatedUser",
         "description": null,
         "isOneOf": null,
         "fields": [
@@ -2654,7 +2479,7 @@
                   "name": null,
                   "ofType": {
                     "kind": "OBJECT",
-                    "name": "UserQuestionAnswer",
+                    "name": "User",
                     "ofType": null
                   }
                 }
@@ -3161,7 +2986,7 @@
             "deprecationReason": null
           },
           {
-            "name": "paginatedUserQuestionAnswers",
+            "name": "paginatedUsers",
             "description": null,
             "args": [
               {
@@ -3182,7 +3007,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "PaginatedUserQuestionAnswer",
+                "name": "PaginatedUser",
                 "ofType": null
               }
             },
@@ -3422,39 +3247,6 @@
                     "ofType": null
                   }
                 }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "userQuestionAnswer",
-            "description": null,
-            "args": [
-              {
-                "name": "id",
-                "description": null,
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "UserQuestionAnswer",
-                "ofType": null
               }
             },
             "isDeprecated": false,
@@ -3995,6 +3787,50 @@
           }
         ],
         "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Role",
+        "description": null,
+        "isOneOf": null,
+        "fields": [
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -5291,30 +5127,6 @@
         "possibleTypes": null
       },
       {
-        "kind": "INPUT_OBJECT",
-        "name": "UpdateUserQuestionAnswerInput",
-        "description": null,
-        "isOneOf": false,
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "selectedOptionId",
-            "description": null,
-            "type": {
-              "kind": "SCALAR",
-              "name": "ID",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
         "kind": "OBJECT",
         "name": "User",
         "description": null,
@@ -5337,45 +5149,13 @@
             "deprecationReason": null
           },
           {
-            "name": "id",
+            "name": "firstName",
             "description": null,
             "args": [],
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "UserQuestionAnswer",
-        "description": null,
-        "isOneOf": null,
-        "fields": [
-          {
-            "name": "createdAt",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "DateTime",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -5397,55 +5177,7 @@
             "deprecationReason": null
           },
           {
-            "name": "question",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "Question",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "selectedOption",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "QuestionOption",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "testSession",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "TestSession",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "updatedAt",
+            "name": "isActive",
             "description": null,
             "args": [],
             "type": {
@@ -5453,7 +5185,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "DateTime",
+                "name": "Boolean",
                 "ofType": null
               }
             },
@@ -5461,15 +5193,51 @@
             "deprecationReason": null
           },
           {
-            "name": "user",
+            "name": "lastName",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "roles",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "User",
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Role",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "username",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
                 "ofType": null
               }
             },

@@ -105,14 +105,7 @@ export type CreateTestInput = {
 
 export type CreateTestSessionInput = {
   testId: Scalars['ID']['input'];
-  userId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-export type CreateUserQuestionAnswerInput = {
-  questionId: Scalars['ID']['input'];
-  selectedOptionId: Scalars['ID']['input'];
-  testSessionId: Scalars['ID']['input'];
-  userId: Scalars['ID']['input'];
+  userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 export type LoginInput = {
@@ -130,15 +123,13 @@ export type Mutation = {
   createQuestionCollection: QuestionCollection;
   createQuestionOption: QuestionOption;
   createTest: Test;
-  createTestSession: TestSession;
+  createTestSession: Array<TestSession>;
   createTodo: Todo;
-  createUserQuestionAnswer: UserQuestionAnswer;
   deleteQuestion: Scalars['Boolean']['output'];
   deleteQuestionCollection: Scalars['Boolean']['output'];
   deleteQuestionOption: Scalars['Boolean']['output'];
   deleteTest: Scalars['Boolean']['output'];
   deleteTestSession: Scalars['Boolean']['output'];
-  deleteUserQuestionAnswer: Scalars['Boolean']['output'];
   register: Auth;
   removeCourse: Scalars['Boolean']['output'];
   removeCourseSection: Scalars['Boolean']['output'];
@@ -153,7 +144,6 @@ export type Mutation = {
   updateQuestionOption: QuestionOption;
   updateTest: Test;
   updateTestQuestionRequirement: Scalars['Boolean']['output'];
-  updateUserQuestionAnswer: UserQuestionAnswer;
 };
 
 
@@ -207,11 +197,6 @@ export type MutationCreateTodoArgs = {
 };
 
 
-export type MutationCreateUserQuestionAnswerArgs = {
-  input: CreateUserQuestionAnswerInput;
-};
-
-
 export type MutationDeleteQuestionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -233,11 +218,6 @@ export type MutationDeleteTestArgs = {
 
 
 export type MutationDeleteTestSessionArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type MutationDeleteUserQuestionAnswerArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -319,12 +299,6 @@ export type MutationUpdateTestQuestionRequirementArgs = {
   testId: Scalars['ID']['input'];
 };
 
-
-export type MutationUpdateUserQuestionAnswerArgs = {
-  id: Scalars['ID']['input'];
-  input: UpdateUserQuestionAnswerInput;
-};
-
 export type NewTodo = {
   text: Scalars['String']['input'];
 };
@@ -365,9 +339,9 @@ export type PaginatedTestSession = {
   pagination: Pagination;
 };
 
-export type PaginatedUserQuestionAnswer = {
-  __typename?: 'PaginatedUserQuestionAnswer';
-  items: Array<UserQuestionAnswer>;
+export type PaginatedUser = {
+  __typename?: 'PaginatedUser';
+  items: Array<User>;
   pagination: Pagination;
 };
 
@@ -399,7 +373,7 @@ export type Query = {
   paginatedQuestions: PaginatedQuestion;
   paginatedTestSessions: PaginatedTestSession;
   paginatedTests: PaginatedTest;
-  paginatedUserQuestionAnswers: PaginatedUserQuestionAnswer;
+  paginatedUsers: PaginatedUser;
   question: Question;
   questionCollection: QuestionCollection;
   questionOption: QuestionOption;
@@ -407,7 +381,6 @@ export type Query = {
   test: Test;
   testSession: TestSession;
   todos: Array<Todo>;
-  userQuestionAnswer: UserQuestionAnswer;
 };
 
 
@@ -457,7 +430,7 @@ export type QueryPaginatedTestsArgs = {
 };
 
 
-export type QueryPaginatedUserQuestionAnswersArgs = {
+export type QueryPaginatedUsersArgs = {
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
@@ -488,11 +461,6 @@ export type QueryTestArgs = {
 
 
 export type QueryTestSessionArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryUserQuestionAnswerArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -549,6 +517,12 @@ export type QuestionPointsInput = {
 export type RegisterInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+export type Role = {
+  __typename?: 'Role';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type StartTestSessionInput = {
@@ -685,23 +659,13 @@ export type UpdateTestSessionInput = {
   totalScore?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type UpdateUserQuestionAnswerInput = {
-  selectedOptionId?: InputMaybe<Scalars['ID']['input']>;
-};
-
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
+  firstName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-};
-
-export type UserQuestionAnswer = {
-  __typename?: 'UserQuestionAnswer';
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['ID']['output'];
-  question: Question;
-  selectedOption: QuestionOption;
-  testSession: TestSession;
-  updatedAt: Scalars['DateTime']['output'];
-  user: User;
+  isActive: Scalars['Boolean']['output'];
+  lastName?: Maybe<Scalars['String']['output']>;
+  roles: Array<Role>;
+  username: Scalars['String']['output'];
 };
