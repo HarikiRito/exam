@@ -2,10 +2,11 @@
 
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
+import { useMeQuery } from 'app/graphql/operations/auth/me.query.generated';
 import { AppAvatar } from 'app/shared/components/avatar/AppAvatar';
 import { AppDropdown } from 'app/shared/components/dropdown/AppDropdown';
 import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
-import { useMeQuery } from 'app/graphql/operations/auth/me.query.generated';
+import { userStore } from 'app/shared/stores/user.store';
 
 export function NavUser() {
   const { isMobile } = AppSidebar.useSidebar();
@@ -18,8 +19,9 @@ export function NavUser() {
   if (error || !data || !data.me) {
     return <div>Error loading user.</div>;
   }
-
   const user = data.me;
+  // Update user store
+  userStore.user = user;
 
   const userLabel = (
     <AppDropdown.Label className='p-0 font-normal'>
@@ -29,8 +31,10 @@ export function NavUser() {
           <AppAvatar.Fallback className='rounded-lg'>CN</AppAvatar.Fallback>
         </AppAvatar.Root>
         <div className='grid flex-1 text-left text-sm leading-tight'>
-          <span className='truncate font-medium'>Anonymous</span>
-          <span className='truncate text-xs'>{user.email}</span>
+          <span className='truncate font-medium'>
+            {user?.firstName} {user?.lastName}
+          </span>
+          <span className='truncate text-xs'>{user?.email}</span>
         </div>
       </div>
     </AppDropdown.Label>

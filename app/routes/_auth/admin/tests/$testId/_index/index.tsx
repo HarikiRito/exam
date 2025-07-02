@@ -2,6 +2,8 @@ import { useNavigate, useParams } from '@remix-run/react';
 import { useState } from 'react';
 import { PlusIcon, CheckIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { userStore } from 'app/shared/stores/user.store';
+import { useSnapshot } from 'valtio';
 
 import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { usePaginateUsersQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
@@ -18,6 +20,7 @@ export default function AdminTestDetail() {
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const snap = useSnapshot(userStore);
 
   // Fetch test details
   const { data: testData, loading: testLoading } = useGetTestQuery({
@@ -203,7 +206,8 @@ export default function AdminTestDetail() {
                       </div>
                       <div className='flex-1'>
                         <AppTypography.p className='font-medium'>
-                          {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}
+                          {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}{' '}
+                          {snap.user?.email === user.email && '(You)'}
                         </AppTypography.p>
                         <AppTypography.small className='text-muted-foreground'>{user.email}</AppTypography.small>
                       </div>
