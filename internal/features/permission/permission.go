@@ -4,6 +4,12 @@ import (
 	"context"
 	"template/internal/ent"
 	"template/internal/ent/db"
+	"template/internal/ent/permission"
+	"template/internal/ent/role"
+	"template/internal/ent/user"
+	"template/internal/shared/utilities/slice"
+
+	"github.com/google/uuid"
 )
 
 type Permission string
@@ -98,4 +104,46 @@ func GetAllPermissions(ctx context.Context) ([]*ent.Permission, error) {
 	}
 
 	return client.Permission.Query().All(ctx)
+}
+
+// GetPermissionsByUserIDs fetches permissions for multiple users and returns a map with user ID as key and permissions array as value
+func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*ent.Permission, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get users with their roles and permissions
+	users, err := client.User.Query().
+		Where(user.IDIn(userIDs...)).
+		WithRoles(func(rq *ent.RoleQuery) {
+			rq.Select(role.FieldID)
+			rq.WithPermissions(
+				func(pq *ent.PermissionQuery) {
+					pq.Select(permission.FieldID, permission.FieldName, permission.FieldDescription)
+				},
+			)
+		}).
+		Select(user.FieldID).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create map with user ID as key and permissions array as value
+	userPermissionsMap := make(map[uuid.UUID][]*ent.Permission)
+	for _, userEntity := range users {
+		permissions := make([]*ent.Permission, 0)
+
+		for _, role := range userEntity.Edges.Roles {
+			permissions = append(permissions, role.Edges.Permissions...)
+		}
+
+		permissions = slice.Unique(permissions)
+
+		// Convert map to slice
+		userPermissionsMap[userEntity.ID] = permissions
+	}
+
+	return userPermissionsMap, nil
 }

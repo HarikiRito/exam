@@ -18,6 +18,7 @@ const loadersKey = ctxKey("dataloaders")
 type Loaders struct {
 	UserLoader                      *dataloadgen.Loader[uuid.UUID, *model.User]
 	RolesByUserLoader               *dataloadgen.Loader[uuid.UUID, []*model.Role]
+	PermissionsByUserLoader         *dataloadgen.Loader[uuid.UUID, []*model.Permission]
 	CourseSectionLoader             *dataloadgen.Loader[uuid.UUID, *model.CourseSection]
 	QuestionOptionLoader            *dataloadgen.Loader[uuid.UUID, []*model.QuestionOption]
 	CorrectOptionCountLoader        *dataloadgen.Loader[uuid.UUID, int]
@@ -36,6 +37,7 @@ func NewLoaders() *Loaders {
 	return &Loaders{
 		UserLoader:                      dataloadgen.NewLoader(getUsers, dataloadgen.WithWait(time.Millisecond)),
 		RolesByUserLoader:               dataloadgen.NewLoader(getRolesByUserIDs, dataloadgen.WithWait(time.Millisecond)),
+		PermissionsByUserLoader:         dataloadgen.NewLoader(getPermissionsByUserIDs, dataloadgen.WithWait(time.Millisecond)),
 		CourseSectionLoader:             dataloadgen.NewLoader(getCourseSections, dataloadgen.WithWait(time.Millisecond)),
 		QuestionOptionLoader:            dataloadgen.NewLoader(getQuestionOptionsByQuestionIDs, dataloadgen.WithWait(time.Millisecond)),
 		CorrectOptionCountLoader:        dataloadgen.NewLoader(GetCorrectOptionCountByQuestionIds, dataloadgen.WithWait(time.Millisecond)),

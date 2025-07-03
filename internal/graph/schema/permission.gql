@@ -1,0 +1,9 @@
+extend type Query {
+  getAllPermissions: [Permission!]!
+}
+
+type Permission {
+  id: ID!
+  name: String!
+  description: String
+}
