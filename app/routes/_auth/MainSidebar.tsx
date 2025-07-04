@@ -40,7 +40,7 @@ const navMain: NavItem[] = [
     title: 'Admin',
     url: '#',
     icon: BookOpen,
-    permissions: [PermissionEnum.CourseRead, PermissionEnum.QuestionRead, PermissionEnum.TestRead],
+    permissions: [PermissionEnum.TestRead],
     items: [
       {
         title: 'Courses',
@@ -61,6 +61,11 @@ const navMain: NavItem[] = [
         title: 'Tests',
         url: APP_ROUTES.adminTests,
         permissions: [PermissionEnum.TestUpdate, PermissionEnum.TestCreate, PermissionEnum.TestDelete],
+      },
+      {
+        title: 'Users',
+        url: APP_ROUTES.adminUsers,
+        permissions: [PermissionEnum.UserRead],
       },
     ],
   },
