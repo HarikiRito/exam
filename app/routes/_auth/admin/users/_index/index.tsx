@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@remix-run/react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { PencilIcon, PlusIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { useImmer } from 'use-immer';
@@ -78,9 +78,6 @@ export default function AdminUsers() {
         return (
           <div>
             <div className='font-medium'>{email}</div>
-            {info.row.original.username && (
-              <div className='text-muted-foreground text-sm'>@{info.row.original.username}</div>
-            )}
           </div>
         );
       },
@@ -160,6 +157,9 @@ export default function AdminUsers() {
 }
 
 function CreateUserDialog({ isOpen, onClose }: { readonly isOpen: boolean; readonly onClose: () => void }) {
+  const emailId = useId();
+  const passwordId = useId();
+
   const form = useForm<CreateUserFormData>({
     resolver: zodResolver(createUserSchema),
     mode: 'onBlur',
@@ -199,9 +199,9 @@ function CreateUserDialog({ isOpen, onClose }: { readonly isOpen: boolean; reado
               name='email'
               render={({ field }) => (
                 <AppForm.Item>
-                  <AppForm.Label htmlFor='email'>Email</AppForm.Label>
+                  <AppForm.Label htmlFor={emailId}>Email</AppForm.Label>
                   <AppForm.Control>
-                    <AppInput id='email' type='email' placeholder='user@example.com' {...field} />
+                    <AppInput id={emailId} type='email' placeholder='user@example.com' {...field} />
                   </AppForm.Control>
                   <AppForm.Message />
                 </AppForm.Item>
@@ -213,9 +213,9 @@ function CreateUserDialog({ isOpen, onClose }: { readonly isOpen: boolean; reado
               name='password'
               render={({ field }) => (
                 <AppForm.Item>
-                  <AppForm.Label htmlFor='password'>Password</AppForm.Label>
+                  <AppForm.Label htmlFor={passwordId}>Password</AppForm.Label>
                   <AppForm.Control>
-                    <AppInput id='password' type='password' placeholder='Enter password' {...field} />
+                    <AppInput id={passwordId} placeholder='Enter password' {...field} />
                   </AppForm.Control>
                   <AppForm.Message />
                 </AppForm.Item>

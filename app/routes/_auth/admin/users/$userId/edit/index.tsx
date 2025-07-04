@@ -65,7 +65,7 @@ export default function EditUserPage() {
   }
 
   return (
-    <div className='container mx-auto py-6'>
+    <div className='p-4 px-8'>
       <div className='mb-6'>
         <AppButton variant='outline' onClick={handleCancel} className='mb-4 flex items-center gap-2'>
           <ArrowLeftIcon className='h-4 w-4' />
@@ -76,7 +76,7 @@ export default function EditUserPage() {
         <AppTypography.p className='text-muted-foreground'>Update user information and credentials.</AppTypography.p>
       </div>
 
-      <AppCard.Root className='max-w-2xl'>
+      <AppCard.Root>
         <AppCard.Header>
           <AppCard.Title>User Information</AppCard.Title>
           <AppCard.Description>
@@ -128,35 +128,6 @@ export default function EditUserPage() {
               </div>
             </form>
           </AppForm.Root>
-        </AppCard.Content>
-      </AppCard.Root>
-
-      <AppCard.Root className='mt-6 max-w-2xl'>
-        <AppCard.Header>
-          <AppCard.Title>User Details</AppCard.Title>
-          <AppCard.Description>Current user information in the system.</AppCard.Description>
-        </AppCard.Header>
-
-        <AppCard.Content>
-          <div className='space-y-4'>
-            <div>
-              <AppTypography.small className='text-muted-foreground font-medium'>User ID</AppTypography.small>
-              <AppTypography.p>{userId}</AppTypography.p>
-            </div>
-
-            <div>
-              <AppTypography.small className='text-muted-foreground font-medium'>Current Email</AppTypography.small>
-              <AppTypography.p>{userData.email}</AppTypography.p>
-            </div>
-
-            <div>
-              <AppTypography.small className='text-muted-foreground font-medium'>Last Updated</AppTypography.small>
-              <AppTypography.p className='text-muted-foreground'>
-                {/* TODO: Add actual last updated timestamp from API */}
-                Information will be available when API is connected
-              </AppTypography.p>
-            </div>
-          </div>
         </AppCard.Content>
       </AppCard.Root>
     </div>
