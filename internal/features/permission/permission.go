@@ -5,7 +5,6 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/permission"
-	"template/internal/ent/role"
 	"template/internal/ent/user"
 	"template/internal/shared/utilities/slice"
 
@@ -117,7 +116,6 @@ func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid
 	users, err := client.User.Query().
 		Where(user.IDIn(userIDs...)).
 		WithRoles(func(rq *ent.RoleQuery) {
-			rq.Select(role.FieldID)
 			rq.WithPermissions(
 				func(pq *ent.PermissionQuery) {
 					pq.Select(permission.FieldID, permission.FieldName, permission.FieldDescription)
@@ -132,6 +130,7 @@ func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid
 
 	// Create map with user ID as key and permissions array as value
 	userPermissionsMap := make(map[uuid.UUID][]Permission)
+
 	for _, userEntity := range users {
 		permissions := make([]Permission, 0)
 
