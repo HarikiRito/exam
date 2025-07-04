@@ -1,5 +1,5 @@
 import { useParams } from '@remix-run/react';
-import { Eye, EyeOff, Flag, FlagOff } from 'lucide-react';
+import { Flag, FlagOff } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 

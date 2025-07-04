@@ -8,7 +8,7 @@ export default function Page() {
   if (loading) return <div>Loading...</div>;
 
   if (data && data.isAuthenticated) {
-    return <Navigate to={APP_ROUTES.dashboard} />;
+    return <Navigate to={APP_ROUTES.testSessions} />;
   }
   return <Outlet />;
 }

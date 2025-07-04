@@ -2,13 +2,14 @@ import { useNavigate } from '@remix-run/react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { EyeIcon, PencilIcon, PlusIcon } from 'lucide-react';
 
-import { PaginateQuestionsQuery } from 'app/graphql/operations/question/paginateQuestions.query.generated';
-import { usePaginateQuestionsQuery } from 'app/graphql/operations/question/paginateQuestions.query.generated';
+import {
+  PaginateQuestionsQuery,
+  usePaginateQuestionsQuery,
+} from 'app/graphql/operations/question/paginateQuestions.query.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { cn } from 'app/shared/utils/className';
 import { useImmer } from 'use-immer';
 
 // Type for a single question item from the query
@@ -19,7 +20,7 @@ export default function AdminQuestions() {
 
   const [pagination, setPagination] = useImmer({
     page: 1,
-    limit: 10,
+    limit: 20,
     search: '',
   });
 
