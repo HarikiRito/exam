@@ -360,11 +360,53 @@ export type PaginationInput = {
   search?: InputMaybe<Scalars['String']['input']>;
 };
 
+export enum PermissionEnum {
+  CollectionCreate = 'COLLECTION_CREATE',
+  CollectionDelete = 'COLLECTION_DELETE',
+  CollectionRead = 'COLLECTION_READ',
+  CollectionUpdate = 'COLLECTION_UPDATE',
+  CourseCreate = 'COURSE_CREATE',
+  CourseDelete = 'COURSE_DELETE',
+  CourseRead = 'COURSE_READ',
+  CourseSectionCreate = 'COURSE_SECTION_CREATE',
+  CourseSectionDelete = 'COURSE_SECTION_DELETE',
+  CourseSectionRead = 'COURSE_SECTION_READ',
+  CourseSectionUpdate = 'COURSE_SECTION_UPDATE',
+  CourseUpdate = 'COURSE_UPDATE',
+  MediaCreate = 'MEDIA_CREATE',
+  MediaDelete = 'MEDIA_DELETE',
+  MediaRead = 'MEDIA_READ',
+  MediaUpdate = 'MEDIA_UPDATE',
+  QuestionCreate = 'QUESTION_CREATE',
+  QuestionDelete = 'QUESTION_DELETE',
+  QuestionOptionCreate = 'QUESTION_OPTION_CREATE',
+  QuestionOptionDelete = 'QUESTION_OPTION_DELETE',
+  QuestionOptionRead = 'QUESTION_OPTION_READ',
+  QuestionOptionUpdate = 'QUESTION_OPTION_UPDATE',
+  QuestionRead = 'QUESTION_READ',
+  QuestionUpdate = 'QUESTION_UPDATE',
+  SessionCreate = 'SESSION_CREATE',
+  SessionDelete = 'SESSION_DELETE',
+  SessionRead = 'SESSION_READ',
+  SessionUpdate = 'SESSION_UPDATE',
+  TestCreate = 'TEST_CREATE',
+  TestDelete = 'TEST_DELETE',
+  TestRead = 'TEST_READ',
+  TestUpdate = 'TEST_UPDATE',
+  UserCreate = 'USER_CREATE',
+  UserRead = 'USER_READ',
+  VideoCreate = 'VIDEO_CREATE',
+  VideoDelete = 'VIDEO_DELETE',
+  VideoRead = 'VIDEO_READ',
+  VideoUpdate = 'VIDEO_UPDATE'
+}
+
 export type Query = {
   __typename?: 'Query';
   course: Course;
   courseSection: CourseSection;
   courseSectionsByCourseId: Array<CourseSection>;
+  getAllPermissions: Array<PermissionEnum>;
   isAuthenticated: Scalars['Boolean']['output'];
   login: Auth;
   me: User;
@@ -666,6 +708,7 @@ export type User = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   lastName?: Maybe<Scalars['String']['output']>;
+  permissions: Array<PermissionEnum>;
   roles: Array<Role>;
   username: Scalars['String']['output'];
 };

@@ -8,6 +8,10 @@ The @defer directive may be specified on a fragment spread to imply de-prioritiz
 """
 directive @defer(if: Boolean = true, label: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+directive @goEnum(value: String) on ENUM_VALUE
+
+directive @goModel(model: String, models: [String!]) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+
 input AddMultiCollectionToTestInput {
   collectionIds: [ID!]!
   testId: ID!
@@ -189,10 +193,52 @@ input PaginationInput {
   search: String
 }
 
+enum PermissionEnum {
+  COLLECTION_CREATE
+  COLLECTION_DELETE
+  COLLECTION_READ
+  COLLECTION_UPDATE
+  COURSE_CREATE
+  COURSE_DELETE
+  COURSE_READ
+  COURSE_SECTION_CREATE
+  COURSE_SECTION_DELETE
+  COURSE_SECTION_READ
+  COURSE_SECTION_UPDATE
+  COURSE_UPDATE
+  MEDIA_CREATE
+  MEDIA_DELETE
+  MEDIA_READ
+  MEDIA_UPDATE
+  QUESTION_CREATE
+  QUESTION_DELETE
+  QUESTION_OPTION_CREATE
+  QUESTION_OPTION_DELETE
+  QUESTION_OPTION_READ
+  QUESTION_OPTION_UPDATE
+  QUESTION_READ
+  QUESTION_UPDATE
+  SESSION_CREATE
+  SESSION_DELETE
+  SESSION_READ
+  SESSION_UPDATE
+  TEST_CREATE
+  TEST_DELETE
+  TEST_READ
+  TEST_UPDATE
+  USER_CREATE
+  USER_READ
+  VIDEO_CREATE
+  VIDEO_DELETE
+  VIDEO_READ
+  VIDEO_UPDATE
+}
+
 type Query {
   course(id: ID!): Course!
   courseSection(id: ID!): CourseSection!
   courseSectionsByCourseId(courseId: ID!, filter: CourseSectionFilterInput): [CourseSection!]!
+  getAllPermissions: [PermissionEnum!]!
   isAuthenticated: Boolean!
   login(input: LoginInput!): Auth!
   me: User!
@@ -404,6 +450,7 @@ type User {
   id: ID!
   isActive: Boolean!
   lastName: String
+  permissions: [PermissionEnum!]!
   roles: [Role!]!
   username: String!
 }

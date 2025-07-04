@@ -1,7 +1,7 @@
 'use client';
 
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppProgress } from 'app/shared/components/ui/progress/AppProgress';
 import { cn } from 'app/shared/utils/className';
 
 export interface ProgressItemProps {

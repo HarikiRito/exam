@@ -1,5 +1,5 @@
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { cn } from 'app/shared/utils/className';
 
 export type CalendarDay = {

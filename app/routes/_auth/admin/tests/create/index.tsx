@@ -7,10 +7,10 @@ import { z } from 'zod';
 import { CreateTestInput } from 'app/graphql/graphqlTypes';
 import { useCreateTestMutation } from 'app/graphql/operations/test/createTest.mutation.generated';
 import { PaginateTestsDocument } from 'app/graphql/operations/test/paginateTests.query.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppForm } from 'app/shared/components/form/AppForm';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { apolloService } from 'app/shared/services/apollo.service';
 

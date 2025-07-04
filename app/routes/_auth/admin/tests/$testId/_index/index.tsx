@@ -8,10 +8,10 @@ import { useSnapshot } from 'valtio';
 import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { usePaginateUsersQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
 import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 
 export default function AdminTestDetail() {

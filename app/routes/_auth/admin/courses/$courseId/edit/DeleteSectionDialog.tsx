@@ -3,8 +3,8 @@ import { toast } from 'sonner';
 import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/courseEditStore';
 import { useRemoveCourseSectionMutation } from 'app/graphql/operations/courseSection/removeCourseSection.mutation.generated';
 import { CourseSectionsByCourseIdDocument } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
 import { apolloService } from 'app/shared/services/apollo.service';
 
 const mutation = editCourseSectionState.proxyState;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { CourseVideoPlayer } from './components/CourseVideoPlayer';
 import { CourseVideoList } from './components/CourseVideoList';
 import { CourseVideo } from './types';

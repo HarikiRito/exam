@@ -1,8 +1,8 @@
 'use client';
 
 import { Link } from '@remix-run/react';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { cn } from 'app/shared/utils/className';
 import { CheckCircleIcon, PlayCircleIcon } from 'lucide-react';
 import { CourseVideo } from '../types';

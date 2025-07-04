@@ -1,5 +1,5 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { AppDataTable } from 'app/shared/components/table/AppDataTable';
+import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
 
 // Define data type
 interface Person {

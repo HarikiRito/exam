@@ -10,12 +10,12 @@ import {
   usePaginateTestSessionsQuery,
 } from 'app/graphql/operations/testSession/paginateTestSessions.query.generated';
 import { useStartTestSessionMutation } from 'app/graphql/operations/testSession/startTestSession.mutation.generated';
-import { AppBadge } from 'app/shared/components/badge/AppBadge';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppSkeleton } from 'app/shared/components/ui/skeleton/AppSkeleton';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 import dayjs from 'dayjs';
 

@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { useGetCourseQuery } from 'app/graphql/operations/course/getCourse.query.generated';
 import { useCourseSectionsByCourseIdQuery } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
 import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId/edit/courseEditStore';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { ComboboxOption } from 'app/shared/components/combobox/AppCombobox';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { ComboboxOption } from 'app/shared/components/ui/combobox/AppCombobox';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 
 import { CourseForm } from './CourseForm';

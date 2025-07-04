@@ -4,8 +4,8 @@ import { useNavigate, useParams } from '@remix-run/react';
 import { SubmitTestSessionInput } from 'app/graphql/graphqlTypes';
 import { useSubmitTestSessionMutation } from 'app/graphql/operations/testSession/submitTestSession.mutation.generated';
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
-import { AppAlertDialog } from 'app/shared/components/alert-dialog/AppAlertDialog';
-import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppAlertDialog } from 'app/shared/components/ui/alert-dialog/AppAlertDialog';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { toast } from 'sonner';
 
 export function FinishExamDialog() {

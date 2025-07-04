@@ -12,12 +12,12 @@ import {
 import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon, FilterIcon, SearchIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDropdown } from 'app/shared/components/dropdown/AppDropdown';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppPagination } from 'app/shared/components/pagination/AppPagination';
-import { AppSelect } from 'app/shared/components/select/AppSelect';
-import { AppTable } from 'app/shared/components/table/AppTable';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDropdown } from 'app/shared/components/ui/dropdown/AppDropdown';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppPagination } from 'app/shared/components/ui/pagination/AppPagination';
+import { AppSelect } from 'app/shared/components/ui/select/AppSelect';
+import { AppTable } from 'app/shared/components/ui/table/AppTable';
 
 interface DataTableProps<TData> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

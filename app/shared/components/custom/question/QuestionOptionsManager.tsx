@@ -2,16 +2,16 @@ import { Check, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCommand } from 'app/shared/components/command/AppCommand';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { AppLabel } from 'app/shared/components/label/AppLabel';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCommand } from 'app/shared/components/ui/command/AppCommand';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTooltip } from 'app/shared/components/ui/tooltip/AppTooltip';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+import { AppLabel } from 'app/shared/components/ui/label/AppLabel';
 import { useImmer } from 'use-immer';
 import { cn } from 'app/shared/utils/className';
 import { useDebounce } from 'app/shared/hooks/useDebounce';
-import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
+import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
 
 export interface QuestionOption {
   optionText: string;

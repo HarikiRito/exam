@@ -5,12 +5,12 @@ import { PanelLeftIcon } from 'lucide-react';
 
 import { useIsMobile } from 'app/shared/hooks/useMobile';
 import { cn } from 'app/shared/utils/className';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
-import { AppSheet } from 'app/shared/components/sheet/AppSheet';
-import { AppSkeleton } from 'app/shared/components/skeleton/AppSkeleton';
-import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppSeparator } from 'app/shared/components/ui/separator/AppSeparator';
+import { AppSheet } from 'app/shared/components/ui/sheet/AppSheet';
+import { AppSkeleton } from 'app/shared/components/ui/skeleton/AppSkeleton';
+import { AppTooltip } from 'app/shared/components/ui/tooltip/AppTooltip';
 
 type TooltipContent = React.ComponentProps<typeof AppTooltip.Content>;
 

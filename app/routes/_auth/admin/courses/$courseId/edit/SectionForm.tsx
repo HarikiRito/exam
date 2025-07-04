@@ -9,12 +9,12 @@ import { editCourseSectionState } from 'app/routes/_auth/admin/courses/$courseId
 import { useCreateCourseSectionMutation } from 'app/graphql/operations/courseSection/createCourseSection.mutation.generated';
 import { useUpdateCourseSectionMutation } from 'app/graphql/operations/courseSection/updateCourseSection.mutation.generated';
 import { CourseSectionsByCourseIdDocument } from 'app/graphql/operations/courseSection/courseSectionsByCourseId.query.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCombobox, ComboboxOption } from 'app/shared/components/combobox/AppCombobox';
-import { AppForm } from 'app/shared/components/form/AppForm';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCombobox, ComboboxOption } from 'app/shared/components/ui/combobox/AppCombobox';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTextarea } from 'app/shared/components/ui/textarea/AppTextarea';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 
 // Section schema

@@ -1,8 +1,8 @@
 'use client';
 
 import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppHoverCard } from 'app/shared/components/hover-card/AppHoverCard';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppHoverCard } from 'app/shared/components/ui/hover-card/AppHoverCard';
 import { cn } from 'app/shared/utils/className';
 
 export interface HorizontalCourseCardProps extends CourseItemFragment {

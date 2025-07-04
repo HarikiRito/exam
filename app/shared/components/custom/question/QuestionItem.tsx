@@ -2,15 +2,15 @@ import { produce } from 'immer';
 import { RotateCcwIcon, TrashIcon } from 'lucide-react';
 import { memo, useState } from 'react';
 
-import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppLabel } from 'app/shared/components/label/AppLabel';
-import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppLabel } from 'app/shared/components/ui/label/AppLabel';
+import { AppTextarea } from 'app/shared/components/ui/textarea/AppTextarea';
+import { AppTooltip } from 'app/shared/components/ui/tooltip/AppTooltip';
 
-import { AppBadge } from 'app/shared/components/badge/AppBadge';
-import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
+import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
+import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
 import { useDebounce } from 'app/shared/hooks/useDebounce';
 import { cn } from 'app/shared/utils/className';
 import { CorrectOptionToggle } from './CorrectOptionToggle';

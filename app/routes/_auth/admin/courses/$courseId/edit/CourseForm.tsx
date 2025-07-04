@@ -6,11 +6,11 @@ import { z } from 'zod';
 
 import { useUpdateCourseMutation } from 'app/graphql/operations/course/updateCourse.mutation.generated';
 import { GetCourseDocument } from 'app/graphql/operations/course/getCourse.query.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppForm } from 'app/shared/components/form/AppForm';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTextarea } from 'app/shared/components/ui/textarea/AppTextarea';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 
 // Course schema

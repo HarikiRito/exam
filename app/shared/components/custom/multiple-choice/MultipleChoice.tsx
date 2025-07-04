@@ -1,8 +1,8 @@
 'use client';
 
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppLabel } from 'app/shared/components/label/AppLabel';
-import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppLabel } from 'app/shared/components/ui/label/AppLabel';
+import { AppRadioGroup } from 'app/shared/components/ui/radio-group/AppRadioGroup';
 import { cn } from 'app/shared/utils/className';
 
 export interface MultipleChoiceOption {

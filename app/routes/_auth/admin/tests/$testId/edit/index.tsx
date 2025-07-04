@@ -2,7 +2,7 @@ import { useNavigate, useParams } from '@remix-run/react';
 import { useEffect } from 'react';
 
 import { GetTestDocument, useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { testEditStore } from './testEditStore';
 import { TestQuestionCollectionsManager } from './TestQuestionCollectionsManager';

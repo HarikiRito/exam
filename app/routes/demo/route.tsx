@@ -3,10 +3,10 @@ import { DataTableExample } from 'app/routes/demo/DataTableExample';
 import { ExampleMultipleChoice } from 'app/routes/demo/ExampleMultipleChoice';
 import { TimesheetCards } from 'app/routes/demo/TimesheetCards';
 import { TypographyDemo } from 'app/routes/demo/TypographyDemo';
-import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { MultipleChoiceGrid } from 'app/shared/components/custom/multiple-choice/MultipleChoiceGrid';
-import { AppLink } from 'app/shared/components/link/AppLink';
-import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
+import { AppLink } from 'app/shared/components/ui/link/AppLink';
+import { AppSeparator } from 'app/shared/components/ui/separator/AppSeparator';
 
 const DemoMap = {
   typography: {

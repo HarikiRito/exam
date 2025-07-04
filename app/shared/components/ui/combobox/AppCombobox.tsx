@@ -4,9 +4,9 @@ import * as React from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 
 import { cn } from 'app/shared/utils/className';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCommand } from 'app/shared/components/command/AppCommand';
-import { AppPopover } from 'app/shared/components/popover/AppPopover';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCommand } from 'app/shared/components/ui/command/AppCommand';
+import { AppPopover } from 'app/shared/components/ui/popover/AppPopover';
 
 export interface ComboboxOption {
   value: string;

@@ -1,10 +1,10 @@
-import { AppAvatar } from 'app/shared/components/avatar/AppAvatar';
-import { AppBadge } from 'app/shared/components/badge/AppBadge';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppAvatar } from 'app/shared/components/ui/avatar/AppAvatar';
+import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppProgress } from 'app/shared/components/ui/progress/AppProgress';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { UserProfile } from './types';
-import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
+import { AppSeparator } from 'app/shared/components/ui/separator/AppSeparator';
 import { cn } from 'app/shared/utils/className';
 
 type HeaderSectionProps = {

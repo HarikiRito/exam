@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';

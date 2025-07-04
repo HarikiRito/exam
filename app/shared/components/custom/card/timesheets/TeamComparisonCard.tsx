@@ -1,6 +1,6 @@
-import { AppAvatar } from 'app/shared/components/avatar/AppAvatar';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
+import { AppAvatar } from 'app/shared/components/ui/avatar/AppAvatar';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppProgress } from 'app/shared/components/ui/progress/AppProgress';
 import { cn } from 'app/shared/utils/className';
 import { UsersIcon } from 'lucide-react';
 

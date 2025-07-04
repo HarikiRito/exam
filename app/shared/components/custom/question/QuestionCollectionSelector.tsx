@@ -1,6 +1,6 @@
 import { PaginateQuestionCollectionsQuery } from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
-import { AppCombobox } from 'app/shared/components/combobox/AppCombobox';
-import { AppForm } from 'app/shared/components/form/AppForm';
+import { AppCombobox } from 'app/shared/components/ui/combobox/AppCombobox';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
 
 type QuestionCollection = PaginateQuestionCollectionsQuery['paginatedQuestionCollections']['items'][0];
 

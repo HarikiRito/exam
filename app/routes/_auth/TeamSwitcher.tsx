@@ -1,6 +1,6 @@
 import { BookKey, ChevronsUpDown } from 'lucide-react';
 
-import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
+import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 
 export function TeamSwitcher() {
   return (

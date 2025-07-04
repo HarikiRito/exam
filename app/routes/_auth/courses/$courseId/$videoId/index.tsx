@@ -1,5 +1,5 @@
 import { useParams } from '@remix-run/react';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { CourseVideoList } from '../components/CourseVideoList';
 import { CourseVideoPlayer } from '../components/CourseVideoPlayer';
 import { CourseVideo } from '../types';

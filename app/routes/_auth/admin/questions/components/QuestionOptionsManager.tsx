@@ -3,12 +3,12 @@ import { useEffect, useState } from 'react';
 import { Control, useFieldArray } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCommand } from 'app/shared/components/command/AppCommand';
-import { AppForm } from 'app/shared/components/form/AppForm';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTooltip } from 'app/shared/components/tooltip/AppTooltip';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCommand } from 'app/shared/components/ui/command/AppCommand';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTooltip } from 'app/shared/components/ui/tooltip/AppTooltip';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { questionFormState } from '../store';
 
 import { cn } from 'app/shared/utils/className';

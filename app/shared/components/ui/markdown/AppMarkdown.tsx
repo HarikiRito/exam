@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 // import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { cn } from 'app/shared/utils/className';
 
 interface AppMarkdownProps {

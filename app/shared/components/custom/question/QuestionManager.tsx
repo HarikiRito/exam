@@ -1,9 +1,9 @@
 import { FileTextIcon, PlusIcon } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 
-import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 
 import { produce } from 'immer';
 import { QuestionData, QuestionItem } from './QuestionItem';

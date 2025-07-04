@@ -1,8 +1,8 @@
 'use client';
 
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppProgress } from 'app/shared/components/ui/progress/AppProgress';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { useEffect, useMemo } from 'react';
 

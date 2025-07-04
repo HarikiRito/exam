@@ -9,7 +9,7 @@ export type MeQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me: (
-    { __typename?: 'User' }
+    { __typename?: 'User', permissions: Array<Types.PermissionEnum> }
     & UserFragment
   ) };
 
@@ -18,6 +18,7 @@ export const MeDocument = gql`
     query Me {
   me {
     ...User
+    permissions
   }
 }
     ${UserFragmentDoc}`;

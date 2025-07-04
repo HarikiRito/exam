@@ -1,5 +1,5 @@
-import { AppSwitch } from 'app/shared/components/switch/AppSwitch';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppSwitch } from 'app/shared/components/ui/switch/AppSwitch';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { questionFormState } from '../store';
 
 export function CorrectOptionToggle() {

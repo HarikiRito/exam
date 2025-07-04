@@ -1,8 +1,8 @@
 'use client';
 
-import { AppBadge } from 'app/shared/components/badge/AppBadge';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
+import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppProgress } from 'app/shared/components/ui/progress/AppProgress';
 import { cn } from 'app/shared/utils/className';
 
 export interface CourseCardProps {

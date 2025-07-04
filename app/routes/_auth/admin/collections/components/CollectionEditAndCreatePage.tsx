@@ -4,9 +4,9 @@ import { useSnapshot } from 'valtio/react';
 
 import { useGetQuestionCollectionQuery } from 'app/graphql/operations/questionCollection/getQuestionCollection.query.generated';
 
-import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { collectionFormState } from '../state';
 
@@ -15,8 +15,8 @@ import { isMoreThanOrEqual } from 'app/shared/utils/comparison';
 import { CollectionDetailsStep } from './CollectionDetailsStep';
 import { ManageQuestionsStep } from './ManageQuestionsStep';
 import { useUniqueId } from 'app/shared/hooks/useUniqueId';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppProgress } from 'app/shared/components/progress/AppProgress';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppProgress } from 'app/shared/components/ui/progress/AppProgress';
 
 interface CollectionEditAndCreatePageProps {
   readonly mode: 'create' | 'edit';

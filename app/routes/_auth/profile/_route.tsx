@@ -1,4 +1,4 @@
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { UserProfile } from './types';
 import { ProfileVariant20 } from './variant20';
 

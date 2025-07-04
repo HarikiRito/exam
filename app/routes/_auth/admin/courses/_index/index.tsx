@@ -4,9 +4,9 @@ import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
 import { useDeleteCourseMutation } from 'app/graphql/operations/course/deleteCourse.mutation.generated';
 import { usePaginateCoursesQuery } from 'app/graphql/operations/course/paginateCourse.query.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDataTable } from 'app/shared/components/table/AppDataTable';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
 

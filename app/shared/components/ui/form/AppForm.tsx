@@ -12,7 +12,7 @@ import {
 } from 'react-hook-form';
 
 import { cn } from 'app/shared/utils/className';
-import { AppLabel } from 'app/shared/components/label/AppLabel';
+import { AppLabel } from 'app/shared/components/ui/label/AppLabel';
 
 /**
  * Detailed Usage Instructions and Example Usage

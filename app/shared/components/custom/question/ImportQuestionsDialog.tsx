@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { FileTextIcon } from 'lucide-react';
 import { guardSync } from 'safe-guard-data';
 
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppTextarea } from 'app/shared/components/ui/textarea/AppTextarea';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 
 import { questionBatchSchema, type QuestionItemData } from './questionBatchSchema';
 import type { QuestionData } from './QuestionItem';

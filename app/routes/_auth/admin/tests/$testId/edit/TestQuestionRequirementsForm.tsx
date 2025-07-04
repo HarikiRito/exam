@@ -9,11 +9,11 @@ import { z } from 'zod';
 import { UpdateTestQuestionRequirementInput } from 'app/graphql/graphqlTypes';
 import { GetTestQuery, useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { useUpdateTestQuestionRequirementMutation } from 'app/graphql/operations/test/updateTestQuestionRequirement.mutation.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppForm } from 'app/shared/components/form/AppForm';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 
 // Validation schema for question requirements
 const questionRequirementSchema = z.object({

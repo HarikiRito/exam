@@ -3,9 +3,9 @@
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
 import { useMeQuery } from 'app/graphql/operations/auth/me.query.generated';
-import { AppAvatar } from 'app/shared/components/avatar/AppAvatar';
-import { AppDropdown } from 'app/shared/components/dropdown/AppDropdown';
-import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
+import { AppAvatar } from 'app/shared/components/ui/avatar/AppAvatar';
+import { AppDropdown } from 'app/shared/components/ui/dropdown/AppDropdown';
+import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 import { userStore } from 'app/shared/stores/user.store';
 
 export function NavUser() {

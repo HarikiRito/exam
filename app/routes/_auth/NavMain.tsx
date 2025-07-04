@@ -3,8 +3,8 @@
 import { ChevronRight, type LucideIcon } from 'lucide-react';
 
 import { Link } from '@remix-run/react';
-import { AppCollapsible } from 'app/shared/components/collapsible/AppCollapsible';
-import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
+import { AppCollapsible } from 'app/shared/components/ui/collapsible/AppCollapsible';
+import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 
 export interface NavItem {
   title: string;

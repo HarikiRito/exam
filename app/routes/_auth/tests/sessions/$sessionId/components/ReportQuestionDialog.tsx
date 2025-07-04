@@ -1,9 +1,9 @@
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDialog } from 'app/shared/components/dialog/AppDialog';
-import { AppLabel } from 'app/shared/components/label/AppLabel';
-import { AppRadioGroup } from 'app/shared/components/radio-group/AppRadioGroup';
-import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppLabel } from 'app/shared/components/ui/label/AppLabel';
+import { AppRadioGroup } from 'app/shared/components/ui/radio-group/AppRadioGroup';
+import { AppTextarea } from 'app/shared/components/ui/textarea/AppTextarea';
 import { useState } from 'react';
 import { toast } from 'sonner';
 

@@ -5,11 +5,11 @@ import { toast } from 'sonner';
 
 import { useBatchIgnoreQuestionsMutation } from 'app/graphql/operations/test/batchIgnoreQuestions.mutation.generated';
 import { GetTestDocument, GetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
-import { AppBadge } from 'app/shared/components/badge/AppBadge';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 import { testEditStore } from './testEditStore';
 type Question = NonNullable<GetTestQuery['test']>['questionCollections'][number]['questions'][number];

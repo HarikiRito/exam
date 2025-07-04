@@ -2,9 +2,9 @@ import { Edit2, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { CourseSectionItemFragment } from 'app/graphql/operations/courseSection/courseSection.fragment.generated';
-import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { cn } from 'app/shared/utils/className';
 import { deepClone } from 'valtio/utils';
 

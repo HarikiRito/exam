@@ -9,12 +9,12 @@ import { useUpdateQuestionCollectionMutation } from 'app/graphql/operations/ques
 
 import { useParams } from '@remix-run/react';
 import { CollectionAccordionSteps } from 'app/routes/_auth/admin/collections/components/CollectionEditAndCreatePage';
-import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppForm } from 'app/shared/components/form/AppForm';
-import { AppInput } from 'app/shared/components/input/AppInput';
-import { AppTextarea } from 'app/shared/components/textarea/AppTextarea';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppTextarea } from 'app/shared/components/ui/textarea/AppTextarea';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 
 // Collection form schema

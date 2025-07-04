@@ -1,7 +1,7 @@
 'use client';
 
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
-import { AppButton } from 'app/shared/components/button/AppButton';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { cn } from 'app/shared/utils/className';
 
 export function QuestionOverviewSheet() {

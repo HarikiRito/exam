@@ -1,7 +1,7 @@
 import { BookOpen, SquareTerminal, LogOut } from 'lucide-react';
 
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { themeStore } from 'app/shared/stores/theme.store';

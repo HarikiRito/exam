@@ -1,7 +1,7 @@
 import type { LinksFunction } from '@remix-run/node';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 
-import { Toaster } from 'app/shared/components/sonner/AppSonner';
+import { Toaster } from 'app/shared/components/ui/sonner/AppSonner';
 import './tailwind.css';
 
 export const links: LinksFunction = () => [

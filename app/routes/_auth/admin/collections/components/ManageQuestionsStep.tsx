@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { AppAccordion } from 'app/shared/components/accordion/AppAccordion';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 
 import { useCreateQuestionMutation } from 'app/graphql/operations/question/createQuestion.mutation.generated';
 import { useDeleteQuestionMutation } from 'app/graphql/operations/question/deleteQuestion.mutation.generated';

@@ -7,10 +7,10 @@ import { PaginateQuestionCollectionsQuery } from 'app/graphql/operations/questio
 import { usePaginateQuestionCollectionsQuery } from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
 import { useDeleteQuestionCollectionMutation } from 'app/graphql/operations/questionCollection/deleteQuestionCollection.mutation.generated';
 import { PaginateQuestionCollectionsDocument } from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppDataTable } from 'app/shared/components/table/AppDataTable';
-import { AppTypography } from 'app/shared/components/typography/AppTypography';
-import { AppAlertDialog } from 'app/shared/components/alert-dialog/AppAlertDialog';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+import { AppAlertDialog } from 'app/shared/components/ui/alert-dialog/AppAlertDialog';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { apolloService } from 'app/shared/services/apollo.service';
 import { useState } from 'react';

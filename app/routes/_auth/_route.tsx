@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from '@remix-run/react';
-import { AppBreadcrumb } from 'app/shared/components/breadcrumb/AppBreadcrumb';
-import { AppSeparator } from 'app/shared/components/separator/AppSeparator';
-import { AppSidebar } from 'app/shared/components/sidebar/AppSidebar';
+import { AppBreadcrumb } from 'app/shared/components/ui/breadcrumb/AppBreadcrumb';
+import { AppSeparator } from 'app/shared/components/ui/separator/AppSeparator';
+import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { themeStore } from 'app/shared/stores/theme.store';
 import { MainSidebar } from './MainSidebar';

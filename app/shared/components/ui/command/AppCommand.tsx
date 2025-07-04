@@ -5,7 +5,7 @@ import { Command as CommandPrimitive } from 'cmdk';
 import { SearchIcon } from 'lucide-react';
 
 import { cn } from 'app/shared/utils/className';
-import { AppDialog as Dialog } from 'app/shared/components/dialog/AppDialog';
+import { AppDialog as Dialog } from 'app/shared/components/ui/dialog/AppDialog';
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (

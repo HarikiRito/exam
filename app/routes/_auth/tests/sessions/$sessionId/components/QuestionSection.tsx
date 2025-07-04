@@ -1,8 +1,8 @@
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
-import { AppButton } from 'app/shared/components/button/AppButton';
-import { AppCard } from 'app/shared/components/card/AppCard';
-import { AppCheckbox } from 'app/shared/components/checkbox/AppCheckbox';
-import { AppMarkdown } from 'app/shared/components/markdown/AppMarkdown';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppCheckbox } from 'app/shared/components/ui/checkbox/AppCheckbox';
+import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
 import { cn } from 'app/shared/utils/className';
 import { AlertCircle, Flag, FlagOff } from 'lucide-react';
 import { ReportQuestionDialog } from './ReportQuestionDialog';
