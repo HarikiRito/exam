@@ -8,6 +8,7 @@ import { themeStore } from 'app/shared/stores/theme.store';
 import { NavItem, NavMain } from './NavMain';
 import { NavUser } from './NavUser';
 import { TeamSwitcher } from './TeamSwitcher';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
 
 const navMain: NavItem[] = [
   {
@@ -32,7 +33,7 @@ const navMain: NavItem[] = [
       {
         title: 'Test Sessions',
         url: APP_ROUTES.testSessions,
-        permissions: [PermissionEnum.SessionRead],
+        permissions: PERMISSION_ROUTE.testSessions,
       },
     ],
   },
@@ -45,27 +46,27 @@ const navMain: NavItem[] = [
       {
         title: 'Courses',
         url: APP_ROUTES.adminCourses,
-        permissions: [PermissionEnum.CourseRead, PermissionEnum.CourseCreate, PermissionEnum.CourseUpdate],
+        permissions: PERMISSION_ROUTE.adminCourses,
       },
       {
         title: 'Questions',
         url: APP_ROUTES.adminQuestions,
-        permissions: [PermissionEnum.QuestionRead, PermissionEnum.QuestionCreate, PermissionEnum.QuestionUpdate],
+        permissions: PERMISSION_ROUTE.adminQuestions,
       },
       {
         title: 'Question Collections',
         url: APP_ROUTES.adminCollections,
-        permissions: [PermissionEnum.QuestionRead, PermissionEnum.QuestionCreate, PermissionEnum.QuestionUpdate],
+        permissions: PERMISSION_ROUTE.adminCollections,
       },
       {
         title: 'Tests',
         url: APP_ROUTES.adminTests,
-        permissions: [PermissionEnum.TestUpdate, PermissionEnum.TestCreate, PermissionEnum.TestDelete],
+        permissions: PERMISSION_ROUTE.adminTests,
       },
       {
         title: 'Users',
         url: APP_ROUTES.adminUsers,
-        permissions: [PermissionEnum.UserRead],
+        permissions: PERMISSION_ROUTE.adminUsers,
       },
     ],
   },

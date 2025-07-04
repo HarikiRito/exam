@@ -1,22 +1,22 @@
 import { Navigate, Outlet, useLocation } from '@remix-run/react';
+import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
 import { AppBreadcrumb } from 'app/shared/components/ui/breadcrumb/AppBreadcrumb';
 import { AppSeparator } from 'app/shared/components/ui/separator/AppSeparator';
 import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
+import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
 import { themeStore } from 'app/shared/stores/theme.store';
-import { MainSidebar } from './MainSidebar';
 import { useSnapshot } from 'valtio';
-import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
-import { APP_ROUTES } from 'app/shared/constants/routes';
+import { MainSidebar } from './MainSidebar';
 export default function Page() {
   const { data, error } = useIsAuthenticatedQuery();
-  const pathname = useLocation();
+  const location = useLocation();
 
   if ((data && !data.isAuthenticated) || error) {
     return <Navigate to={APP_ROUTES.login} />;
   }
 
-  if (pathname.pathname.startsWith('/tests/sessions/')) {
+  if (location.pathname.startsWith('/tests/sessions/')) {
     return <Outlet />;
   }
 
