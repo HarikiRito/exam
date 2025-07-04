@@ -2,12 +2,10 @@ import type * as Types from '../../graphqlTypes';
 
 import type { PaginationFragment } from '../pagination.fragment.generated';
 import type { QuestionItemFragment } from './question.fragment.generated';
-import type { QuestionOptionItemFragment } from './questionOption.fragment.generated';
 import type { QuestionCollectionItemFragment } from '../questionCollection/questionCollection.fragment.generated';
 import { gql } from '@apollo/client/index.js';
 import { PaginationFragmentDoc } from '../pagination.fragment.generated';
 import { QuestionItemFragmentDoc } from './question.fragment.generated';
-import { QuestionOptionItemFragmentDoc } from './questionOption.fragment.generated';
 import { QuestionCollectionItemFragmentDoc } from '../questionCollection/questionCollection.fragment.generated';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
@@ -20,10 +18,7 @@ export type PaginateQuestionsQuery = { __typename?: 'Query', paginatedQuestions:
       { __typename?: 'Pagination' }
       & PaginationFragment
     ), items: Array<(
-      { __typename?: 'Question', options: Array<(
-        { __typename?: 'QuestionOption' }
-        & QuestionOptionItemFragment
-      )>, collection?: (
+      { __typename?: 'Question', collection?: (
         { __typename?: 'QuestionCollection' }
         & QuestionCollectionItemFragment
       ) | null }
@@ -39,9 +34,6 @@ export const PaginateQuestionsDocument = gql`
     }
     items {
       ...QuestionItem
-      options {
-        ...QuestionOptionItem
-      }
       collection {
         ...QuestionCollectionItem
       }
@@ -50,7 +42,6 @@ export const PaginateQuestionsDocument = gql`
 }
     ${PaginationFragmentDoc}
 ${QuestionItemFragmentDoc}
-${QuestionOptionItemFragmentDoc}
 ${QuestionCollectionItemFragmentDoc}`;
 
 /**

@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ChevronDownIcon, ChevronUpIcon, ChevronsUpDownIcon, FilterIcon, SearchIcon } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDropdown } from 'app/shared/components/ui/dropdown/AppDropdown';
@@ -26,6 +26,8 @@ interface DataTableProps<TData> {
   readonly searchPlaceholder?: string;
   readonly totalItems?: number;
   readonly pageSize?: number;
+  readonly currentPage?: number;
+  readonly onPageChange?: (page: number, pageSize: number) => void;
 }
 
 function DataTable<TData>({
@@ -34,19 +36,31 @@ function DataTable<TData>({
   searchPlaceholder = 'Search...',
   totalItems,
   pageSize: initialPageSize = 20,
+  currentPage: externalCurrentPage,
+  onPageChange,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [rowSelection, setRowSelection] = useState({});
   const [pageSize, setPageSize] = useState(initialPageSize);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState((externalCurrentPage ?? 1) - 1);
+
+  // Sync external currentPage with internal pageIndex
+  useEffect(() => {
+    if (externalCurrentPage !== undefined) {
+      const newPageIndex = externalCurrentPage - 1;
+      if (newPageIndex !== pageIndex) {
+        setPageIndex(newPageIndex);
+      }
+    }
+  }, [externalCurrentPage, pageIndex]);
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    // Disable native pagination when totalItems is provided (server-side pagination)
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -75,12 +89,41 @@ function DataTable<TData>({
         pageSize,
       },
     },
+    // Override pagination methods for server-side pagination
+    ...(totalItems
+      ? {
+          getPaginationRowModel: getPaginationRowModel(),
+          manualPagination: true,
+          pageCount: Math.ceil(totalItems / pageSize),
+        }
+      : {}),
   });
 
   const tableState = table.getState();
   const tablePagination = tableState.pagination;
   const currentPage = tablePagination.pageIndex + 1;
   const tableTotalItems = totalItems ?? table.getFilteredRowModel().rows.length;
+  const totalPages = totalItems ? Math.ceil(totalItems / pageSize) : table.getPageCount();
+
+  // Calculate visible page numbers (max 5 pages)
+  function getVisiblePages() {
+    const maxVisiblePages = 5;
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(1, currentPage - halfVisible);
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust start page if we're near the end
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    return { startPage, endPage };
+  }
+
+  const { startPage, endPage } = getVisiblePages();
+  const showStartEllipsis = startPage > 1;
+  const showEndEllipsis = endPage < totalPages;
 
   function handleGlobalFilterChange(e: React.ChangeEvent<HTMLInputElement>) {
     setGlobalFilter(e.target.value);
@@ -90,11 +133,13 @@ function DataTable<TData>({
     const newPageSize = Number(value);
     setPageSize(newPageSize);
     table.setPageSize(newPageSize);
+    onPageChange?.(pageIndex + 1, newPageSize);
   }
 
   function handlePageChange(newPageIndex: number) {
     setPageIndex(newPageIndex);
     table.setPageIndex(newPageIndex);
+    onPageChange?.(newPageIndex + 1, pageSize);
   }
 
   function isColumnFilterable(columnId: string) {
@@ -210,21 +255,52 @@ function DataTable<TData>({
           <AppPagination.Content>
             <AppPagination.Item>
               <AppPagination.Previous
-                onClick={() => table.getCanPreviousPage() && handlePageChange(pageIndex - 1)}
-                className={!table.getCanPreviousPage() ? 'pointer-events-none opacity-50' : ''}
+                onClick={() => currentPage > 1 && handlePageChange(pageIndex - 1)}
+                className={currentPage <= 1 ? 'pointer-events-none opacity-50' : ''}
               />
             </AppPagination.Item>
-            {Array.from({ length: table.getPageCount() }, (_, i) => i + 1).map((page) => (
+
+            {/* First page if not visible */}
+            {showStartEllipsis && (
+              <>
+                <AppPagination.Item>
+                  <AppPagination.Link isActive={false} onClick={() => handlePageChange(0)}>
+                    1
+                  </AppPagination.Link>
+                </AppPagination.Item>
+                <AppPagination.Item>
+                  <AppPagination.Ellipsis />
+                </AppPagination.Item>
+              </>
+            )}
+
+            {/* Visible page numbers */}
+            {Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((page) => (
               <AppPagination.Item key={page}>
                 <AppPagination.Link isActive={pageIndex === page - 1} onClick={() => handlePageChange(page - 1)}>
                   {page}
                 </AppPagination.Link>
               </AppPagination.Item>
             ))}
+
+            {/* Last page if not visible */}
+            {showEndEllipsis && (
+              <>
+                <AppPagination.Item>
+                  <AppPagination.Ellipsis />
+                </AppPagination.Item>
+                <AppPagination.Item>
+                  <AppPagination.Link isActive={false} onClick={() => handlePageChange(totalPages - 1)}>
+                    {totalPages}
+                  </AppPagination.Link>
+                </AppPagination.Item>
+              </>
+            )}
+
             <AppPagination.Item>
               <AppPagination.Next
-                onClick={() => table.getCanNextPage() && handlePageChange(pageIndex + 1)}
-                className={!table.getCanNextPage() ? 'pointer-events-none opacity-50' : ''}
+                onClick={() => currentPage < totalPages && handlePageChange(pageIndex + 1)}
+                className={currentPage >= totalPages ? 'pointer-events-none opacity-50' : ''}
               />
             </AppPagination.Item>
           </AppPagination.Content>

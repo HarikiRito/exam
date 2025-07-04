@@ -1,16 +1,15 @@
 import { useNavigate } from '@remix-run/react';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Check, EyeIcon, PencilIcon, PlusIcon } from 'lucide-react';
+import { EyeIcon, PencilIcon, PlusIcon } from 'lucide-react';
 
 import { PaginateQuestionsQuery } from 'app/graphql/operations/question/paginateQuestions.query.generated';
 import { usePaginateQuestionsQuery } from 'app/graphql/operations/question/paginateQuestions.query.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
-import { AppPopover } from 'app/shared/components/ui/popover/AppPopover';
-import { AppCommand } from 'app/shared/components/ui/command/AppCommand';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { cn } from 'app/shared/utils/className';
+import { useImmer } from 'use-immer';
 
 // Type for a single question item from the query
 type QuestionItem = PaginateQuestionsQuery['paginatedQuestions']['items'][0];
@@ -18,22 +17,29 @@ type QuestionItem = PaginateQuestionsQuery['paginatedQuestions']['items'][0];
 export default function AdminQuestions() {
   const navigate = useNavigate();
 
-  const state = {
+  const [pagination, setPagination] = useImmer({
     page: 1,
     limit: 10,
     search: '',
-  };
+  });
 
   // Fetch questions data
   const { data } = usePaginateQuestionsQuery({
     variables: {
       paginationInput: {
-        page: state.page,
-        limit: state.limit,
-        search: state.search,
+        page: pagination.page,
+        limit: pagination.limit,
+        search: pagination.search,
       },
     },
   });
+
+  function handlePageChange(page: number, pageSize: number) {
+    setPagination((draft) => {
+      draft.page = page;
+      draft.limit = pageSize;
+    });
+  }
 
   // Get table data and total items count
   const tableData = data?.paginatedQuestions.items || [];
@@ -67,38 +73,6 @@ export default function AdminQuestions() {
         return points;
       },
       enableSorting: true,
-      enableColumnFilter: false,
-    }),
-    columnHelper.accessor('options', {
-      header: 'Options',
-      cell: (info) => {
-        const options = info.getValue();
-        return (
-          <AppPopover.Root>
-            <AppPopover.Trigger asChild>
-              <AppButton variant='outline' size='sm'>
-                View Options ({options.length})
-              </AppButton>
-            </AppPopover.Trigger>
-            <AppPopover.Content className='p-0'>
-              <AppCommand.Root>
-                <AppCommand.List>
-                  {options.map((option) => (
-                    <AppCommand.Item
-                      key={option.id}
-                      className={cn('p-3', option.isCorrect && 'bg-green-50')}
-                      title={option.optionText}>
-                      <span>{option.optionText}</span>
-                      {option.isCorrect && <Check className='ml-auto' />}
-                    </AppCommand.Item>
-                  ))}
-                </AppCommand.List>
-              </AppCommand.Root>
-            </AppPopover.Content>
-          </AppPopover.Root>
-        );
-      },
-      enableSorting: false,
       enableColumnFilter: false,
     }),
     columnHelper.accessor('id', {
@@ -144,6 +118,9 @@ export default function AdminQuestions() {
         data={tableData}
         searchPlaceholder='Search questions...'
         totalItems={totalItems}
+        pageSize={pagination.limit}
+        currentPage={pagination.page}
+        onPageChange={handlePageChange}
       />
     </div>
   );

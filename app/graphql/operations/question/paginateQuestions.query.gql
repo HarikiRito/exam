@@ -5,9 +5,6 @@ query PaginateQuestions($paginationInput: PaginationInput) {
     }
     items {
       ...QuestionItem
-      options {
-        ...QuestionOptionItem
-      }
       collection {
         ...QuestionCollectionItem
       }

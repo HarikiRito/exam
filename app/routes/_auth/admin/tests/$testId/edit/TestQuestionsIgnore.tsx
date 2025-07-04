@@ -1,5 +1,5 @@
 import { useParams } from '@remix-run/react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Flag, FlagOff } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -97,6 +97,7 @@ export function TestQuestionsIgnore() {
               {isIgnore && <AppBadge className='text-xs'>Ignored</AppBadge>}
             </div>
           </div>
+          {/* TODO: Add a view button that link to the question detail page */}
           <AppButton
             variant='ghost'
             size='icon'
@@ -104,7 +105,7 @@ export function TestQuestionsIgnore() {
               e.stopPropagation();
               handleQuestionSelect(question.id, !isIgnore);
             }}>
-            {isIgnore ? <EyeOff className='size-4' /> : <Eye className='size-4' />}
+            {isIgnore ? <FlagOff className='size-4' /> : <Flag className='size-4' />}
           </AppButton>
         </div>
       </div>
