@@ -107,7 +107,7 @@ func GetAllPermissions(ctx context.Context) ([]*ent.Permission, error) {
 }
 
 // GetPermissionsByUserIDs fetches permissions for multiple users and returns a map with user ID as key and permissions array as value
-func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*ent.Permission, error) {
+func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]Permission, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
@@ -131,12 +131,14 @@ func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid
 	}
 
 	// Create map with user ID as key and permissions array as value
-	userPermissionsMap := make(map[uuid.UUID][]*ent.Permission)
+	userPermissionsMap := make(map[uuid.UUID][]Permission)
 	for _, userEntity := range users {
-		permissions := make([]*ent.Permission, 0)
+		permissions := make([]Permission, 0)
 
 		for _, role := range userEntity.Edges.Roles {
-			permissions = append(permissions, role.Edges.Permissions...)
+			for _, permission := range role.Edges.Permissions {
+				permissions = append(permissions, Permission(permission.Name))
+			}
 		}
 
 		permissions = slice.Unique(permissions)

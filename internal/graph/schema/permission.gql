@@ -2,12 +2,6 @@ extend type Query {
   getAllPermissions: [PermissionEnum!]!
 }
 
-type Permission {
-  id: ID!
-  name: String!
-  description: String
-}
-
 enum PermissionEnum @goModel(model: "template/internal/features/permission.Permission") {
   USER_CREATE @goEnum(value: "template/internal/features/permission.PermissionUserCreate")
   USER_READ @goEnum(value: "template/internal/features/permission.PermissionUserRead")

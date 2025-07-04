@@ -48,7 +48,7 @@ func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Rol
 }
 
 // Permissions is the resolver for the permissions field.
-func (r *userResolver) Permissions(ctx context.Context, obj *model.User) ([]*model.Permission, error) {
+func (r *userResolver) Permissions(ctx context.Context, obj *model.User) ([]permission.Permission, error) {
 	return dataloader.GetPermissionsByUserID(ctx, obj.ID)
 }
 
