@@ -4,33 +4,31 @@ import { PermissionEnum } from 'app/graphql/graphqlTypes';
 import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useElementSpace } from 'app/shared/hooks/useElementSpace';
-import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
 import { themeStore } from 'app/shared/stores/theme.store';
-import client from 'app/shared/utils/apollo';
-import { useNavigate } from 'react-router-dom';
 import { NavItem, NavMain } from './NavMain';
 import { NavUser } from './NavUser';
 import { TeamSwitcher } from './TeamSwitcher';
 
 const navMain: NavItem[] = [
   {
-    title: 'Playground',
+    title: 'Features',
     url: '#',
     icon: SquareTerminal,
     isActive: true,
     items: [
-      {
-        title: 'Dashboard',
-        url: APP_ROUTES.dashboard,
-      },
-      {
-        title: 'Courses',
-        url: APP_ROUTES.courses,
-      },
-      {
-        title: 'Profile',
-        url: APP_ROUTES.profile,
-      },
+      // TODO: WIP features
+      // {
+      //   title: 'Dashboard',
+      //   url: APP_ROUTES.dashboard,
+      // },
+      // {
+      //   title: 'Courses',
+      //   url: APP_ROUTES.courses,
+      // },
+      // {
+      //   title: 'Profile',
+      //   url: APP_ROUTES.profile,
+      // },
       {
         title: 'Test Sessions',
         url: APP_ROUTES.testSessions,
@@ -72,8 +70,6 @@ export function MainSidebar() {
   const [ref] = useElementSpace<HTMLDivElement>((space) => {
     themeStore.sideBarWidth = space.width;
   });
-
-  const navigate = useNavigate();
 
   return (
     <AppSidebar.Root collapsible='icon' ref={ref}>

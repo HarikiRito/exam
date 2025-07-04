@@ -1,25 +1,29 @@
 import { useNavigate, useParams } from '@remix-run/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PlusIcon, CheckIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { userStore } from 'app/shared/stores/user.store';
 import { useSnapshot } from 'valtio';
+import { useDebounceValue } from 'app/shared/hooks/useDebounce';
 
 import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
-import { usePaginateUsersQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
+import { usePaginateUsersLazyQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
 import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
 import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useImmer } from 'use-immer';
+import { PaginationInput } from 'app/graphql/graphqlTypes';
 
 export default function AdminTestDetail() {
   const navigate = useNavigate();
   const { testId } = useParams();
   const [isCreateSessionOpen, setIsCreateSessionOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
+  const [selectedUserIds, setSelectedUserIds] = useImmer<string[]>([]);
   const snap = useSnapshot(userStore);
 
   // Fetch test details
@@ -29,16 +33,7 @@ export default function AdminTestDetail() {
   });
 
   // Fetch users for the modal
-  const { data: usersData, loading: usersLoading } = usePaginateUsersQuery({
-    variables: {
-      paginationInput: {
-        page: 1,
-        limit: 50,
-        search: searchTerm,
-      },
-    },
-    skip: !isCreateSessionOpen,
-  });
+  const [getUsers, { data: usersData, loading: usersLoading }] = usePaginateUsersLazyQuery();
 
   // Create test session mutation
   const [createTestSession, { loading: createSessionLoading }] = useCreateTestSessionMutation({
@@ -53,8 +48,26 @@ export default function AdminTestDetail() {
     },
   });
 
+  useEffect(() => {
+    getUsers({
+      variables: {
+        paginationInput: {
+          page: 1,
+          limit: 50,
+          search: debouncedSearchTerm,
+        },
+      },
+    });
+  }, [debouncedSearchTerm, getUsers]);
+
   function handleUserToggle(userId: string) {
-    setSelectedUserIds((prev) => (prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]));
+    setSelectedUserIds((draft) => {
+      if (draft.includes(userId)) {
+        draft.splice(draft.indexOf(userId), 1);
+      } else {
+        draft.push(userId);
+      }
+    });
   }
 
   function handleCreateTestSession() {
@@ -100,6 +113,41 @@ export default function AdminTestDetail() {
 
   const test = testData.test;
   const users = usersData?.paginatedUsers?.items || [];
+
+  function _renderUserList() {
+    if (usersLoading) {
+      return <div className='text-muted-foreground py-4 text-center'>Loading users...</div>;
+    }
+
+    if (users.length === 0) {
+      return <div className='text-muted-foreground py-4 text-center'>No users found</div>;
+    }
+
+    return (
+      <div className='space-y-2'>
+        {users.map((user) => (
+          <div
+            key={user.id}
+            className='hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded border p-3'
+            onClick={() => handleUserToggle(user.id)}>
+            <div className='flex h-5 w-5 items-center justify-center rounded border'>
+              {selectedUserIds.includes(user.id) && <CheckIcon className='text-primary h-3 w-3' />}
+            </div>
+            <div className='flex-1'>
+              <AppTypography.p className='font-medium'>
+                {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}{' '}
+                {snap.user?.email === user.email && '(You)'}
+              </AppTypography.p>
+              <AppTypography.small className='text-muted-foreground'>{user.email}</AppTypography.small>
+            </div>
+            {!user.isActive && (
+              <span className='bg-muted text-muted-foreground rounded px-2 py-1 text-xs'>Inactive</span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className='container mx-auto py-6'>
@@ -189,36 +237,7 @@ export default function AdminTestDetail() {
             </div>
 
             {/* Users List */}
-            <div className='max-h-96 overflow-y-auto'>
-              {usersLoading ? (
-                <div className='text-muted-foreground py-4 text-center'>Loading users...</div>
-              ) : users.length === 0 ? (
-                <div className='text-muted-foreground py-4 text-center'>No users found</div>
-              ) : (
-                <div className='space-y-2'>
-                  {users.map((user) => (
-                    <div
-                      key={user.id}
-                      className='hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded border p-3'
-                      onClick={() => handleUserToggle(user.id)}>
-                      <div className='flex h-5 w-5 items-center justify-center rounded border'>
-                        {selectedUserIds.includes(user.id) && <CheckIcon className='text-primary h-3 w-3' />}
-                      </div>
-                      <div className='flex-1'>
-                        <AppTypography.p className='font-medium'>
-                          {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}{' '}
-                          {snap.user?.email === user.email && '(You)'}
-                        </AppTypography.p>
-                        <AppTypography.small className='text-muted-foreground'>{user.email}</AppTypography.small>
-                      </div>
-                      {!user.isActive && (
-                        <span className='bg-muted text-muted-foreground rounded px-2 py-1 text-xs'>Inactive</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <div className='max-h-96 overflow-y-auto'>{_renderUserList()}</div>
 
             {selectedUserIds.length > 0 && (
               <div className='bg-muted rounded p-3'>

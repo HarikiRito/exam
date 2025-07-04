@@ -19,14 +19,14 @@ export const links: LinksFunction = () => [
 
 export function Layout({ children }: { readonly children: React.ReactNode }) {
   return (
-    <html lang='en' className='h-full'>
+    <html lang='en' className='max-h-screen max-w-screen overflow-hidden'>
       <head>
         <meta charSet='utf-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <Meta />
         <Links />
       </head>
-      <body className='flex h-full flex-col'>
+      <body>
         {children}
         <ScrollRestoration />
         <Scripts />

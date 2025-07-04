@@ -7,6 +7,7 @@ import { cn } from 'app/shared/utils/className';
 import { AlertCircle, Flag, FlagOff } from 'lucide-react';
 import { ReportQuestionDialog } from './ReportQuestionDialog';
 import { useMemo } from 'react';
+import { shuffleArray } from 'app/shared/utils/random';
 
 export function QuestionSection() {
   const snapshot = testSessionStore.useStateSnapshot();
@@ -31,6 +32,8 @@ export function QuestionSection() {
     }
     return questionText;
   }, [isMultipleAnswer, question.correctOptionCount, question.questionText]);
+
+  const shuffledOptions = useMemo(() => shuffleArray(question.options), [question.options]);
 
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
@@ -61,7 +64,7 @@ export function QuestionSection() {
         </div>
       </div>
       <div className='grid gap-4 md:grid-cols-2'>
-        {question.options.map((option, index) => {
+        {shuffledOptions.map((option, index) => {
           const isSelected = selectedAnswerByQuestionIdMap[question.id]?.has(option.id);
           return (
             <AppCard.Root

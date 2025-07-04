@@ -84,7 +84,8 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
       },
     });
 
-    navigate(APP_ROUTES.dashboard);
+    // TODO: Navigate to the test session for now since it's the only feature that is available for now
+    navigate(APP_ROUTES.testSessions);
   }
 
   return (

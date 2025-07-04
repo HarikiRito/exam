@@ -18,6 +18,7 @@ import { AppSkeleton } from 'app/shared/components/ui/skeleton/AppSkeleton';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 import dayjs from 'dayjs';
+import { cn } from 'app/shared/utils/className';
 
 type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['items'][number];
 export default function TestSessionsIndex() {
@@ -111,6 +112,19 @@ export default function TestSessionsIndex() {
         id: selectedSession.current.id,
       },
     });
+  }
+
+  function _getButtonTextForSessionStatus(status: TestSessionStatus) {
+    switch (status) {
+      case TestSessionStatus.InProgress:
+        return 'Resume Test';
+      case TestSessionStatus.Pending:
+        return 'Start Test';
+      case TestSessionStatus.Completed:
+        return 'View Results';
+      default:
+        return 'View Session';
+    }
   }
 
   function _renderStartConfirmationModal() {
@@ -223,14 +237,8 @@ export default function TestSessionsIndex() {
           <AppButton
             onClick={() => handleSessionAction(session)}
             variant={canStart ? 'default' : 'secondary'}
-            className='w-full'>
-            {session.status === TestSessionStatus.InProgress
-              ? 'Resume Test'
-              : session.status === TestSessionStatus.Pending
-                ? 'Start Test'
-                : session.status === TestSessionStatus.Completed
-                  ? 'View Results'
-                  : 'View Session'}
+            className={cn('w-full', session.status === TestSessionStatus.Completed && 'hidden')}>
+            {_getButtonTextForSessionStatus(session.status)}
           </AppButton>
         </AppCard.Footer>
       </AppCard.Root>
