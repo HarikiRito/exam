@@ -18,6 +18,9 @@ import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppSwitch } from 'app/shared/components/ui/switch/AppSwitch';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 
 // Type for a single user item from the query
 type UserItem = PaginateUsersQuery['paginatedUsers']['items'][0];
@@ -33,6 +36,7 @@ type CreateUserFormData = z.infer<typeof createUserSchema>;
 export default function AdminUsers() {
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminUsers);
 
   const [pagination, setPagination] = useImmer({
     page: 1,
@@ -130,6 +134,10 @@ export default function AdminUsers() {
       enableColumnFilter: false,
     }),
   ];
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
 
   return (
     <div className='container mx-auto py-6'>

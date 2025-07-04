@@ -15,10 +15,14 @@ export function Authorized({ children, permissions, showUnauthorizedMessage = fa
 
   if (!hasPermissions) {
     if (showUnauthorizedMessage) {
-      return <p className='p-2 text-2xl text-red-500'>You are not authorized to access this page.</p>;
+      return <UnauthorizedMessage />;
     }
     return null;
   }
 
   return children;
+}
+
+export function UnauthorizedMessage() {
+  return <p className='p-2 text-2xl text-red-500'>You are not authorized to access this page.</p>;
 }

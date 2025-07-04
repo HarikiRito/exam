@@ -7,20 +7,29 @@ import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
 import { cn } from 'app/shared/utils/className';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 
 export default function QuestionDetailPage() {
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminQuestions);
+
   const { questionId } = useParams();
   const navigate = useNavigate();
 
   const { data, loading, error } = useGetQuestionQuery({
     variables: { id: questionId! },
-    skip: !questionId,
+    skip: !questionId || !hasPermission,
   });
 
   function handleEditClick() {
     if (questionId) {
       navigate(APP_ROUTES.adminQuestionEdit(questionId));
     }
+  }
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
   }
 
   if (loading) {

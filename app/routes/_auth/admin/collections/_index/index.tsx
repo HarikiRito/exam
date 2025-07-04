@@ -3,17 +3,22 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { PaginateQuestionCollectionsQuery } from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
-import { usePaginateQuestionCollectionsQuery } from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
 import { useDeleteQuestionCollectionMutation } from 'app/graphql/operations/questionCollection/deleteQuestionCollection.mutation.generated';
-import { PaginateQuestionCollectionsDocument } from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
+import {
+  PaginateQuestionCollectionsDocument,
+  PaginateQuestionCollectionsQuery,
+  usePaginateQuestionCollectionsQuery,
+} from 'app/graphql/operations/questionCollection/paginateQuestionCollections.query.generated';
+import { AppAlertDialog } from 'app/shared/components/ui/alert-dialog/AppAlertDialog';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
-import { AppAlertDialog } from 'app/shared/components/ui/alert-dialog/AppAlertDialog';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { apolloService } from 'app/shared/services/apollo.service';
 import { useState } from 'react';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 
 // Type for a single collection item from the query
 type CollectionItem = PaginateQuestionCollectionsQuery['paginatedQuestionCollections']['items'][0];
@@ -21,6 +26,7 @@ type CollectionItem = PaginateQuestionCollectionsQuery['paginatedQuestionCollect
 export default function AdminCollections() {
   const navigate = useNavigate();
   const [deletingCollectionId, setDeletingCollectionId] = useState<string | null>(null);
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminCollections);
 
   const state = {
     page: 1,
@@ -161,6 +167,10 @@ export default function AdminCollections() {
       enableColumnFilter: false,
     }),
   ];
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
 
   return (
     <div className='container mx-auto py-6'>

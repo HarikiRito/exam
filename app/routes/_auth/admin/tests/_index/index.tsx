@@ -14,6 +14,9 @@ import { AppAlertDialog } from 'app/shared/components/ui/alert-dialog/AppAlertDi
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { apolloService } from 'app/shared/services/apollo.service';
 import { useState } from 'react';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 
 // Type for a single test item from the query
 type TestItem = PaginateTestsQuery['paginatedTests']['items'][0];
@@ -21,6 +24,7 @@ type TestItem = PaginateTestsQuery['paginatedTests']['items'][0];
 export default function AdminTests() {
   const navigate = useNavigate();
   const [deletingTestId, setDeletingTestId] = useState<string | null>(null);
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminTests);
 
   const state = {
     page: 1,
@@ -133,6 +137,10 @@ export default function AdminTests() {
       enableColumnFilter: false,
     }),
   ];
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
 
   return (
     <div className='container mx-auto py-6'>

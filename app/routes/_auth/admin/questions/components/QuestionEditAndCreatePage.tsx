@@ -22,6 +22,9 @@ import { apolloService } from 'app/shared/services/apollo.service';
 import { QuestionCollectionSelector } from 'app/shared/components/custom/question/QuestionCollectionSelector';
 import { QuestionOptionsManager } from 'app/shared/components/custom/question/QuestionOptionsManager';
 import { CorrectOptionToggle } from 'app/shared/components/custom/question/CorrectOptionToggle';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 
 // Question form schema
 const questionSchema = z.object({
@@ -53,13 +56,17 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
 
   const isEdit = mode === 'edit';
 
+  const hasPermission = useCheckPermission(
+    isEdit ? PERMISSION_ROUTE.adminQuestionEdit : PERMISSION_ROUTE.adminQuestionCreate,
+  );
+
   const navigate = useNavigate();
   const { questionId } = useParams();
 
   // Fetch question data for edit mode
   const { data: questionData, loading: questionLoading } = useGetQuestionQuery({
     variables: { id: questionId! },
-    skip: !isEdit || !questionId,
+    skip: !isEdit || !questionId || !hasPermission,
   });
 
   // Fetch question collections for the dropdown
@@ -70,6 +77,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
         limit: 100, // Get all collections for the dropdown
       },
     },
+    skip: !hasPermission,
   });
 
   // Create question mutation
@@ -150,6 +158,10 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
       }
     }
   }, [questionData, mutation]);
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
 
   // Handle form submission
   async function handleSubmit(data: QuestionFormData) {

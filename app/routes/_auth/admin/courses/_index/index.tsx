@@ -2,16 +2,20 @@ import { useNavigate } from '@remix-run/react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
+import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
 import { useDeleteCourseMutation } from 'app/graphql/operations/course/deleteCourse.mutation.generated';
 import { usePaginateCoursesQuery } from 'app/graphql/operations/course/paginateCourse.query.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { CourseItemFragment } from 'app/graphql/operations/course/course.fragment.generated';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 
 export default function AdminCourses() {
   const navigate = useNavigate();
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminCourses);
 
   const state = {
     page: 1,
@@ -108,6 +112,10 @@ export default function AdminCourses() {
   // Get table data and total items count
   const tableData = data?.paginatedCourses.items || [];
   const totalItems = data?.paginatedCourses.pagination.totalItems || 0;
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
 
   return (
     <div className='container mx-auto py-6'>

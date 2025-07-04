@@ -6,19 +6,22 @@ import {
   PaginateQuestionsQuery,
   usePaginateQuestionsQuery,
 } from 'app/graphql/operations/question/paginateQuestions.query.generated';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
-import { APP_ROUTES } from 'app/shared/constants/routes';
-import { useImmer } from 'use-immer';
-import { Authorized } from 'app/shared/components/custom/Authorized';
 import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { useImmer } from 'use-immer';
 
 // Type for a single question item from the query
 type QuestionItem = PaginateQuestionsQuery['paginatedQuestions']['items'][0];
 
 export default function AdminQuestions() {
   const navigate = useNavigate();
+
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminQuestions);
 
   const [pagination, setPagination] = useImmer({
     page: 1,
@@ -35,6 +38,7 @@ export default function AdminQuestions() {
         search: pagination.search,
       },
     },
+    skip: !hasPermission,
   });
 
   function handlePageChange(page: number, pageSize: number) {
@@ -106,27 +110,29 @@ export default function AdminQuestions() {
     }),
   ];
 
-  return (
-    <Authorized permissions={PERMISSION_ROUTE.adminQuestions} showUnauthorizedMessage>
-      <div className='container mx-auto py-6'>
-        <div className='mb-6 flex items-center justify-between'>
-          <AppTypography.h1>Questions Management</AppTypography.h1>
-          <AppButton onClick={() => navigate(APP_ROUTES.adminQuestionCreate)} className='flex items-center gap-2'>
-            <PlusIcon className='h-4 w-4' />
-            Add Question
-          </AppButton>
-        </div>
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
 
-        <AppDataTable
-          columns={columns}
-          data={tableData}
-          searchPlaceholder='Search questions...'
-          totalItems={totalItems}
-          pageSize={pagination.limit}
-          currentPage={pagination.page}
-          onPageChange={handlePageChange}
-        />
+  return (
+    <div className='container mx-auto py-6'>
+      <div className='mb-6 flex items-center justify-between'>
+        <AppTypography.h1>Questions Management</AppTypography.h1>
+        <AppButton onClick={() => navigate(APP_ROUTES.adminQuestionCreate)} className='flex items-center gap-2'>
+          <PlusIcon className='h-4 w-4' />
+          Add Question
+        </AppButton>
       </div>
-    </Authorized>
+
+      <AppDataTable
+        columns={columns}
+        data={tableData}
+        searchPlaceholder='Search questions...'
+        totalItems={totalItems}
+        pageSize={pagination.limit}
+        currentPage={pagination.page}
+        onPageChange={handlePageChange}
+      />
+    </div>
   );
 }
