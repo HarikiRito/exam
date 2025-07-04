@@ -7,11 +7,15 @@ import { AppAvatar } from 'app/shared/components/ui/avatar/AppAvatar';
 import { AppDropdown } from 'app/shared/components/ui/dropdown/AppDropdown';
 import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
 import { userStore } from 'app/shared/stores/user.store';
+import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import client from 'app/shared/utils/apollo';
+import { useNavigate } from 'react-router-dom';
 
 export function NavUser() {
   const { isMobile } = AppSidebar.useSidebar();
   const { data, loading, error } = useMeQuery();
-
+  const navigate = useNavigate();
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -22,6 +26,13 @@ export function NavUser() {
   const user = data.me;
   // Update user store
   userStore.user = user;
+
+  async function handleLogout() {
+    CookieService.removeValue(CookieKey.AccessToken);
+    CookieService.removeValue(CookieKey.RefreshToken);
+    await client.resetStore();
+    navigate(APP_ROUTES.login);
+  }
 
   const userLabel = (
     <AppDropdown.Label className='p-0 font-normal'>
@@ -81,7 +92,7 @@ export function NavUser() {
               </AppDropdown.Item>
             </AppDropdown.Group>
             <AppDropdown.Separator />
-            <AppDropdown.Item>
+            <AppDropdown.Item onClick={handleLogout}>
               <LogOut />
               Log out
             </AppDropdown.Item>
