@@ -31,7 +31,7 @@ func GetDefaultRoles() []RoleData {
 		{
 			Name:        RoleOwner,
 			Description: pointer.From("System owner with full unrestricted access"),
-			Permissions: slice.Map(permissionFeat.AllPermissions, func(p permissionFeat.Permission) string {
+			Permissions: slice.Map(permissionFeat.OwnerPermissions, func(p permissionFeat.Permission) string {
 				return string(p)
 			}),
 		},

@@ -143,6 +143,12 @@ type PaginationInput struct {
 	Search *string `json:"search,omitempty"`
 }
 
+type Permission struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description,omitempty"`
+}
+
 type Query struct {
 }
 

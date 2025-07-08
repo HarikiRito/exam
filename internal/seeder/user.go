@@ -122,12 +122,7 @@ func SeedUsers(ctx context.Context) error {
 
 		// Skip if user already exists
 		if exists {
-			fmt.Printf("User '%s' already exists, update role only\n", userData.Email)
-
-			tx.User.Update().
-				Where(user.EmailEQ(userData.Email)).
-				AddRoleIDs(roleMap[userData.RoleName].ID).
-				Save(ctx)
+			fmt.Printf("User '%s' already exists, skipping...\n", userData.Email)
 			continue
 		}
 

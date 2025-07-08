@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
-	"template/internal/features/permission"
 	"template/internal/graph/model"
 	"template/internal/graph/scalar"
 	"time"
@@ -154,6 +153,12 @@ type ComplexityRoot struct {
 		HasPreviousPage func(childComplexity int) int
 		TotalItems      func(childComplexity int) int
 		TotalPages      func(childComplexity int) int
+	}
+
+	Permission struct {
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	Query struct {
@@ -315,7 +320,7 @@ type QueryResolver interface {
 	PaginatedCourses(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedCourse, error)
 	CourseSection(ctx context.Context, id uuid.UUID) (*model.CourseSection, error)
 	CourseSectionsByCourseID(ctx context.Context, courseID uuid.UUID, filter *model.CourseSectionFilterInput) ([]*model.CourseSection, error)
-	GetAllPermissions(ctx context.Context) ([]permission.Permission, error)
+	GetAllPermissions(ctx context.Context) ([]*model.Permission, error)
 	Question(ctx context.Context, id uuid.UUID) (*model.Question, error)
 	Questions(ctx context.Context, ids []uuid.UUID) ([]*model.Question, error)
 	PaginatedQuestions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestion, error)
@@ -354,7 +359,7 @@ type TestSessionResolver interface {
 }
 type UserResolver interface {
 	Roles(ctx context.Context, obj *model.User) ([]*model.Role, error)
-	Permissions(ctx context.Context, obj *model.User) ([]permission.Permission, error)
+	Permissions(ctx context.Context, obj *model.User) ([]*model.Permission, error)
 }
 
 type executableSchema struct {
@@ -954,6 +959,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Pagination.TotalPages(childComplexity), true
+
+	case "Permission.description":
+		if e.complexity.Permission.Description == nil {
+			break
+		}
+
+		return e.complexity.Permission.Description(childComplexity), true
+
+	case "Permission.id":
+		if e.complexity.Permission.ID == nil {
+			break
+		}
+
+		return e.complexity.Permission.ID(childComplexity), true
+
+	case "Permission.name":
+		if e.complexity.Permission.Name == nil {
+			break
+		}
+
+		return e.complexity.Permission.Name(childComplexity), true
 
 	case "Query.course":
 		if e.complexity.Query.Course == nil {
@@ -6570,6 +6596,135 @@ func (ec *executionContext) fieldContext_Pagination_hasPreviousPage(_ context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Permission_id(ctx context.Context, field graphql.CollectedField, obj *model.Permission) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Permission_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Permission_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Permission",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Permission_name(ctx context.Context, field graphql.CollectedField, obj *model.Permission) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Permission_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Permission_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Permission",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Permission_description(ctx context.Context, field graphql.CollectedField, obj *model.Permission) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Permission_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Permission_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Permission",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_me(ctx, field)
 	if err != nil {
@@ -7031,9 +7186,9 @@ func (ec *executionContext) _Query_getAllPermissions(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]permission.Permission)
+	res := resTmp.([]*model.Permission)
 	fc.Result = res
-	return ec.marshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeaturesᚋpermissionᚐPermissionᚄ(ctx, field.Selections, res)
+	return ec.marshalNPermission2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐPermissionᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getAllPermissions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -7043,7 +7198,15 @@ func (ec *executionContext) fieldContext_Query_getAllPermissions(_ context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type PermissionEnum does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Permission_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Permission_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Permission_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Permission", field.Name)
 		},
 	}
 	return fc, nil
@@ -10714,9 +10877,9 @@ func (ec *executionContext) _User_permissions(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]permission.Permission)
+	res := resTmp.([]*model.Permission)
 	fc.Result = res
-	return ec.marshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeaturesᚋpermissionᚐPermissionᚄ(ctx, field.Selections, res)
+	return ec.marshalNPermission2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐPermissionᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_permissions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10726,7 +10889,15 @@ func (ec *executionContext) fieldContext_User_permissions(_ context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type PermissionEnum does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Permission_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Permission_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Permission_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Permission", field.Name)
 		},
 	}
 	return fc, nil
@@ -14521,6 +14692,52 @@ func (ec *executionContext) _Pagination(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var permissionImplementors = []string{"Permission"}
+
+func (ec *executionContext) _Permission(ctx context.Context, sel ast.SelectionSet, obj *model.Permission) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, permissionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Permission")
+		case "id":
+			out.Values[i] = ec._Permission_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Permission_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "description":
+			out.Values[i] = ec._Permission_description(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -16783,123 +17000,7 @@ func (ec *executionContext) marshalNPagination2ᚖtemplateᚋinternalᚋgraphᚋ
 	return ec._Pagination(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission(ctx context.Context, v interface{}) (permission.Permission, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := unmarshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission[tmp]
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission(ctx context.Context, sel ast.SelectionSet, v permission.Permission) graphql.Marshaler {
-	res := graphql.MarshalString(marshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission[v])
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
-var (
-	unmarshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission = map[string]permission.Permission{
-		"USER_CREATE":            permission.PermissionUserCreate,
-		"USER_READ":              permission.PermissionUserRead,
-		"SESSION_CREATE":         permission.PermissionSessionCreate,
-		"SESSION_READ":           permission.PermissionSessionRead,
-		"SESSION_UPDATE":         permission.PermissionSessionUpdate,
-		"SESSION_DELETE":         permission.PermissionSessionDelete,
-		"COLLECTION_CREATE":      permission.CollectionCreate,
-		"COLLECTION_READ":        permission.CollectionRead,
-		"COLLECTION_UPDATE":      permission.CollectionUpdate,
-		"COLLECTION_DELETE":      permission.CollectionDelete,
-		"TEST_READ":              permission.TestRead,
-		"TEST_UPDATE":            permission.TestUpdate,
-		"TEST_DELETE":            permission.TestDelete,
-		"TEST_CREATE":            permission.TestCreate,
-		"COURSE_CREATE":          permission.CourseCreate,
-		"COURSE_READ":            permission.CourseRead,
-		"COURSE_UPDATE":          permission.CourseUpdate,
-		"COURSE_DELETE":          permission.CourseDelete,
-		"COURSE_SECTION_CREATE":  permission.CourseSectionCreate,
-		"COURSE_SECTION_READ":    permission.CourseSectionRead,
-		"COURSE_SECTION_UPDATE":  permission.CourseSectionUpdate,
-		"COURSE_SECTION_DELETE":  permission.CourseSectionDelete,
-		"QUESTION_CREATE":        permission.QuestionCreate,
-		"QUESTION_READ":          permission.QuestionRead,
-		"QUESTION_UPDATE":        permission.QuestionUpdate,
-		"QUESTION_DELETE":        permission.QuestionDelete,
-		"QUESTION_OPTION_CREATE": permission.QuestionOptionCreate,
-		"QUESTION_OPTION_READ":   permission.QuestionOptionRead,
-		"QUESTION_OPTION_UPDATE": permission.QuestionOptionUpdate,
-		"QUESTION_OPTION_DELETE": permission.QuestionOptionDelete,
-		"VIDEO_CREATE":           permission.VideoCreate,
-		"VIDEO_READ":             permission.VideoRead,
-		"VIDEO_UPDATE":           permission.VideoUpdate,
-		"VIDEO_DELETE":           permission.VideoDelete,
-		"MEDIA_CREATE":           permission.MediaCreate,
-		"MEDIA_READ":             permission.MediaRead,
-		"MEDIA_UPDATE":           permission.MediaUpdate,
-		"MEDIA_DELETE":           permission.MediaDelete,
-	}
-	marshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission = map[permission.Permission]string{
-		permission.PermissionUserCreate:    "USER_CREATE",
-		permission.PermissionUserRead:      "USER_READ",
-		permission.PermissionSessionCreate: "SESSION_CREATE",
-		permission.PermissionSessionRead:   "SESSION_READ",
-		permission.PermissionSessionUpdate: "SESSION_UPDATE",
-		permission.PermissionSessionDelete: "SESSION_DELETE",
-		permission.CollectionCreate:        "COLLECTION_CREATE",
-		permission.CollectionRead:          "COLLECTION_READ",
-		permission.CollectionUpdate:        "COLLECTION_UPDATE",
-		permission.CollectionDelete:        "COLLECTION_DELETE",
-		permission.TestRead:                "TEST_READ",
-		permission.TestUpdate:              "TEST_UPDATE",
-		permission.TestDelete:              "TEST_DELETE",
-		permission.TestCreate:              "TEST_CREATE",
-		permission.CourseCreate:            "COURSE_CREATE",
-		permission.CourseRead:              "COURSE_READ",
-		permission.CourseUpdate:            "COURSE_UPDATE",
-		permission.CourseDelete:            "COURSE_DELETE",
-		permission.CourseSectionCreate:     "COURSE_SECTION_CREATE",
-		permission.CourseSectionRead:       "COURSE_SECTION_READ",
-		permission.CourseSectionUpdate:     "COURSE_SECTION_UPDATE",
-		permission.CourseSectionDelete:     "COURSE_SECTION_DELETE",
-		permission.QuestionCreate:          "QUESTION_CREATE",
-		permission.QuestionRead:            "QUESTION_READ",
-		permission.QuestionUpdate:          "QUESTION_UPDATE",
-		permission.QuestionDelete:          "QUESTION_DELETE",
-		permission.QuestionOptionCreate:    "QUESTION_OPTION_CREATE",
-		permission.QuestionOptionRead:      "QUESTION_OPTION_READ",
-		permission.QuestionOptionUpdate:    "QUESTION_OPTION_UPDATE",
-		permission.QuestionOptionDelete:    "QUESTION_OPTION_DELETE",
-		permission.VideoCreate:             "VIDEO_CREATE",
-		permission.VideoRead:               "VIDEO_READ",
-		permission.VideoUpdate:             "VIDEO_UPDATE",
-		permission.VideoDelete:             "VIDEO_DELETE",
-		permission.MediaCreate:             "MEDIA_CREATE",
-		permission.MediaRead:               "MEDIA_READ",
-		permission.MediaUpdate:             "MEDIA_UPDATE",
-		permission.MediaDelete:             "MEDIA_DELETE",
-	}
-)
-
-func (ec *executionContext) unmarshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeaturesᚋpermissionᚐPermissionᚄ(ctx context.Context, v interface{}) ([]permission.Permission, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]permission.Permission, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeaturesᚋpermissionᚐPermissionᚄ(ctx context.Context, sel ast.SelectionSet, v []permission.Permission) graphql.Marshaler {
+func (ec *executionContext) marshalNPermission2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐPermissionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Permission) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -16923,7 +17024,7 @@ func (ec *executionContext) marshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeat
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPermissionEnum2templateᚋinternalᚋfeaturesᚋpermissionᚐPermission(ctx, sel, v[i])
+			ret[i] = ec.marshalNPermission2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPermission(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -16943,88 +17044,15 @@ func (ec *executionContext) marshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeat
 	return ret
 }
 
-var (
-	unmarshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeaturesᚋpermissionᚐPermissionᚄ = map[string]permission.Permission{
-		"USER_CREATE":            permission.PermissionUserCreate,
-		"USER_READ":              permission.PermissionUserRead,
-		"SESSION_CREATE":         permission.PermissionSessionCreate,
-		"SESSION_READ":           permission.PermissionSessionRead,
-		"SESSION_UPDATE":         permission.PermissionSessionUpdate,
-		"SESSION_DELETE":         permission.PermissionSessionDelete,
-		"COLLECTION_CREATE":      permission.CollectionCreate,
-		"COLLECTION_READ":        permission.CollectionRead,
-		"COLLECTION_UPDATE":      permission.CollectionUpdate,
-		"COLLECTION_DELETE":      permission.CollectionDelete,
-		"TEST_READ":              permission.TestRead,
-		"TEST_UPDATE":            permission.TestUpdate,
-		"TEST_DELETE":            permission.TestDelete,
-		"TEST_CREATE":            permission.TestCreate,
-		"COURSE_CREATE":          permission.CourseCreate,
-		"COURSE_READ":            permission.CourseRead,
-		"COURSE_UPDATE":          permission.CourseUpdate,
-		"COURSE_DELETE":          permission.CourseDelete,
-		"COURSE_SECTION_CREATE":  permission.CourseSectionCreate,
-		"COURSE_SECTION_READ":    permission.CourseSectionRead,
-		"COURSE_SECTION_UPDATE":  permission.CourseSectionUpdate,
-		"COURSE_SECTION_DELETE":  permission.CourseSectionDelete,
-		"QUESTION_CREATE":        permission.QuestionCreate,
-		"QUESTION_READ":          permission.QuestionRead,
-		"QUESTION_UPDATE":        permission.QuestionUpdate,
-		"QUESTION_DELETE":        permission.QuestionDelete,
-		"QUESTION_OPTION_CREATE": permission.QuestionOptionCreate,
-		"QUESTION_OPTION_READ":   permission.QuestionOptionRead,
-		"QUESTION_OPTION_UPDATE": permission.QuestionOptionUpdate,
-		"QUESTION_OPTION_DELETE": permission.QuestionOptionDelete,
-		"VIDEO_CREATE":           permission.VideoCreate,
-		"VIDEO_READ":             permission.VideoRead,
-		"VIDEO_UPDATE":           permission.VideoUpdate,
-		"VIDEO_DELETE":           permission.VideoDelete,
-		"MEDIA_CREATE":           permission.MediaCreate,
-		"MEDIA_READ":             permission.MediaRead,
-		"MEDIA_UPDATE":           permission.MediaUpdate,
-		"MEDIA_DELETE":           permission.MediaDelete,
+func (ec *executionContext) marshalNPermission2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐPermission(ctx context.Context, sel ast.SelectionSet, v *model.Permission) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
 	}
-	marshalNPermissionEnum2ᚕtemplateᚋinternalᚋfeaturesᚋpermissionᚐPermissionᚄ = map[permission.Permission]string{
-		permission.PermissionUserCreate:    "USER_CREATE",
-		permission.PermissionUserRead:      "USER_READ",
-		permission.PermissionSessionCreate: "SESSION_CREATE",
-		permission.PermissionSessionRead:   "SESSION_READ",
-		permission.PermissionSessionUpdate: "SESSION_UPDATE",
-		permission.PermissionSessionDelete: "SESSION_DELETE",
-		permission.CollectionCreate:        "COLLECTION_CREATE",
-		permission.CollectionRead:          "COLLECTION_READ",
-		permission.CollectionUpdate:        "COLLECTION_UPDATE",
-		permission.CollectionDelete:        "COLLECTION_DELETE",
-		permission.TestRead:                "TEST_READ",
-		permission.TestUpdate:              "TEST_UPDATE",
-		permission.TestDelete:              "TEST_DELETE",
-		permission.TestCreate:              "TEST_CREATE",
-		permission.CourseCreate:            "COURSE_CREATE",
-		permission.CourseRead:              "COURSE_READ",
-		permission.CourseUpdate:            "COURSE_UPDATE",
-		permission.CourseDelete:            "COURSE_DELETE",
-		permission.CourseSectionCreate:     "COURSE_SECTION_CREATE",
-		permission.CourseSectionRead:       "COURSE_SECTION_READ",
-		permission.CourseSectionUpdate:     "COURSE_SECTION_UPDATE",
-		permission.CourseSectionDelete:     "COURSE_SECTION_DELETE",
-		permission.QuestionCreate:          "QUESTION_CREATE",
-		permission.QuestionRead:            "QUESTION_READ",
-		permission.QuestionUpdate:          "QUESTION_UPDATE",
-		permission.QuestionDelete:          "QUESTION_DELETE",
-		permission.QuestionOptionCreate:    "QUESTION_OPTION_CREATE",
-		permission.QuestionOptionRead:      "QUESTION_OPTION_READ",
-		permission.QuestionOptionUpdate:    "QUESTION_OPTION_UPDATE",
-		permission.QuestionOptionDelete:    "QUESTION_OPTION_DELETE",
-		permission.VideoCreate:             "VIDEO_CREATE",
-		permission.VideoRead:               "VIDEO_READ",
-		permission.VideoUpdate:             "VIDEO_UPDATE",
-		permission.VideoDelete:             "VIDEO_DELETE",
-		permission.MediaCreate:             "MEDIA_CREATE",
-		permission.MediaRead:               "MEDIA_READ",
-		permission.MediaUpdate:             "MEDIA_UPDATE",
-		permission.MediaDelete:             "MEDIA_DELETE",
-	}
-)
+	return ec._Permission(ctx, sel, v)
+}
 
 func (ec *executionContext) marshalNQuestion2templateᚋinternalᚋgraphᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v model.Question) graphql.Marshaler {
 	return ec._Question(ctx, sel, &v)
@@ -18306,44 +18334,6 @@ func (ec *executionContext) unmarshalOQuestionOptionInput2ᚕᚖtemplateᚋinter
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

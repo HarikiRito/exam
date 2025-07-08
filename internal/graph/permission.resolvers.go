@@ -7,9 +7,20 @@ package graph
 import (
 	"context"
 	"template/internal/features/permission"
+	"template/internal/graph/model"
 )
 
 // GetAllPermissions is the resolver for the getAllPermissions field.
-func (r *queryResolver) GetAllPermissions(ctx context.Context) ([]permission.Permission, error) {
-	return permission.AllPermissions, nil
+func (r *queryResolver) GetAllPermissions(ctx context.Context) ([]*model.Permission, error) {
+	entPermissions, err := permission.GetAllPermissions(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	permissions := make([]*model.Permission, len(entPermissions))
+	for i, entPermission := range entPermissions {
+		permissions[i] = model.ConvertPermissionToModel(entPermission)
+	}
+
+	return permissions, nil
 }

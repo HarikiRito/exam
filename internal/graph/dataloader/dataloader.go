@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"template/internal/features/permission"
 	"template/internal/graph/model"
 
 	"github.com/google/uuid"
@@ -19,7 +18,7 @@ const loadersKey = ctxKey("dataloaders")
 type Loaders struct {
 	UserLoader                      *dataloadgen.Loader[uuid.UUID, *model.User]
 	RolesByUserLoader               *dataloadgen.Loader[uuid.UUID, []*model.Role]
-	PermissionsByUserLoader         *dataloadgen.Loader[uuid.UUID, []permission.Permission]
+	PermissionsByUserLoader         *dataloadgen.Loader[uuid.UUID, []*model.Permission]
 	CourseSectionLoader             *dataloadgen.Loader[uuid.UUID, *model.CourseSection]
 	QuestionOptionLoader            *dataloadgen.Loader[uuid.UUID, []*model.QuestionOption]
 	CorrectOptionCountLoader        *dataloadgen.Loader[uuid.UUID, int]

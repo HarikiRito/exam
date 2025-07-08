@@ -3,20 +3,21 @@ package dataloader
 import (
 	"context"
 	"template/internal/features/permission"
+	"template/internal/graph/model"
 
 	"github.com/google/uuid"
 )
 
-func getPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) ([][]permission.Permission, []error) {
+func getPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) ([][]*model.Permission, []error) {
 	userPermissionsMap, err := permission.GetPermissionsByUserIDs(ctx, userIDs)
 
-	items := make([][]permission.Permission, len(userIDs))
+	items := make([][]*model.Permission, len(userIDs))
 	errs := make([]error, len(userIDs))
 
 	if err != nil {
 		for i := range errs {
 			errs[i] = err
-			items[i] = []permission.Permission{}
+			items[i] = []*model.Permission{}
 		}
 		return items, errs
 	}
@@ -24,14 +25,14 @@ func getPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) ([][]perm
 	for i, userID := range userIDs {
 		if entPermissions, exists := userPermissionsMap[userID]; exists {
 			// Convert all permissions for this user
-			userPermissions := make([]permission.Permission, len(entPermissions))
+			userPermissions := make([]*model.Permission, len(entPermissions))
 			for j, entPermission := range entPermissions {
-				userPermissions[j] = entPermission
+				userPermissions[j] = model.ConvertPermissionToModel(entPermission)
 			}
 			items[i] = userPermissions
 		} else {
 			// User has no permissions - return empty array
-			items[i] = []permission.Permission{}
+			items[i] = []*model.Permission{}
 		}
 	}
 
@@ -39,7 +40,7 @@ func getPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) ([][]perm
 }
 
 // GetPermissionsByUserID returns permissions for a user ID using the dataloader.
-func GetPermissionsByUserID(ctx context.Context, userID uuid.UUID) ([]permission.Permission, error) {
+func GetPermissionsByUserID(ctx context.Context, userID uuid.UUID) ([]*model.Permission, error) {
 	loaders := For(ctx)
 	return loaders.PermissionsByUserLoader.Load(ctx, userID)
 }
