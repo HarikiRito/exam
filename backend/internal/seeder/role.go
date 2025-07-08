@@ -40,6 +40,7 @@ func GetDefaultRoles() []RoleData {
 			Permissions: []string{
 				string(permissionFeat.UserCreate),
 				string(permissionFeat.UserRead),
+				string(permissionFeat.UserUpdate),
 				string(permissionFeat.SessionCreate),
 				string(permissionFeat.SessionRead),
 				string(permissionFeat.SessionUpdate),

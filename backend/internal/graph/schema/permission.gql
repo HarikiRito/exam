@@ -5,6 +5,7 @@ extend type Query {
 enum PermissionEnum @goModel(model: "template/internal/features/permission.Permission") {
   USER_CREATE @goEnum(value: "template/internal/features/permission.UserCreate")
   USER_READ @goEnum(value: "template/internal/features/permission.UserRead")
+  USER_UPDATE @goEnum(value: "template/internal/features/permission.UserUpdate")
   SESSION_CREATE @goEnum(value: "template/internal/features/permission.SessionCreate")
   SESSION_READ @goEnum(value: "template/internal/features/permission.SessionRead")
   SESSION_UPDATE @goEnum(value: "template/internal/features/permission.SessionUpdate")

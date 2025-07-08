@@ -61,3 +61,5 @@ func PaginatedUsers(ctx context.Context, paginationInput *model.PaginationInput)
 	// Paginate the results
 	return common.EntQueryPaginated(ctx, query, page, limit)
 }
+
+// AdminUpdateUser updates a user with admin privileges

@@ -6,17 +6,51 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"template/internal/features/permission"
 	"template/internal/features/user"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
+
+	"github.com/google/uuid"
 )
 
 // AdminCreateUser is the resolver for the adminCreateUser field.
 func (r *mutationResolver) AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: AdminCreateUser - adminCreateUser"))
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.UserCreate,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the user
+	newUser, err := user.AdminCreateUser(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertUserToModel(newUser), nil
+}
+
+// AdminEditUser is the resolver for the adminEditUser field.
+func (r *mutationResolver) AdminEditUser(ctx context.Context, id uuid.UUID, input model.AdminEditUserInput) (*model.User, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.UserUpdate,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the user
+	updatedUser, err := user.AdminUpdateUser(ctx, id, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertUserToModel(updatedUser), nil
 }
 
 // PaginatedUsers is the resolver for the paginatedUsers field.

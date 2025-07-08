@@ -27,6 +27,10 @@ func GetDefaultPermissions() []PermissionData {
 			Description: pointer.From("Read user information"),
 		},
 		{
+			Name:        string(permissionFeat.UserUpdate),
+			Description: pointer.From("Update user information"),
+		},
+		{
 			Name:        string(permissionFeat.SessionCreate),
 			Description: pointer.From("Create a new session"),
 		},

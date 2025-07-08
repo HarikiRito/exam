@@ -17,6 +17,7 @@ type Permission string
 const (
 	UserCreate           Permission = "USER_CREATE"
 	UserRead             Permission = "USER_READ"
+	UserUpdate           Permission = "USER_UPDATE"
 	SessionCreate        Permission = "SESSION_CREATE"
 	SessionRead          Permission = "SESSION_READ"
 	SessionUpdate        Permission = "SESSION_UPDATE"
@@ -59,6 +60,7 @@ const (
 var AllPermissions = []Permission{
 	UserCreate,
 	UserRead,
+	UserUpdate,
 	SessionCreate,
 	SessionRead,
 	SessionUpdate,
