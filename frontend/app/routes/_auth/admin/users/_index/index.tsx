@@ -1,0 +1,246 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from '@remix-run/react';
+import { createColumnHelper } from '@tanstack/react-table';
+import { PencilIcon, PlusIcon } from 'lucide-react';
+import { useId, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { useImmer } from 'use-immer';
+import { z } from 'zod';
+
+import { PaginateUsersQuery, usePaginateUsersQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
+import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
+import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDataTable } from 'app/shared/components/ui/table/AppDataTable';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppForm } from 'app/shared/components/ui/form/AppForm';
+import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppSwitch } from 'app/shared/components/ui/switch/AppSwitch';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+import { APP_ROUTES } from 'app/shared/constants/routes';
+import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
+import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
+
+// Type for a single user item from the query
+type UserItem = PaginateUsersQuery['paginatedUsers']['items'][0];
+
+// Create Zod schema for user creation validation
+const createUserSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+type CreateUserFormData = z.infer<typeof createUserSchema>;
+
+export default function AdminUsers() {
+  const navigate = useNavigate();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminUsers);
+
+  const [pagination, setPagination] = useImmer({
+    page: 1,
+    limit: 20,
+    search: '',
+  });
+
+  // Fetch users data
+  const { data } = usePaginateUsersQuery({
+    variables: {
+      paginationInput: {
+        page: pagination.page,
+        limit: pagination.limit,
+        search: pagination.search,
+      },
+    },
+  });
+
+  function handlePageChange(page: number, pageSize: number) {
+    setPagination((draft) => {
+      draft.page = page;
+      draft.limit = pageSize;
+    });
+  }
+
+  function handleUserStatusToggle(userId: string, currentStatus: boolean) {
+    // TODO: Implement API call to toggle user active status
+    toast.info('User status toggle functionality coming soon');
+    console.log('Toggle user status:', { userId, currentStatus });
+  }
+
+  // Get table data and total items count
+  const tableData = data?.paginatedUsers.items || [];
+  const totalItems = data?.paginatedUsers.pagination.totalItems || 0;
+
+  // Setup column definitions
+  const columnHelper = createColumnHelper<UserItem>();
+  const columns = [
+    columnHelper.accessor('email', {
+      header: 'Email',
+      cell: (info) => {
+        const email = info.getValue();
+        return (
+          <div>
+            <div className='font-medium'>{email}</div>
+          </div>
+        );
+      },
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
+    columnHelper.accessor('firstName', {
+      header: 'Name',
+      cell: (info) => {
+        const firstName = info.getValue();
+        const lastName = info.row.original.lastName;
+        const fullName = [firstName, lastName].filter(Boolean).join(' ');
+        return fullName || '-';
+      },
+      enableSorting: true,
+      enableColumnFilter: true,
+    }),
+    columnHelper.accessor('isActive', {
+      header: 'Status',
+      cell: (info) => {
+        const isActive = info.getValue();
+        const userId = info.row.original.id;
+        return (
+          <div className='flex items-center gap-2'>
+            <AppSwitch checked={isActive} onCheckedChange={() => handleUserStatusToggle(userId, isActive)} />
+            <AppBadge variant={isActive ? 'default' : 'secondary'}>{isActive ? 'Active' : 'Inactive'}</AppBadge>
+          </div>
+        );
+      },
+      enableSorting: true,
+      enableColumnFilter: false,
+    }),
+    columnHelper.accessor('id', {
+      header: 'Actions',
+      cell: (info) => {
+        const userId = info.getValue();
+        return (
+          <div className='flex items-center gap-2'>
+            <AppButton
+              size='icon'
+              variant='ghost'
+              onClick={() => navigate(APP_ROUTES.adminUserEdit(userId))}
+              aria-label='Edit user'>
+              <PencilIcon className='h-4 w-4' />
+            </AppButton>
+          </div>
+        );
+      },
+      enableSorting: false,
+      enableColumnFilter: false,
+    }),
+  ];
+
+  if (!hasPermission) {
+    return <UnauthorizedMessage />;
+  }
+
+  return (
+    <div className='container mx-auto py-6'>
+      <div className='mb-6 flex items-center justify-between'>
+        <AppTypography.h1>Users Management</AppTypography.h1>
+        <AppButton onClick={() => setIsCreateDialogOpen(true)} className='flex items-center gap-2'>
+          <PlusIcon className='h-4 w-4' />
+          Add User
+        </AppButton>
+      </div>
+
+      <AppDataTable
+        columns={columns}
+        data={tableData}
+        searchPlaceholder='Search users...'
+        totalItems={totalItems}
+        pageSize={pagination.limit}
+        currentPage={pagination.page}
+        onPageChange={handlePageChange}
+      />
+
+      <CreateUserDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} />
+    </div>
+  );
+}
+
+function CreateUserDialog({ isOpen, onClose }: { readonly isOpen: boolean; readonly onClose: () => void }) {
+  const emailId = useId();
+  const passwordId = useId();
+
+  const form = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
+    mode: 'onBlur',
+    defaultValues: {
+      email: '',
+      password: 'Password123',
+    },
+  });
+
+  function onSubmit(data: CreateUserFormData) {
+    // TODO: Implement API call to create user
+    console.log('Create user:', data);
+    toast.success('User creation functionality coming soon');
+    form.reset();
+    onClose();
+  }
+
+  function handleClose() {
+    form.reset();
+    onClose();
+  }
+
+  return (
+    <AppDialog.Root open={isOpen} onOpenChange={handleClose}>
+      <AppDialog.Content>
+        <AppDialog.Header>
+          <AppDialog.Title>Create New User</AppDialog.Title>
+          <AppDialog.Description>
+            Add a new user to the system. The default password can be changed later.
+          </AppDialog.Description>
+        </AppDialog.Header>
+
+        <AppForm.Root {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <AppForm.Field
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <AppForm.Item>
+                  <AppForm.Label htmlFor={emailId}>Email</AppForm.Label>
+                  <AppForm.Control>
+                    <AppInput id={emailId} type='email' placeholder='user@example.com' {...field} />
+                  </AppForm.Control>
+                  <AppForm.Message />
+                </AppForm.Item>
+              )}
+            />
+
+            <AppForm.Field
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <AppForm.Item>
+                  <AppForm.Label htmlFor={passwordId}>Password</AppForm.Label>
+                  <AppForm.Control>
+                    <AppInput id={passwordId} placeholder='Enter password' {...field} />
+                  </AppForm.Control>
+                  <AppForm.Message />
+                </AppForm.Item>
+              )}
+            />
+
+            <AppDialog.Footer>
+              <AppButton type='button' variant='outline' onClick={handleClose}>
+                Cancel
+              </AppButton>
+              <AppButton type='submit' disabled={!form.formState.isValid}>
+                Create User
+              </AppButton>
+            </AppDialog.Footer>
+          </form>
+        </AppForm.Root>
+      </AppDialog.Content>
+    </AppDialog.Root>
+  );
+}

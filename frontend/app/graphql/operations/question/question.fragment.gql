@@ -1,0 +1,5 @@
+fragment QuestionItem on Question {
+  id
+  questionText
+  points
+} 

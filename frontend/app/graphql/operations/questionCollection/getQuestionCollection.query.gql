@@ -1,0 +1,11 @@
+query GetQuestionCollection($id: ID!) {
+  questionCollection(id: $id) {
+    ...QuestionCollectionItem
+    questions {
+      ...QuestionItem
+      options {
+        ...QuestionOptionItem
+      }
+    }
+  }
+} 

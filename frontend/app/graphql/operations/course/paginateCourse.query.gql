@@ -1,0 +1,10 @@
+query PaginateCourses($paginationInput: PaginationInput) {
+  paginatedCourses(paginationInput: $paginationInput) {
+    pagination {
+      ...Pagination
+    }
+    items {
+      ...CourseItem
+    }
+  }
+}

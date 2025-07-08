@@ -1,0 +1,182 @@
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
+import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+
+import { useCreateQuestionMutation } from 'app/graphql/operations/question/createQuestion.mutation.generated';
+import { useDeleteQuestionMutation } from 'app/graphql/operations/question/deleteQuestion.mutation.generated';
+import { useUpdateQuestionMutation } from 'app/graphql/operations/question/updateQuestion.mutation.generated';
+import { GetQuestionCollectionDocument } from 'app/graphql/operations/questionCollection/getQuestionCollection.query.generated';
+import { CollectionAccordionSteps } from 'app/routes/_auth/admin/collections/components/CollectionEditAndCreatePage';
+import { QuestionData } from 'app/shared/components/custom/question/QuestionItem';
+import { QuestionManager } from 'app/shared/components/custom/question/QuestionManager';
+import { apolloService } from 'app/shared/services/apollo.service';
+import { guardAsync } from 'safe-guard-data';
+import { collectionFormState } from 'app/routes/_auth/admin/collections/state';
+
+interface ManageQuestionsStepProps {
+  readonly collectionId?: string;
+  readonly initialQuestions?: QuestionData[];
+}
+
+const mutation = collectionFormState.proxyState;
+export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: ManageQuestionsStepProps) {
+  const [questions, setQuestions] = useState<QuestionData[]>(initialQuestions);
+
+  const [updateQuestion] = useUpdateQuestionMutation({});
+  const [createQuestion] = useCreateQuestionMutation({});
+  const [deleteQuestion] = useDeleteQuestionMutation({});
+
+  // Handle saving questions
+  async function handleSaveQuestions(questionsToSave: QuestionData[]) {
+    mutation.isSavingQuestions = true;
+    setQuestions(questionsToSave);
+
+    if (!collectionId) {
+      toast.error('No collection ID found. Please create or select a collection first.');
+      mutation.isSavingQuestions = false;
+      return;
+    }
+
+    // Validate that there are questions to save
+    if (!questionsToSave || questionsToSave.length === 0) {
+      toast.error('No questions to save. Please add at least one question.');
+      mutation.isSavingQuestions = false;
+      return;
+    }
+
+    let count = 0;
+    mutation.savedQuestionCount = count;
+
+    mutation.totalQuestionsToSave = questionsToSave.filter(
+      (question) => question.isNew || question.isEdited || question.isDeleted,
+    ).length;
+
+    const validQuestions = questionsToSave.filter((question) => {
+      const isNewAndMarkedAsDeleted = question.isNew && question.isDeleted;
+
+      return !isNewAndMarkedAsDeleted;
+    });
+
+    // Check if all the questions must have at least one correct option
+    for (const question of validQuestions) {
+      if (!question.options.some((option) => option.isCorrect)) {
+        toast.error('All questions must have at least one correct option.');
+        mutation.isSavingQuestions = false;
+        return;
+      }
+    }
+
+    for (const question of validQuestions) {
+      if (question.isDeleted) {
+        if (!question.id) {
+          toast.error(`Question ID is required to delete a question: ${question.questionText}`);
+          mutation.isSavingQuestions = false;
+          return;
+        }
+
+        const result = await guardAsync(
+          deleteQuestion({
+            variables: {
+              id: question.id,
+            },
+          }),
+        );
+
+        if (!result.hasData()) {
+          toast.error(`Failed to delete question: ${question.questionText}`);
+          mutation.isSavingQuestions = false;
+          return;
+        }
+
+        mutation.savedQuestionCount = count++;
+        continue;
+      }
+
+      if (question.isNew) {
+        const result = await guardAsync(
+          createQuestion({
+            variables: {
+              input: {
+                questionText: question.questionText,
+                points: question.points,
+                options: question.options,
+                questionCollectionId: collectionId,
+              },
+            },
+          }),
+        );
+
+        if (!result.hasData()) {
+          toast.error(`Failed to create question: ${question.questionText}`);
+          mutation.isSavingQuestions = false;
+          return;
+        }
+
+        mutation.savedQuestionCount = count++;
+        continue;
+      }
+
+      if (question.isEdited) {
+        if (!question.id) {
+          toast.error('Question ID is required to update a question.');
+          mutation.isSavingQuestions = false;
+          return;
+        }
+
+        const result = await guardAsync(
+          updateQuestion({
+            variables: {
+              id: question.id,
+              input: {
+                questionText: question.questionText,
+                points: question.points,
+                options: question.options,
+                questionCollectionId: collectionId,
+              },
+            },
+          }),
+        );
+
+        if (!result.hasData()) {
+          toast.error(`Failed to update question: ${question.questionText}`);
+          mutation.isSavingQuestions = false;
+          return;
+        }
+
+        mutation.savedQuestionCount = count++;
+        continue;
+      }
+    }
+
+    if (count === 0) {
+      toast.error('No questions to save.');
+      mutation.isSavingQuestions = false;
+      return;
+    }
+
+    apolloService.invalidateQueries([GetQuestionCollectionDocument]);
+    mutation.isSavingQuestions = false;
+  }
+
+  return (
+    <AppAccordion.Item value={CollectionAccordionSteps.ManageQuestions} className='mb-4 rounded-md border'>
+      <AppAccordion.Trigger className='px-4'>
+        <div className='flex w-full items-center'>
+          <AppTypography.h3 className='flex-1 text-left'>Manage Questions</AppTypography.h3>
+          <span className='text-muted-foreground text-sm'>Step 2</span>
+        </div>
+      </AppAccordion.Trigger>
+      <AppAccordion.Content className='px-4 pb-4'>
+        {collectionId && (
+          <QuestionManager
+            questions={questions}
+            onSaveQuestions={handleSaveQuestions}
+            isSaving={mutation.isSavingQuestions}
+          />
+        )}
+      </AppAccordion.Content>
+    </AppAccordion.Item>
+  );
+}

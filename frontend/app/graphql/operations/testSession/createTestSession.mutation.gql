@@ -1,0 +1,5 @@
+mutation CreateTestSession($input: CreateTestSessionInput!) {
+  createTestSession(input: $input) {
+    ...TestSessionFragment
+  }
+} 

@@ -1,0 +1,13 @@
+fragment TestSessionFragment on TestSession {
+  id
+  createdAt
+  updatedAt
+  startedAt
+  completedAt
+  expiredAt
+  status
+  maxPoints
+  pointsEarned
+  testId
+  userId
+} 

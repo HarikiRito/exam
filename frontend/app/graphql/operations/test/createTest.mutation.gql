@@ -1,0 +1,7 @@
+#import "./test.fragment.gql"
+
+mutation CreateTest($input: CreateTestInput!) {
+  createTest(input: $input) {
+    ...TestFragment
+  }
+} 

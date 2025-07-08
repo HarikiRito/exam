@@ -1,0 +1,15 @@
+query PaginateUsers($paginationInput: PaginationInput) {
+  paginatedUsers(paginationInput: $paginationInput) {
+    pagination {
+      ...Pagination
+    }
+    items {
+      id
+      email
+      username
+      firstName
+      lastName
+      isActive
+    }
+  }
+} 

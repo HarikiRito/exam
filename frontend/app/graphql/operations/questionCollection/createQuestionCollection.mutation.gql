@@ -1,0 +1,5 @@
+mutation CreateQuestionCollection($input: CreateQuestionCollectionInput!) {
+  createQuestionCollection(input: $input) {
+    ...QuestionCollectionItem
+  }
+} 

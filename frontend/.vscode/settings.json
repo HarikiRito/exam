@@ -1,0 +1,20 @@
+{
+  "files.autoSave": "onFocusChange",
+  "editor.fontFamily": "\"JetBrains Mono\", Menlo, Monaco, 'Courier New', monospace",
+  "eslint.useFlatConfig": true,
+  "eslint.codeActionsOnSave.mode": "all",
+  "files.eol": "\n",
+  "files.associations": {
+    ".cursorrules": "markdown",
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.experimental.configFile": "app/tailwind.css",
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "typescriptreact"
+  ]
+}

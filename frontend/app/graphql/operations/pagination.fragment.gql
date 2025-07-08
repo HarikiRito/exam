@@ -1,0 +1,7 @@
+fragment Pagination on Pagination {
+  totalItems
+  totalPages
+  currentPage
+  hasNextPage
+  hasPreviousPage
+}

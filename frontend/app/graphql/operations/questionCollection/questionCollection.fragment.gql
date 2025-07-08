@@ -1,0 +1,7 @@
+fragment QuestionCollectionItem on QuestionCollection {
+  id
+  title
+  description
+  createdAt
+  updatedAt
+} 

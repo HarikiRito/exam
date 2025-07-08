@@ -1,0 +1,5 @@
+mutation SubmitTestSession($sessionId: ID!, $input: SubmitTestSessionInput!) {
+  submitTestSession(sessionId: $sessionId, input: $input) {
+    ...TestSessionFragment
+  }
+} 

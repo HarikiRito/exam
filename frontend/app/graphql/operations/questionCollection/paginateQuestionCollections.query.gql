@@ -1,0 +1,10 @@
+query PaginateQuestionCollections($paginationInput: PaginationInput) {
+  paginatedQuestionCollections(paginationInput: $paginationInput) {
+    pagination {
+      ...Pagination
+    }
+    items {
+      ...QuestionCollectionItem
+    }
+  }
+} 

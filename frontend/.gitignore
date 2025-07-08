@@ -1,0 +1,12 @@
+node_modules
+
+/.cache
+/build
+.env
+_shadcn
+tsconfig.tsbuildinfo
+
+coverage
+
+# AI
+final_review_gate.py

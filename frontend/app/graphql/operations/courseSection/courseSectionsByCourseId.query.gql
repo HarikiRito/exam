@@ -1,0 +1,5 @@
+query CourseSectionsByCourseId($courseId: ID!) {
+  courseSectionsByCourseId(courseId: $courseId) {
+    ...CourseSectionItem
+  }
+} 

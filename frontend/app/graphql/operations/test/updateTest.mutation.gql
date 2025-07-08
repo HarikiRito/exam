@@ -1,0 +1,7 @@
+#import "./test.fragment.gql"
+
+mutation UpdateTest($id: ID!, $input: UpdateTestInput!) {
+  updateTest(id: $id, input: $input) {
+    ...TestFragment
+  }
+} 

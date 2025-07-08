@@ -1,0 +1,5 @@
+mutation StartTestSession($id: ID!) {
+  startTestSession(id: $id) {
+    ...TestSessionFragment
+  }
+} 
