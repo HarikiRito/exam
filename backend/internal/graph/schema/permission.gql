@@ -1,9 +1,44 @@
 extend type Query {
-  getAllPermissions: [Permission!]!
+  getAllPermissions: [PermissionEnum!]!
 }
 
-type Permission {
-  id: ID!
-  name: String!
-  description: String
+enum PermissionEnum @goModel(model: "template/internal/features/permission.Permission") {
+  USER_CREATE @goEnum(value: "template/internal/features/permission.UserCreate")
+  USER_READ @goEnum(value: "template/internal/features/permission.UserRead")
+  SESSION_CREATE @goEnum(value: "template/internal/features/permission.SessionCreate")
+  SESSION_READ @goEnum(value: "template/internal/features/permission.SessionRead")
+  SESSION_UPDATE @goEnum(value: "template/internal/features/permission.SessionUpdate")
+  SESSION_DELETE @goEnum(value: "template/internal/features/permission.SessionDelete")
+  COLLECTION_CREATE @goEnum(value: "template/internal/features/permission.CollectionCreate")
+  COLLECTION_READ @goEnum(value: "template/internal/features/permission.CollectionRead")
+  COLLECTION_UPDATE @goEnum(value: "template/internal/features/permission.CollectionUpdate")
+  COLLECTION_DELETE @goEnum(value: "template/internal/features/permission.CollectionDelete")
+  TEST_READ @goEnum(value: "template/internal/features/permission.TestRead")
+  TEST_UPDATE @goEnum(value: "template/internal/features/permission.TestUpdate")
+  TEST_DELETE @goEnum(value: "template/internal/features/permission.TestDelete")
+  TEST_CREATE @goEnum(value: "template/internal/features/permission.TestCreate")
+  COURSE_CREATE @goEnum(value: "template/internal/features/permission.CourseCreate")
+  COURSE_READ @goEnum(value: "template/internal/features/permission.CourseRead")
+  COURSE_UPDATE @goEnum(value: "template/internal/features/permission.CourseUpdate")
+  COURSE_DELETE @goEnum(value: "template/internal/features/permission.CourseDelete")
+  COURSE_SECTION_CREATE @goEnum(value: "template/internal/features/permission.CourseSectionCreate")
+  COURSE_SECTION_READ @goEnum(value: "template/internal/features/permission.CourseSectionRead")
+  COURSE_SECTION_UPDATE @goEnum(value: "template/internal/features/permission.CourseSectionUpdate")
+  COURSE_SECTION_DELETE @goEnum(value: "template/internal/features/permission.CourseSectionDelete")
+  QUESTION_CREATE @goEnum(value: "template/internal/features/permission.QuestionCreate")
+  QUESTION_READ @goEnum(value: "template/internal/features/permission.QuestionRead")
+  QUESTION_UPDATE @goEnum(value: "template/internal/features/permission.QuestionUpdate")
+  QUESTION_DELETE @goEnum(value: "template/internal/features/permission.QuestionDelete")
+  QUESTION_OPTION_CREATE @goEnum(value: "template/internal/features/permission.QuestionOptionCreate")
+  QUESTION_OPTION_READ @goEnum(value: "template/internal/features/permission.QuestionOptionRead")
+  QUESTION_OPTION_UPDATE @goEnum(value: "template/internal/features/permission.QuestionOptionUpdate")
+  QUESTION_OPTION_DELETE @goEnum(value: "template/internal/features/permission.QuestionOptionDelete")
+  VIDEO_CREATE @goEnum(value: "template/internal/features/permission.VideoCreate")
+  VIDEO_READ @goEnum(value: "template/internal/features/permission.VideoRead")
+  VIDEO_UPDATE @goEnum(value: "template/internal/features/permission.VideoUpdate")
+  VIDEO_DELETE @goEnum(value: "template/internal/features/permission.VideoDelete")
+  MEDIA_CREATE @goEnum(value: "template/internal/features/permission.MediaCreate")
+  MEDIA_READ @goEnum(value: "template/internal/features/permission.MediaRead")
+  MEDIA_UPDATE @goEnum(value: "template/internal/features/permission.MediaUpdate")
+  MEDIA_DELETE @goEnum(value: "template/internal/features/permission.MediaDelete")
 }

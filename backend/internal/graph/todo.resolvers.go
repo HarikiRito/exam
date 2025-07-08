@@ -15,7 +15,7 @@ import (
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
 	_, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionUserCreate,
+		permission.UserCreate,
 	})
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
 	_, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionUserRead,
+		permission.UserRead,
 	})
 	if err != nil {
 		return nil, err

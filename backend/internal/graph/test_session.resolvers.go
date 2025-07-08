@@ -18,7 +18,7 @@ import (
 // CreateTestSession is the resolver for the createTestSession field.
 func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) ([]*model.TestSession, error) {
 	userID, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionSessionCreate,
+		permission.SessionCreate,
 	})
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (r *mutationResolver) CreateTestSession(ctx context.Context, input model.Cr
 // DeleteTestSession is the resolver for the deleteTestSession field.
 func (r *mutationResolver) DeleteTestSession(ctx context.Context, id uuid.UUID) (bool, error) {
 	_, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionSessionDelete,
+		permission.SessionDelete,
 	})
 	if err != nil {
 		return false, err
@@ -53,7 +53,7 @@ func (r *mutationResolver) DeleteTestSession(ctx context.Context, id uuid.UUID) 
 // SubmitTestSession is the resolver for the submitTestSession field.
 func (r *mutationResolver) SubmitTestSession(ctx context.Context, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*model.TestSession, error) {
 	userID, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionSessionUpdate,
+		permission.SessionUpdate,
 	})
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (r *mutationResolver) SubmitTestSession(ctx context.Context, sessionID uuid
 // StartTestSession is the resolver for the startTestSession field.
 func (r *mutationResolver) StartTestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
 	userID, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionSessionUpdate,
+		permission.SessionUpdate,
 	})
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (r *mutationResolver) StartTestSession(ctx context.Context, id uuid.UUID) (
 // TestSession is the resolver for the testSession field.
 func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error) {
 	_, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionSessionRead,
+		permission.SessionRead,
 	})
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.T
 // PaginatedTestSessions is the resolver for the paginatedTestSessions field.
 func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error) {
 	userId, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionSessionRead,
+		permission.SessionRead,
 	})
 	if err != nil {
 		return nil, err

@@ -16,6 +16,11 @@ type AddMultiCollectionToTestInput struct {
 	CollectionIds []uuid.UUID `json:"collectionIds"`
 }
 
+type AdminCreateUserInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type Auth struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
@@ -141,12 +146,6 @@ type PaginationInput struct {
 	Page   *int    `json:"page,omitempty"`
 	Limit  *int    `json:"limit,omitempty"`
 	Search *string `json:"search,omitempty"`
-}
-
-type Permission struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Description *string   `json:"description,omitempty"`
 }
 
 type Query struct {

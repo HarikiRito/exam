@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/permission"
 	"template/internal/features/user"
 	"template/internal/graph/dataloader"
@@ -13,10 +14,15 @@ import (
 	"template/internal/shared/utilities/slice"
 )
 
+// AdminCreateUser is the resolver for the adminCreateUser field.
+func (r *mutationResolver) AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: AdminCreateUser - adminCreateUser"))
+}
+
 // PaginatedUsers is the resolver for the paginatedUsers field.
 func (r *queryResolver) PaginatedUsers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUser, error) {
 	_, err := CheckUserPermissions(ctx, []permission.Permission{
-		permission.PermissionUserRead,
+		permission.UserRead,
 	})
 	if err != nil {
 		return nil, err
@@ -48,7 +54,7 @@ func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Rol
 }
 
 // Permissions is the resolver for the permissions field.
-func (r *userResolver) Permissions(ctx context.Context, obj *model.User) ([]*model.Permission, error) {
+func (r *userResolver) Permissions(ctx context.Context, obj *model.User) ([]permission.Permission, error) {
 	return dataloader.GetPermissionsByUserID(ctx, obj.ID)
 }
 

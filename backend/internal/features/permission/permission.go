@@ -15,54 +15,54 @@ import (
 type Permission string
 
 const (
-	PermissionUserCreate    Permission = "user:create"
-	PermissionUserRead      Permission = "user:read"
-	PermissionSessionCreate Permission = "session:create"
-	PermissionSessionRead   Permission = "session:read"
-	PermissionSessionUpdate Permission = "session:update"
-	PermissionSessionDelete Permission = "session:delete"
-	CollectionCreate        Permission = "collection:create"
-	CollectionRead          Permission = "collection:read"
-	CollectionUpdate        Permission = "collection:update"
-	CollectionDelete        Permission = "collection:delete"
-	TestRead                Permission = "test:read"
-	TestUpdate              Permission = "test:update"
-	TestDelete              Permission = "test:delete"
-	TestCreate              Permission = "test:create"
-	CourseCreate            Permission = "course:create"
-	CourseRead              Permission = "course:read"
-	CourseUpdate            Permission = "course:update"
-	CourseDelete            Permission = "course:delete"
-	CourseSectionCreate     Permission = "course_section:create"
-	CourseSectionRead       Permission = "course_section:read"
-	CourseSectionUpdate     Permission = "course_section:update"
-	CourseSectionDelete     Permission = "course_section:delete"
-	QuestionCreate          Permission = "question:create"
-	QuestionRead            Permission = "question:read"
-	QuestionUpdate          Permission = "question:update"
-	QuestionDelete          Permission = "question:delete"
-	QuestionOptionCreate    Permission = "question_option:create"
-	QuestionOptionRead      Permission = "question_option:read"
-	QuestionOptionUpdate    Permission = "question_option:update"
-	QuestionOptionDelete    Permission = "question_option:delete"
-	VideoCreate             Permission = "video:create"
-	VideoRead               Permission = "video:read"
-	VideoUpdate             Permission = "video:update"
-	VideoDelete             Permission = "video:delete"
-	MediaCreate             Permission = "media:create"
-	MediaRead               Permission = "media:read"
-	MediaUpdate             Permission = "media:update"
-	MediaDelete             Permission = "media:delete"
+	UserCreate           Permission = "USER_CREATE"
+	UserRead             Permission = "USER_READ"
+	SessionCreate        Permission = "SESSION_CREATE"
+	SessionRead          Permission = "SESSION_READ"
+	SessionUpdate        Permission = "SESSION_UPDATE"
+	SessionDelete        Permission = "SESSION_DELETE"
+	CollectionCreate     Permission = "COLLECTION_CREATE"
+	CollectionRead       Permission = "COLLECTION_READ"
+	CollectionUpdate     Permission = "COLLECTION_UPDATE"
+	CollectionDelete     Permission = "COLLECTION_DELETE"
+	TestRead             Permission = "TEST_READ"
+	TestUpdate           Permission = "TEST_UPDATE"
+	TestDelete           Permission = "TEST_DELETE"
+	TestCreate           Permission = "TEST_CREATE"
+	CourseCreate         Permission = "COURSE_CREATE"
+	CourseRead           Permission = "COURSE_READ"
+	CourseUpdate         Permission = "COURSE_UPDATE"
+	CourseDelete         Permission = "COURSE_DELETE"
+	CourseSectionCreate  Permission = "COURSE_SECTION_CREATE"
+	CourseSectionRead    Permission = "COURSE_SECTION_READ"
+	CourseSectionUpdate  Permission = "COURSE_SECTION_UPDATE"
+	CourseSectionDelete  Permission = "COURSE_SECTION_DELETE"
+	QuestionCreate       Permission = "QUESTION_CREATE"
+	QuestionRead         Permission = "QUESTION_READ"
+	QuestionUpdate       Permission = "QUESTION_UPDATE"
+	QuestionDelete       Permission = "QUESTION_DELETE"
+	QuestionOptionCreate Permission = "QUESTION_OPTION_CREATE"
+	QuestionOptionRead   Permission = "QUESTION_OPTION_READ"
+	QuestionOptionUpdate Permission = "QUESTION_OPTION_UPDATE"
+	QuestionOptionDelete Permission = "QUESTION_OPTION_DELETE"
+	VideoCreate          Permission = "VIDEO_CREATE"
+	VideoRead            Permission = "VIDEO_READ"
+	VideoUpdate          Permission = "VIDEO_UPDATE"
+	VideoDelete          Permission = "VIDEO_DELETE"
+	MediaCreate          Permission = "MEDIA_CREATE"
+	MediaRead            Permission = "MEDIA_READ"
+	MediaUpdate          Permission = "MEDIA_UPDATE"
+	MediaDelete          Permission = "MEDIA_DELETE"
 )
 
-// OwnerPermissions is the list of permissions that are granted to the owner role. Default to all permissions.
-var OwnerPermissions = []Permission{
-	PermissionUserCreate,
-	PermissionUserRead,
-	PermissionSessionCreate,
-	PermissionSessionRead,
-	PermissionSessionUpdate,
-	PermissionSessionDelete,
+// AllPermissions is the list of permissions that are granted to the owner role. Default to all permissions.
+var AllPermissions = []Permission{
+	UserCreate,
+	UserRead,
+	SessionCreate,
+	SessionRead,
+	SessionUpdate,
+	SessionDelete,
 	CollectionCreate,
 	CollectionRead,
 	CollectionUpdate,
@@ -97,17 +97,8 @@ var OwnerPermissions = []Permission{
 	MediaDelete,
 }
 
-func GetAllPermissions(ctx context.Context) ([]*ent.Permission, error) {
-	client, err := db.OpenClient()
-	if err != nil {
-		return nil, err
-	}
-
-	return client.Permission.Query().All(ctx)
-}
-
 // GetPermissionsByUserIDs fetches permissions for multiple users and returns a map with user ID as key and permissions array as value
-func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]*ent.Permission, error) {
+func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]Permission, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
@@ -131,12 +122,14 @@ func GetPermissionsByUserIDs(ctx context.Context, userIDs []uuid.UUID) (map[uuid
 	}
 
 	// Create map with user ID as key and permissions array as value
-	userPermissionsMap := make(map[uuid.UUID][]*ent.Permission)
+	userPermissionsMap := make(map[uuid.UUID][]Permission)
 	for _, userEntity := range users {
-		permissions := make([]*ent.Permission, 0)
+		permissions := make([]Permission, 0)
 
 		for _, role := range userEntity.Edges.Roles {
-			permissions = append(permissions, role.Edges.Permissions...)
+			for _, permission := range role.Edges.Permissions {
+				permissions = append(permissions, Permission(permission.Name))
+			}
 		}
 
 		permissions = slice.Unique(permissions)

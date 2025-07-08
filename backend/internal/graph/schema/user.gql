@@ -18,7 +18,7 @@ type User {
   lastName: String
   isActive: Boolean!
   roles: [Role!]!
-  permissions: [Permission!]!
+  permissions: [PermissionEnum!]!
 }
 
 type Role {

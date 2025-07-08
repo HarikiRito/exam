@@ -25,20 +25,20 @@ func TestRoleBasedAuthorization(t *testing.T) {
 
 		// User should be able to read and update sessions
 		err := role.CheckUserPermissions(ctx, regularUser.ID, []permission.Permission{
-			permission.PermissionSessionRead,
-			permission.PermissionSessionUpdate,
+			permission.SessionRead,
+			permission.SessionUpdate,
 		})
 		assert.NoError(t, err, "User should be able to read and update sessions")
 
 		// User should NOT be able to create users
 		err = role.CheckUserPermissions(ctx, regularUser.ID, []permission.Permission{
-			permission.PermissionUserCreate,
+			permission.UserCreate,
 		})
 		assert.Error(t, err, "User should NOT be able to create users")
 
 		// User should NOT be able to create sessions
 		err = role.CheckUserPermissions(ctx, regularUser.ID, []permission.Permission{
-			permission.PermissionSessionCreate,
+			permission.SessionCreate,
 		})
 		assert.Error(t, err, "User should NOT be able to create sessions")
 
@@ -61,8 +61,8 @@ func TestRoleBasedAuthorization(t *testing.T) {
 
 		// User should NOT have any permissions
 		basicPermissions := []permission.Permission{
-			permission.PermissionSessionRead,
-			permission.PermissionUserRead,
+			permission.SessionRead,
+			permission.UserRead,
 			permission.CollectionRead,
 			permission.TestRead,
 		}
@@ -82,13 +82,13 @@ func TestRoleBasedAuthorization(t *testing.T) {
 
 		// User should have permissions from both roles
 		adminPermissions := []permission.Permission{
-			permission.PermissionUserCreate,
-			permission.PermissionUserRead,
+			permission.UserCreate,
+			permission.UserRead,
 		}
 
 		userPermissions := []permission.Permission{
-			permission.PermissionSessionRead,
-			permission.PermissionSessionUpdate,
+			permission.SessionRead,
+			permission.SessionUpdate,
 		}
 
 		// Check admin permissions

@@ -19,27 +19,27 @@ type PermissionData struct {
 func GetDefaultPermissions() []PermissionData {
 	return []PermissionData{
 		{
-			Name:        string(permissionFeat.PermissionUserCreate),
+			Name:        string(permissionFeat.UserCreate),
 			Description: pointer.From("Create a new user"),
 		},
 		{
-			Name:        string(permissionFeat.PermissionUserRead),
+			Name:        string(permissionFeat.UserRead),
 			Description: pointer.From("Read user information"),
 		},
 		{
-			Name:        string(permissionFeat.PermissionSessionCreate),
+			Name:        string(permissionFeat.SessionCreate),
 			Description: pointer.From("Create a new session"),
 		},
 		{
-			Name:        string(permissionFeat.PermissionSessionRead),
+			Name:        string(permissionFeat.SessionRead),
 			Description: pointer.From("Read session information"),
 		},
 		{
-			Name:        string(permissionFeat.PermissionSessionUpdate),
+			Name:        string(permissionFeat.SessionUpdate),
 			Description: pointer.From("Update session information"),
 		},
 		{
-			Name:        string(permissionFeat.PermissionSessionDelete),
+			Name:        string(permissionFeat.SessionDelete),
 			Description: pointer.From("Delete session information"),
 		},
 		{
