@@ -1,0 +1,51 @@
+extend type Mutation {
+  createQuestionCollection(input: CreateQuestionCollectionInput!): QuestionCollection!
+  updateQuestionCollection(id: ID!, input: UpdateQuestionCollectionInput!): QuestionCollection!
+  deleteQuestionCollection(id: ID!): Boolean!
+  updateBatchQuestionsByCollection(input: UpdateBatchQuestionsByCollectionInput!): Boolean!
+}
+
+extend type Query {
+  questionCollection(id: ID!): QuestionCollection!
+  paginatedQuestionCollections(paginationInput: PaginationInput): PaginatedQuestionCollection!
+}
+
+type QuestionCollection {
+  id: ID!
+  title: String!
+  description: String
+  creator: User!
+  questions: [Question!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaginatedQuestionCollection {
+  pagination: Pagination!
+  items: [QuestionCollection!]!
+}
+
+input CreateQuestionCollectionInput {
+  title: String!
+  description: String
+}
+
+input UpdateQuestionCollectionInput {
+  title: String
+  description: String
+} 
+
+input UpdateBatchQuestionsByCollectionInput {
+  collectionId: ID!
+  questions: [UpdateQuestionData!]!
+}
+
+# If question id is provide but the question text is not provided, meaning that they will need to be deleted
+# If question id is provided, meaning that they will need to be updated
+# If question id is not provided, meaning that they will need to be created
+input UpdateQuestionData {
+  id: ID
+  questionText: String
+  options: [UpdateQuestionOptionInput!]!
+  points: Int!
+}

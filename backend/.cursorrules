@@ -1,0 +1,59 @@
+# Codebase Rules and Patterns
+
+## General Patterns
+1. **Model Conversion**: 
+   - Use dedicated model conversion functions (e.g., `ConvertTestSessionToModel`) instead of direct mapping.
+   - Conversion functions should be placed in the model package.
+
+2. **Edge Loading**:
+   - Avoid loading edges (e.g., `WithUser`, `WithTest`) unless explicitly needed.
+   - Use dataloaders for edge loading when required.
+
+3. **Nillable Fields**:
+   - Prefer using `SetNillable*` methods (e.g., `SetNillableTotalScore`) instead of manually checking for nil values.
+
+4. **Slice Operations**:
+   - Use the `slice.Map` utility function for transforming slices instead of manual loops.
+
+5. **Transaction Handling**:
+   - Use `db.OpenTransaction(ctx)` for starting transactions instead of manually creating and managing them.
+   - Use `defer db.CloseTransaction(tx)` to ensure proper resource cleanup.
+   - Use `db.Rollback(tx, err)` for error handling within transactions to properly wrap errors.
+   - When multiple database operations need to be atomic, ensure they are wrapped in a single transaction.
+
+## File Structure
+1. **Model Files**:
+   - Each entity should have a corresponding model file in the `model` package.
+   - Model files should contain the GraphQL model definition and conversion functions.
+
+2. **Feature Implementation**:
+   - Feature implementations should be placed in the `features` package.
+   - Each feature should have a `main.go` file containing the core logic.
+
+3. **Resolvers**:
+   - Resolvers should be kept simple, delegating business logic to feature implementations.
+   - Use model conversion functions to transform entities to GraphQL models.
+
+## Code Generation
+1. **Ent Code Generation**:
+   - Run `make ent_generate` to generate Ent code after schema changes.
+
+2. **GraphQL Code Generation**:
+   - Run `make graphql_generate` to generate GraphQL code after schema changes.
+
+## Error Handling
+1. **Early Returns**:
+   - Use early returns for error handling to improve code readability.
+
+2. **Context Usage**:
+   - Always pass and use the context parameter in functions that interact with the database or perform long-running operations.
+
+## Testing
+1. **Test Coverage**:
+   - Ensure all feature implementations have corresponding tests.
+   - Use table-driven tests for comprehensive coverage.
+
+## Documentation
+1. **Code Comments**:
+   - Add clear and concise comments to explain complex logic or important decisions.
+   - Use GoDoc style comments for public functions and types.

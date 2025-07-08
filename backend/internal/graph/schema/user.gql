@@ -1,0 +1,32 @@
+extend type Query {
+  paginatedUsers(paginationInput: PaginationInput): PaginatedUser!
+}
+extend type Mutation {
+  adminCreateUser(input: AdminCreateUserInput!): User!
+}
+
+input AdminCreateUserInput {
+  email: String!
+  password: String!
+}
+
+type User {
+  id: ID!
+  email: String!
+  username: String!
+  firstName: String
+  lastName: String
+  isActive: Boolean!
+  roles: [Role!]!
+  permissions: [Permission!]!
+}
+
+type Role {
+  id: ID!
+  name: String!
+}
+
+type PaginatedUser {
+  pagination: Pagination!
+  items: [User!]!
+}

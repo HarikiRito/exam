@@ -1,0 +1,8 @@
+extend type Mutation {
+  createTodo(input: NewTodo!): Todo!
+}
+
+extend type Query {
+  todos: [Todo!]!
+}
+

@@ -1,0 +1,101 @@
+extend type Mutation {
+  createTest(input: CreateTestInput!): Test!
+  updateTest(id: ID!, input: UpdateTestInput!): Test!
+  deleteTest(id: ID!): Boolean!
+  
+  # Add multiple collections to a test
+  addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
+  
+  # Update number of questions requirement based on points per question
+  updateTestQuestionRequirement(testId: ID!, input: [UpdateTestQuestionRequirementInput!]!): Boolean!
+  
+  # Batch ignore questions
+  batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
+}
+
+extend type Query {
+  test(id: ID!): Test!
+  paginatedTests(paginationInput: PaginationInput): PaginatedTest!
+}
+
+type PaginatedTest {
+  pagination: Pagination!
+  items: [Test!]!
+}
+
+type Test {
+  id: ID!
+  name: String!
+  totalTime: Int
+  questionCollections: [QuestionCollection!]!
+  testQuestionCounts: [TestQuestionCount!]!
+  testIgnoreQuestions: [TestIgnoreQuestion!]!
+}
+
+type TestQuestionCount {
+  id: ID!
+  testId: ID!
+  numberOfQuestions: Int!
+  points: Int!
+}
+
+type TestIgnoreQuestion {
+  id: ID!
+  testId: ID!
+  questionId: ID!
+  reason: String
+  question: Question
+}
+
+input CreateTestInput {
+  name: String!
+  courseSectionId: ID
+  courseId: ID
+  totalTime: Int!
+}
+
+input UpdateTestInput {
+  name: String
+  totalTime: Int
+}
+
+input AddMultiCollectionToTestInput {
+  testId: ID!
+  collectionIds: [ID!]!
+}
+
+input BatchUpdateQuestionPointsInput {
+  testId: ID!
+  questionPoints: [QuestionPointsInput!]!
+}
+
+input QuestionPointsInput {
+  questionId: ID!
+  points: Int!
+}
+
+input UpdateQuestionPointsByCollectionInput {
+  testId: ID!
+  collectionId: ID!
+  points: Int!
+}
+
+input UpdateTestQuestionRequirementInput {
+  numberOfQuestions: Int!
+  pointsPerQuestion: Int!
+}
+
+input BatchIgnoreQuestionsInput {
+  testId: ID!
+  questionIgnoreData: [QuestionIgnoreData!]!
+}
+
+input QuestionIgnoreData {
+  questionId: ID!
+  reason: String
+}
+
+input BatchDeleteQuestionPointsInput {
+  testId: ID!
+  questionIds: [ID!]!
+}

@@ -1,0 +1,30 @@
+extend type Mutation {
+  register(input: RegisterInput!): Auth!
+  renewToken(refreshToken: String!): Auth!
+}
+
+extend type Query {
+  me: User!
+  login(input: LoginInput!): Auth!
+  isAuthenticated: Boolean!
+}
+
+
+type Auth {
+  accessToken: String!
+  refreshToken: String!
+}
+
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+}
+
+
+

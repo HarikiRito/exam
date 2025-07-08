@@ -1,0 +1,70 @@
+extend type Mutation {
+  createTestSession(input: CreateTestSessionInput!): [TestSession!]!
+  deleteTestSession(id: ID!): Boolean!
+  submitTestSession(sessionId: ID!, input: SubmitTestSessionInput!): TestSession!
+  startTestSession(id: ID!): TestSession!
+}
+
+extend type Query {
+  testSession(id: ID!): TestSession!
+  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
+}
+
+enum TestSessionStatus {
+  PENDING
+  COMPLETED
+  IN_PROGRESS
+  CANCELLED
+  EXPIRED
+}
+
+type TestSession {
+  id: ID!
+  status: TestSessionStatus!
+  startedAt: DateTime
+  expiredAt: DateTime
+  completedAt: DateTime
+  maxPoints: Int!
+  pointsEarned: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  testId: ID!
+  userId: ID
+  test: Test!
+  questions: [Question!]!
+  orderedQuestions: [QuestionOrder!]!
+}
+
+type QuestionOrder {
+  questionId: ID!
+  order: Int!
+}
+
+type PaginatedTestSession {
+  pagination: Pagination!
+  items: [TestSession!]!
+}
+
+input CreateTestSessionInput {
+  testId: ID!
+  userIds: [ID!]
+}
+
+input UpdateTestSessionInput {
+  completedAt: DateTime
+  totalScore: Int
+}
+
+input TestSessionAnswerInput {
+  questionId: ID!
+  questionOptionIds: [ID!]!
+}
+
+input SubmitTestSessionInput {
+  answers: [TestSessionAnswerInput!]!
+}
+
+input StartTestSessionInput {
+  testTimeTaken: Int!
+  expiredAt: DateTime
+} 

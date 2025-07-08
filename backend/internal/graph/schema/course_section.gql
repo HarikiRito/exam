@@ -1,0 +1,38 @@
+extend type Mutation {
+  createCourseSection(input: CreateCourseSectionInput!): CourseSection!
+  updateCourseSection(id: ID!, input: UpdateCourseSectionInput!): CourseSection!
+  removeCourseSection(id: ID!): Boolean!
+}
+
+extend type Query {
+  courseSection(id: ID!): CourseSection!
+  courseSectionsByCourseId(courseId: ID!, filter: CourseSectionFilterInput): [CourseSection!]!
+}
+
+
+type CourseSection {
+  id: ID!
+  title: String!
+  description: String!
+  courseId: ID!
+  sectionId: ID
+  order: Int!
+}
+
+input CreateCourseSectionInput {
+  title: String!
+  description: String!
+  courseId: ID!
+  sectionId: ID
+}
+
+input UpdateCourseSectionInput {
+  title: String
+  description: String
+  sectionId: ID
+}
+
+input CourseSectionFilterInput {
+  onlyRoot: Boolean
+}
+

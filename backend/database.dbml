@@ -1,0 +1,275 @@
+// Database schema for Learning Platform
+
+// User Management
+Table users {
+  id varchar [pk]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  password_hash varchar [not null]
+  first_name varchar
+  last_name varchar
+  profile_image_id varchar
+  bio text
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table roles {
+  id varchar [pk]
+  name varchar [not null, unique]
+  description text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table permissions {
+  id varchar [pk]
+  name varchar [not null, unique]
+  description text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table user_roles {
+  id varchar [pk]
+  user_id varchar [not null]
+  role_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table role_permissions {
+  id varchar [pk]
+  role_id varchar [not null]
+  permission_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Media Management
+Table media {
+  id varchar [pk]
+  file_name varchar [not null]
+  file_url varchar [not null]
+  mime_type varchar [not null]
+  uploader_id varchar
+  metadata jsonb [note: 'Additional metadata for the file']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Course Management
+Table courses {
+  id varchar [pk]
+  title varchar [not null]
+  description text
+  media_id varchar
+  creator_id varchar [not null]
+  is_published boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table course_sections {
+  id varchar [pk]
+  course_id varchar [not null]
+  parent_id varchar [note: 'Self-reference to parent section', ref: > course_sections.id]
+  title varchar [not null]
+  description text
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  order int [not null, default: 0]
+}
+
+Table videos {
+  id varchar [pk]
+  section_id varchar [not null]
+  title varchar [not null]
+  description text
+  media_id varchar [not null]
+  duration integer [note: 'Duration in seconds']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Question Management
+Table question_collections {
+  id varchar [pk]
+  title varchar [not null]
+  description text
+  creator_id varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table questions {
+  id varchar [pk]
+  collection_id varchar [not null]
+  question_text text [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table video_question_timestamps {
+  id varchar [pk]
+  video_id varchar [not null]
+  question_id varchar [not null]
+  timestamp integer [not null, note: 'Timestamp in seconds when question should appear during video playback']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table question_options {
+  id varchar [pk]
+  question_id varchar [not null]
+  option_text text [not null]
+  is_correct boolean [not null, default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// User Progress
+Table user_course_enrollments {
+  id varchar [pk]
+  user_id varchar [not null]
+  course_id varchar [not null]
+  enrolled_at timestamp [default: `now()`]
+  completed_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table user_section_progress {
+  id varchar [pk]
+  user_id varchar [not null]
+  section_id varchar [not null]
+  is_completed boolean [default: false]
+  completed_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table user_video_progress {
+  id varchar [pk]
+  user_id varchar [not null]
+  video_id varchar [not null]
+  watched_seconds integer [default: 0]
+  is_completed boolean [default: false]
+  last_watched_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table test_session_answers {
+  id varchar [pk]
+  session_id varchar [not null]
+  question_id varchar [not null]
+  is_correct boolean [null]
+  points integer [null]
+  order integer [not null, default: 1]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Course Session Management
+Table test_sessions {
+  id varchar [pk]
+  user_id varchar [null]
+  test_id varchar [not null]
+  course_section_id varchar [null]
+  started_at timestamp [null]
+  expired_at timestamp [null]
+  status varchar [not null, default: 'pending']
+  completed_at timestamp
+  max_points integer [default: 0]
+  points_earned integer [default: 0]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// Tests table definition
+Table tests {
+  id varchar [pk]
+  name varchar [not null]
+  course_section_id varchar [null]
+  course_id varchar [null]
+  total_points integer [not null, default: 0, note: 'Computed field for total points from test_question_counts']
+  total_time integer [note: 'Total time in minutes for the test']
+}
+
+// Test Question Management
+Table test_collection {
+  test_id varchar [not null]
+  collection_id varchar [not null]
+
+  Indexes {
+    (test_id, collection_id) [pk]
+  }
+}
+
+Table test_question_counts {
+  test_id varchar [not null]
+  number_of_questions integer [not null, default: 1]
+  points_per_question integer [not null, default: 1]
+}
+
+Table test_ignore_questions {
+  id varchar [pk]
+  test_id varchar [not null]
+  question_id varchar [not null]
+  reason text // Optional: Reason for ignoring
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+
+  Indexes {
+    (test_id, question_id) [unique]
+  }
+}
+
+// Relationships
+
+// User Management Relationships
+Ref: users.profile_image_id > media.id
+Ref: user_roles.user_id > users.id [delete: cascade]
+Ref: user_roles.role_id > roles.id [delete: cascade]
+Ref: role_permissions.role_id > roles.id [delete: cascade]
+Ref: role_permissions.permission_id > permissions.id [delete: cascade]
+
+// Media Relationships
+Ref: media.uploader_id > users.id
+Ref: courses.media_id > media.id
+
+// Course Management Relationships
+Ref: courses.creator_id > users.id
+Ref: course_sections.course_id > courses.id [delete: cascade]
+Ref: videos.section_id > course_sections.id [delete: cascade]
+Ref: videos.media_id > media.id
+Ref: questions.collection_id > question_collections.id [delete: cascade]
+Ref: video_question_timestamps.video_id > videos.id [delete: cascade]
+Ref: video_question_timestamps.question_id > questions.id [delete: cascade]
+Ref: question_options.question_id > questions.id [delete: cascade]
+Ref: tests.course_section_id > course_sections.id [delete: cascade]
+Ref: tests.course_id > courses.id [delete: cascade]
+
+// User Progress Relationships
+Ref: user_course_enrollments.user_id > users.id [delete: cascade]
+Ref: user_course_enrollments.course_id > courses.id [delete: cascade]
+Ref: user_section_progress.user_id > users.id [delete: cascade]
+Ref: user_section_progress.section_id > course_sections.id [delete: cascade]
+Ref: user_video_progress.user_id > users.id [delete: cascade]
+Ref: user_video_progress.video_id > videos.id [delete: cascade]
+Ref: test_session_answers.question_id > questions.id [delete: cascade]
+
+// Course Session Relationships
+Ref: test_sessions.user_id > users.id [delete: cascade]
+Ref: test_sessions.test_id > tests.id [delete: cascade]
+Ref: test_sessions.course_section_id > course_sections.id [delete: cascade]
+Ref: test_session_answers.session_id > test_sessions.id [delete: cascade]
+
+// Relationships for Test Question Management
+Ref: test_collection.test_id > tests.id [delete: cascade]
+Ref: test_collection.collection_id > question_collections.id [delete: cascade]
+Ref: test_question_counts.test_id > tests.id [delete: cascade]
+Ref: test_ignore_questions.test_id > tests.id [delete: cascade]
+Ref: test_ignore_questions.question_id > questions.id [delete: cascade]

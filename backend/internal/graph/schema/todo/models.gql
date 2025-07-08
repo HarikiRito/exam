@@ -1,0 +1,8 @@
+type Todo {
+  id: ID!
+  text: String!
+}
+
+input NewTodo {
+  text: String!
+}
