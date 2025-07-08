@@ -13,6 +13,14 @@ import (
 )
 
 func AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*ent.User, error) {
+	// Validate required fields
+	if input.Email == "" {
+		return nil, errors.New("email cannot be empty")
+	}
+	if input.Password == "" {
+		return nil, errors.New("password cannot be empty")
+	}
+
 	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
 		return nil, err
@@ -29,17 +37,6 @@ func AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*en
 		return nil, db.Rollback(tx, errors.New("email already exists"))
 	}
 
-	// Check if username already exists
-	usernameExists, err := tx.User.Query().
-		Where(user.UsernameEQ(input.Username)).
-		Exist(ctx)
-	if err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-	if usernameExists {
-		return nil, db.Rollback(tx, errors.New("username already exists"))
-	}
-
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -49,8 +46,8 @@ func AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*en
 	// Create the user
 	newUser, err := tx.User.Create().
 		SetEmail(input.Email).
-		SetUsername(input.Username).
 		SetPasswordHash(string(hashedPassword)).
+		SetUsername(input.Email).
 		SetIsActive(true). // Default to active
 		Save(ctx)
 	if err != nil {

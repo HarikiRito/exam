@@ -8,7 +8,6 @@ extend type Mutation {
 
 input AdminCreateUserInput {
   email: String!
-  username: String!
   password: String!
 }
 
