@@ -13,9 +13,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . /app
 RUN pnpm build
 
-FROM base AS runner
-WORKDIR /app
-COPY --from=build /app/build/client ./build/client
-RUN pnpm add -g sirv-cli
-EXPOSE 3000
-CMD ["sirv", "build/client", "--single", "--host", "0.0.0.0", "--port", "3000"]
+FROM nginx:latest AS runner
+COPY --from=build /app/build/client /usr/share/nginx/html
+EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
