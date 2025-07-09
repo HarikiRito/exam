@@ -15,7 +15,7 @@ import (
 func main() {
 	err := environment.LoadEnvironment()
 	if err != nil {
-		log.Fatal("Error loading environment variables: ", err)
+		log.Println("Error loading environment variables: ", err)
 	}
 
 	db.InitDatabase()

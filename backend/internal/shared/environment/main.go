@@ -1,6 +1,7 @@
 package environment
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -21,7 +22,7 @@ func LoadEnvironment(filename ...string) error {
 	err := godotenv.Load(filename...)
 
 	if err != nil {
-		return err
+		fmt.Println("Error loading environment variables: ", err)
 	}
 
 	DB_NAME = os.Getenv("DB_NAME")
@@ -37,7 +38,7 @@ func LoadEnvironment(filename ...string) error {
 	JWT_SECRET = os.Getenv("JWT_SECRET")
 	JWT_REFRESH_SECRET = os.Getenv("JWT_REFRESH_SECRET")
 	DEBUG = os.Getenv("DEBUG")
-	return nil
+	return err
 }
 
 func IsDebug() bool {
