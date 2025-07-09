@@ -27,6 +27,8 @@ go.work
 .vscode/settings.json
 tmp
 .env
+.env.*
+!.env.example
 
 # AI related files
 final_review_gate.py

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"template/internal/ent/db"
 	"template/internal/seeder"
@@ -13,7 +14,7 @@ func main() {
 
 	err := environment.LoadEnvironment()
 	if err != nil {
-		log.Fatal("Error loading environment variables: ", err)
+		fmt.Println("Error loading environment variables: ", err)
 	}
 
 	err = db.InitDatabase()
