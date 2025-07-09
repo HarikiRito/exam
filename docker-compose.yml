@@ -12,6 +12,7 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB}
+      PORT: ${PORT}
     depends_on:
       - db
 
@@ -26,6 +27,18 @@ services:
       VITE_GRAPHQL_URL: ${GRAPHQL_URL}
     depends_on:
       - backend
+
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "3030:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+      - frontend
+
   db:
     restart: unless-stopped
     image: postgres:latest
@@ -36,4 +49,3 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PORT: 5432
-
