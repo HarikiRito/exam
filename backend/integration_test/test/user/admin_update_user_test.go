@@ -5,6 +5,7 @@ import (
 	"template/integration_test/prepare"
 	"template/internal/features/user"
 	"template/internal/graph/model"
+	"template/internal/seeder"
 	"template/internal/shared/utilities/pointer"
 	"testing"
 
@@ -16,14 +17,17 @@ import (
 
 func TestAdminUpdateUser(t *testing.T) {
 	prepare.SetupTestDb(t)
+	prepare.SetupRoleSystem(t)
 
 	ctx := context.Background()
+	userRoleID := prepare.GetRoleID(t, seeder.RoleUser)
 
 	t.Run("CanUpdateEmail_Success", func(t *testing.T) {
 		// Create test user
 		originalInput := model.AdminCreateUserInput{
 			Email:    "original@test.com",
 			Password: "originalpass123",
+			RoleID:   userRoleID,
 		}
 		originalUser, err := user.AdminCreateUser(ctx, originalInput)
 		require.NoError(t, err, "Test user creation should succeed")
@@ -51,6 +55,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		originalInput := model.AdminCreateUserInput{
 			Email:    "user@password.com",
 			Password: "oldpassword123",
+			RoleID:   userRoleID,
 		}
 		originalUser, err := user.AdminCreateUser(ctx, originalInput)
 		require.NoError(t, err, "Test user creation should succeed")
@@ -81,6 +86,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		originalInput := model.AdminCreateUserInput{
 			Email:    "user@active.com",
 			Password: "password123",
+			RoleID:   userRoleID,
 		}
 		originalUser, err := user.AdminCreateUser(ctx, originalInput)
 		require.NoError(t, err, "Test user creation should succeed")
@@ -109,6 +115,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		originalInput := model.AdminCreateUserInput{
 			Email:    "user@multiple.com",
 			Password: "originalpass123",
+			RoleID:   userRoleID,
 		}
 		originalUser, err := user.AdminCreateUser(ctx, originalInput)
 		require.NoError(t, err, "Test user creation should succeed")
@@ -143,6 +150,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		firstInput := model.AdminCreateUserInput{
 			Email:    "first@duplicate.com",
 			Password: "password123",
+			RoleID:   userRoleID,
 		}
 		_, err := user.AdminCreateUser(ctx, firstInput)
 		require.NoError(t, err, "First user creation should succeed")
@@ -151,6 +159,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		secondInput := model.AdminCreateUserInput{
 			Email:    "second@duplicate.com",
 			Password: "password456",
+			RoleID:   userRoleID,
 		}
 		secondUser, err := user.AdminCreateUser(ctx, secondInput)
 		require.NoError(t, err, "Second user creation should succeed")
@@ -172,6 +181,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		originalInput := model.AdminCreateUserInput{
 			Email:    "same@email.com",
 			Password: "password123",
+			RoleID:   userRoleID,
 		}
 		originalUser, err := user.AdminCreateUser(ctx, originalInput)
 		require.NoError(t, err, "Test user creation should succeed")
@@ -209,6 +219,7 @@ func TestAdminUpdateUser(t *testing.T) {
 		originalInput := model.AdminCreateUserInput{
 			Email:    "user@noupdate.com",
 			Password: "password123",
+			RoleID:   userRoleID,
 		}
 		originalUser, err := user.AdminCreateUser(ctx, originalInput)
 		require.NoError(t, err, "Test user creation should succeed")

@@ -5,6 +5,7 @@ import (
 	"template/integration_test/prepare"
 	"template/internal/features/user"
 	"template/internal/graph/model"
+	"template/internal/seeder"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,13 +15,16 @@ import (
 
 func TestAdminCreateUser(t *testing.T) {
 	prepare.SetupTestDb(t)
+	prepare.SetupRoleSystem(t)
 
 	ctx := context.Background()
+	userRoleID := prepare.GetRoleID(t, seeder.RoleUser)
 
 	t.Run("CanCreateUser_Success", func(t *testing.T) {
 		input := model.AdminCreateUserInput{
 			Email:    "newuser@test.com",
 			Password: "securepassword123",
+			RoleID:   userRoleID,
 		}
 
 		createdUser, err := user.AdminCreateUser(ctx, input)
@@ -48,6 +52,7 @@ func TestAdminCreateUser(t *testing.T) {
 		firstUserInput := model.AdminCreateUserInput{
 			Email:    "duplicate@test.com",
 			Password: "password123",
+			RoleID:   userRoleID,
 		}
 		_, err := user.AdminCreateUser(ctx, firstUserInput)
 		require.NoError(t, err, "First user creation should succeed")
@@ -56,6 +61,7 @@ func TestAdminCreateUser(t *testing.T) {
 		secondUserInput := model.AdminCreateUserInput{
 			Email:    "duplicate@test.com", // Same email
 			Password: "password456",
+			RoleID:   userRoleID,
 		}
 
 		createdUser, err := user.AdminCreateUser(ctx, secondUserInput)
@@ -64,31 +70,14 @@ func TestAdminCreateUser(t *testing.T) {
 		assert.Contains(t, err.Error(), "email already exists", "Error should indicate email duplication")
 	})
 
-	t.Run("ErrorIfUsernameExists_DuplicateUsername", func(t *testing.T) {
-		// Create first user
-		firstUserInput := model.AdminCreateUserInput{
-			Email:    "uniqueemail1@test.com",
-			Password: "password123",
-		}
-		_, err := user.AdminCreateUser(ctx, firstUserInput)
-		require.NoError(t, err, "First user creation should succeed")
-
-		// Try to create second user with same username
-		secondUserInput := model.AdminCreateUserInput{
-			Email:    "uniqueemail2@test.com", // Different email
-			Password: "password456",
-		}
-
-		createdUser, err := user.AdminCreateUser(ctx, secondUserInput)
-		assert.Error(t, err, "AdminCreateUser should fail with duplicate username")
-		assert.Nil(t, createdUser, "User should not be created when username exists")
-		assert.Contains(t, err.Error(), "username already exists", "Error should indicate username duplication")
-	})
+	// Note: Username duplication test removed because username is always set to email
+	// So username duplication is equivalent to email duplication
 
 	t.Run("ErrorIfEmailEmpty_EmptyEmail", func(t *testing.T) {
 		input := model.AdminCreateUserInput{
 			Email:    "", // Empty email
 			Password: "validpassword123",
+			RoleID:   userRoleID,
 		}
 
 		createdUser, err := user.AdminCreateUser(ctx, input)
@@ -96,21 +85,13 @@ func TestAdminCreateUser(t *testing.T) {
 		assert.Nil(t, createdUser, "User should not be created with empty email")
 	})
 
-	t.Run("ErrorIfUsernameEmpty_EmptyUsername", func(t *testing.T) {
-		input := model.AdminCreateUserInput{
-			Email:    "validemail@test.com",
-			Password: "validpassword123",
-		}
-
-		createdUser, err := user.AdminCreateUser(ctx, input)
-		assert.Error(t, err, "AdminCreateUser should fail with empty username")
-		assert.Nil(t, createdUser, "User should not be created with empty username")
-	})
+	// Note: Username empty test removed because username is always set to email
 
 	t.Run("ErrorIfPasswordEmpty_EmptyPassword", func(t *testing.T) {
 		input := model.AdminCreateUserInput{
 			Email:    "validemail2@test.com",
 			Password: "", // Empty password
+			RoleID:   userRoleID,
 		}
 
 		createdUser, err := user.AdminCreateUser(ctx, input)
@@ -122,6 +103,7 @@ func TestAdminCreateUser(t *testing.T) {
 		input := model.AdminCreateUserInput{
 			Email:    "", // Empty email
 			Password: "", // Empty password
+			RoleID:   userRoleID,
 		}
 
 		createdUser, err := user.AdminCreateUser(ctx, input)
@@ -132,9 +114,9 @@ func TestAdminCreateUser(t *testing.T) {
 	t.Run("CanCreateMultipleUsersWithUniqueData_Success", func(t *testing.T) {
 		// Create multiple users to ensure the function works for multiple creations
 		users := []model.AdminCreateUserInput{
-			{Email: "user1@multi.com", Password: "pass1"},
-			{Email: "user2@multi.com", Password: "pass2"},
-			{Email: "user3@multi.com", Password: "pass3"},
+			{Email: "user1@multi.com", Password: "pass1", RoleID: userRoleID},
+			{Email: "user2@multi.com", Password: "pass2", RoleID: userRoleID},
+			{Email: "user3@multi.com", Password: "pass3", RoleID: userRoleID},
 		}
 
 		for i, userInput := range users {

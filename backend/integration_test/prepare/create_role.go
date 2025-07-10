@@ -172,3 +172,19 @@ func GetUserWithRoles(t *testing.T, userID uuid.UUID) *ent.User {
 
 	return userEntity
 }
+
+// GetRoleID gets a role ID by name for testing
+func GetRoleID(t *testing.T, roleName string) uuid.UUID {
+	ctx := context.Background()
+
+	client, err := db.OpenClient()
+	require.NoError(t, err, "Failed to open database client")
+
+	// Get the role
+	targetRole, err := client.Role.Query().
+		Where(role.NameEQ(roleName)).
+		Only(ctx)
+	require.NoError(t, err, "Failed to get role: %s", roleName)
+
+	return targetRole.ID
+}
