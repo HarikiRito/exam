@@ -17,8 +17,9 @@ type AddMultiCollectionToTestInput struct {
 }
 
 type AdminCreateUserInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string    `json:"email"`
+	Password string    `json:"password"`
+	RoleID   uuid.UUID `json:"roleId"`
 }
 
 type AdminEditUserInput struct {

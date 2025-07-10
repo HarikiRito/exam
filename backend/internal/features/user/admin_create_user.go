@@ -37,6 +37,12 @@ func AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*en
 		return nil, db.Rollback(tx, errors.New("email already exists"))
 	}
 
+	// Verify role exists
+	role, err := tx.Role.Get(ctx, input.RoleID)
+	if err != nil {
+		return nil, db.Rollback(tx, errors.New("invalid role"))
+	}
+
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -48,7 +54,8 @@ func AdminCreateUser(ctx context.Context, input model.AdminCreateUserInput) (*en
 		SetEmail(input.Email).
 		SetPasswordHash(string(hashedPassword)).
 		SetUsername(input.Email).
-		SetIsActive(true). // Default to active
+		SetIsActive(true).   // Default to active
+		AddRoleIDs(role.ID). // Associate role
 		Save(ctx)
 	if err != nil {
 		return nil, db.Rollback(tx, err)
