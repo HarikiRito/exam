@@ -7,6 +7,7 @@ import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppForm } from 'app/shared/components/ui/form/AppForm';
 import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppLink } from 'app/shared/components/ui/link/AppLink';
+import { clientEnvironment } from 'app/shared/constants/environment';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
 import client from 'app/shared/utils/apollo';
@@ -39,10 +40,12 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: 'onBlur',
-    defaultValues: {
-      email: 'owner@example.com',
-      password: 'password123',
-    },
+    defaultValues: clientEnvironment.isDev
+      ? {
+          email: 'owner@example.com',
+          password: 'password123',
+        }
+      : undefined,
   });
 
   const formState = form.formState;
@@ -107,7 +110,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                     <AppForm.Item>
                       <AppForm.Label htmlFor='email'>Email</AppForm.Label>
                       <AppForm.Control>
-                        <AppInput id='email' type='email' placeholder='m@example.com' {...field} />
+                        <AppInput id='email' type='email' placeholder='your@email.com' {...field} />
                       </AppForm.Control>
                       <AppForm.Message />
                     </AppForm.Item>
@@ -121,7 +124,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
                     <AppForm.Item>
                       <AppForm.Label htmlFor='password'>Password</AppForm.Label>
                       <AppForm.Control>
-                        <AppInput id='password' type='password' {...field} />
+                        <AppInput id='password' type='password' placeholder='Enter your password' {...field} />
                       </AppForm.Control>
                       <AppForm.Message />
                     </AppForm.Item>

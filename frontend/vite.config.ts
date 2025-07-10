@@ -44,6 +44,7 @@ export default defineConfig({
       }),
     tsconfigPaths(),
   ],
+  assetsInclude: ['**/*.md'],
   test: {
     globals: true,
     environment: 'jsdom',

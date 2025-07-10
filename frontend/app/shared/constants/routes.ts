@@ -1,4 +1,5 @@
 export const APP_ROUTES = {
+  about: '/about',
   dashboard: '/dashboard',
   courses: '/courses',
   profile: '/profile',
