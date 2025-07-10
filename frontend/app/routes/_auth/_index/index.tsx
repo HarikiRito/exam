@@ -1,5 +1,5 @@
 import type { MetaFunction } from '@remix-run/node';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from '@remix-run/react';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 
 export const meta: MetaFunction = () => {

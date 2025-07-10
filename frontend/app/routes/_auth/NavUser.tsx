@@ -10,7 +10,7 @@ import { userStore } from 'app/shared/stores/user.store';
 import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import client from 'app/shared/utils/apollo';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@remix-run/react';
 
 export function NavUser() {
   const { isMobile } = AppSidebar.useSidebar();
