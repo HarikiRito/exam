@@ -163,6 +163,7 @@ type ComplexityRoot struct {
 		CourseSection                func(childComplexity int, id uuid.UUID) int
 		CourseSectionsByCourseID     func(childComplexity int, courseID uuid.UUID, filter *model.CourseSectionFilterInput) int
 		GetAllPermissions            func(childComplexity int) int
+		GetAllRoles                  func(childComplexity int) int
 		IsAuthenticated              func(childComplexity int) int
 		Login                        func(childComplexity int, input model.LoginInput) int
 		Me                           func(childComplexity int) int
@@ -326,6 +327,7 @@ type QueryResolver interface {
 	QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error)
 	PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error)
 	QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error)
+	GetAllRoles(ctx context.Context) ([]*model.Role, error)
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
 	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
@@ -1025,6 +1027,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetAllPermissions(childComplexity), true
+
+	case "Query.getAllRoles":
+		if e.complexity.Query.GetAllRoles == nil {
+			break
+		}
+
+		return e.complexity.Query.GetAllRoles(childComplexity), true
 
 	case "Query.isAuthenticated":
 		if e.complexity.Query.IsAuthenticated == nil {
@@ -1762,7 +1771,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/permission.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/schema.gql" "schema/test/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql"
+//go:embed "schema/auth.gql" "schema/common/pagination.gql" "schema/course.gql" "schema/course_section.gql" "schema/permission.gql" "schema/question.gql" "schema/question_collection.gql" "schema/question_option.gql" "schema/role.gql" "schema/schema.gql" "schema/test/test.gql" "schema/test_session.gql" "schema/todo/models.gql" "schema/todo/todo.gql" "schema/user.gql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1782,6 +1791,7 @@ var sources = []*ast.Source{
 	{Name: "schema/question.gql", Input: sourceData("schema/question.gql"), BuiltIn: false},
 	{Name: "schema/question_collection.gql", Input: sourceData("schema/question_collection.gql"), BuiltIn: false},
 	{Name: "schema/question_option.gql", Input: sourceData("schema/question_option.gql"), BuiltIn: false},
+	{Name: "schema/role.gql", Input: sourceData("schema/role.gql"), BuiltIn: false},
 	{Name: "schema/schema.gql", Input: sourceData("schema/schema.gql"), BuiltIn: false},
 	{Name: "schema/test/test.gql", Input: sourceData("schema/test/test.gql"), BuiltIn: false},
 	{Name: "schema/test_session.gql", Input: sourceData("schema/test_session.gql"), BuiltIn: false},
@@ -7681,6 +7691,56 @@ func (ec *executionContext) fieldContext_Query_questionOption(ctx context.Contex
 	if fc.Args, err = ec.field_Query_questionOption_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAllRoles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllRoles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllRoles(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Role)
+	fc.Result = res
+	return ec.marshalNRole2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐRoleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllRoles(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Role_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Role_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Role", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -15172,6 +15232,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_questionOption(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllRoles":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllRoles(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

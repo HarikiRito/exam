@@ -12,6 +12,21 @@ import (
 	"github.com/google/uuid"
 )
 
+// GetAllRoles fetches all available roles in the system
+func GetAllRoles(ctx context.Context) ([]*ent.Role, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return nil, err
+	}
+
+	roles, err := client.Role.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return roles, nil
+}
+
 func CheckUserPermissions(ctx context.Context, userID uuid.UUID, permissions []permissionFeat.Permission) error {
 	// Handle empty permissions list - always allow
 	if len(permissions) == 0 {
