@@ -21,6 +21,19 @@ export type AddMultiCollectionToTestInput = {
   testId: Scalars['ID']['input'];
 };
 
+export type AdminCreateUserInput = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  roleId: Scalars['ID']['input'];
+};
+
+export type AdminEditUserInput = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  roleId?: InputMaybe<Scalars['ID']['input']>;
+};
+
 export type Auth = {
   __typename?: 'Auth';
   accessToken: Scalars['String']['output'];
@@ -116,6 +129,8 @@ export type LoginInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   addMultiCollectionToTest: Scalars['Boolean']['output'];
+  adminCreateUser: User;
+  adminEditUser: User;
   batchIgnoreQuestions: Scalars['Boolean']['output'];
   createCourse: Course;
   createCourseSection: CourseSection;
@@ -149,6 +164,17 @@ export type Mutation = {
 
 export type MutationAddMultiCollectionToTestArgs = {
   input: AddMultiCollectionToTestInput;
+};
+
+
+export type MutationAdminCreateUserArgs = {
+  input: AdminCreateUserInput;
+};
+
+
+export type MutationAdminEditUserArgs = {
+  id: Scalars['ID']['input'];
+  input: AdminEditUserInput;
 };
 
 
@@ -395,6 +421,7 @@ export enum PermissionEnum {
   TestUpdate = 'TEST_UPDATE',
   UserCreate = 'USER_CREATE',
   UserRead = 'USER_READ',
+  UserUpdate = 'USER_UPDATE',
   VideoCreate = 'VIDEO_CREATE',
   VideoDelete = 'VIDEO_DELETE',
   VideoRead = 'VIDEO_READ',
@@ -407,6 +434,7 @@ export type Query = {
   courseSection: CourseSection;
   courseSectionsByCourseId: Array<CourseSection>;
   getAllPermissions: Array<PermissionEnum>;
+  getAllRoles: Array<Role>;
   isAuthenticated: Scalars['Boolean']['output'];
   login: Auth;
   me: User;

@@ -12,9 +12,24 @@ directive @goEnum(value: String) on ENUM_VALUE
 
 directive @goModel(model: String, models: [String!]) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
 
+directive @goTag(key: String!, value: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
 input AddMultiCollectionToTestInput {
   collectionIds: [ID!]!
   testId: ID!
+}
+
+input AdminCreateUserInput {
+  email: String!
+  password: String!
+  roleId: ID!
+}
+
+input AdminEditUserInput {
+  email: String
+  isActive: Boolean
+  password: String
+  roleId: ID
 }
 
 type Auth {
@@ -110,6 +125,8 @@ input LoginInput {
 
 type Mutation {
   addMultiCollectionToTest(input: AddMultiCollectionToTestInput!): Boolean!
+  adminCreateUser(input: AdminCreateUserInput!): User!
+  adminEditUser(id: ID!, input: AdminEditUserInput!): User!
   batchIgnoreQuestions(input: BatchIgnoreQuestionsInput!): Boolean!
   createCourse(input: CreateCourseInput!): Course!
   createCourseSection(input: CreateCourseSectionInput!): CourseSection!
@@ -228,6 +245,7 @@ enum PermissionEnum {
   TEST_UPDATE
   USER_CREATE
   USER_READ
+  USER_UPDATE
   VIDEO_CREATE
   VIDEO_DELETE
   VIDEO_READ
@@ -239,6 +257,7 @@ type Query {
   courseSection(id: ID!): CourseSection!
   courseSectionsByCourseId(courseId: ID!, filter: CourseSectionFilterInput): [CourseSection!]!
   getAllPermissions: [PermissionEnum!]!
+  getAllRoles: [Role!]!
   isAuthenticated: Boolean!
   login(input: LoginInput!): Auth!
   me: User!

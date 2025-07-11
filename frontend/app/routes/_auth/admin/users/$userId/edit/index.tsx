@@ -5,17 +5,23 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useGetAllRolesQuery } from 'app/graphql/operations/role/getAllRoles.query.generated';
+import { useAdminEditUserMutation } from 'app/graphql/operations/user/adminEditUser.mutation.generated';
+import { AdminEditUserInput } from 'app/graphql/graphqlTypes';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppForm } from 'app/shared/components/ui/form/AppForm';
 import { AppInput } from 'app/shared/components/ui/input/AppInput';
+import { AppSelect } from 'app/shared/components/ui/select/AppSelect';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
+import { capitalize } from 'app/shared/utils/string';
 
 // Create Zod schema for user edit validation
 const editUserSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  roleId: z.string().min(1, 'Role is required'),
 });
 
 type EditUserFormData = z.infer<typeof editUserSchema>;
@@ -25,30 +31,58 @@ export default function EditUserPage() {
   const params = useParams();
   const userId = params.userId;
 
+  // Fetch all roles
+  const { data: rolesData } = useGetAllRolesQuery();
+  const roles = rolesData?.getAllRoles || [];
+
+  // Edit user mutation
+  const [editUser, { loading: isUpdating }] = useAdminEditUserMutation({
+    onCompleted: () => {
+      toast.success('User updated successfully!');
+      navigate(APP_ROUTES.adminUsers);
+    },
+    onError: (error) => {
+      toast.error(`Failed to update user: ${error.message}`);
+    },
+  });
+
   // TODO: Fetch user data based on userId
   // For now, using placeholder data
   const userData = {
     id: userId,
     email: 'user@example.com',
+    roleId: '', // TODO: Get from actual user data
     // Don't pre-fill password for security reasons
   };
 
   const form = useForm<EditUserFormData>({
     resolver: zodResolver(editUserSchema),
-    mode: 'onBlur',
     defaultValues: {
       email: userData.email,
       password: '',
+      roleId: userData.roleId,
     },
   });
 
   function onSubmit(data: EditUserFormData) {
-    // TODO: Implement API call to update user
-    console.log('Update user:', { userId, ...data });
-    toast.success('User update functionality coming soon');
+    if (!userId) return;
 
-    // For now, just navigate back to users list
-    navigate(APP_ROUTES.adminUsers);
+    const updateInput: AdminEditUserInput = {
+      email: data.email,
+      roleId: data.roleId,
+    };
+
+    // Only include password if it's not empty
+    if (data.password.trim()) {
+      updateInput.password = data.password;
+    }
+
+    editUser({
+      variables: {
+        id: userId,
+        input: updateInput,
+      },
+    });
   }
 
   function handleCancel() {
@@ -117,9 +151,35 @@ export default function EditUserPage() {
                 )}
               />
 
+              <AppForm.Field
+                control={form.control}
+                name='roleId'
+                render={({ field }) => (
+                  <AppForm.Item>
+                    <AppForm.Label htmlFor='role'>Role</AppForm.Label>
+                    <AppSelect.Root onValueChange={field.onChange} defaultValue={field.value}>
+                      <AppForm.Control>
+                        <AppSelect.Trigger id='role'>
+                          <AppSelect.Value placeholder='Select a role' />
+                        </AppSelect.Trigger>
+                      </AppForm.Control>
+                      <AppSelect.Content>
+                        {roles.map((role) => (
+                          <AppSelect.Item key={role.id} value={role.id}>
+                            {capitalize(role.name)}
+                          </AppSelect.Item>
+                        ))}
+                      </AppSelect.Content>
+                    </AppSelect.Root>
+                    <AppForm.Description>Select the user's role in the system.</AppForm.Description>
+                    <AppForm.Message />
+                  </AppForm.Item>
+                )}
+              />
+
               <div className='flex items-center gap-4 pt-4'>
-                <AppButton type='submit' disabled={!form.formState.isValid}>
-                  Update User
+                <AppButton type='submit' disabled={!form.formState.isValid || isUpdating}>
+                  {isUpdating ? 'Updating...' : 'Update User'}
                 </AppButton>
 
                 <AppButton type='button' variant='outline' onClick={handleCancel}>

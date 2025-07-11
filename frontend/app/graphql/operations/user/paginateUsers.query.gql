@@ -4,12 +4,7 @@ query PaginateUsers($paginationInput: PaginationInput) {
       ...Pagination
     }
     items {
-      id
-      email
-      username
-      firstName
-      lastName
-      isActive
+      ...User
     }
   }
 } 

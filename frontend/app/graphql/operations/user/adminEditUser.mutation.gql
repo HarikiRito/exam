@@ -1,0 +1,5 @@
+mutation AdminEditUser($id: ID!, $input: AdminEditUserInput!) {
+  adminEditUser(id: $id, input: $input) {
+    ...User
+  }
+} 

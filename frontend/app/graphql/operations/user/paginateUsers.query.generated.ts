@@ -1,8 +1,10 @@
 import type * as Types from '../../graphqlTypes';
 
 import type { PaginationFragment } from '../pagination.fragment.generated';
+import type { UserFragment } from './user.fragment.generated';
 import { gql } from '@apollo/client/index.js';
 import { PaginationFragmentDoc } from '../pagination.fragment.generated';
+import { UserFragmentDoc } from './user.fragment.generated';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type PaginateUsersQueryVariables = Types.Exact<{
@@ -13,7 +15,10 @@ export type PaginateUsersQueryVariables = Types.Exact<{
 export type PaginateUsersQuery = { __typename?: 'Query', paginatedUsers: { __typename?: 'PaginatedUser', pagination: (
       { __typename?: 'Pagination' }
       & PaginationFragment
-    ), items: Array<{ __typename?: 'User', id: string, email: string, username: string, firstName?: string | null, lastName?: string | null, isActive: boolean }> } };
+    ), items: Array<(
+      { __typename?: 'User' }
+      & UserFragment
+    )> } };
 
 
 export const PaginateUsersDocument = gql`
@@ -23,16 +28,12 @@ export const PaginateUsersDocument = gql`
       ...Pagination
     }
     items {
-      id
-      email
-      username
-      firstName
-      lastName
-      isActive
+      ...User
     }
   }
 }
-    ${PaginationFragmentDoc}`;
+    ${PaginationFragmentDoc}
+${UserFragmentDoc}`;
 
 /**
  * __usePaginateUsersQuery__
