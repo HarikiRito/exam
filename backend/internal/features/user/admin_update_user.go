@@ -57,6 +57,18 @@ func AdminUpdateUser(ctx context.Context, userID uuid.UUID, input model.AdminEdi
 		update = update.SetIsActive(*input.IsActive)
 	}
 
+	// Update role if provided
+	if input.RoleID != nil {
+		// Verify role exists
+		role, err := tx.Role.Get(ctx, *input.RoleID)
+		if err != nil {
+			return nil, db.Rollback(tx, errors.New("invalid role"))
+		}
+
+		// Clear existing roles and set new role
+		update = update.ClearRoles().AddRoleIDs(role.ID)
+	}
+
 	// Save the changes
 	updatedUser, err := update.Save(ctx)
 	if err != nil {

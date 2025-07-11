@@ -12887,7 +12887,7 @@ func (ec *executionContext) unmarshalInputAdminEditUserInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "isActive"}
+	fieldsInOrder := [...]string{"email", "password", "isActive", "roleId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -12915,6 +12915,13 @@ func (ec *executionContext) unmarshalInputAdminEditUserInput(ctx context.Context
 				return it, err
 			}
 			it.IsActive = data
+		case "roleId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleId"))
+			data, err := ec.unmarshalOID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoleID = data
 		}
 	}
 

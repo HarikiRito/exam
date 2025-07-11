@@ -16,6 +16,7 @@ input AdminEditUserInput {
   email: String
   password: String
   isActive: Boolean
+  roleId: ID
 }
 
 type User {

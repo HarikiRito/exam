@@ -18,9 +18,10 @@ import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppSwitch } from 'app/shared/components/ui/switch/AppSwitch';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
+import { useCheckPermission, useUserPermissions, hasPermission } from 'app/shared/hooks/useCheckPermission';
 import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
 import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
+import { PermissionEnum } from 'app/graphql/graphqlTypes';
 
 // Type for a single user item from the query
 type UserItem = PaginateUsersQuery['paginatedUsers']['items'][0];
@@ -36,7 +37,8 @@ type CreateUserFormData = z.infer<typeof createUserSchema>;
 export default function AdminUsers() {
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminUsers);
+  const isAuthorized = useCheckPermission(PERMISSION_ROUTE.adminUsers);
+  const userPermissions = useUserPermissions();
 
   const [pagination, setPagination] = useImmer({
     page: 1,
@@ -106,7 +108,11 @@ export default function AdminUsers() {
         const userId = info.row.original.id;
         return (
           <div className='flex items-center gap-2'>
-            <AppSwitch checked={isActive} onCheckedChange={() => handleUserStatusToggle(userId, isActive)} />
+            <AppSwitch
+              disabled={!hasPermission([PermissionEnum.UserCreate], userPermissions)}
+              checked={isActive}
+              onCheckedChange={() => handleUserStatusToggle(userId, isActive)}
+            />
             <AppBadge variant={isActive ? 'default' : 'secondary'}>{isActive ? 'Active' : 'Inactive'}</AppBadge>
           </div>
         );
@@ -121,6 +127,7 @@ export default function AdminUsers() {
         return (
           <div className='flex items-center gap-2'>
             <AppButton
+              disabled={!hasPermission([PermissionEnum.UserCreate], userPermissions)}
               size='icon'
               variant='ghost'
               onClick={() => navigate(APP_ROUTES.adminUserEdit(userId))}
@@ -135,7 +142,7 @@ export default function AdminUsers() {
     }),
   ];
 
-  if (!hasPermission) {
+  if (!isAuthorized) {
     return <UnauthorizedMessage />;
   }
 

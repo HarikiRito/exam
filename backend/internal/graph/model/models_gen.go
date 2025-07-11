@@ -23,9 +23,10 @@ type AdminCreateUserInput struct {
 }
 
 type AdminEditUserInput struct {
-	Email    *string `json:"email,omitempty"`
-	Password *string `json:"password,omitempty"`
-	IsActive *bool   `json:"isActive,omitempty"`
+	Email    *string    `json:"email,omitempty"`
+	Password *string    `json:"password,omitempty"`
+	IsActive *bool      `json:"isActive,omitempty"`
+	RoleID   *uuid.UUID `json:"roleId,omitempty"`
 }
 
 type Auth struct {
