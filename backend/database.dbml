@@ -227,6 +227,17 @@ Table test_ignore_questions {
   }
 }
 
+Table otp_codes {
+  id varchar [pk]
+  user_id varchar [not null]
+  otp varchar(6) [not null]
+  purpose enum('login') [not null]
+  otp_expiry timestamp [not null]
+  created_at timestamp [default: `now()`]
+  attempts int [default: 0]
+  metadata json
+}
+
 // Relationships
 
 // User Management Relationships
@@ -273,3 +284,6 @@ Ref: test_collection.collection_id > question_collections.id [delete: cascade]
 Ref: test_question_counts.test_id > tests.id [delete: cascade]
 Ref: test_ignore_questions.test_id > tests.id [delete: cascade]
 Ref: test_ignore_questions.question_id > questions.id [delete: cascade]
+
+// OTP Codes Relationships
+Ref: otp_codes.user_id > users.id [delete: cascade]
