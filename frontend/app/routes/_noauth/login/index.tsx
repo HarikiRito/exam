@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@remix-run/react';
 import { IsAuthenticatedDocument } from 'app/graphql/operations/auth/isAuthenticated.generated';
-import { useLoginLazyQuery } from 'app/graphql/operations/auth/login.generated';
+import { useLoginMutation } from 'app/graphql/operations/auth/login.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppForm } from 'app/shared/components/ui/form/AppForm';
@@ -35,7 +35,29 @@ export default function LoginPage() {
 
 function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const navigate = useNavigate();
-  const [login, { loading }] = useLoginLazyQuery();
+  const [login, { loading }] = useLoginMutation({
+    onCompleted: (data) => {
+      const loginData = data.login;
+      if (!loginData) return;
+      const { accessToken, refreshToken } = loginData;
+      CookieService.setValue(CookieKey.AccessToken, accessToken);
+      CookieService.setValue(CookieKey.RefreshToken, refreshToken);
+
+      toast.success('Login successful!');
+
+      client.writeQuery({
+        query: IsAuthenticatedDocument,
+        data: {
+          isAuthenticated: true,
+        },
+      });
+
+      navigate(APP_ROUTES.testSessions);
+    },
+    onError: () => {
+      toast.error('Login failed. Please try again.');
+    },
+  });
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -51,7 +73,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const formState = form.formState;
 
   async function onSubmit(formData: LoginFormData) {
-    const result = await login({
+    await login({
       variables: {
         input: {
           email: formData.email,
@@ -59,36 +81,6 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
         },
       },
     });
-
-    if (!result.data) {
-      toast.error('Login failed. Please try again.');
-      return;
-    }
-
-    const data = result.data;
-
-    if (!data) return;
-
-    const loginData = data.login;
-
-    if (!loginData) return;
-
-    const { accessToken, refreshToken } = loginData;
-
-    CookieService.setValue(CookieKey.AccessToken, accessToken);
-    CookieService.setValue(CookieKey.RefreshToken, refreshToken);
-
-    toast.success('Login successful!');
-
-    client.writeQuery({
-      query: IsAuthenticatedDocument,
-      data: {
-        isAuthenticated: true,
-      },
-    });
-
-    // TODO: Navigate to the test session for now since it's the only feature that is available for now
-    navigate(APP_ROUTES.testSessions);
   }
 
   return (

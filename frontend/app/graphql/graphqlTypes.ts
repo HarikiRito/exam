@@ -145,7 +145,9 @@ export type Mutation = {
   deleteQuestionOption: Scalars['Boolean']['output'];
   deleteTest: Scalars['Boolean']['output'];
   deleteTestSession: Scalars['Boolean']['output'];
-  register: Auth;
+  login: Auth;
+  logout: Scalars['Boolean']['output'];
+  register: Scalars['Boolean']['output'];
   removeCourse: Scalars['Boolean']['output'];
   removeCourseSection: Scalars['Boolean']['output'];
   renewToken: Auth;
@@ -245,6 +247,11 @@ export type MutationDeleteTestArgs = {
 
 export type MutationDeleteTestSessionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationLoginArgs = {
+  input: LoginInput;
 };
 
 
@@ -436,7 +443,6 @@ export type Query = {
   getAllPermissions: Array<PermissionEnum>;
   getAllRoles: Array<Role>;
   isAuthenticated: Scalars['Boolean']['output'];
-  login: Auth;
   me: User;
   paginatedCourses: PaginatedCourse;
   paginatedQuestionCollections: PaginatedQuestionCollection;
@@ -467,11 +473,6 @@ export type QueryCourseSectionArgs = {
 export type QueryCourseSectionsByCourseIdArgs = {
   courseId: Scalars['ID']['input'];
   filter?: InputMaybe<CourseSectionFilterInput>;
-};
-
-
-export type QueryLoginArgs = {
-  input: LoginInput;
 };
 
 

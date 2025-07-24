@@ -141,7 +141,9 @@ type Mutation {
   deleteQuestionOption(id: ID!): Boolean!
   deleteTest(id: ID!): Boolean!
   deleteTestSession(id: ID!): Boolean!
-  register(input: RegisterInput!): Auth!
+  login(input: LoginInput!): Auth!
+  logout: Boolean!
+  register(input: RegisterInput!): Boolean!
   removeCourse(id: ID!): Boolean!
   removeCourseSection(id: ID!): Boolean!
   renewToken(refreshToken: String!): Auth!
@@ -259,7 +261,6 @@ type Query {
   getAllPermissions: [PermissionEnum!]!
   getAllRoles: [Role!]!
   isAuthenticated: Boolean!
-  login(input: LoginInput!): Auth!
   me: User!
   paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!
   paginatedQuestionCollections(paginationInput: PaginationInput): PaginatedQuestionCollection!
