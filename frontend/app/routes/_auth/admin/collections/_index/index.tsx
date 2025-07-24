@@ -1,6 +1,6 @@
 import { useNavigate } from '@remix-run/react';
 import { createColumnHelper } from '@tanstack/react-table';
-import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { PencilIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useDeleteQuestionCollectionMutation } from 'app/graphql/operations/questionCollection/deleteQuestionCollection.mutation.generated';
@@ -116,13 +116,6 @@ export default function AdminCollections() {
         const collection = info.row.original;
         return (
           <div className='flex items-center gap-2'>
-            <AppButton
-              size='icon'
-              variant='ghost'
-              onClick={() => navigate(APP_ROUTES.adminCollectionDetail(collectionId))}
-              aria-label='View collection'>
-              <EyeIcon className='h-4 w-4' />
-            </AppButton>
             <AppButton
               size='icon'
               variant='ghost'
