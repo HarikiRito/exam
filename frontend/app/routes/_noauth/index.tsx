@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from '@remix-run/react';
 import { APP_ROUTES } from 'app/shared/constants/routes';
-import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
+import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.query.generated';
 
 const excludeRoutes = [APP_ROUTES.about];
 export default function Page() {

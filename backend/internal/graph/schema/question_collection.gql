@@ -8,6 +8,7 @@ extend type Mutation {
 extend type Query {
   questionCollection(id: ID!): QuestionCollection!
   paginatedQuestionCollections(paginationInput: PaginationInput): PaginatedQuestionCollection!
+  exportQuestions(questionIds: [ID!]!): String!
 }
 
 type QuestionCollection {

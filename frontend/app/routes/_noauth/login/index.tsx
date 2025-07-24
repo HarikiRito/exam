@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@remix-run/react';
-import { IsAuthenticatedDocument } from 'app/graphql/operations/auth/isAuthenticated.generated';
-import { useLoginMutation } from 'app/graphql/operations/auth/login.generated';
+import { IsAuthenticatedDocument } from 'app/graphql/operations/auth/isAuthenticated.query.generated';
+import { useLoginMutation, type LoginMutation } from 'app/graphql/operations/auth/login.mutation.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppForm } from 'app/shared/components/ui/form/AppForm';
@@ -36,7 +36,7 @@ export default function LoginPage() {
 function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const navigate = useNavigate();
   const [login, { loading }] = useLoginMutation({
-    onCompleted: (data) => {
+    onCompleted: (data: LoginMutation) => {
       const loginData = data.login;
       if (!loginData) return;
       const { accessToken, refreshToken } = loginData;
@@ -133,11 +133,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
 
                 <div className='text-center text-sm'>
                   Don&apos;t have an account?{' '}
-                  <AppLink
-                    href='#'
-                    variant='default'
-                    className='underline underline-offset-4'
-                    onClick={() => toast.info('Coming soon')}>
+                  <AppLink href={APP_ROUTES.register} variant='default' className='underline underline-offset-4'>
                     Sign up
                   </AppLink>
                 </div>

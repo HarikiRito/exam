@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"template/internal/features/permission"
+	"template/internal/features/question"
 	"template/internal/features/question_collection"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -119,6 +120,19 @@ func (r *queryResolver) PaginatedQuestionCollections(ctx context.Context, pagina
 		Pagination: pagination,
 		Items:      items,
 	}, nil
+}
+
+// ExportQuestions is the resolver for the exportQuestions field.
+func (r *queryResolver) ExportQuestions(ctx context.Context, questionIds []uuid.UUID) (string, error) {
+	userId, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionRead,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	// Export questions using the feature function
+	return question.ExportQuestions(ctx, userId, questionIds)
 }
 
 // Creator is the resolver for the creator field.

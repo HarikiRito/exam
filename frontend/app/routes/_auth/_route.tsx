@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from '@remix-run/react';
-import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.generated';
+import { useIsAuthenticatedQuery } from 'app/graphql/operations/auth/isAuthenticated.query.generated';
 import { AppBreadcrumb } from 'app/shared/components/ui/breadcrumb/AppBreadcrumb';
 import { AppSeparator } from 'app/shared/components/ui/separator/AppSeparator';
 import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';

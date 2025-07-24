@@ -4,6 +4,7 @@ export const APP_ROUTES = {
   courses: '/courses',
   profile: '/profile',
   login: '/login',
+  register: '/register',
   adminCourses: '/admin/courses',
   adminCourseDetail: (courseId: string) => `/admin/courses/${courseId}`,
   adminCourseEdit: (courseId: string) => `/admin/courses/${courseId}/edit`,

@@ -3,8 +3,7 @@
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
 import { useNavigate } from '@remix-run/react';
-import { IsAuthenticatedDocument } from 'app/graphql/operations/auth/isAuthenticated.generated';
-import { useLogoutMutation } from 'app/graphql/operations/auth/logout.generated';
+import { useLogoutMutation } from 'app/graphql/operations/auth/logout.mutation.generated';
 import { useMeQuery } from 'app/graphql/operations/auth/me.query.generated';
 import { AppAvatar } from 'app/shared/components/ui/avatar/AppAvatar';
 import { AppDropdown } from 'app/shared/components/ui/dropdown/AppDropdown';

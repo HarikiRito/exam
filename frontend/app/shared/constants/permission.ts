@@ -5,10 +5,12 @@ import { APP_ROUTES } from 'app/shared/constants/routes';
  * Permission for each route
  */
 export const PERMISSION_ROUTE: Record<keyof typeof APP_ROUTES, PermissionEnum[]> = {
+  about: [],
   dashboard: [],
   courses: [],
   profile: [],
   login: [],
+  register: [],
   adminCourses: [PermissionEnum.CourseRead],
   adminCourseDetail: [PermissionEnum.CourseRead],
   adminCourseEdit: [PermissionEnum.CourseRead, PermissionEnum.CourseUpdate],
