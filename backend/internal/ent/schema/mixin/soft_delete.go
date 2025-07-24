@@ -34,8 +34,8 @@ func (SoftDeleteMixin) Fields() []ent.Field {
 
 type softDeleteKey struct{}
 
-// SkipSoftDelete returns a new context that skips the soft-delete interceptor/mutators.
-func SkipSoftDelete(parent context.Context) context.Context {
+// WithSoftDelete returns a new context that skips the soft-delete interceptor/mutators.
+func WithSoftDelete(parent context.Context) context.Context {
 	return context.WithValue(parent, softDeleteKey{}, true)
 }
 
@@ -60,7 +60,7 @@ func (d SoftDeleteMixin) Hooks() []ent.Hook {
 			func(next ent.Mutator) ent.Mutator {
 				return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
 					// Skip soft-delete, means delete the entity permanently.
-					if skip, _ := ctx.Value(softDeleteKey{}).(bool); skip {
+					if useSoftDelete, _ := ctx.Value(softDeleteKey{}).(bool); !useSoftDelete {
 						return next.Mutate(ctx, m)
 					}
 					mx, ok := m.(interface {

@@ -6,7 +6,6 @@ import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
 	"template/internal/ent/db"
-	"template/internal/ent/schema/mixin"
 
 	"github.com/google/uuid"
 )
@@ -41,14 +40,14 @@ func RemoveCourseSection(ctx context.Context, userId uuid.UUID, sectionId uuid.U
 	if len(children) > 0 {
 		_, err = tx.CourseSection.Delete().
 			Where(coursesection.IDIn(children...)).
-			Exec(mixin.SkipSoftDelete(ctx))
+			Exec(ctx)
 		if err != nil {
 			return false, db.Rollback(tx, err)
 		}
 	}
 
 	// Delete root section
-	err = tx.CourseSection.DeleteOneID(sectionId).Exec(mixin.SkipSoftDelete(ctx))
+	err = tx.CourseSection.DeleteOneID(sectionId).Exec(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)
 	}

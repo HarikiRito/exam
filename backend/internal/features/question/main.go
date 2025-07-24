@@ -8,7 +8,6 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/schema/mixin"
 	"template/internal/features/common"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
@@ -120,7 +119,7 @@ func DeleteQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID)
 	}
 
 	// Delete the question
-	err = client.Question.DeleteOneID(questionID).Exec(mixin.SkipSoftDelete(ctx))
+	err = client.Question.DeleteOneID(questionID).Exec(ctx)
 	if err != nil {
 		return false, err
 	}

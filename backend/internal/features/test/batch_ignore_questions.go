@@ -7,7 +7,6 @@ import (
 	"template/internal/ent/db"
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
-	"template/internal/ent/schema/mixin"
 	"template/internal/ent/test"
 	"template/internal/ent/testignorequestion"
 	"template/internal/graph/model"
@@ -78,7 +77,7 @@ func BatchIgnoreQuestions(ctx context.Context, userId uuid.UUID, input model.Bat
 	// Hard delete existing ignores by test id
 	_, err = tx.TestIgnoreQuestion.Delete().
 		Where(testignorequestion.TestID(input.TestID)).
-		Exec(mixin.SkipSoftDelete(ctx))
+		Exec(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)
 	}

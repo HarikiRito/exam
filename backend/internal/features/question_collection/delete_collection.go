@@ -5,7 +5,6 @@ import (
 	"errors"
 	"template/internal/ent/db"
 	"template/internal/ent/questioncollection"
-	"template/internal/ent/schema/mixin"
 
 	"github.com/google/uuid"
 )
@@ -29,7 +28,7 @@ func DeleteQuestionCollection(ctx context.Context, userId uuid.UUID, collectionI
 	}
 
 	// Delete the collection
-	err = tx.QuestionCollection.DeleteOneID(collectionId).Exec(mixin.SkipSoftDelete(ctx))
+	err = tx.QuestionCollection.DeleteOneID(collectionId).Exec(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)
 	}

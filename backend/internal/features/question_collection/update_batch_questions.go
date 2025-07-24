@@ -9,7 +9,6 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/schema/mixin"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 
@@ -125,7 +124,7 @@ func handleBatchQuestionsDeletion(ctx context.Context, tx *ent.Tx, questionIDs [
 
 	_, err = tx.Question.Delete().
 		Where(question.IDIn(validQuestionIDs...)).
-		Exec(mixin.SkipSoftDelete(ctx))
+		Exec(ctx)
 	if err != nil {
 		return err
 	}
@@ -234,7 +233,7 @@ func handleBatchOptionsUpdate(ctx context.Context, tx *ent.Tx, questionOptionsMa
 	for questionID := range questionOptionsMap {
 		_, err := tx.QuestionOption.Delete().
 			Where(questionoption.QuestionID(questionID)).
-			Exec(mixin.SkipSoftDelete(ctx))
+			Exec(ctx)
 		if err != nil {
 			return err
 		}

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"template/internal/ent"
 	"template/internal/ent/db"
-	"template/internal/ent/schema/mixin"
 	"template/internal/ent/test"
 	"template/internal/ent/testquestioncount"
 	"template/internal/graph/model"
@@ -32,7 +31,7 @@ func UpdateTestQuestionRequirement(ctx context.Context, userId uuid.UUID, testID
 	// Delete existing TestQuestionCount records for this test
 	_, err = tx.TestQuestionCount.Delete().
 		Where(testquestioncount.TestID(testID)).
-		Exec(mixin.SkipSoftDelete(ctx))
+		Exec(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)
 	}

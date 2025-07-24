@@ -2,20 +2,24 @@
 
 import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
+import { useNavigate } from '@remix-run/react';
+import { IsAuthenticatedDocument } from 'app/graphql/operations/auth/isAuthenticated.generated';
+import { useLogoutMutation } from 'app/graphql/operations/auth/logout.generated';
 import { useMeQuery } from 'app/graphql/operations/auth/me.query.generated';
 import { AppAvatar } from 'app/shared/components/ui/avatar/AppAvatar';
 import { AppDropdown } from 'app/shared/components/ui/dropdown/AppDropdown';
 import { AppSidebar } from 'app/shared/components/ui/sidebar/AppSidebar';
-import { userStore } from 'app/shared/stores/user.store';
-import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
 import { APP_ROUTES } from 'app/shared/constants/routes';
+import { CookieKey, CookieService } from 'app/shared/services/cookie.service';
+import { userStore } from 'app/shared/stores/user.store';
 import client from 'app/shared/utils/apollo';
-import { useNavigate } from '@remix-run/react';
 
 export function NavUser() {
   const { isMobile } = AppSidebar.useSidebar();
   const { data, loading, error } = useMeQuery();
   const navigate = useNavigate();
+  const [logout, { loading: logoutLoading }] = useLogoutMutation();
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -28,9 +32,12 @@ export function NavUser() {
   userStore.user = user;
 
   async function handleLogout() {
+    await logout();
     CookieService.removeValue(CookieKey.AccessToken);
     CookieService.removeValue(CookieKey.RefreshToken);
-    await client.resetStore();
+
+    client.resetStore();
+    userStore.user = null;
     navigate(APP_ROUTES.login);
   }
 
@@ -92,9 +99,9 @@ export function NavUser() {
               </AppDropdown.Item>
             </AppDropdown.Group>
             <AppDropdown.Separator />
-            <AppDropdown.Item onClick={handleLogout}>
+            <AppDropdown.Item onClick={handleLogout} disabled={logoutLoading}>
               <LogOut />
-              Log out
+              {logoutLoading ? 'Logging out...' : 'Log out'}
             </AppDropdown.Item>
           </AppDropdown.Content>
         </AppDropdown.Root>

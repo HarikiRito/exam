@@ -8,7 +8,6 @@ import (
 	"template/internal/ent/question"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/questionoption"
-	"template/internal/ent/schema/mixin"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 
@@ -67,7 +66,7 @@ func UpdateQuestion(ctx context.Context, userId uuid.UUID, questionID uuid.UUID,
 		// Delete all existing options for this question
 		_, err = tx.QuestionOption.Delete().
 			Where(questionoption.QuestionID(questionID)).
-			Exec(mixin.SkipSoftDelete(ctx))
+			Exec(ctx)
 		if err != nil {
 			return nil, db.Rollback(tx, err)
 		}
