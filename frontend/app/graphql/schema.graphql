@@ -258,6 +258,7 @@ type Query {
   course(id: ID!): Course!
   courseSection(id: ID!): CourseSection!
   courseSectionsByCourseId(courseId: ID!, filter: CourseSectionFilterInput): [CourseSection!]!
+  exportQuestions(questionIds: [ID!]!): String!
   getAllPermissions: [PermissionEnum!]!
   getAllRoles: [Role!]!
   isAuthenticated: Boolean!

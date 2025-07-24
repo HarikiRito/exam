@@ -1,0 +1,3 @@
+query ExportQuestions($questionIds: [ID!]!) {
+  exportQuestions(questionIds: $questionIds)
+}

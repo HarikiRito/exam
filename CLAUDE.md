@@ -13,6 +13,7 @@ This project is a monorepo with the following structure:
   3. Always verify code works using the type check command
   4. Code must not contain any TypeScript errors
 - **Component Reuse**: Search existing components in the folder structure first before implementing something new
+- **Package Management**: Remember to using pnpm
 
 ## Backend (Go)
 - Written in Go
@@ -24,7 +25,7 @@ This project is a monorepo with the following structure:
 - Maintain GraphQL server patterns for API interactions
 
 ## Development Workflow:
-1. For frontend GraphQL changes: Run codegen ’ Edit code ’ Type check
+1. For frontend GraphQL changes: Run codegen ï¿½ Edit code ï¿½ Type check
 2. Always search for existing components/patterns before creating new ones
 3. Ensure no TypeScript errors in frontend code
 4. Follow established project structure in both frontend and backend

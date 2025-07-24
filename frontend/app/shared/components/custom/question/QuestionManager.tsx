@@ -1,23 +1,31 @@
-import { FileTextIcon, PlusIcon } from 'lucide-react';
+import { DownloadIcon, FileTextIcon, PlusIcon, CopyIcon } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 
 import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
 
 import { produce } from 'immer';
 import { QuestionData, QuestionItem } from './QuestionItem';
 import { ImportQuestionsDialog } from './ImportQuestionsDialog';
+import { useExportQuestionsLazyQuery } from 'app/graphql/operations/questions/exportQuestions.query.generated';
+import { toast } from 'sonner';
 
 interface QuestionManagerProps {
   readonly questions: QuestionData[];
   readonly onSaveQuestions: (questions: QuestionData[]) => void;
   readonly isSaving: boolean;
+  readonly collectionId?: string;
 }
 
-export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving }: QuestionManagerProps) => {
+export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving, collectionId }: QuestionManagerProps) => {
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [exportedJson, setExportedJson] = useState<string>('');
   const [localQuestions, setLocalQuestions] = useState<QuestionData[]>(questions);
+
+  const [exportQuestions, { loading: isExporting }] = useExportQuestionsLazyQuery();
 
   function handleAddQuestion() {
     const newQuestion: QuestionData = {
@@ -35,6 +43,43 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving }: Q
   function handleImportQuestions(importedQuestions: QuestionData[]) {
     const updatedQuestions = [...localQuestions, ...importedQuestions];
     setLocalQuestions(updatedQuestions);
+  }
+
+  async function handleExportQuestions() {
+    if (!collectionId) {
+      toast.error('No collection selected');
+      return;
+    }
+
+    const questionIds = localQuestions.filter((q) => q.id).map((q) => q.id!);
+
+    if (questionIds.length === 0) {
+      toast.error('No questions to export');
+      return;
+    }
+
+    const result = await exportQuestions({
+      variables: { questionIds },
+    });
+
+    if (!result.data) {
+      toast.error('Failed to export questions');
+      return;
+    }
+
+    setExportedJson(result.data.exportQuestions);
+    setIsExportDialogOpen(true);
+  }
+
+  function handleCopyJson() {
+    navigator.clipboard
+      .writeText(exportedJson)
+      .then(() => {
+        toast.success('JSON copied to clipboard!');
+      })
+      .catch(() => {
+        toast.error('Failed to copy to clipboard');
+      });
   }
 
   const questionsItems = useMemo(() => {
@@ -64,6 +109,14 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving }: Q
           </AppButton>
           <AppButton
             type='button'
+            onClick={handleExportQuestions}
+            variant='outline'
+            disabled={isExporting || localQuestions.filter((q) => q.id).length === 0}>
+            <DownloadIcon className='mr-2 h-4 w-4' />
+            {isExporting ? 'Exporting...' : 'Export Questions'}
+          </AppButton>
+          <AppButton
+            type='button'
             onClick={() => onSaveQuestions(localQuestions)}
             disabled={isSaving || localQuestions.length === 0}>
             {isSaving ? 'Saving...' : 'Save Questions'}
@@ -86,6 +139,27 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving }: Q
         onOpenChange={setIsImportDialogOpen}
         onImportQuestions={handleImportQuestions}
       />
+
+      <AppDialog.Root open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+        <AppDialog.Content className='max-h-[90vh]'>
+          <AppDialog.Header>
+            <div className='flex items-center justify-between'>
+              <AppDialog.Title>Exported Questions</AppDialog.Title>
+              <AppButton type='button' onClick={handleCopyJson} variant='outline' size='sm'>
+                <CopyIcon className='mr-2 h-4 w-4' />
+                Copy Content
+              </AppButton>
+            </div>
+            <AppDialog.Description>Review the exported questions in JSON format below.</AppDialog.Description>
+          </AppDialog.Header>
+
+          <div className='flex-1 overflow-auto'>
+            <pre className='bg-muted max-h-96 overflow-auto rounded-md p-4 text-sm whitespace-pre-wrap'>
+              {exportedJson ? JSON.stringify(JSON.parse(exportedJson), null, 2) : ''}
+            </pre>
+          </div>
+        </AppDialog.Content>
+      </AppDialog.Root>
     </div>
   );
 });

@@ -174,6 +174,7 @@ export function ManageQuestionsStep({ collectionId, initialQuestions = [] }: Man
             questions={questions}
             onSaveQuestions={handleSaveQuestions}
             isSaving={mutation.isSavingQuestions}
+            collectionId={collectionId}
           />
         )}
       </AppAccordion.Content>

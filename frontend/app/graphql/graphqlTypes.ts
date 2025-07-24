@@ -440,6 +440,7 @@ export type Query = {
   course: Course;
   courseSection: CourseSection;
   courseSectionsByCourseId: Array<CourseSection>;
+  exportQuestions: Scalars['String']['output'];
   getAllPermissions: Array<PermissionEnum>;
   getAllRoles: Array<Role>;
   isAuthenticated: Scalars['Boolean']['output'];
@@ -473,6 +474,11 @@ export type QueryCourseSectionArgs = {
 export type QueryCourseSectionsByCourseIdArgs = {
   courseId: Scalars['ID']['input'];
   filter?: InputMaybe<CourseSectionFilterInput>;
+};
+
+
+export type QueryExportQuestionsArgs = {
+  questionIds: Array<Scalars['ID']['input']>;
 };
 
 
