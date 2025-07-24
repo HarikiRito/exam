@@ -12,6 +12,9 @@ type Course func(*sql.Selector)
 // CourseSection is the predicate function for coursesection builders.
 type CourseSection func(*sql.Selector)
 
+// JwtToken is the predicate function for jwttoken builders.
+type JwtToken func(*sql.Selector)
+
 // Media is the predicate function for media builders.
 type Media func(*sql.Selector)
 

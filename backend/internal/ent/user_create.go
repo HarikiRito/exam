@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/course"
+	"template/internal/ent/jwttoken"
 	"template/internal/ent/media"
 	"template/internal/ent/questioncollection"
 	"template/internal/ent/role"
@@ -248,6 +249,21 @@ func (uc *UserCreate) AddTestSessions(t ...*TestSession) *UserCreate {
 		ids[i] = t[i].ID
 	}
 	return uc.AddTestSessionIDs(ids...)
+}
+
+// AddJwtTokenIDs adds the "jwt_tokens" edge to the JwtToken entity by IDs.
+func (uc *UserCreate) AddJwtTokenIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddJwtTokenIDs(ids...)
+	return uc
+}
+
+// AddJwtTokens adds the "jwt_tokens" edges to the JwtToken entity.
+func (uc *UserCreate) AddJwtTokens(j ...*JwtToken) *UserCreate {
+	ids := make([]uuid.UUID, len(j))
+	for i := range j {
+		ids[i] = j[i].ID
+	}
+	return uc.AddJwtTokenIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -511,6 +527,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.JwtTokensIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

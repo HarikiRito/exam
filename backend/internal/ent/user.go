@@ -59,9 +59,11 @@ type UserEdges struct {
 	QuestionCollections []*QuestionCollection `json:"question_collections,omitempty"`
 	// TestSessions holds the value of the test_sessions edge.
 	TestSessions []*TestSession `json:"test_sessions,omitempty"`
+	// JwtTokens holds the value of the jwt_tokens edge.
+	JwtTokens []*JwtToken `json:"jwt_tokens,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // MediaOrErr returns the Media value or an error if the edge
@@ -118,6 +120,15 @@ func (e UserEdges) TestSessionsOrErr() ([]*TestSession, error) {
 		return e.TestSessions, nil
 	}
 	return nil, &NotLoadedError{edge: "test_sessions"}
+}
+
+// JwtTokensOrErr returns the JwtTokens value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) JwtTokensOrErr() ([]*JwtToken, error) {
+	if e.loadedTypes[6] {
+		return e.JwtTokens, nil
+	}
+	return nil, &NotLoadedError{edge: "jwt_tokens"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -261,6 +272,11 @@ func (u *User) QueryQuestionCollections() *QuestionCollectionQuery {
 // QueryTestSessions queries the "test_sessions" edge of the User entity.
 func (u *User) QueryTestSessions() *TestSessionQuery {
 	return NewUserClient(u.config).QueryTestSessions(u)
+}
+
+// QueryJwtTokens queries the "jwt_tokens" edge of the User entity.
+func (u *User) QueryJwtTokens() *JwtTokenQuery {
+	return NewUserClient(u.config).QueryJwtTokens(u)
 }
 
 // Update returns a builder for updating this User.

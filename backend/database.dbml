@@ -238,6 +238,16 @@ Table otp_codes {
   metadata json
 }
 
+Table jwt_tokens {
+    id varchar [pk]
+    user_id varchar [not null]
+    access_token varchar [not null]
+    refresh_token varchar [not null]
+    created_at timestamp [default: `now()`]
+    expires_at timestamp [not null]
+    deleted_at timestamp
+}
+
 // Relationships
 
 // User Management Relationships
@@ -287,3 +297,6 @@ Ref: test_ignore_questions.question_id > questions.id [delete: cascade]
 
 // OTP Codes Relationships
 Ref: otp_codes.user_id > users.id [delete: cascade]
+
+// JWT Tokens Relationships
+Ref: jwt_tokens.user_id > users.id [delete: cascade]

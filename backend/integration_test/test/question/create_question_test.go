@@ -23,21 +23,16 @@ func TestCreateQuestion(t *testing.T) {
 		Email:    utils.Faker.Internet().Email(),
 		Password: "testpassword123",
 	}
-	tokenPair, err := auth.Register(context.Background(), userInput)
+	success, err := auth.Register(context.Background(), userInput)
 	require.NoError(t, err)
-	require.NotEmpty(t, tokenPair.AccessToken)
+	require.True(t, success)
 
-	// Parse user ID from token for direct function calls
-	userID, err := uuid.Parse(tokenPair.AccessToken) // This is a placeholder - in real implementation you'd decode the JWT
-	if err != nil {
-		// For testing purposes, create a user directly and get the ID
-		user, err := auth.Login(context.Background(), model.LoginInput{
-			Email:    userInput.Email,
-			Password: userInput.Password,
-		})
-		require.NoError(t, err)
-		userID = user.ID
-	}
+	user, err := auth.Login(context.Background(), model.LoginInput{
+		Email:    userInput.Email,
+		Password: userInput.Password,
+	})
+	require.NoError(t, err)
+	userID := user.ID
 
 	// Create test question collection
 	collectionInput := model.CreateQuestionCollectionInput{

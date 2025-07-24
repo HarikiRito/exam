@@ -6,7 +6,6 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/user"
-	"template/internal/features/jwt"
 	"template/internal/graph/model"
 
 	"golang.org/x/crypto/bcrypt"
@@ -38,10 +37,10 @@ func Login(ctx context.Context, input model.LoginInput) (*ent.User, error) {
 	return userQuery, nil
 }
 
-func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, error) {
+func Register(ctx context.Context, input model.RegisterInput) (bool, error) {
 	tx, err := db.OpenTransaction(ctx)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	// Check if email already exists
@@ -54,40 +53,32 @@ func Register(ctx context.Context, input model.RegisterInput) (*jwt.TokenPair, e
 		Exist(ctx)
 
 	if err != nil {
-		return nil, db.Rollback(tx, err)
+		return false, db.Rollback(tx, err)
 	}
 
 	if exists {
-		return nil, db.Rollback(tx, fmt.Errorf("email or username already exists"))
+		return false, db.Rollback(tx, fmt.Errorf("email or username already exists"))
 	}
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, db.Rollback(tx, fmt.Errorf("failed to hash password"))
+		return false, db.Rollback(tx, fmt.Errorf("failed to hash password"))
 	}
 
 	// Create the user with the hashed password
-	userQuery, err := tx.User.Create().
+	_, err = tx.User.Create().
 		SetEmail(input.Email).
 		SetUsername(input.Email). // Use email as username if not provided
 		SetPasswordHash(string(hashedPassword)).
 		Save(ctx)
 	if err != nil {
-		return nil, db.Rollback(tx, err)
-	}
-
-	tokenPair, err := jwt.GenerateTokenPair(userQuery.ID.String(), map[string]interface{}{
-		"email":    userQuery.Email,
-		"username": userQuery.Username,
-	})
-	if err != nil {
-		return nil, db.Rollback(tx, err)
+		return false, db.Rollback(tx, err)
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, err
+		return false, err
 	}
 
-	return tokenPair, nil
+	return true, nil
 }

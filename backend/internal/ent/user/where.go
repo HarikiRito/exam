@@ -759,6 +759,29 @@ func HasTestSessionsWith(preds ...predicate.TestSession) predicate.User {
 	})
 }
 
+// HasJwtTokens applies the HasEdge predicate on the "jwt_tokens" edge.
+func HasJwtTokens() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, JwtTokensTable, JwtTokensColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasJwtTokensWith applies the HasEdge predicate on the "jwt_tokens" edge with a given conditions (other predicates).
+func HasJwtTokensWith(preds ...predicate.JwtToken) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newJwtTokensStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.User) predicate.User {
 	return predicate.User(sql.AndPredicates(predicates...))

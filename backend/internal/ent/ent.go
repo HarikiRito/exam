@@ -10,6 +10,7 @@ import (
 	"sync"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/jwttoken"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
@@ -91,6 +92,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			course.Table:                 course.ValidColumn,
 			coursesection.Table:          coursesection.ValidColumn,
+			jwttoken.Table:               jwttoken.ValidColumn,
 			media.Table:                  media.ValidColumn,
 			permission.Table:             permission.ValidColumn,
 			question.Table:               question.ValidColumn,

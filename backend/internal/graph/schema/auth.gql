@@ -1,11 +1,12 @@
 extend type Mutation {
-  register(input: RegisterInput!): Auth!
+  register(input: RegisterInput!): Boolean!
+  login(input: LoginInput!): Auth!
+  logout: Boolean!
   renewToken(refreshToken: String!): Auth!
 }
 
 extend type Query {
   me: User!
-  login(input: LoginInput!): Auth!
   isAuthenticated: Boolean!
 }
 
@@ -25,6 +26,3 @@ input RegisterInput {
   email: String!
   password: String!
 }
-
-
-

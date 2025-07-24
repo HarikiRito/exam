@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"template/internal/ent/course"
+	"template/internal/ent/jwttoken"
 	"template/internal/ent/media"
 	"template/internal/ent/predicate"
 	"template/internal/ent/questioncollection"
@@ -284,6 +285,21 @@ func (uu *UserUpdate) AddTestSessions(t ...*TestSession) *UserUpdate {
 	return uu.AddTestSessionIDs(ids...)
 }
 
+// AddJwtTokenIDs adds the "jwt_tokens" edge to the JwtToken entity by IDs.
+func (uu *UserUpdate) AddJwtTokenIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddJwtTokenIDs(ids...)
+	return uu
+}
+
+// AddJwtTokens adds the "jwt_tokens" edges to the JwtToken entity.
+func (uu *UserUpdate) AddJwtTokens(j ...*JwtToken) *UserUpdate {
+	ids := make([]uuid.UUID, len(j))
+	for i := range j {
+		ids[i] = j[i].ID
+	}
+	return uu.AddJwtTokenIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -398,6 +414,27 @@ func (uu *UserUpdate) RemoveTestSessions(t ...*TestSession) *UserUpdate {
 		ids[i] = t[i].ID
 	}
 	return uu.RemoveTestSessionIDs(ids...)
+}
+
+// ClearJwtTokens clears all "jwt_tokens" edges to the JwtToken entity.
+func (uu *UserUpdate) ClearJwtTokens() *UserUpdate {
+	uu.mutation.ClearJwtTokens()
+	return uu
+}
+
+// RemoveJwtTokenIDs removes the "jwt_tokens" edge to JwtToken entities by IDs.
+func (uu *UserUpdate) RemoveJwtTokenIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveJwtTokenIDs(ids...)
+	return uu
+}
+
+// RemoveJwtTokens removes "jwt_tokens" edges to JwtToken entities.
+func (uu *UserUpdate) RemoveJwtTokens(j ...*JwtToken) *UserUpdate {
+	ids := make([]uuid.UUID, len(j))
+	for i := range j {
+		ids[i] = j[i].ID
+	}
+	return uu.RemoveJwtTokenIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -764,6 +801,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.JwtTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedJwtTokensIDs(); len(nodes) > 0 && !uu.mutation.JwtTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.JwtTokensIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -1034,6 +1116,21 @@ func (uuo *UserUpdateOne) AddTestSessions(t ...*TestSession) *UserUpdateOne {
 	return uuo.AddTestSessionIDs(ids...)
 }
 
+// AddJwtTokenIDs adds the "jwt_tokens" edge to the JwtToken entity by IDs.
+func (uuo *UserUpdateOne) AddJwtTokenIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddJwtTokenIDs(ids...)
+	return uuo
+}
+
+// AddJwtTokens adds the "jwt_tokens" edges to the JwtToken entity.
+func (uuo *UserUpdateOne) AddJwtTokens(j ...*JwtToken) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(j))
+	for i := range j {
+		ids[i] = j[i].ID
+	}
+	return uuo.AddJwtTokenIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -1148,6 +1245,27 @@ func (uuo *UserUpdateOne) RemoveTestSessions(t ...*TestSession) *UserUpdateOne {
 		ids[i] = t[i].ID
 	}
 	return uuo.RemoveTestSessionIDs(ids...)
+}
+
+// ClearJwtTokens clears all "jwt_tokens" edges to the JwtToken entity.
+func (uuo *UserUpdateOne) ClearJwtTokens() *UserUpdateOne {
+	uuo.mutation.ClearJwtTokens()
+	return uuo
+}
+
+// RemoveJwtTokenIDs removes the "jwt_tokens" edge to JwtToken entities by IDs.
+func (uuo *UserUpdateOne) RemoveJwtTokenIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveJwtTokenIDs(ids...)
+	return uuo
+}
+
+// RemoveJwtTokens removes "jwt_tokens" edges to JwtToken entities.
+func (uuo *UserUpdateOne) RemoveJwtTokens(j ...*JwtToken) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(j))
+	for i := range j {
+		ids[i] = j[i].ID
+	}
+	return uuo.RemoveJwtTokenIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1537,6 +1655,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(testsession.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.JwtTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedJwtTokensIDs(); len(nodes) > 0 && !uuo.mutation.JwtTokensCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.JwtTokensIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.JwtTokensTable,
+			Columns: []string{user.JwtTokensColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(jwttoken.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

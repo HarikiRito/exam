@@ -18,10 +18,9 @@ func TestCreateUser(t *testing.T) {
 			Email:    "test@test.com",
 			Password: "test",
 		}
-		tokenPair, err := auth.Register(context.Background(), input)
+		success, err := auth.Register(context.Background(), input)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, tokenPair.AccessToken)
-		assert.NotEmpty(t, tokenPair.RefreshToken)
+		assert.True(t, success)
 
 		t.Run("Login", func(t *testing.T) {
 			_, err := auth.Login(context.Background(), model.LoginInput{

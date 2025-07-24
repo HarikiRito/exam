@@ -9,45 +9,23 @@ import (
 	"errors"
 	"template/internal/features/auth"
 	"template/internal/features/jwt"
+	"template/internal/features/jwt_token"
 	"template/internal/graph/model"
+
+	"github.com/google/uuid"
 )
 
 // Register is the resolver for the register field.
-func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (*model.Auth, error) {
-	tokenPair, err := auth.Register(ctx, input)
+func (r *mutationResolver) Register(ctx context.Context, input model.RegisterInput) (bool, error) {
+	success, err := auth.Register(ctx, input)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
-	return &model.Auth{
-		AccessToken:  tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
-	}, nil
-}
-
-// RenewToken is the resolver for the renewToken field.
-func (r *mutationResolver) RenewToken(ctx context.Context, refreshToken string) (*model.Auth, error) {
-	tokenPair, err := jwt.RefreshTokenPair(refreshToken)
-	if err != nil {
-		return nil, errors.New("invalid refresh token")
-	}
-	return &model.Auth{
-		AccessToken:  tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
-	}, nil
-}
-
-// Me is the resolver for the me field.
-func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
-	currentUser, err := GetUserFromRequestContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return currentUser, nil
+	return success, nil
 }
 
 // Login is the resolver for the login field.
-func (r *queryResolver) Login(ctx context.Context, input model.LoginInput) (*model.Auth, error) {
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Auth, error) {
 	user, err := auth.Login(ctx, input)
 	if err != nil {
 		return nil, err
@@ -62,10 +40,82 @@ func (r *queryResolver) Login(ctx context.Context, input model.LoginInput) (*mod
 		return nil, err
 	}
 
+	// Save token pair to database
+	_, err = jwt_token.SaveTokenPair(ctx, user.ID, tokenPair)
+	if err != nil {
+		return nil, err
+	}
+
 	return &model.Auth{
 		AccessToken:  tokenPair.AccessToken,
 		RefreshToken: tokenPair.RefreshToken,
 	}, nil
+}
+
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	// Extract the token from the request
+	token, err := ExtractJwtTokenFromRequestContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	// Revoke the token in the database
+	err = jwt_token.RevokeToken(ctx, token)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// RenewToken is the resolver for the renewToken field.
+func (r *mutationResolver) RenewToken(ctx context.Context, refreshToken string) (*model.Auth, error) {
+	// Validate the refresh token
+	tokenPair, err := jwt.RefreshTokenPair(refreshToken)
+	if err != nil {
+		return nil, errors.New("invalid refresh token")
+	}
+
+	// Get user ID from the refresh token to save new token
+	claims, err := jwt.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return nil, errors.New("invalid refresh token")
+	}
+
+	// Parse user ID from claims
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return nil, errors.New("invalid user ID")
+	}
+
+	// Revoke the old refresh token
+	err = jwt_token.RevokeTokenByRefreshToken(ctx, refreshToken)
+	if err != nil {
+		// Log the error but don't fail the operation if token doesn't exist
+		// This could happen if token was already revoked
+	}
+
+	// Save new token pair to database
+	_, err = jwt_token.SaveTokenPair(ctx, userID, tokenPair)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Auth{
+		AccessToken:  tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+	}, nil
+}
+
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	currentUser, err := GetUserFromRequestContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return currentUser, nil
 }
 
 // IsAuthenticated is the resolver for the isAuthenticated field.

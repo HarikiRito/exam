@@ -5,6 +5,7 @@ package runtime
 import (
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/jwttoken"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
@@ -92,6 +93,29 @@ func init() {
 	coursesectionDescID := coursesectionMixinFields0[0].Descriptor()
 	// coursesection.DefaultID holds the default value on creation for the id field.
 	coursesection.DefaultID = coursesectionDescID.Default.(func() uuid.UUID)
+	jwttokenMixin := schema.JwtToken{}.Mixin()
+	jwttokenMixinHooks1 := jwttokenMixin[1].Hooks()
+	jwttoken.Hooks[0] = jwttokenMixinHooks1[0]
+	jwttokenMixinInters1 := jwttokenMixin[1].Interceptors()
+	jwttoken.Interceptors[0] = jwttokenMixinInters1[0]
+	jwttokenMixinFields0 := jwttokenMixin[0].Fields()
+	_ = jwttokenMixinFields0
+	jwttokenFields := schema.JwtToken{}.Fields()
+	_ = jwttokenFields
+	// jwttokenDescCreatedAt is the schema descriptor for created_at field.
+	jwttokenDescCreatedAt := jwttokenMixinFields0[1].Descriptor()
+	// jwttoken.DefaultCreatedAt holds the default value on creation for the created_at field.
+	jwttoken.DefaultCreatedAt = jwttokenDescCreatedAt.Default.(func() time.Time)
+	// jwttokenDescUpdatedAt is the schema descriptor for updated_at field.
+	jwttokenDescUpdatedAt := jwttokenMixinFields0[2].Descriptor()
+	// jwttoken.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	jwttoken.DefaultUpdatedAt = jwttokenDescUpdatedAt.Default.(func() time.Time)
+	// jwttoken.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	jwttoken.UpdateDefaultUpdatedAt = jwttokenDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// jwttokenDescID is the schema descriptor for id field.
+	jwttokenDescID := jwttokenMixinFields0[0].Descriptor()
+	// jwttoken.DefaultID holds the default value on creation for the id field.
+	jwttoken.DefaultID = jwttokenDescID.Default.(func() uuid.UUID)
 	mediaMixin := schema.Media{}.Mixin()
 	mediaMixinHooks1 := mediaMixin[1].Hooks()
 	media.Hooks[0] = mediaMixinHooks1[0]

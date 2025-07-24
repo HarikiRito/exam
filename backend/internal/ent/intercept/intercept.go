@@ -9,6 +9,7 @@ import (
 	"template/internal/ent"
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/jwttoken"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/predicate"
@@ -137,6 +138,33 @@ func (f TraverseCourseSection) Traverse(ctx context.Context, q ent.Query) error 
 		return f(ctx, q)
 	}
 	return fmt.Errorf("unexpected query type %T. expect *ent.CourseSectionQuery", q)
+}
+
+// The JwtTokenFunc type is an adapter to allow the use of ordinary function as a Querier.
+type JwtTokenFunc func(context.Context, *ent.JwtTokenQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f JwtTokenFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.JwtTokenQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.JwtTokenQuery", q)
+}
+
+// The TraverseJwtToken type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseJwtToken func(context.Context, *ent.JwtTokenQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseJwtToken) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseJwtToken) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.JwtTokenQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.JwtTokenQuery", q)
 }
 
 // The MediaFunc type is an adapter to allow the use of ordinary function as a Querier.
@@ -551,6 +579,8 @@ func NewQuery(q ent.Query) (Query, error) {
 		return &query[*ent.CourseQuery, predicate.Course, course.OrderOption]{typ: ent.TypeCourse, tq: q}, nil
 	case *ent.CourseSectionQuery:
 		return &query[*ent.CourseSectionQuery, predicate.CourseSection, coursesection.OrderOption]{typ: ent.TypeCourseSection, tq: q}, nil
+	case *ent.JwtTokenQuery:
+		return &query[*ent.JwtTokenQuery, predicate.JwtToken, jwttoken.OrderOption]{typ: ent.TypeJwtToken, tq: q}, nil
 	case *ent.MediaQuery:
 		return &query[*ent.MediaQuery, predicate.Media, media.OrderOption]{typ: ent.TypeMedia, tq: q}, nil
 	case *ent.PermissionQuery:

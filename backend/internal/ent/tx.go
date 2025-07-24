@@ -16,6 +16,8 @@ type Tx struct {
 	Course *CourseClient
 	// CourseSection is the client for interacting with the CourseSection builders.
 	CourseSection *CourseSectionClient
+	// JwtToken is the client for interacting with the JwtToken builders.
+	JwtToken *JwtTokenClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
 	// Permission is the client for interacting with the Permission builders.
@@ -179,6 +181,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Course = NewCourseClient(tx.config)
 	tx.CourseSection = NewCourseSectionClient(tx.config)
+	tx.JwtToken = NewJwtTokenClient(tx.config)
 	tx.Media = NewMediaClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Question = NewQuestionClient(tx.config)

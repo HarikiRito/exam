@@ -32,6 +32,18 @@ func (f CourseSectionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CourseSectionMutation", m)
 }
 
+// The JwtTokenFunc type is an adapter to allow the use of ordinary
+// function as JwtToken mutator.
+type JwtTokenFunc func(context.Context, *ent.JwtTokenMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f JwtTokenFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.JwtTokenMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.JwtTokenMutation", m)
+}
+
 // The MediaFunc type is an adapter to allow the use of ordinary
 // function as Media mutator.
 type MediaFunc func(context.Context, *ent.MediaMutation) (ent.Value, error)

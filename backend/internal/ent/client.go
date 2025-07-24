@@ -13,6 +13,7 @@ import (
 
 	"template/internal/ent/course"
 	"template/internal/ent/coursesection"
+	"template/internal/ent/jwttoken"
 	"template/internal/ent/media"
 	"template/internal/ent/permission"
 	"template/internal/ent/question"
@@ -45,6 +46,8 @@ type Client struct {
 	Course *CourseClient
 	// CourseSection is the client for interacting with the CourseSection builders.
 	CourseSection *CourseSectionClient
+	// JwtToken is the client for interacting with the JwtToken builders.
+	JwtToken *JwtTokenClient
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
 	// Permission is the client for interacting with the Permission builders.
@@ -88,6 +91,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Course = NewCourseClient(c.config)
 	c.CourseSection = NewCourseSectionClient(c.config)
+	c.JwtToken = NewJwtTokenClient(c.config)
 	c.Media = NewMediaClient(c.config)
 	c.Permission = NewPermissionClient(c.config)
 	c.Question = NewQuestionClient(c.config)
@@ -197,6 +201,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:                 cfg,
 		Course:                 NewCourseClient(cfg),
 		CourseSection:          NewCourseSectionClient(cfg),
+		JwtToken:               NewJwtTokenClient(cfg),
 		Media:                  NewMediaClient(cfg),
 		Permission:             NewPermissionClient(cfg),
 		Question:               NewQuestionClient(cfg),
@@ -233,6 +238,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:                 cfg,
 		Course:                 NewCourseClient(cfg),
 		CourseSection:          NewCourseSectionClient(cfg),
+		JwtToken:               NewJwtTokenClient(cfg),
 		Media:                  NewMediaClient(cfg),
 		Permission:             NewPermissionClient(cfg),
 		Question:               NewQuestionClient(cfg),
@@ -277,7 +283,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
+		c.Course, c.CourseSection, c.JwtToken, c.Media, c.Permission, c.Question,
 		c.QuestionCollection, c.QuestionOption, c.Role, c.Test, c.TestIgnoreQuestion,
 		c.TestQuestionCount, c.TestSession, c.TestSessionAnswer, c.Todo, c.User,
 		c.Video, c.VideoQuestionTimestamp,
@@ -290,7 +296,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Course, c.CourseSection, c.Media, c.Permission, c.Question,
+		c.Course, c.CourseSection, c.JwtToken, c.Media, c.Permission, c.Question,
 		c.QuestionCollection, c.QuestionOption, c.Role, c.Test, c.TestIgnoreQuestion,
 		c.TestQuestionCount, c.TestSession, c.TestSessionAnswer, c.Todo, c.User,
 		c.Video, c.VideoQuestionTimestamp,
@@ -306,6 +312,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Course.mutate(ctx, m)
 	case *CourseSectionMutation:
 		return c.CourseSection.mutate(ctx, m)
+	case *JwtTokenMutation:
+		return c.JwtToken.mutate(ctx, m)
 	case *MediaMutation:
 		return c.Media.mutate(ctx, m)
 	case *PermissionMutation:
@@ -800,6 +808,157 @@ func (c *CourseSectionClient) mutate(ctx context.Context, m *CourseSectionMutati
 		return (&CourseSectionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown CourseSection mutation op: %q", m.Op())
+	}
+}
+
+// JwtTokenClient is a client for the JwtToken schema.
+type JwtTokenClient struct {
+	config
+}
+
+// NewJwtTokenClient returns a client for the JwtToken from the given config.
+func NewJwtTokenClient(c config) *JwtTokenClient {
+	return &JwtTokenClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `jwttoken.Hooks(f(g(h())))`.
+func (c *JwtTokenClient) Use(hooks ...Hook) {
+	c.hooks.JwtToken = append(c.hooks.JwtToken, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `jwttoken.Intercept(f(g(h())))`.
+func (c *JwtTokenClient) Intercept(interceptors ...Interceptor) {
+	c.inters.JwtToken = append(c.inters.JwtToken, interceptors...)
+}
+
+// Create returns a builder for creating a JwtToken entity.
+func (c *JwtTokenClient) Create() *JwtTokenCreate {
+	mutation := newJwtTokenMutation(c.config, OpCreate)
+	return &JwtTokenCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of JwtToken entities.
+func (c *JwtTokenClient) CreateBulk(builders ...*JwtTokenCreate) *JwtTokenCreateBulk {
+	return &JwtTokenCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *JwtTokenClient) MapCreateBulk(slice any, setFunc func(*JwtTokenCreate, int)) *JwtTokenCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &JwtTokenCreateBulk{err: fmt.Errorf("calling to JwtTokenClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*JwtTokenCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &JwtTokenCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for JwtToken.
+func (c *JwtTokenClient) Update() *JwtTokenUpdate {
+	mutation := newJwtTokenMutation(c.config, OpUpdate)
+	return &JwtTokenUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *JwtTokenClient) UpdateOne(jt *JwtToken) *JwtTokenUpdateOne {
+	mutation := newJwtTokenMutation(c.config, OpUpdateOne, withJwtToken(jt))
+	return &JwtTokenUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *JwtTokenClient) UpdateOneID(id uuid.UUID) *JwtTokenUpdateOne {
+	mutation := newJwtTokenMutation(c.config, OpUpdateOne, withJwtTokenID(id))
+	return &JwtTokenUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for JwtToken.
+func (c *JwtTokenClient) Delete() *JwtTokenDelete {
+	mutation := newJwtTokenMutation(c.config, OpDelete)
+	return &JwtTokenDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *JwtTokenClient) DeleteOne(jt *JwtToken) *JwtTokenDeleteOne {
+	return c.DeleteOneID(jt.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *JwtTokenClient) DeleteOneID(id uuid.UUID) *JwtTokenDeleteOne {
+	builder := c.Delete().Where(jwttoken.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &JwtTokenDeleteOne{builder}
+}
+
+// Query returns a query builder for JwtToken.
+func (c *JwtTokenClient) Query() *JwtTokenQuery {
+	return &JwtTokenQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeJwtToken},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a JwtToken entity by its id.
+func (c *JwtTokenClient) Get(ctx context.Context, id uuid.UUID) (*JwtToken, error) {
+	return c.Query().Where(jwttoken.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *JwtTokenClient) GetX(ctx context.Context, id uuid.UUID) *JwtToken {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a JwtToken.
+func (c *JwtTokenClient) QueryUser(jt *JwtToken) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := jt.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(jwttoken.Table, jwttoken.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, jwttoken.UserTable, jwttoken.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(jt.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *JwtTokenClient) Hooks() []Hook {
+	hooks := c.hooks.JwtToken
+	return append(hooks[:len(hooks):len(hooks)], jwttoken.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *JwtTokenClient) Interceptors() []Interceptor {
+	inters := c.inters.JwtToken
+	return append(inters[:len(inters):len(inters)], jwttoken.Interceptors[:]...)
+}
+
+func (c *JwtTokenClient) mutate(ctx context.Context, m *JwtTokenMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&JwtTokenCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&JwtTokenUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&JwtTokenUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&JwtTokenDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown JwtToken mutation op: %q", m.Op())
 	}
 }
 
@@ -3139,6 +3298,22 @@ func (c *UserClient) QueryTestSessions(u *User) *TestSessionQuery {
 	return query
 }
 
+// QueryJwtTokens queries the jwt_tokens edge of a User.
+func (c *UserClient) QueryJwtTokens(u *User) *JwtTokenQuery {
+	query := (&JwtTokenClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(jwttoken.Table, jwttoken.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.JwtTokensTable, user.JwtTokensColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	hooks := c.hooks.User
@@ -3535,13 +3710,15 @@ func (c *VideoQuestionTimestampClient) mutate(ctx context.Context, m *VideoQuest
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Course, CourseSection, Media, Permission, Question, QuestionCollection,
-		QuestionOption, Role, Test, TestIgnoreQuestion, TestQuestionCount, TestSession,
-		TestSessionAnswer, Todo, User, Video, VideoQuestionTimestamp []ent.Hook
+		Course, CourseSection, JwtToken, Media, Permission, Question,
+		QuestionCollection, QuestionOption, Role, Test, TestIgnoreQuestion,
+		TestQuestionCount, TestSession, TestSessionAnswer, Todo, User, Video,
+		VideoQuestionTimestamp []ent.Hook
 	}
 	inters struct {
-		Course, CourseSection, Media, Permission, Question, QuestionCollection,
-		QuestionOption, Role, Test, TestIgnoreQuestion, TestQuestionCount, TestSession,
-		TestSessionAnswer, Todo, User, Video, VideoQuestionTimestamp []ent.Interceptor
+		Course, CourseSection, JwtToken, Media, Permission, Question,
+		QuestionCollection, QuestionOption, Role, Test, TestIgnoreQuestion,
+		TestQuestionCount, TestSession, TestSessionAnswer, Todo, User, Video,
+		VideoQuestionTimestamp []ent.Interceptor
 	}
 )

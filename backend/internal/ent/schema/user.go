@@ -38,6 +38,7 @@ func (User) Edges() []ent.Edge {
 		edge.To("course_creator", Course.Type),
 		edge.To("question_collections", QuestionCollection.Type),
 		edge.To("test_sessions", TestSession.Type),
+		edge.To("jwt_tokens", JwtToken.Type).Annotations(entsql.OnDelete(entsql.Cascade)),
 	}
 }
 

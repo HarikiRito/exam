@@ -72,6 +72,31 @@ var (
 			},
 		},
 	}
+	// JwtTokensColumns holds the columns for the "jwt_tokens" table.
+	JwtTokensColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "access_token", Type: field.TypeString, Size: 2147483647},
+		{Name: "refresh_token", Type: field.TypeString, Size: 2147483647},
+		{Name: "expires_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp without time zone"}},
+		{Name: "user_id", Type: field.TypeUUID},
+	}
+	// JwtTokensTable holds the schema information for the "jwt_tokens" table.
+	JwtTokensTable = &schema.Table{
+		Name:       "jwt_tokens",
+		Columns:    JwtTokensColumns,
+		PrimaryKey: []*schema.Column{JwtTokensColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "jwt_tokens_users_jwt_tokens",
+				Columns:    []*schema.Column{JwtTokensColumns[7]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// MediaColumns holds the columns for the "media" table.
 	MediaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -558,6 +583,7 @@ var (
 	Tables = []*schema.Table{
 		CoursesTable,
 		CourseSectionsTable,
+		JwtTokensTable,
 		MediaTable,
 		PermissionsTable,
 		QuestionsTable,
@@ -584,6 +610,7 @@ func init() {
 	CoursesTable.ForeignKeys[1].RefTable = UsersTable
 	CourseSectionsTable.ForeignKeys[0].RefTable = CoursesTable
 	CourseSectionsTable.ForeignKeys[1].RefTable = CourseSectionsTable
+	JwtTokensTable.ForeignKeys[0].RefTable = UsersTable
 	MediaTable.ForeignKeys[0].RefTable = UsersTable
 	QuestionsTable.ForeignKeys[0].RefTable = QuestionCollectionsTable
 	QuestionCollectionsTable.ForeignKeys[0].RefTable = CourseSectionsTable

@@ -48,6 +48,8 @@ const (
 	EdgeQuestionCollections = "question_collections"
 	// EdgeTestSessions holds the string denoting the test_sessions edge name in mutations.
 	EdgeTestSessions = "test_sessions"
+	// EdgeJwtTokens holds the string denoting the jwt_tokens edge name in mutations.
+	EdgeJwtTokens = "jwt_tokens"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// MediaTable is the table that holds the media relation/edge.
@@ -90,6 +92,13 @@ const (
 	TestSessionsInverseTable = "test_sessions"
 	// TestSessionsColumn is the table column denoting the test_sessions relation/edge.
 	TestSessionsColumn = "user_id"
+	// JwtTokensTable is the table that holds the jwt_tokens relation/edge.
+	JwtTokensTable = "jwt_tokens"
+	// JwtTokensInverseTable is the table name for the JwtToken entity.
+	// It exists in this package in order to avoid circular dependency with the "jwttoken" package.
+	JwtTokensInverseTable = "jwt_tokens"
+	// JwtTokensColumn is the table column denoting the jwt_tokens relation/edge.
+	JwtTokensColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -283,6 +292,20 @@ func ByTestSessions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newTestSessionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByJwtTokensCount orders the results by jwt_tokens count.
+func ByJwtTokensCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newJwtTokensStep(), opts...)
+	}
+}
+
+// ByJwtTokens orders the results by jwt_tokens terms.
+func ByJwtTokens(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newJwtTokensStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMediaStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -323,5 +346,12 @@ func newTestSessionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TestSessionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, TestSessionsTable, TestSessionsColumn),
+	)
+}
+func newJwtTokensStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(JwtTokensInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, JwtTokensTable, JwtTokensColumn),
 	)
 }
