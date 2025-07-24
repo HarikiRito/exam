@@ -45,8 +45,8 @@ func SaveTokenPair(ctx context.Context, userID uuid.UUID, tokenPair *jwt.TokenPa
 	return jwtTokenRecord, nil
 }
 
-// ValidateTokenFromDatabase checks if the token exists in database and is not revoked
-func ValidateTokenFromDatabase(ctx context.Context, accessToken string) (*ent.JwtToken, error) {
+// ValidateToken checks if the token exists in database and is not revoked
+func ValidateToken(ctx context.Context, accessToken string) (*ent.JwtToken, error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err

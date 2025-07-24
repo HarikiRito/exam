@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"template/internal/features/jwt"
+	"template/internal/features/jwt_token"
 	"template/internal/features/permission"
 	"template/internal/features/role"
 	"template/internal/features/user"
@@ -43,17 +44,18 @@ func GetUserIdFromRequestContext(ctx context.Context) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 
-	userID, err := GetUserIdFromJwtToken(token)
+	_, err = jwt.ValidateAccessToken(token)
 	if err != nil {
-		return uuid.Nil, err
+		return uuid.Nil, NewUnauthorizedError("invalid or expired token")
 	}
 
-	uuidValue, err := uuid.Parse(userID)
+	// Validate the token against the database
+	tokenRecord, err := jwt_token.ValidateToken(ctx, token)
 	if err != nil {
-		return uuid.Nil, NewUnauthorizedError("invalid user ID format")
+		return uuid.Nil, NewUnauthorizedError("invalid or expired token")
 	}
 
-	return uuidValue, nil
+	return tokenRecord.UserID, nil
 }
 
 func GetUserFromRequestContext(ctx context.Context) (*model.User, error) {
