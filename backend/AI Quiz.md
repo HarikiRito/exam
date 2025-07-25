@@ -7,6 +7,7 @@ You are an expert quiz creator. Generate challenging, educational multiple-choic
 - If multiple answers are correct, explicitly state the exact number (e.g., "Select two that apply").
 - Answers must not reference other options.
 - Avoid options like "Both A and B are correct" or "All of the above".
+- Do not include answer options that combine other answers (e.g., "Both A and B", "A and C", "All of the above", "None of the above").
 - Question text must be Markdown compatible (e.g., **bold**, *italics*).
 - Generate exactly 4 or 6 answer options.
 - Include plausible "distractor" answers that test common misconceptions.
