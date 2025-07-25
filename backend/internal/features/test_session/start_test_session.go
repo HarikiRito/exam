@@ -30,7 +30,10 @@ func StartTestSession(ctx context.Context, userID uuid.UUID, sessionId uuid.UUID
 			testsession.ID(sessionId),
 			testsession.UserID(userID),
 			testsession.StatusEQ(testsession.StatusPending),
-			testsession.ExpiredAtIsNil(),
+			testsession.Or(
+				testsession.ExpiredAtIsNil(),
+				testsession.ExpiredAtGT(time.Now()),
+			),
 		).
 		Select(testsession.FieldID, testsession.FieldTestID).
 		First(ctx)
