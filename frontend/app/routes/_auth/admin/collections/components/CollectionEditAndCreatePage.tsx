@@ -172,7 +172,11 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
     <div className='p-6'>
       {_renderPendingSaveDialog()}
       <div className='mb-8 flex items-center justify-between'>
-        <AppTypography.h1>{isEdit ? 'Edit Collection' : 'Create New Collection'}</AppTypography.h1>
+        <AppTypography.h1>
+          {isEdit
+            ? `Edit ${collectionData?.questionCollection?.title ? ` (${collectionData.questionCollection.title})` : ''}`
+            : 'Create New Collection'}
+        </AppTypography.h1>
         <AppButton onClick={() => navigate(APP_ROUTES.adminCollections)} variant='outline'>
           Back to Collections
         </AppButton>
