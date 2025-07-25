@@ -98,7 +98,7 @@ export default function AuthDashboard() {
     },
   ];
 
-  function handleContinueCourse(courseId: number) {
+  function handleContinueCourse(_courseId: number) {
     // Navigation or other logic would go here
   }
 

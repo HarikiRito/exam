@@ -80,7 +80,13 @@ export default [
     rules: {
       // 'prettier/prettier': 'error',
       '@typescript-eslint/prefer-promise-reject-errors': 'off',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-unsafe-enum-comparison': 'error',
       'react/prefer-read-only-props': 'warn',
       '@typescript-eslint/await-thenable': 'error',

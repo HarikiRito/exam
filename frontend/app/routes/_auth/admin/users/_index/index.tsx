@@ -74,10 +74,11 @@ export default function AdminUsers() {
     });
   }
 
-  function handleUserStatusToggle(userId: string, currentStatus: boolean) {
+  function handleUserStatusToggle(_userId: string, _currentStatus: boolean) {
     // TODO: Implement API call to toggle user active status
     toast.info('User status toggle functionality coming soon');
-    console.log('Toggle user status:', { userId, currentStatus });
+    // TODO: Remove this debug log when API is implemented
+    // console.log('Toggle user status:', { userId, currentStatus });
   }
 
   // Get table data and total items count

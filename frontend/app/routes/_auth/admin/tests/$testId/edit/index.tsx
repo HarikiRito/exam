@@ -25,14 +25,10 @@ export default function EditTestPage() {
     };
   }, []);
 
-  if (!testId) {
-    navigate(APP_ROUTES.adminTests);
-    return null;
-  }
-
-  // Fetch test data
+  // Fetch test data - always call hooks first
   const { data: testData, loading: testLoading } = useGetTestQuery({
-    variables: { id: testId },
+    variables: { id: testId || '' },
+    skip: !testId,
   });
 
   // Update store when test data loads
@@ -45,6 +41,11 @@ export default function EditTestPage() {
 
     testEditMutation.testDetails = testData.test;
   }, [testData, testLoading]);
+
+  if (!testId) {
+    navigate(APP_ROUTES.adminTests);
+    return null;
+  }
 
   if (testLoading || testEditState.isLoading) {
     return (

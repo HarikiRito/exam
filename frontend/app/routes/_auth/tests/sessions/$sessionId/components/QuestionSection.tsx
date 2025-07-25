@@ -17,23 +17,27 @@ export function QuestionSection() {
 
   const selectedAnswerByQuestionIdMap = snapshot.selectedAnswers;
 
+  // Always call hooks first, before any early returns
+  const text = useMemo(() => {
+    if (!question) return '';
+    let questionText = question.questionText;
+    const isMultipleAnswer = question.correctOptionCount > 1;
+    if (isMultipleAnswer) {
+      questionText += `\n\n*(Select ${question.correctOptionCount} options)*`;
+    }
+    return questionText;
+  }, [question]);
+
+  const shuffledOptions = useMemo(() => {
+    if (!question) return [];
+    return shuffleArray(question.options);
+  }, [question]);
+
   if (!question) {
     return null;
   }
 
   const isFlagged = snapshot.flaggedQuestions.has(question.id);
-
-  const isMultipleAnswer = question.correctOptionCount > 1;
-
-  const text = useMemo(() => {
-    let questionText = question.questionText;
-    if (isMultipleAnswer) {
-      questionText += `\n\n*(Select ${question.correctOptionCount} options)*`;
-    }
-    return questionText;
-  }, [isMultipleAnswer, question.correctOptionCount, question.questionText]);
-
-  const shuffledOptions = useMemo(() => shuffleArray(question.options), [question.options]);
 
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
