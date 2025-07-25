@@ -21,10 +21,18 @@ func MarshalDateTime(t time.Time) graphql.Marshaler {
 func UnmarshalDateTime(v interface{}) (time.Time, error) {
 	switch value := v.(type) {
 	case string:
+		// Try parsing with Z suffix first, then without
+		if t, err := time.Parse(dateTimeFormat+"Z", value); err == nil {
+			return t, nil
+		}
 		return time.Parse(dateTimeFormat, value)
 	case *string:
 		if value == nil {
 			return time.Time{}, nil
+		}
+		// Try parsing with Z suffix first, then without
+		if t, err := time.Parse(dateTimeFormat+"Z", *value); err == nil {
+			return t, nil
 		}
 		return time.Parse(dateTimeFormat, *value)
 	default:

@@ -1,12 +1,13 @@
 import { useNavigate, useParams } from '@remix-run/react';
 import { useDebounceValue } from 'app/shared/hooks/useDebounce';
 import { userStore } from 'app/shared/stores/user.store';
+import { convertLocalDateTimeToUTC, formatDateToYYYYMMDD } from 'app/shared/utils/datetime';
 import { CheckIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useSnapshot } from 'valtio';
-import { convertLocalDateTimeToUTC } from 'app/shared/utils/datetime';
 
+import { CreateTestSessionInput } from 'app/graphql/graphqlTypes';
 import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
 import { usePaginateUsersLazyQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
@@ -17,7 +18,6 @@ import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useImmer } from 'use-immer';
-import { CreateTestSessionInput } from 'app/graphql/graphqlTypes';
 
 export default function AdminTestDetail() {
   const navigate = useNavigate();
@@ -88,8 +88,8 @@ export default function AdminTestDetail() {
     };
 
     if (expiryDate) {
-      // Create date string in YYYY-MM-DD format from Date object
-      const dateString = expiryDate.toISOString().split('T')[0];
+      // Create date string in YYYY-MM-DD format from Date object without UTC conversion
+      const dateString = formatDateToYYYYMMDD(expiryDate);
       const localDateTime = new Date(`${dateString}T${expiryTime}`);
 
       // Convert local date and time to UTC DateTime
@@ -97,13 +97,11 @@ export default function AdminTestDetail() {
       input.expiredTime = expiredTime.toISOString();
     }
 
-    console.log(input);
-
-    // createTestSession({
-    //   variables: {
-    //     input,
-    //   },
-    // });
+    createTestSession({
+      variables: {
+        input,
+      },
+    });
   }
 
   function handleCloseModal() {
@@ -276,7 +274,7 @@ export default function AdminTestDetail() {
                   value={expiryTime}
                   onChange={(e) => setExpiryTime(e.target.value)}
                   className='flex-1'
-                  step='1'
+                  step='60'
                 />
               </div>
             </div>
