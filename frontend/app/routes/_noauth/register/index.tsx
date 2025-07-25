@@ -174,7 +174,7 @@ function RegisterForm({ className, ...props }: React.ComponentProps<'div'>) {
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <AppCard.Root className='overflow-hidden p-0'>
         <AppCard.Content className='grid p-0 md:grid-cols-2'>
-          {!isSuccess ? successContent : registerContent}
+          {isSuccess ? successContent : registerContent}
 
           <div className='bg-muted relative hidden md:block'>
             <img
