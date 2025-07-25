@@ -17,6 +17,12 @@ export function QuestionCountsByPoints() {
     skip: collectionIds.length === 0,
   });
 
+  // Sort by points for better organization
+  const sortedQuestionCounts = useMemo(() => {
+    if (!questionCountsData?.questionCountByPoints) return [];
+    return [...questionCountsData.questionCountByPoints].sort((a, b) => a.points - b.points);
+  }, [questionCountsData?.questionCountByPoints]);
+
   if (loading) {
     return (
       <AppCard.Root>
@@ -44,11 +50,6 @@ export function QuestionCountsByPoints() {
       </AppCard.Root>
     );
   }
-
-  // Sort by points for better organization
-  const sortedQuestionCounts = useMemo(() => {
-    return [...questionCountsData.questionCountByPoints].sort((a, b) => a.points - b.points);
-  }, [questionCountsData.questionCountByPoints]);
 
   return (
     <AppCard.Root>
