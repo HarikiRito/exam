@@ -175,6 +175,11 @@ type QuestionOrder struct {
 	Order      int       `json:"order"`
 }
 
+type QuestionPointsCount struct {
+	Points int `json:"points"`
+	Count  int `json:"count"`
+}
+
 type QuestionPointsInput struct {
 	QuestionID uuid.UUID `json:"questionId"`
 	Points     int       `json:"points"`

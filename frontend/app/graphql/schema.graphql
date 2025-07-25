@@ -272,6 +272,7 @@ type Query {
   paginatedUsers(paginationInput: PaginationInput): PaginatedUser!
   question(id: ID!): Question!
   questionCollection(id: ID!): QuestionCollection!
+  questionCountByPoints(collectionIds: [ID!]!): [QuestionPointsCount!]!
   questionOption(id: ID!): QuestionOption!
   questions(ids: [ID!]!): [Question!]!
   test(id: ID!): Test!
@@ -318,6 +319,11 @@ input QuestionOptionInput {
 type QuestionOrder {
   order: Int!
   questionId: ID!
+}
+
+type QuestionPointsCount {
+  count: Int!
+  points: Int!
 }
 
 input QuestionPointsInput {

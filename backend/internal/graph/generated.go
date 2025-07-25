@@ -177,6 +177,7 @@ type ComplexityRoot struct {
 		PaginatedUsers               func(childComplexity int, paginationInput *model.PaginationInput) int
 		Question                     func(childComplexity int, id uuid.UUID) int
 		QuestionCollection           func(childComplexity int, id uuid.UUID) int
+		QuestionCountByPoints        func(childComplexity int, collectionIds []uuid.UUID) int
 		QuestionOption               func(childComplexity int, id uuid.UUID) int
 		Questions                    func(childComplexity int, ids []uuid.UUID) int
 		Test                         func(childComplexity int, id uuid.UUID) int
@@ -213,6 +214,11 @@ type ComplexityRoot struct {
 	QuestionOrder struct {
 		Order      func(childComplexity int) int
 		QuestionID func(childComplexity int) int
+	}
+
+	QuestionPointsCount struct {
+		Count  func(childComplexity int) int
+		Points func(childComplexity int) int
 	}
 
 	Role struct {
@@ -330,6 +336,7 @@ type QueryResolver interface {
 	QuestionCollection(ctx context.Context, id uuid.UUID) (*model.QuestionCollection, error)
 	PaginatedQuestionCollections(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedQuestionCollection, error)
 	ExportQuestions(ctx context.Context, questionIds []uuid.UUID) (string, error)
+	QuestionCountByPoints(ctx context.Context, collectionIds []uuid.UUID) ([]*model.QuestionPointsCount, error)
 	QuestionOption(ctx context.Context, id uuid.UUID) (*model.QuestionOption, error)
 	GetAllRoles(ctx context.Context) ([]*model.Role, error)
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
@@ -1180,6 +1187,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.QuestionCollection(childComplexity, args["id"].(uuid.UUID)), true
 
+	case "Query.questionCountByPoints":
+		if e.complexity.Query.QuestionCountByPoints == nil {
+			break
+		}
+
+		args, err := ec.field_Query_questionCountByPoints_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.QuestionCountByPoints(childComplexity, args["collectionIds"].([]uuid.UUID)), true
+
 	case "Query.questionOption":
 		if e.complexity.Query.QuestionOption == nil {
 			break
@@ -1367,6 +1386,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QuestionOrder.QuestionID(childComplexity), true
+
+	case "QuestionPointsCount.count":
+		if e.complexity.QuestionPointsCount.Count == nil {
+			break
+		}
+
+		return e.complexity.QuestionPointsCount.Count(childComplexity), true
+
+	case "QuestionPointsCount.points":
+		if e.complexity.QuestionPointsCount.Points == nil {
+			break
+		}
+
+		return e.complexity.QuestionPointsCount.Points(childComplexity), true
 
 	case "Role.id":
 		if e.complexity.Role.ID == nil {
@@ -3017,6 +3050,29 @@ func (ec *executionContext) field_Query_questionCollection_argsID(
 	}
 
 	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_questionCountByPoints_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Query_questionCountByPoints_argsCollectionIds(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["collectionIds"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_questionCountByPoints_argsCollectionIds(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) ([]uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("collectionIds"))
+	if tmp, ok := rawArgs["collectionIds"]; ok {
+		return ec.unmarshalNID2ᚕgithubᚗcomᚋgoogleᚋuuidᚐUUIDᚄ(ctx, tmp)
+	}
+
+	var zeroVal []uuid.UUID
 	return zeroVal, nil
 }
 
@@ -7769,6 +7825,67 @@ func (ec *executionContext) fieldContext_Query_exportQuestions(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_questionCountByPoints(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_questionCountByPoints(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().QuestionCountByPoints(rctx, fc.Args["collectionIds"].([]uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.QuestionPointsCount)
+	fc.Result = res
+	return ec.marshalNQuestionPointsCount2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsCountᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_questionCountByPoints(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "points":
+				return ec.fieldContext_QuestionPointsCount_points(ctx, field)
+			case "count":
+				return ec.fieldContext_QuestionPointsCount_count(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionPointsCount", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_questionCountByPoints_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_questionOption(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_questionOption(ctx, field)
 	if err != nil {
@@ -9292,6 +9409,94 @@ func (ec *executionContext) _QuestionOrder_order(ctx context.Context, field grap
 func (ec *executionContext) fieldContext_QuestionOrder_order(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "QuestionOrder",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionPointsCount_points(ctx context.Context, field graphql.CollectedField, obj *model.QuestionPointsCount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionPointsCount_points(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Points, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionPointsCount_points(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionPointsCount",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _QuestionPointsCount_count(ctx context.Context, field graphql.CollectedField, obj *model.QuestionPointsCount) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionPointsCount_count(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Count, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionPointsCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionPointsCount",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -15389,6 +15594,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "questionCountByPoints":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_questionCountByPoints(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "questionOption":
 			field := field
 
@@ -15981,6 +16208,50 @@ func (ec *executionContext) _QuestionOrder(ctx context.Context, sel ast.Selectio
 			}
 		case "order":
 			out.Values[i] = ec._QuestionOrder_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var questionPointsCountImplementors = []string{"QuestionPointsCount"}
+
+func (ec *executionContext) _QuestionPointsCount(ctx context.Context, sel ast.SelectionSet, obj *model.QuestionPointsCount) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, questionPointsCountImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("QuestionPointsCount")
+		case "points":
+			out.Values[i] = ec._QuestionPointsCount_points(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "count":
+			out.Values[i] = ec._QuestionPointsCount_count(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -17895,6 +18166,60 @@ func (ec *executionContext) marshalNQuestionOrder2ᚖtemplateᚋinternalᚋgraph
 		return graphql.Null
 	}
 	return ec._QuestionOrder(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNQuestionPointsCount2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.QuestionPointsCount) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNQuestionPointsCount2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsCount(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNQuestionPointsCount2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsCount(ctx context.Context, sel ast.SelectionSet, v *model.QuestionPointsCount) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._QuestionPointsCount(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNQuestionPointsInput2ᚕᚖtemplateᚋinternalᚋgraphᚋmodelᚐQuestionPointsInputᚄ(ctx context.Context, v interface{}) ([]*model.QuestionPointsInput, error) {

@@ -135,6 +135,18 @@ func (r *queryResolver) ExportQuestions(ctx context.Context, questionIds []uuid.
 	return question.ExportQuestions(ctx, userId, questionIds)
 }
 
+// QuestionCountByPoints is the resolver for the questionCountByPoints field.
+func (r *queryResolver) QuestionCountByPoints(ctx context.Context, collectionIds []uuid.UUID) ([]*model.QuestionPointsCount, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.QuestionRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return question_collection.GetQuestionCountByPoints(ctx, collectionIds)
+}
+
 // Creator is the resolver for the creator field.
 func (r *questionCollectionResolver) Creator(ctx context.Context, obj *model.QuestionCollection) (*model.User, error) {
 	return dataloader.GetUser(ctx, obj.CreatorID)

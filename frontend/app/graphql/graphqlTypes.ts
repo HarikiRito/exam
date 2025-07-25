@@ -454,6 +454,7 @@ export type Query = {
   paginatedUsers: PaginatedUser;
   question: Question;
   questionCollection: QuestionCollection;
+  questionCountByPoints: Array<QuestionPointsCount>;
   questionOption: QuestionOption;
   questions: Array<Question>;
   test: Test;
@@ -523,6 +524,11 @@ export type QueryQuestionCollectionArgs = {
 };
 
 
+export type QueryQuestionCountByPointsArgs = {
+  collectionIds: Array<Scalars['ID']['input']>;
+};
+
+
 export type QueryQuestionOptionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -585,6 +591,12 @@ export type QuestionOrder = {
   __typename?: 'QuestionOrder';
   order: Scalars['Int']['output'];
   questionId: Scalars['ID']['output'];
+};
+
+export type QuestionPointsCount = {
+  __typename?: 'QuestionPointsCount';
+  count: Scalars['Int']['output'];
+  points: Scalars['Int']['output'];
 };
 
 export type QuestionPointsInput = {

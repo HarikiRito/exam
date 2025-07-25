@@ -9,6 +9,7 @@ extend type Query {
   questionCollection(id: ID!): QuestionCollection!
   paginatedQuestionCollections(paginationInput: PaginationInput): PaginatedQuestionCollection!
   exportQuestions(questionIds: [ID!]!): String!
+  questionCountByPoints(collectionIds: [ID!]!): [QuestionPointsCount!]!
 }
 
 type QuestionCollection {
@@ -49,4 +50,9 @@ input UpdateQuestionData {
   questionText: String
   options: [UpdateQuestionOptionInput!]!
   points: Int!
+}
+
+type QuestionPointsCount {
+  points: Int!
+  count: Int!
 }

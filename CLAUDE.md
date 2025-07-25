@@ -14,6 +14,7 @@ This project is a monorepo with the following structure:
   4. Code must not contain any TypeScript errors
 - **Component Reuse**: Search existing components in the folder structure first before implementing something new
 - **Package Management**: Remember to using pnpm
+- Always use the mcp sequence thinking
 
 ## Backend (Go)
 - Written in Go
