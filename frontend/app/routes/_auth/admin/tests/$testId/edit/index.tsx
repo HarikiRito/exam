@@ -5,6 +5,7 @@ import { GetTestDocument, useGetTestQuery } from 'app/graphql/operations/test/ge
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { testEditStore } from './testEditStore';
+import { QuestionCountsByPoints } from './QuestionCountsByPoints';
 import { TestQuestionCollectionsManager } from './TestQuestionCollectionsManager';
 import { TestQuestionRequirementsForm } from './TestQuestionRequirementsForm';
 import { TestQuestionsIgnore } from './TestQuestionsIgnore';
@@ -70,6 +71,7 @@ export default function EditTestPage() {
       <div className='space-y-6'>
         <UpdateTestForm />
         <TestQuestionCollectionsManager />
+        <QuestionCountsByPoints />
         <TestQuestionRequirementsForm />
         <TestQuestionsIgnore />
       </div>

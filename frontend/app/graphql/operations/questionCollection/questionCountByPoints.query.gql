@@ -1,0 +1,6 @@
+query QuestionCountByPoints($collectionIds: [ID!]!) {
+  questionCountByPoints(collectionIds: $collectionIds) {
+    points
+    count
+  }
+}
