@@ -117,6 +117,7 @@ export type CreateTestInput = {
 };
 
 export type CreateTestSessionInput = {
+  expiredTime?: InputMaybe<Scalars['DateTime']['input']>;
   testId: Scalars['ID']['input'];
   userIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };

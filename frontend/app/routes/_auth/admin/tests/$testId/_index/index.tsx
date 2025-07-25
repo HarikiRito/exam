@@ -5,16 +5,19 @@ import { CheckIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useSnapshot } from 'valtio';
+import { convertLocalDateTimeToUTC } from 'app/shared/utils/datetime';
 
 import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
 import { useCreateTestSessionMutation } from 'app/graphql/operations/testSession/createTestSession.mutation.generated';
 import { usePaginateUsersLazyQuery } from 'app/graphql/operations/user/paginateUsers.query.generated';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
+import { AppDatePicker } from 'app/shared/components/ui/date-picker/AppDatePicker';
 import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
 import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { APP_ROUTES } from 'app/shared/constants/routes';
 import { useImmer } from 'use-immer';
+import { CreateTestSessionInput } from 'app/graphql/graphqlTypes';
 
 export default function AdminTestDetail() {
   const navigate = useNavigate();
@@ -23,6 +26,8 @@ export default function AdminTestDetail() {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounceValue(searchTerm, 500);
   const [selectedUserIds, setSelectedUserIds] = useImmer<string[]>([]);
+  const [expiryDate, setExpiryDate] = useState<Date | undefined>();
+  const [expiryTime, setExpiryTime] = useState('00:00');
   const snap = useSnapshot(userStore);
 
   // Fetch test details
@@ -41,6 +46,8 @@ export default function AdminTestDetail() {
       setIsCreateSessionOpen(false);
       setSelectedUserIds([]);
       setSearchTerm('');
+      setExpiryDate(undefined);
+      setExpiryTime('00:00');
     },
     onError: (error) => {
       toast.error(`Failed to create test sessions: ${error.message}`);
@@ -75,20 +82,36 @@ export default function AdminTestDetail() {
       return;
     }
 
-    createTestSession({
-      variables: {
-        input: {
-          testId: testId!,
-          userIds: selectedUserIds,
-        },
-      },
-    });
+    const input: CreateTestSessionInput = {
+      testId: testId!,
+      userIds: selectedUserIds,
+    };
+
+    if (expiryDate) {
+      // Create date string in YYYY-MM-DD format from Date object
+      const dateString = expiryDate.toISOString().split('T')[0];
+      const localDateTime = new Date(`${dateString}T${expiryTime}`);
+
+      // Convert local date and time to UTC DateTime
+      const expiredTime = convertLocalDateTimeToUTC(localDateTime);
+      input.expiredTime = expiredTime.toISOString();
+    }
+
+    console.log(input);
+
+    // createTestSession({
+    //   variables: {
+    //     input,
+    //   },
+    // });
   }
 
   function handleCloseModal() {
     setIsCreateSessionOpen(false);
     setSelectedUserIds([]);
     setSearchTerm('');
+    setExpiryDate(undefined);
+    setExpiryTime('00:00');
   }
 
   if (testLoading) {
@@ -233,6 +256,29 @@ export default function AdminTestDetail() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className='w-full'
               />
+            </div>
+
+            {/* Expiry Date and Time */}
+            <div>
+              <AppTypography.small className='text-muted-foreground mb-2 block'>
+                Expiry Date & Time (Optional)
+              </AppTypography.small>
+              <div className='flex gap-2'>
+                <AppDatePicker
+                  date={expiryDate}
+                  onSelect={setExpiryDate}
+                  placeholder='Select date'
+                  className='flex-1'
+                />
+                <AppInput
+                  type='time'
+                  placeholder='Select time'
+                  value={expiryTime}
+                  onChange={(e) => setExpiryTime(e.target.value)}
+                  className='flex-1'
+                  step='1'
+                />
+              </div>
             </div>
 
             {/* Users List */}

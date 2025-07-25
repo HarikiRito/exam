@@ -19,7 +19,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: R
         caption_label: 'text-sm font-medium',
         nav: 'flex items-center gap-1',
         nav_button: cn(
-          buttonVariants({ variant: 'outline' }),
+          buttonVariants({ variant: 'outline', shadow: 'none' }),
           'size-7 bg-transparent p-0 opacity-50 hover:opacity-100',
         ),
         nav_button_previous: 'absolute left-1',
@@ -34,7 +34,10 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: R
             ? '[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md'
             : '[&:has([aria-selected])]:rounded-md',
         ),
-        day: cn(buttonVariants({ variant: 'ghost' }), 'size-8 p-0 font-normal aria-selected:opacity-100'),
+        day: cn(
+          buttonVariants({ variant: 'ghost', shadow: 'none' }),
+          'size-8 p-0 font-normal aria-selected:opacity-100 !ring-0 !outline-none',
+        ),
         day_range_start: 'day-range-start',
         day_range_end: 'day-range-end',
         day_selected:
