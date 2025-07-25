@@ -48,6 +48,7 @@ type PaginatedTestSession {
 input CreateTestSessionInput {
   testId: ID!
   userIds: [ID!]
+  expiredTime: DateTime
 }
 
 input UpdateTestSessionInput {

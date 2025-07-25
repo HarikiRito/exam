@@ -13456,7 +13456,7 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"testId", "userIds"}
+	fieldsInOrder := [...]string{"testId", "userIds", "expiredTime"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13477,6 +13477,13 @@ func (ec *executionContext) unmarshalInputCreateTestSessionInput(ctx context.Con
 				return it, err
 			}
 			it.UserIds = data
+		case "expiredTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiredTime"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiredTime = data
 		}
 	}
 

@@ -114,6 +114,7 @@ input CreateTestInput {
 input CreateTestSessionInput {
   testId: ID!
   userIds: [ID!]
+  expiredTime: DateTime
 }
 
 scalar DateTime

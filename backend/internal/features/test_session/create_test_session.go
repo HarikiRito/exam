@@ -39,6 +39,10 @@ func CreateTestSession(ctx context.Context, input model.CreateTestSessionInput) 
 			SetUserID(userID).
 			SetMaxPoints(maxPoints)
 
+		if input.ExpiredTime != nil {
+			builder.SetExpiredAt(*input.ExpiredTime)
+		}
+
 		session, err := builder.Save(ctx)
 		if err != nil {
 			return nil, db.Rollback(tx, fmt.Errorf("failed to create test session for user %s: %w", userID, err))

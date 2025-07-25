@@ -91,8 +91,9 @@ type CreateTestInput struct {
 }
 
 type CreateTestSessionInput struct {
-	TestID  uuid.UUID   `json:"testId"`
-	UserIds []uuid.UUID `json:"userIds,omitempty"`
+	TestID      uuid.UUID   `json:"testId"`
+	UserIds     []uuid.UUID `json:"userIds,omitempty"`
+	ExpiredTime *time.Time  `json:"expiredTime,omitempty"`
 }
 
 type LoginInput struct {
