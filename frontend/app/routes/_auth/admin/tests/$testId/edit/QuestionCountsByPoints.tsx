@@ -3,7 +3,7 @@ import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { testEditStore } from './testEditStore';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 export function QuestionCountsByPoints() {
   const testEditState = testEditStore.useStateSnapshot();
@@ -21,6 +21,12 @@ export function QuestionCountsByPoints() {
   const sortedQuestionCounts = useMemo(() => {
     if (!questionCountsData?.questionCountByPoints) return [];
     return [...questionCountsData.questionCountByPoints].sort((a, b) => a.points - b.points);
+  }, [questionCountsData?.questionCountByPoints]);
+
+  // Save question counts to store when data changes
+  useEffect(() => {
+    if (!questionCountsData?.questionCountByPoints) return;
+    testEditStore.proxyState.questionCounts = questionCountsData.questionCountByPoints;
   }, [questionCountsData?.questionCountByPoints]);
 
   if (loading) {

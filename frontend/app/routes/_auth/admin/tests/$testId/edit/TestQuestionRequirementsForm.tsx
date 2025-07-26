@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from '@remix-run/react';
 import { Plus, Trash2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -14,6 +14,7 @@ import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppForm } from 'app/shared/components/ui/form/AppForm';
 import { AppInput } from 'app/shared/components/ui/input/AppInput';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+import { testEditStore } from './testEditStore';
 
 // Validation schema for question requirements
 const questionRequirementSchema = z.object({
@@ -41,6 +42,7 @@ type TestQuestionRequirementsFormData = z.infer<typeof testQuestionRequirementsS
 
 export function TestQuestionRequirementsForm() {
   const { testId } = useParams();
+  const testEditState = testEditStore.useStateSnapshot();
 
   // Fetch current test data including question counts
   const { data: testData, loading: testLoading } = useGetTestQuery({
@@ -62,7 +64,7 @@ export function TestQuestionRequirementsForm() {
   const form = useForm<TestQuestionRequirementsFormData>({
     resolver: zodResolver(testQuestionRequirementsSchema),
     defaultValues: {
-      requirements: [{ numberOfQuestions: 1, pointsPerQuestion: 1 }],
+      requirements: [],
     },
     mode: 'all',
   });
@@ -77,6 +79,31 @@ export function TestQuestionRequirementsForm() {
 
   const requirements = form.watch('requirements');
   const totalPoints = requirements.reduce((acc, curr) => acc + curr.pointsPerQuestion * curr.numberOfQuestions, 0);
+
+  // Function to get validation message for a requirement
+  function getRequirementValidationMessage(requirement: { numberOfQuestions: number; pointsPerQuestion: number }) {
+    if (!testEditState.questionCounts) return null;
+
+    const availableCount =
+      testEditState.questionCounts.find((count) => count.points === requirement.pointsPerQuestion)?.count || 0;
+
+    if (requirement.numberOfQuestions > availableCount) {
+      return `Question pool for ${requirement.pointsPerQuestion} points is not sufficient. Total in pool: ${availableCount}, Requirement: ${requirement.numberOfQuestions}`;
+    }
+
+    return null;
+  }
+
+  // Function to render validation message for a requirement
+  function renderRequirementValidation(index: number) {
+    const requirement = requirements[index];
+    if (!requirement) return null;
+
+    const validationMessage = getRequirementValidationMessage(requirement);
+    return validationMessage ? (
+      <div className='mt-2 rounded border border-red-200 bg-red-50 p-2 text-sm text-red-600'>{validationMessage}</div>
+    ) : null;
+  }
 
   // Update form when test data loads
   useEffect(() => {
@@ -103,6 +130,23 @@ export function TestQuestionRequirementsForm() {
     if (!testId) {
       toast.error('Test ID not found');
       return;
+    }
+
+    // Validate if there are enough questions for each requirement
+    if (testEditState.questionCounts) {
+      const insufficientRequirement = data.requirements.find((req) => {
+        const availableCount =
+          testEditState.questionCounts?.find((count) => count.points === req.pointsPerQuestion)?.count || 0;
+
+        return req.numberOfQuestions > availableCount;
+      });
+
+      if (insufficientRequirement) {
+        const insufficientMessage = getRequirementValidationMessage(insufficientRequirement);
+
+        toast.error(`${insufficientMessage}. This test cannot be started.`);
+        return;
+      }
     }
 
     const input: UpdateTestQuestionRequirementInput[] = data.requirements.map((req) => ({
@@ -196,6 +240,9 @@ export function TestQuestionRequirementsForm() {
                     )}
                   />
                 </div>
+
+                {/* Inline validation message for insufficient questions */}
+                {renderRequirementValidation(index)}
               </div>
             ))}
           </div>
