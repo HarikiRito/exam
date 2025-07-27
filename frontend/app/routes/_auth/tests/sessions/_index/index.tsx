@@ -206,11 +206,20 @@ export default function TestSessionsIndex() {
 
             {/* Points Earned (if completed) */}
             {session.status === TestSessionStatus.Completed && (
-              <div className='flex items-center gap-2 text-sm'>
-                <TrophyIcon className='h-4 w-4 text-green-600' />
-                <span className='text-muted-foreground'>Score:</span>
-                <span className='font-medium text-green-600'>{session.pointsEarned}</span>
-              </div>
+              <>
+                <div className='flex items-center gap-2 text-sm'>
+                  <TrophyIcon className='h-4 w-4 text-green-600' />
+                  <span className='text-muted-foreground'>Score:</span>
+                  <span className='font-medium text-green-600'>{session.pointsEarned}</span>
+                </div>
+                <div className='flex items-center gap-2 text-sm'>
+                  <TrophyIcon className='h-4 w-4 text-green-600' />
+                  <span className='text-muted-foreground'>Percentage:</span>
+                  <span className='font-medium text-green-600'>
+                    {session.maxPoints > 0 ? Math.round((session.pointsEarned / session.maxPoints) * 100) : 0}%
+                  </span>
+                </div>
+              </>
             )}
 
             {/* Started At (if started) */}
