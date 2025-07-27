@@ -1,5 +1,5 @@
 import { DownloadIcon, FileTextIcon, PlusIcon, CopyIcon } from 'lucide-react';
-import { memo, useMemo, useState } from 'react';
+import { memo, useMemo, useState, useRef, useEffect } from 'react';
 
 import { AppAccordion } from 'app/shared/components/ui/accordion/AppAccordion';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
@@ -24,8 +24,20 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving, col
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [exportedJson, setExportedJson] = useState<string>('');
   const [localQuestions, setLocalQuestions] = useState<QuestionData[]>(questions);
+  const [scrollToIndex, setScrollToIndex] = useState<number | null>(null);
+
+  const questionRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   const [exportQuestions, { loading: isExporting }] = useExportQuestionsLazyQuery();
+
+  useEffect(() => {
+    if (scrollToIndex === null) return;
+    if (!questionRefs.current[scrollToIndex]) return;
+
+    const element = questionRefs.current[scrollToIndex];
+    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setScrollToIndex(null);
+  }, [scrollToIndex, localQuestions]);
 
   function handleAddQuestion() {
     const newQuestion: QuestionData = {
@@ -36,13 +48,18 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving, col
       isNew: true,
     };
 
-    const updatedQuestions = [...localQuestions, newQuestion];
+    const updatedQuestions = [newQuestion, ...localQuestions];
     setLocalQuestions(updatedQuestions);
   }
 
   function handleImportQuestions(importedQuestions: QuestionData[]) {
-    const updatedQuestions = [...importedQuestions, ...localQuestions];
+    const originalLength = localQuestions.length;
+    const updatedQuestions = [...localQuestions, ...importedQuestions];
     setLocalQuestions(updatedQuestions);
+
+    if (importedQuestions.length === 0) return;
+
+    setScrollToIndex(originalLength);
   }
 
   async function handleExportQuestions() {
@@ -90,7 +107,13 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving, col
       setLocalQuestions(updatedQuestions);
     }
     return localQuestions.map((question, index) => (
-      <QuestionItem index={index} question={question} onQuestionChange={handleQuestionChange} />
+      <div
+        key={index}
+        ref={(el) => {
+          questionRefs.current[index] = el;
+        }}>
+        <QuestionItem index={index} question={question} onQuestionChange={handleQuestionChange} />
+      </div>
     ));
   }, [localQuestions]);
 

@@ -15,6 +15,7 @@ This project is a monorepo with the following structure:
 - **Component Reuse**: Search existing components in the folder structure first before implementing something new
 - **Package Management**: Remember to using pnpm
 - Always use the mcp sequence thinking
+- **Code Style**: Prefer using early return for error handling instead of wrapping conditions in if-else statements when possible. Use guard clauses and early returns to reduce nesting and improve code readability.
 
 ## Backend (Go)
 - Written in Go
