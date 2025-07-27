@@ -41,7 +41,7 @@ export const QuestionManager = memo(({ questions, onSaveQuestions, isSaving, col
   }
 
   function handleImportQuestions(importedQuestions: QuestionData[]) {
-    const updatedQuestions = [...localQuestions, ...importedQuestions];
+    const updatedQuestions = [...importedQuestions, ...localQuestions];
     setLocalQuestions(updatedQuestions);
   }
 
