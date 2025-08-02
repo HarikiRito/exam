@@ -19,6 +19,7 @@ import { useState } from 'react';
 import { useCheckPermission } from 'app/shared/hooks/useCheckPermission';
 import { PERMISSION_ROUTE } from 'app/shared/constants/permission';
 import { UnauthorizedMessage } from 'app/shared/components/custom/Authorized';
+import { useImmer } from 'use-immer';
 
 // Type for a single collection item from the query
 type CollectionItem = PaginateQuestionCollectionsQuery['paginatedQuestionCollections']['items'][0];
@@ -28,21 +29,22 @@ export default function AdminCollections() {
   const [deletingCollectionId, setDeletingCollectionId] = useState<string | null>(null);
   const hasPermission = useCheckPermission(PERMISSION_ROUTE.adminCollections);
 
-  const state = {
+  const [pagination, setPagination] = useImmer({
     page: 1,
-    limit: 10,
+    limit: 20,
     search: '',
-  };
+  });
 
   // Fetch collections data
   const { data } = usePaginateQuestionCollectionsQuery({
     variables: {
       paginationInput: {
-        page: state.page,
-        limit: state.limit,
-        search: state.search,
+        page: pagination.page,
+        limit: pagination.limit,
+        search: pagination.search,
       },
     },
+    skip: !hasPermission,
   });
 
   // Delete collection mutation
@@ -66,6 +68,13 @@ export default function AdminCollections() {
   function handleDeleteCollection(collectionId: string) {
     deleteCollection({
       variables: { id: collectionId },
+    });
+  }
+
+  function handlePageChange(page: number, pageSize: number) {
+    setPagination((draft) => {
+      draft.page = page;
+      draft.limit = pageSize;
     });
   }
 
@@ -180,6 +189,9 @@ export default function AdminCollections() {
         data={tableData}
         searchPlaceholder='Search collections...'
         totalItems={totalItems}
+        pageSize={pagination.limit}
+        currentPage={pagination.page}
+        onPageChange={handlePageChange}
       />
     </div>
   );
