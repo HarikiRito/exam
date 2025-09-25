@@ -7,9 +7,7 @@ export function createProxyWithReset<T extends object>(initialState: T) {
 
   function reset() {
     const resetObj = deepClone(initialState);
-    Object.keys(resetObj).forEach((key) => {
-      proxyState[key as keyof T] = resetObj[key as keyof T];
-    });
+    Object.assign(proxyState, resetObj);
   }
 
   function useResetHook() {
