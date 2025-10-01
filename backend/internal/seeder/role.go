@@ -7,6 +7,7 @@ import (
 	"template/internal/ent/db"
 	"template/internal/ent/role"
 	permissionFeat "template/internal/features/permission"
+	roleFeat "template/internal/features/role"
 	"template/internal/shared/utilities/pointer"
 	"template/internal/shared/utilities/slice"
 
@@ -14,9 +15,9 @@ import (
 )
 
 const (
-	RoleOwner = "owner" // Can do anything without restrictions
-	RoleAdmin = "admin" // Can do anything except for system level operations like creating/deleting users
-	RoleUser  = "user"  // Can only read and write their own data
+	RoleOwner = roleFeat.RoleOwner
+	RoleAdmin = roleFeat.RoleAdmin
+	RoleUser  = roleFeat.RoleUser
 )
 
 type RoleData struct {

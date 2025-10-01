@@ -12,6 +12,12 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	RoleOwner = "owner" // Can do anything without restrictions
+	RoleAdmin = "admin" // Can do anything except for system level operations like creating/deleting users
+	RoleUser  = "user"  // Can only read and write their own data
+)
+
 // GetAllRoles fetches all available roles in the system
 func GetAllRoles(ctx context.Context) ([]*ent.Role, error) {
 	client, err := db.OpenClient()

@@ -2,10 +2,13 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"template/internal/ent"
 	"template/internal/ent/db"
+	"template/internal/ent/role"
 	"template/internal/ent/user"
+	roleFeat "template/internal/features/role"
 	"template/internal/graph/model"
 
 	"golang.org/x/crypto/bcrypt"
@@ -60,17 +63,26 @@ func Register(ctx context.Context, input model.RegisterInput) (bool, error) {
 		return false, db.Rollback(tx, fmt.Errorf("email or username already exists"))
 	}
 
+	// Find the default "user" role
+	userRole, err := tx.Role.Query().
+		Where(role.NameEQ(roleFeat.RoleUser)).
+		First(ctx)
+	if err != nil {
+		return false, db.Rollback(tx, errors.New("default user role not found"))
+	}
+
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return false, db.Rollback(tx, fmt.Errorf("failed to hash password"))
 	}
 
-	// Create the user with the hashed password
+	// Create the user with the hashed password and assign default role
 	_, err = tx.User.Create().
 		SetEmail(input.Email).
 		SetUsername(input.Email). // Use email as username if not provided
 		SetPasswordHash(string(hashedPassword)).
+		AddRoleIDs(userRole.ID). // Assign default user role
 		Save(ctx)
 	if err != nil {
 		return false, db.Rollback(tx, err)
