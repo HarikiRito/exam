@@ -262,6 +262,7 @@ type Query {
   exportQuestions(questionIds: [ID!]!): String!
   getAllPermissions: [PermissionEnum!]!
   getAllRoles: [Role!]!
+  getUserById(id: ID!): User!
   isAuthenticated: Boolean!
   me: User!
   paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!

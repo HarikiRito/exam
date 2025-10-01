@@ -82,6 +82,26 @@ func (r *queryResolver) PaginatedUsers(ctx context.Context, paginationInput *mod
 	}, nil
 }
 
+// GetUserByID is the resolver for the getUserById field.
+// Fetches a single user by their unique ID with UserRead permission check.
+func (r *queryResolver) GetUserByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
+	_, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.UserRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch the user by ID
+	foundUser, err := user.GetUserByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to GraphQL model
+	return model.ConvertUserToModel(foundUser), nil
+}
+
 // Roles is the resolver for the roles field.
 func (r *userResolver) Roles(ctx context.Context, obj *model.User) ([]*model.Role, error) {
 	return dataloader.GetRolesByUserID(ctx, obj.ID)

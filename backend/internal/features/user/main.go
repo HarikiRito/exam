@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"template/internal/ent"
 	"template/internal/ent/db"
 	"template/internal/ent/user"
@@ -18,7 +19,15 @@ func GetUserByID(ctx context.Context, userID uuid.UUID) (*ent.User, error) {
 		return nil, err
 	}
 
-	return client.User.Get(ctx, userID)
+	foundUser, err := client.User.Get(ctx, userID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, fmt.Errorf("user not found with ID: %s", userID)
+		}
+		return nil, err
+	}
+
+	return foundUser, nil
 }
 
 func GetUsersByIDs(ctx context.Context, userIDs []uuid.UUID) ([]*ent.User, error) {

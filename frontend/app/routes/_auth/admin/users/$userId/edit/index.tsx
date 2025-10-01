@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { useGetAllRolesQuery } from 'app/graphql/operations/role/getAllRoles.query.generated';
 import { useAdminEditUserMutation } from 'app/graphql/operations/user/adminEditUser.mutation.generated';
+import { useGetUserByIdQuery } from 'app/graphql/operations/user/getUserById.query.generated';
 import { AdminEditUserInput } from 'app/graphql/graphqlTypes';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
@@ -20,7 +21,10 @@ import { capitalize } from 'app/shared/utils/string';
 // Create Zod schema for user edit validation
 const editUserSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .optional()
+    .refine((val) => !val || val.length === 0 || val.length >= 6, 'Password must be at least 6 characters if provided'),
   roleId: z.string().min(1, 'Role is required'),
 });
 
@@ -35,6 +39,15 @@ export default function EditUserPage() {
   const { data: rolesData } = useGetAllRolesQuery();
   const roles = rolesData?.getAllRoles || [];
 
+  // Fetch user data by ID
+  const { data: userData, loading: isLoadingUser } = useGetUserByIdQuery({
+    variables: { id: userId || '' },
+    skip: !userId,
+    onError: (error) => {
+      toast.error(`Failed to load user: ${error.message}`);
+    },
+  });
+
   // Edit user mutation
   const [editUser, { loading: isUpdating }] = useAdminEditUserMutation({
     onCompleted: () => {
@@ -46,21 +59,15 @@ export default function EditUserPage() {
     },
   });
 
-  // TODO: Fetch user data based on userId
-  // For now, using placeholder data
-  const userData = {
-    id: userId,
-    email: 'user@example.com',
-    roleId: '', // TODO: Get from actual user data
-    // Don't pre-fill password for security reasons
-  };
+  const user = userData?.getUserById;
 
   const form = useForm<EditUserFormData>({
     resolver: zodResolver(editUserSchema),
-    defaultValues: {
-      email: userData.email,
+    mode: 'onBlur',
+    values: {
+      email: user?.email || '',
       password: '',
-      roleId: userData.roleId,
+      roleId: user?.roles?.[0]?.id || '',
     },
   });
 
@@ -72,8 +79,8 @@ export default function EditUserPage() {
       roleId: data.roleId,
     };
 
-    // Only include password if it's not empty
-    if (data.password.trim()) {
+    // Only include password if it's provided and not empty
+    if (data.password && data.password.trim()) {
       updateInput.password = data.password;
     }
 
@@ -96,6 +103,18 @@ export default function EditUserPage() {
         <AppButton onClick={() => navigate(APP_ROUTES.adminUsers)}>Back to Users</AppButton>
       </div>
     );
+  }
+
+  if (isLoadingUser) {
+    return (
+      <div className='p-4 px-8'>
+        <AppTypography.p>Loading user data...</AppTypography.p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    throw new Error('User not found');
   }
 
   return (
@@ -178,7 +197,7 @@ export default function EditUserPage() {
               />
 
               <div className='flex items-center gap-4 pt-4'>
-                <AppButton type='submit' disabled={!form.formState.isValid || isUpdating}>
+                <AppButton type='submit' disabled={isUpdating}>
                   {isUpdating ? 'Updating...' : 'Update User'}
                 </AppButton>
 

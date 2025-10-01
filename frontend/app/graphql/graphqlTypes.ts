@@ -444,6 +444,7 @@ export type Query = {
   exportQuestions: Scalars['String']['output'];
   getAllPermissions: Array<PermissionEnum>;
   getAllRoles: Array<Role>;
+  getUserById: User;
   isAuthenticated: Scalars['Boolean']['output'];
   me: User;
   paginatedCourses: PaginatedCourse;
@@ -481,6 +482,11 @@ export type QueryCourseSectionsByCourseIdArgs = {
 
 export type QueryExportQuestionsArgs = {
   questionIds: Array<Scalars['ID']['input']>;
+};
+
+
+export type QueryGetUserByIdArgs = {
+  id: Scalars['ID']['input'];
 };
 
 

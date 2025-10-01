@@ -1,5 +1,6 @@
 extend type Query {
   paginatedUsers(paginationInput: PaginationInput): PaginatedUser!
+  getUserById(id: ID!): User!
 }
 extend type Mutation {
   adminCreateUser(input: AdminCreateUserInput!): User!
