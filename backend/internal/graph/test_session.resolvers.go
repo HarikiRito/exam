@@ -106,7 +106,7 @@ func (r *queryResolver) TestSession(ctx context.Context, id uuid.UUID) (*model.T
 }
 
 // PaginatedTestSessions is the resolver for the paginatedTestSessions field.
-func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error) {
+func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput, filterInput *model.TestSessionFilterInput) (*model.PaginatedTestSession, error) {
 	userId, err := CheckUserPermissions(ctx, []permission.Permission{
 		permission.SessionRead,
 	})
@@ -120,7 +120,7 @@ func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInp
 		return nil, err
 	}
 
-	result, err := test_session.PaginatedTestSessions(ctx, userId, isAdminOrOwner, paginationInput)
+	result, err := test_session.PaginatedTestSessions(ctx, userId, isAdminOrOwner, paginationInput, filterInput)
 	if err != nil {
 		return nil, err
 	}

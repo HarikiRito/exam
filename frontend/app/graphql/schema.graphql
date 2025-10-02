@@ -268,7 +268,7 @@ type Query {
   paginatedCourses(paginationInput: PaginationInput): PaginatedCourse!
   paginatedQuestionCollections(paginationInput: PaginationInput): PaginatedQuestionCollection!
   paginatedQuestions(paginationInput: PaginationInput): PaginatedQuestion!
-  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
+  paginatedTestSessions(filterInput: TestSessionFilterInput, paginationInput: PaginationInput): PaginatedTestSession!
   paginatedTests(paginationInput: PaginationInput): PaginatedTest!
   paginatedUsers(paginationInput: PaginationInput): PaginatedUser!
   question(id: ID!): Question!
@@ -396,6 +396,10 @@ type TestSession {
 input TestSessionAnswerInput {
   questionId: ID!
   questionOptionIds: [ID!]!
+}
+
+input TestSessionFilterInput {
+  statuses: [TestSessionStatus!]
 }
 
 enum TestSessionStatus {

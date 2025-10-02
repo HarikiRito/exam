@@ -37,7 +37,7 @@ function PageOutlet() {
   const sideBarWidth = theme.sideBarWidth;
   return (
     <div
-      className='flex flex-1 flex-col gap-4 p-4 px-0 pt-0'
+      className='mx-4 flex flex-1 flex-col gap-4 p-4 pt-0'
       style={{
         paddingTop: `${headerHeight}px`,
         height: `calc(100dvh - ${headerHeight}px)`,

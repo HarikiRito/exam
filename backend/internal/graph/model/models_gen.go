@@ -224,6 +224,10 @@ type TestSessionAnswerInput struct {
 	QuestionOptionIds []uuid.UUID `json:"questionOptionIds"`
 }
 
+type TestSessionFilterInput struct {
+	Statuses []TestSessionStatus `json:"statuses,omitempty"`
+}
+
 type Todo struct {
 	ID   uuid.UUID `json:"id"`
 	Text string    `json:"text"`

@@ -1,9 +1,9 @@
 import { useNavigate } from '@remix-run/react';
-import { CalendarIcon, Trash2Icon, UserIcon } from 'lucide-react';
+import { FilterIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { PermissionEnum, TestSessionStatus } from 'app/graphql/graphqlTypes';
+import { TestSessionStatus } from 'app/graphql/graphqlTypes';
 import {
   PaginateTestSessionsDocument,
   PaginateTestSessionsQuery,
@@ -11,20 +11,28 @@ import {
 } from 'app/graphql/operations/testSession/paginateTestSessions.query.generated';
 import { useDeleteTestSessionMutation } from 'app/graphql/operations/testSession/deleteTestSession.mutation.generated';
 import { useStartTestSessionMutation } from 'app/graphql/operations/testSession/startTestSession.mutation.generated';
-import { Authorized } from 'app/shared/components/custom/Authorized';
 import { PaginationControls } from 'app/shared/components/custom/PaginationControls';
 import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
+import { AppCheckbox } from 'app/shared/components/ui/checkbox/AppCheckbox';
 import { AppDialog } from 'app/shared/components/ui/dialog/AppDialog';
+import { AppPopover } from 'app/shared/components/ui/popover/AppPopover';
 import { AppSkeleton } from 'app/shared/components/ui/skeleton/AppSkeleton';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
-import dayjs from 'dayjs';
 
-import { ScoreRing } from './components/ScoreRing';
+import { TestSessionCard } from './components/TestSessionCard';
 
 type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['items'][number];
+
+const STATUS_OPTIONS = [
+  { value: TestSessionStatus.Pending, label: 'Pending' },
+  { value: TestSessionStatus.InProgress, label: 'In Progress' },
+  { value: TestSessionStatus.Completed, label: 'Completed' },
+  { value: TestSessionStatus.Expired, label: 'Expired' },
+  { value: TestSessionStatus.Cancelled, label: 'Cancelled' },
+];
 
 export default function TestSessionsIndex() {
   const navigate = useNavigate();
@@ -32,18 +40,28 @@ export default function TestSessionsIndex() {
   const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [optimisticDeletedId, setOptimisticDeletedId] = useState<string | null>(null);
+  const [selectedStatuses, setSelectedStatuses] = useState<TestSessionStatus[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const selectedSession = useRef<TestSessionEntity | null>(null);
 
-  const itemsPerPage = 10;
+  // Number of test sessions displayed per page in the pagination grid
+  const ITEMS_PER_PAGE = 10;
 
   const { data, loading, error } = usePaginateTestSessionsQuery({
     variables: {
       paginationInput: {
         page: currentPage,
-        limit: itemsPerPage,
+        limit: ITEMS_PER_PAGE,
       },
+      filterInput:
+        selectedStatuses.length > 0
+          ? {
+              statuses: selectedStatuses,
+            }
+          : undefined,
     },
+    fetchPolicy: 'network-only',
   });
 
   // Start test session mutation
@@ -77,59 +95,6 @@ export default function TestSessionsIndex() {
     },
   });
 
-  function formatDateTime(dateString: string | null | undefined) {
-    if (!dateString) return 'Not set';
-
-    return dayjs(dateString).format('DD/MM/YYYY HH:mm');
-  }
-
-  function getStatusVariant(status: TestSessionStatus) {
-    switch (status) {
-      case TestSessionStatus.Completed:
-        return 'default';
-      case TestSessionStatus.InProgress:
-        return 'secondary';
-      case TestSessionStatus.Pending:
-        return 'outline';
-      case TestSessionStatus.Expired:
-      case TestSessionStatus.Cancelled:
-        return 'destructive';
-      default:
-        return 'outline';
-    }
-  }
-
-  function getStatusDisplay(status: TestSessionStatus) {
-    switch (status) {
-      case TestSessionStatus.Completed:
-        return 'Completed';
-      case TestSessionStatus.InProgress:
-        return 'In Progress';
-      case TestSessionStatus.Pending:
-        return 'Pending';
-      case TestSessionStatus.Expired:
-        return 'Expired';
-      case TestSessionStatus.Cancelled:
-        return 'Cancelled';
-      default:
-        return status;
-    }
-  }
-
-  function handleSessionAction(session: TestSessionEntity) {
-    if (session.status === TestSessionStatus.InProgress) {
-      // Resume test - navigate directly
-      navigate(`/tests/sessions/${session.id}`);
-    } else if (session.status === TestSessionStatus.Pending) {
-      // Start test - show confirmation modal
-      selectedSession.current = session;
-      setIsStartConfirmModalOpen(true);
-    } else {
-      // View results or session details
-      navigate(`/tests/sessions/${session.id}`);
-    }
-  }
-
   function handleConfirmStartSession() {
     if (!selectedSession.current) return;
 
@@ -158,7 +123,23 @@ export default function TestSessionsIndex() {
     });
   }
 
-  function _renderStartConfirmationModal() {
+  function handleStatusToggle(status: TestSessionStatus) {
+    setSelectedStatuses((prev) => {
+      if (prev.includes(status)) {
+        return prev.filter((s) => s !== status);
+      }
+      return [...prev, status];
+    });
+    // Reset to first page when filter changes
+    setCurrentPage(1);
+  }
+
+  function handleClearFilters() {
+    setSelectedStatuses([]);
+    setCurrentPage(1);
+  }
+
+  function renderStartConfirmationModal() {
     return (
       <AppDialog.Root open={isStartConfirmModalOpen} onOpenChange={setIsStartConfirmModalOpen}>
         <AppDialog.Content className='sm:max-w-md'>
@@ -203,7 +184,7 @@ export default function TestSessionsIndex() {
     );
   }
 
-  function _renderDeleteConfirmationModal() {
+  function renderDeleteConfirmationModal() {
     return (
       <AppDialog.Root open={isDeleteConfirmModalOpen} onOpenChange={setIsDeleteConfirmModalOpen}>
         <AppDialog.Content className='sm:max-w-md'>
@@ -232,112 +213,11 @@ export default function TestSessionsIndex() {
     );
   }
 
-  function _renderTestSessionCard(session: TestSessionEntity) {
-    const percentage = session.maxPoints > 0 ? Math.round((session.pointsEarned / session.maxPoints) * 100) : 0;
-    const userName = session.user
-      ? `${session.user.firstName || ''} ${session.user.lastName || ''}`.trim() || session.user.username
-      : 'Unknown User';
-
-    return (
-      <AppCard.Root key={session.id} className='group overflow-hidden transition-all hover:shadow-lg'>
-        <AppCard.Content className='p-0'>
-          {/* Header Section with Status Badge */}
-          <div className='bg-muted/50 flex items-center justify-between px-4 py-3'>
-            <div className='flex items-center gap-2'>
-              <UserIcon className='text-muted-foreground h-4 w-4' />
-              <span className='text-sm font-semibold'>{userName}</span>
-            </div>
-            <div className='flex items-center gap-2'>
-              <AppBadge variant={getStatusVariant(session.status)}>{getStatusDisplay(session.status)}</AppBadge>
-              <Authorized permissions={[PermissionEnum.SessionDelete]}>
-                <AppButton
-                  variant='ghost'
-                  size='icon'
-                  className='h-8 w-8'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteSession(session);
-                  }}
-                  aria-label='Delete test session'>
-                  <Trash2Icon className='h-4 w-4' />
-                </AppButton>
-              </Authorized>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className='p-4'>
-            <div className='mb-4'>
-              <AppTypography.p className='line-clamp-1 text-base font-medium'>{session.test.name}</AppTypography.p>
-            </div>
-
-            {/* Score and Date Section */}
-            <div className='mb-4 flex items-center justify-between'>
-              {/* Score Ring - Only show for completed tests */}
-              {session.status === TestSessionStatus.Completed ? (
-                <ScoreRing percentage={percentage} pointsEarned={session.pointsEarned} maxPoints={session.maxPoints} />
-              ) : (
-                <div className='flex items-center gap-2'>
-                  <div className='bg-muted flex h-12 w-12 items-center justify-center rounded-full'>
-                    <span className='text-muted-foreground text-sm font-semibold'>{session.maxPoints}</span>
-                  </div>
-                  <div className='flex flex-col'>
-                    <span className='text-muted-foreground text-xs'>Total Points</span>
-                    <span className='text-sm font-medium'>{session.maxPoints} pts</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Expiry Date */}
-              <div className='flex flex-col items-end'>
-                <span className='text-muted-foreground text-xs'>Expires</span>
-                <div className='flex items-center gap-1'>
-                  <CalendarIcon className='text-muted-foreground h-3 w-3' />
-                  <span className='text-xs font-medium'>{formatDateTime(session.expiredAt)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Info - Shows on hover */}
-            <div className='mb-4 max-h-0 overflow-hidden opacity-0 transition-all duration-300 group-hover:max-h-40 group-hover:opacity-100'>
-              <div className='border-muted space-y-2 border-t pt-3'>
-                <div className='flex items-center justify-between text-xs'>
-                  <span className='text-muted-foreground'>Created</span>
-                  <span className='font-medium'>{formatDateTime(session.createdAt)}</span>
-                </div>
-                {session.startedAt && (
-                  <div className='flex items-center justify-between text-xs'>
-                    <span className='text-muted-foreground'>Started</span>
-                    <span className='font-medium'>{formatDateTime(session.startedAt)}</span>
-                  </div>
-                )}
-                {session.completedAt && (
-                  <div className='flex items-center justify-between text-xs'>
-                    <span className='text-muted-foreground'>Completed</span>
-                    <span className='font-medium'>{formatDateTime(session.completedAt)}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Action Button - Only for Pending and InProgress */}
-            {session.status === TestSessionStatus.Pending && (
-              <AppButton onClick={() => handleSessionAction(session)} className='w-full' size='sm'>
-                Start Test
-              </AppButton>
-            )}
-            {session.status === TestSessionStatus.InProgress && (
-              <AppButton onClick={() => handleSessionAction(session)} className='w-full' size='sm'>
-                Resume Test
-              </AppButton>
-            )}
-          </div>
-        </AppCard.Content>
-      </AppCard.Root>
-    );
+  function renderTestSessionCard(session: TestSessionEntity) {
+    return <TestSessionCard key={session.id} session={session} onDelete={handleDeleteSession} />;
   }
 
-  function _renderSkeletonCard(index: number) {
+  function renderSkeletonCard(index: number) {
     return (
       <AppCard.Root key={index}>
         <AppCard.Content className='p-0'>
@@ -367,8 +247,8 @@ export default function TestSessionsIndex() {
     );
   }
 
-  function _renderSkeletonCards() {
-    return Array.from({ length: 6 }).map((_, index) => _renderSkeletonCard(index));
+  function renderSkeletonCards() {
+    return Array.from({ length: 6 }).map((_, index) => renderSkeletonCard(index));
   }
 
   if (loading) {
@@ -379,7 +259,7 @@ export default function TestSessionsIndex() {
           <AppTypography.p className='text-muted-foreground mt-2'>Manage and view all test sessions</AppTypography.p>
         </div>
 
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>{_renderSkeletonCards()}</div>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>{renderSkeletonCards()}</div>
       </div>
     );
   }
@@ -408,8 +288,53 @@ export default function TestSessionsIndex() {
 
   return (
     <div className='container mx-auto py-6'>
-      <div className='mb-6'>
+      <div className='mb-6 flex items-center justify-between'>
         <AppTypography.h1>Test Sessions</AppTypography.h1>
+
+        {/* Filter Button */}
+        <AppPopover.Root open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+          <AppPopover.Trigger asChild>
+            <AppButton variant='outline' size='sm' className='gap-2'>
+              <FilterIcon className='h-4 w-4' />
+              Filter
+              {selectedStatuses.length > 0 && (
+                <AppBadge variant='secondary' className='ml-1 h-5 px-1'>
+                  {selectedStatuses.length}
+                </AppBadge>
+              )}
+            </AppButton>
+          </AppPopover.Trigger>
+          <AppPopover.Content align='end' className='w-64'>
+            <div className='space-y-4'>
+              <AppTypography.p className='text-sm font-semibold'>Filter by Status</AppTypography.p>
+
+              <div className='space-y-3'>
+                {STATUS_OPTIONS.map((option) => (
+                  <div key={option.value} className='flex items-center space-x-2'>
+                    <AppCheckbox
+                      id={option.value}
+                      checked={selectedStatuses.includes(option.value)}
+                      onCheckedChange={() => handleStatusToggle(option.value)}
+                    />
+                    <label
+                      htmlFor={option.value}
+                      className='text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
+                      {option.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              {selectedStatuses.length > 0 && (
+                <div className='border-t pt-3'>
+                  <AppButton variant='outline' size='sm' onClick={handleClearFilters} className='w-full'>
+                    Clear Filters
+                  </AppButton>
+                </div>
+              )}
+            </div>
+          </AppPopover.Content>
+        </AppPopover.Root>
       </div>
 
       {testSessions.length === 0 ? (
@@ -429,7 +354,7 @@ export default function TestSessionsIndex() {
             </div>
           )}
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-            {testSessions.map(_renderTestSessionCard)}
+            {testSessions.map(renderTestSessionCard)}
           </div>
           {pagination && (
             <PaginationControls
@@ -442,8 +367,8 @@ export default function TestSessionsIndex() {
         </div>
       )}
 
-      {_renderStartConfirmationModal()}
-      {_renderDeleteConfirmationModal()}
+      {renderStartConfirmationModal()}
+      {renderDeleteConfirmationModal()}
     </div>
   );
 }

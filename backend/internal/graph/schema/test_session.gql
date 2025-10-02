@@ -7,7 +7,7 @@ extend type Mutation {
 
 extend type Query {
   testSession(id: ID!): TestSession!
-  paginatedTestSessions(paginationInput: PaginationInput): PaginatedTestSession!
+  paginatedTestSessions(paginationInput: PaginationInput, filterInput: TestSessionFilterInput): PaginatedTestSession!
 }
 
 enum TestSessionStatus {
@@ -69,4 +69,8 @@ input SubmitTestSessionInput {
 input StartTestSessionInput {
   testTimeTaken: Int!
   expiredAt: DateTime
+}
+
+input TestSessionFilterInput {
+  statuses: [TestSessionStatus!]
 } 

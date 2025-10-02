@@ -30,7 +30,7 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 // PaginatedTestSessions returns a paginated list of test sessions.
 // For admin/owner: shows all sessions
 // For regular users: shows only their own sessions
-func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, isAdminOrOwner bool, paginationInput *model.PaginationInput) (*common.PaginatedResult[*ent.TestSession], error) {
+func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, isAdminOrOwner bool, paginationInput *model.PaginationInput, filterInput *model.TestSessionFilterInput) (*common.PaginatedResult[*ent.TestSession], error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
@@ -43,6 +43,14 @@ func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, isAdminOrOwner
 	if !isAdminOrOwner {
 		query = query.Where(testsession.UserID(userId))
 	}
+
+	// Apply status filter if provided
+	if filterInput != nil && len(filterInput.Statuses) > 0 {
+		query = query.Where(testsession.StatusIn(convertStatusesToEntStatuses(filterInput.Statuses)...))
+	}
+
+	// Sort by updatedAt descending (most recently updated first)
+	query = query.Order(ent.Desc(testsession.FieldUpdatedAt))
 
 	// Extract pagination parameters
 	page := common.DefaultPage
@@ -57,6 +65,28 @@ func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, isAdminOrOwner
 	}
 
 	return common.EntQueryPaginated(ctx, query, page, limit)
+}
+
+func convertStatusesToEntStatuses(statuses []model.TestSessionStatus) []testsession.Status {
+	result := make([]testsession.Status, len(statuses))
+	for i, s := range statuses {
+		// Convert GraphQL enum (uppercase) to Ent enum (lowercase with underscores)
+		switch s {
+		case model.TestSessionStatusPending:
+			result[i] = testsession.StatusPending
+		case model.TestSessionStatusCompleted:
+			result[i] = testsession.StatusCompleted
+		case model.TestSessionStatusInProgress:
+			result[i] = testsession.StatusInProgress
+		case model.TestSessionStatusCancelled:
+			result[i] = testsession.StatusCancelled
+		case model.TestSessionStatusExpired:
+			result[i] = testsession.StatusExpired
+		default:
+			result[i] = testsession.StatusPending
+		}
+	}
+	return result
 }
 
 // DeleteTestSession deletes a test session by its ID.

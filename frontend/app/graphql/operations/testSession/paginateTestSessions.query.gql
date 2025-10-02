@@ -1,5 +1,5 @@
-query PaginateTestSessions($paginationInput: PaginationInput) {
-  paginatedTestSessions(paginationInput: $paginationInput) {
+query PaginateTestSessions($paginationInput: PaginationInput, $filterInput: TestSessionFilterInput) {
+  paginatedTestSessions(paginationInput: $paginationInput, filterInput: $filterInput) {
     pagination {
       ...Pagination
     }

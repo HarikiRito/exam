@@ -11,6 +11,7 @@ import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type PaginateTestSessionsQueryVariables = Types.Exact<{
   paginationInput?: Types.InputMaybe<Types.PaginationInput>;
+  filterInput?: Types.InputMaybe<Types.TestSessionFilterInput>;
 }>;
 
 
@@ -24,8 +25,11 @@ export type PaginateTestSessionsQuery = { __typename?: 'Query', paginatedTestSes
 
 
 export const PaginateTestSessionsDocument = gql`
-    query PaginateTestSessions($paginationInput: PaginationInput) {
-  paginatedTestSessions(paginationInput: $paginationInput) {
+    query PaginateTestSessions($paginationInput: PaginationInput, $filterInput: TestSessionFilterInput) {
+  paginatedTestSessions(
+    paginationInput: $paginationInput
+    filterInput: $filterInput
+  ) {
     pagination {
       ...Pagination
     }
@@ -56,6 +60,7 @@ ${UserFragmentDoc}`;
  * const { data, loading, error } = usePaginateTestSessionsQuery({
  *   variables: {
  *      paginationInput: // value for 'paginationInput'
+ *      filterInput: // value for 'filterInput'
  *   },
  * });
  */

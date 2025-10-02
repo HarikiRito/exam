@@ -173,7 +173,7 @@ type ComplexityRoot struct {
 		PaginatedCourses             func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestionCollections func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedQuestions           func(childComplexity int, paginationInput *model.PaginationInput) int
-		PaginatedTestSessions        func(childComplexity int, paginationInput *model.PaginationInput) int
+		PaginatedTestSessions        func(childComplexity int, paginationInput *model.PaginationInput, filterInput *model.TestSessionFilterInput) int
 		PaginatedTests               func(childComplexity int, paginationInput *model.PaginationInput) int
 		PaginatedUsers               func(childComplexity int, paginationInput *model.PaginationInput) int
 		Question                     func(childComplexity int, id uuid.UUID) int
@@ -344,7 +344,7 @@ type QueryResolver interface {
 	Test(ctx context.Context, id uuid.UUID) (*model.Test, error)
 	PaginatedTests(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTest, error)
 	TestSession(ctx context.Context, id uuid.UUID) (*model.TestSession, error)
-	PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedTestSession, error)
+	PaginatedTestSessions(ctx context.Context, paginationInput *model.PaginationInput, filterInput *model.TestSessionFilterInput) (*model.PaginatedTestSession, error)
 	Todos(ctx context.Context) ([]*model.Todo, error)
 	PaginatedUsers(ctx context.Context, paginationInput *model.PaginationInput) (*model.PaginatedUser, error)
 	GetUserByID(ctx context.Context, id uuid.UUID) (*model.User, error)
@@ -1153,7 +1153,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.PaginatedTestSessions(childComplexity, args["paginationInput"].(*model.PaginationInput)), true
+		return e.complexity.Query.PaginatedTestSessions(childComplexity, args["paginationInput"].(*model.PaginationInput), args["filterInput"].(*model.TestSessionFilterInput)), true
 
 	case "Query.paginatedTests":
 		if e.complexity.Query.PaginatedTests == nil {
@@ -1743,6 +1743,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputStartTestSessionInput,
 		ec.unmarshalInputSubmitTestSessionInput,
 		ec.unmarshalInputTestSessionAnswerInput,
+		ec.unmarshalInputTestSessionFilterInput,
 		ec.unmarshalInputUpdateBatchQuestionsByCollectionInput,
 		ec.unmarshalInputUpdateCourseInput,
 		ec.unmarshalInputUpdateCourseSectionInput,
@@ -3015,6 +3016,11 @@ func (ec *executionContext) field_Query_paginatedTestSessions_args(ctx context.C
 		return nil, err
 	}
 	args["paginationInput"] = arg0
+	arg1, err := ec.field_Query_paginatedTestSessions_argsFilterInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["filterInput"] = arg1
 	return args, nil
 }
 func (ec *executionContext) field_Query_paginatedTestSessions_argsPaginationInput(
@@ -3027,6 +3033,19 @@ func (ec *executionContext) field_Query_paginatedTestSessions_argsPaginationInpu
 	}
 
 	var zeroVal *model.PaginationInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_paginatedTestSessions_argsFilterInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*model.TestSessionFilterInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("filterInput"))
+	if tmp, ok := rawArgs["filterInput"]; ok {
+		return ec.unmarshalOTestSessionFilterInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionFilterInput(ctx, tmp)
+	}
+
+	var zeroVal *model.TestSessionFilterInput
 	return zeroVal, nil
 }
 
@@ -8286,7 +8305,7 @@ func (ec *executionContext) _Query_paginatedTestSessions(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaginatedTestSessions(rctx, fc.Args["paginationInput"].(*model.PaginationInput))
+		return ec.resolvers.Query().PaginatedTestSessions(rctx, fc.Args["paginationInput"].(*model.PaginationInput), fc.Args["filterInput"].(*model.TestSessionFilterInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14216,6 +14235,33 @@ func (ec *executionContext) unmarshalInputTestSessionAnswerInput(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTestSessionFilterInput(ctx context.Context, obj interface{}) (model.TestSessionFilterInput, error) {
+	var it model.TestSessionFilterInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"statuses"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "statuses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("statuses"))
+			data, err := ec.unmarshalOTestSessionStatus2ᚕtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Statuses = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateBatchQuestionsByCollectionInput(ctx context.Context, obj interface{}) (model.UpdateBatchQuestionsByCollectionInput, error) {
 	var it model.UpdateBatchQuestionsByCollectionInput
 	asMap := map[string]interface{}{}
@@ -19527,6 +19573,81 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOTestSessionFilterInput2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionFilterInput(ctx context.Context, v interface{}) (*model.TestSessionFilterInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTestSessionFilterInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTestSessionStatus2ᚕtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionStatusᚄ(ctx context.Context, v interface{}) ([]model.TestSessionStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]model.TestSessionStatus, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTestSessionStatus2templateᚋinternalᚋgraphᚋmodelᚐTestSessionStatus(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOTestSessionStatus2ᚕtemplateᚋinternalᚋgraphᚋmodelᚐTestSessionStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []model.TestSessionStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTestSessionStatus2templateᚋinternalᚋgraphᚋmodelᚐTestSessionStatus(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOUser2ᚖtemplateᚋinternalᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

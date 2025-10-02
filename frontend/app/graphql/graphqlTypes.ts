@@ -506,6 +506,7 @@ export type QueryPaginatedQuestionsArgs = {
 
 
 export type QueryPaginatedTestSessionsArgs = {
+  filterInput?: InputMaybe<TestSessionFilterInput>;
   paginationInput?: InputMaybe<PaginationInput>;
 };
 
@@ -679,6 +680,10 @@ export type TestSession = {
 export type TestSessionAnswerInput = {
   questionId: Scalars['ID']['input'];
   questionOptionIds: Array<Scalars['ID']['input']>;
+};
+
+export type TestSessionFilterInput = {
+  statuses?: InputMaybe<Array<TestSessionStatus>>;
 };
 
 export enum TestSessionStatus {
