@@ -21,7 +21,7 @@ export function QuestionSection() {
     let questionText = question.questionText;
     const isMultipleAnswer = question.correctOptionCount > 1;
     if (isMultipleAnswer) {
-      questionText += `\n\n*(Select ${question.correctOptionCount} options)*`;
+      questionText += `\n*(Select ${question.correctOptionCount} options)*`;
     }
     return questionText;
   }, [question]);

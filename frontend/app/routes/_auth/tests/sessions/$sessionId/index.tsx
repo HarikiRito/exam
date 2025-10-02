@@ -98,9 +98,9 @@ export default function ExamInterface() {
         </main>
 
         {/* Bottom Navigation Skeleton */}
-        <footer className='flex h-[80px] items-center justify-between border-t bg-white px-4'>
-          <AppSkeleton className='h-10 w-24' />
-          <AppSkeleton className='h-10 w-24' />
+        <footer className='flex h-[60px] items-center justify-between border-t bg-white px-4 sm:px-6 lg:px-8'>
+          <AppSkeleton className='h-8 w-20' />
+          <AppSkeleton className='h-8 w-20' />
         </footer>
       </div>
     );
@@ -159,19 +159,20 @@ export default function ExamInterface() {
       </main>
 
       {/* Bottom Navigation Buttons */}
-      <footer className='flex h-[80px] items-center justify-between border-t bg-white px-4 sm:px-6 lg:px-8'>
+      <footer className='flex h-[60px] items-center justify-between border-t bg-white px-4 sm:px-6 lg:px-8'>
         <AppButton
           variant='outline'
+          size='sm'
           onClick={testSessionState.handlePrevious}
           disabled={snapshot.isFirstQuestion}
           aria-label='Previous question'>
-          <ChevronLeft className='mr-2 h-5 w-5' />
+          <ChevronLeft className='mr-1 h-4 w-4' />
           Previous
         </AppButton>
 
-        <AppButton onClick={testSessionState.handleNext} disabled={snapshot.isLastQuestion} aria-label='Next question'>
+        <AppButton size='sm' onClick={testSessionState.handleNext} disabled={snapshot.isLastQuestion} aria-label='Next question'>
           Next
-          <ChevronRight className='ml-2 h-5 w-5' />
+          <ChevronRight className='ml-1 h-4 w-4' />
         </AppButton>
       </footer>
 
