@@ -18,6 +18,11 @@ import { apolloService } from 'app/shared/services/apollo.service';
 import { cn } from 'app/shared/utils/className';
 import { testEditStore } from './testEditStore';
 
+// Maximum number of collections to fetch for search dropdown
+// Set to high value to ensure all collections are available during search
+// Backend handles filtering via search parameter with case-insensitive partial matching
+const MAX_COLLECTION_SEARCH_LIMIT = 1000;
+
 export function TestQuestionCollectionsManager() {
   const { testId } = useParams();
   const testEditState = testEditStore.useStateSnapshot();
@@ -39,7 +44,7 @@ export function TestQuestionCollectionsManager() {
     variables: {
       paginationInput: {
         page: 1,
-        limit: 50,
+        limit: MAX_COLLECTION_SEARCH_LIMIT,
         search: debouncedSearchTerm,
       },
     },
@@ -116,7 +121,7 @@ export function TestQuestionCollectionsManager() {
             </AppButton>
           </AppPopover.Trigger>
           <AppPopover.Content className='w-80 p-0' align='start'>
-            <AppCommand.Root>
+            <AppCommand.Root shouldFilter={false}>
               <AppCommand.Input placeholder='Search collections...' value={searchTerm} onValueChange={setSearchTerm} />
               <AppCommand.List>
                 <AppCommand.Empty>No collections found.</AppCommand.Empty>
