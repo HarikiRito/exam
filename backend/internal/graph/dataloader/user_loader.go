@@ -18,10 +18,7 @@ func getUsers(ctx context.Context, userIDs []uuid.UUID) ([]*model.User, []error)
 			return item.ID == id
 		})
 	}, func(entUser *ent.User) (*model.User, error) {
-		return &model.User{
-			ID:    entUser.ID,
-			Email: entUser.Email,
-		}, nil
+		return model.ConvertUserToModel(entUser), nil
 	})
 
 	return lu.Items, lu.Errors

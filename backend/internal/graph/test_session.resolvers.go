@@ -7,6 +7,7 @@ package graph
 import (
 	"context"
 	"template/internal/features/permission"
+	"template/internal/features/role"
 	"template/internal/features/test_session"
 	"template/internal/graph/dataloader"
 	"template/internal/graph/model"
@@ -113,7 +114,13 @@ func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInp
 		return nil, err
 	}
 
-	result, err := test_session.PaginatedTestSessions(ctx, userId, paginationInput)
+	// Check if user is admin or owner
+	isAdminOrOwner, err := role.IsAdminOrOwner(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := test_session.PaginatedTestSessions(ctx, userId, isAdminOrOwner, paginationInput)
 	if err != nil {
 		return nil, err
 	}
@@ -136,6 +143,14 @@ func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInp
 // Test is the resolver for the test field.
 func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) (*model.Test, error) {
 	return dataloader.GetTest(ctx, obj.TestID)
+}
+
+// User is the resolver for the user field.
+func (r *testSessionResolver) User(ctx context.Context, obj *model.TestSession) (*model.User, error) {
+	if obj.UserID == nil {
+		return nil, nil
+	}
+	return dataloader.GetUser(ctx, *obj.UserID)
 }
 
 // Questions is the resolver for the questions field.

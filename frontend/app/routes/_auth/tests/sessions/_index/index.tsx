@@ -1,5 +1,5 @@
 import { useNavigate } from '@remix-run/react';
-import { CalendarIcon, ClockIcon, TrophyIcon } from 'lucide-react';
+import { CalendarIcon, UserIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -18,9 +18,11 @@ import { AppSkeleton } from 'app/shared/components/ui/skeleton/AppSkeleton';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
 import { apolloService } from 'app/shared/services/apollo.service';
 import dayjs from 'dayjs';
-import { cn } from 'app/shared/utils/className';
+
+import { ScoreRing } from './components/ScoreRing';
 
 type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['items'][number];
+
 export default function TestSessionsIndex() {
   const navigate = useNavigate();
   const [isStartConfirmModalOpen, setIsStartConfirmModalOpen] = useState(false);
@@ -31,7 +33,7 @@ export default function TestSessionsIndex() {
     variables: {
       paginationInput: {
         page: 1,
-        limit: 50, // Display more items since we're using cards
+        limit: 5000, // Display more items since we're using cards
       },
     },
   });
@@ -173,83 +175,91 @@ export default function TestSessionsIndex() {
   }
 
   function _renderTestSessionCard(session: TestSessionEntity) {
-    const canStart = session.status === TestSessionStatus.Pending || session.status === TestSessionStatus.InProgress;
+    const percentage = session.maxPoints > 0 ? Math.round((session.pointsEarned / session.maxPoints) * 100) : 0;
+    const userName = session.user
+      ? `${session.user.firstName || ''} ${session.user.lastName || ''}`.trim() || session.user.username
+      : 'Unknown User';
 
     return (
-      <AppCard.Root key={session.id} className='transition-all hover:shadow-md'>
-        <AppCard.Header>
-          <div className='flex items-start justify-between'>
-            <div className='flex-1'>
-              <AppCard.Title className='text-lg'>
-                {session.test.name} #{session.id.slice(-8)}
-              </AppCard.Title>
-              <AppCard.Description className='mt-1'>Created: {formatDateTime(session.createdAt)}</AppCard.Description>
+      <AppCard.Root key={session.id} className='group overflow-hidden transition-all hover:shadow-lg'>
+        <AppCard.Content className='p-0'>
+          {/* Header Section with Status Badge */}
+          <div className='bg-muted/50 flex items-center justify-between px-4 py-3'>
+            <div className='flex items-center gap-2'>
+              <UserIcon className='text-muted-foreground h-4 w-4' />
+              <span className='text-sm font-semibold'>{userName}</span>
             </div>
             <AppBadge variant={getStatusVariant(session.status)}>{getStatusDisplay(session.status)}</AppBadge>
           </div>
-        </AppCard.Header>
 
-        <AppCard.Content>
-          <div className='space-y-3'>
-            {/* Expiry Time */}
-            <div className='flex items-center gap-2 text-sm'>
-              <CalendarIcon className='text-muted-foreground h-4 w-4' />
-              <span className='text-muted-foreground'>Expires:</span>
-              <span className='font-medium'>{formatDateTime(session.expiredAt)}</span>
+          {/* Main Content */}
+          <div className='p-4'>
+            <div className='mb-4'>
+              <AppTypography.p className='line-clamp-1 text-base font-medium'>{session.test.name}</AppTypography.p>
             </div>
 
-            <div className='flex items-center gap-2 text-sm'>
-              <TrophyIcon className='text-muted-foreground h-4 w-4' />
-              <span className='text-muted-foreground'>Total score:</span>
-              <span className='font-medium'>{session.maxPoints}</span>
+            {/* Score and Date Section */}
+            <div className='mb-4 flex items-center justify-between'>
+              {/* Score Ring - Only show for completed tests */}
+              {session.status === TestSessionStatus.Completed ? (
+                <ScoreRing percentage={percentage} pointsEarned={session.pointsEarned} maxPoints={session.maxPoints} />
+              ) : (
+                <div className='flex items-center gap-2'>
+                  <div className='bg-muted flex h-12 w-12 items-center justify-center rounded-full'>
+                    <span className='text-muted-foreground text-sm font-semibold'>{session.maxPoints}</span>
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-muted-foreground text-xs'>Total Points</span>
+                    <span className='text-sm font-medium'>{session.maxPoints} pts</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Expiry Date */}
+              <div className='flex flex-col items-end'>
+                <span className='text-muted-foreground text-xs'>Expires</span>
+                <div className='flex items-center gap-1'>
+                  <CalendarIcon className='text-muted-foreground h-3 w-3' />
+                  <span className='text-xs font-medium'>{formatDateTime(session.expiredAt)}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Points Earned (if completed) */}
-            {session.status === TestSessionStatus.Completed && (
-              <>
-                <div className='flex items-center gap-2 text-sm'>
-                  <TrophyIcon className='h-4 w-4 text-green-600' />
-                  <span className='text-muted-foreground'>Score:</span>
-                  <span className='font-medium text-green-600'>{session.pointsEarned}</span>
+            {/* Additional Info - Shows on hover */}
+            <div className='mb-4 max-h-0 overflow-hidden opacity-0 transition-all duration-300 group-hover:max-h-40 group-hover:opacity-100'>
+              <div className='border-muted space-y-2 border-t pt-3'>
+                <div className='flex items-center justify-between text-xs'>
+                  <span className='text-muted-foreground'>Created</span>
+                  <span className='font-medium'>{formatDateTime(session.createdAt)}</span>
                 </div>
-                <div className='flex items-center gap-2 text-sm'>
-                  <TrophyIcon className='h-4 w-4 text-green-600' />
-                  <span className='text-muted-foreground'>Percentage:</span>
-                  <span className='font-medium text-green-600'>
-                    {session.maxPoints > 0 ? Math.round((session.pointsEarned / session.maxPoints) * 100) : 0}%
-                  </span>
-                </div>
-              </>
-            )}
-
-            {/* Started At (if started) */}
-            {session.startedAt && (
-              <div className='flex items-center gap-2 text-sm'>
-                <ClockIcon className='text-muted-foreground h-4 w-4' />
-                <span className='text-muted-foreground'>Started:</span>
-                <span className='font-medium'>{formatDateTime(session.startedAt)}</span>
+                {session.startedAt && (
+                  <div className='flex items-center justify-between text-xs'>
+                    <span className='text-muted-foreground'>Started</span>
+                    <span className='font-medium'>{formatDateTime(session.startedAt)}</span>
+                  </div>
+                )}
+                {session.completedAt && (
+                  <div className='flex items-center justify-between text-xs'>
+                    <span className='text-muted-foreground'>Completed</span>
+                    <span className='font-medium'>{formatDateTime(session.completedAt)}</span>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            {/* Completed At (if completed) */}
-            {session.completedAt && (
-              <div className='flex items-center gap-2 text-sm'>
-                <ClockIcon className='h-4 w-4 text-green-600' />
-                <span className='text-muted-foreground'>Completed:</span>
-                <span className='font-medium text-green-600'>{formatDateTime(session.completedAt)}</span>
-              </div>
+            {/* Action Button - Only for Pending and InProgress */}
+            {session.status === TestSessionStatus.Pending && (
+              <AppButton onClick={() => handleSessionAction(session)} className='w-full' size='sm'>
+                Start Test
+              </AppButton>
+            )}
+            {session.status === TestSessionStatus.InProgress && (
+              <AppButton onClick={() => handleSessionAction(session)} className='w-full' size='sm'>
+                Resume Test
+              </AppButton>
             )}
           </div>
         </AppCard.Content>
-
-        <AppCard.Footer>
-          <AppButton
-            onClick={() => handleSessionAction(session)}
-            variant={canStart ? 'default' : 'secondary'}
-            className={cn('w-full', session.status === TestSessionStatus.Completed && 'hidden')}>
-            {_getButtonTextForSessionStatus(session.status)}
-          </AppButton>
-        </AppCard.Footer>
       </AppCard.Root>
     );
   }
@@ -257,20 +267,27 @@ export default function TestSessionsIndex() {
   function _renderSkeletonCards() {
     return Array.from({ length: 6 }).map((_, index) => (
       <AppCard.Root key={index}>
-        <AppCard.Header>
-          <div className='flex items-start justify-between'>
-            <div className='flex-1 space-y-2'>
-              <AppSkeleton className='h-5 w-48' />
-              <AppSkeleton className='h-4 w-32' />
-            </div>
+        <AppCard.Content className='p-0'>
+          <div className='bg-muted/50 flex items-center justify-between px-4 py-3'>
+            <AppSkeleton className='h-4 w-32' />
             <AppSkeleton className='h-6 w-20' />
           </div>
-        </AppCard.Header>
-        <AppCard.Content>
-          <div className='space-y-3'>
+          <div className='space-y-4 p-4'>
             <AppSkeleton className='h-4 w-full' />
-            <AppSkeleton className='h-4 w-3/4' />
-            <AppSkeleton className='h-4 w-1/2' />
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-3'>
+                <AppSkeleton className='h-14 w-14 rounded-full' />
+                <div className='space-y-2'>
+                  <AppSkeleton className='h-3 w-16' />
+                  <AppSkeleton className='h-4 w-20' />
+                </div>
+              </div>
+              <div className='flex flex-col gap-2'>
+                <AppSkeleton className='h-3 w-12' />
+                <AppSkeleton className='h-3 w-24' />
+              </div>
+            </div>
+            <AppSkeleton className='h-9 w-full' />
           </div>
         </AppCard.Content>
       </AppCard.Root>
@@ -285,7 +302,7 @@ export default function TestSessionsIndex() {
           <AppTypography.p className='text-muted-foreground mt-2'>Manage and view all test sessions</AppTypography.p>
         </div>
 
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>{_renderSkeletonCards()}</div>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>{_renderSkeletonCards()}</div>
       </div>
     );
   }
@@ -328,7 +345,7 @@ export default function TestSessionsIndex() {
           </AppCard.Content>
         </AppCard.Root>
       ) : (
-        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
           {testSessions.map(_renderTestSessionCard)}
         </div>
       )}

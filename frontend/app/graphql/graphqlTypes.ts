@@ -672,6 +672,7 @@ export type TestSession = {
   test: Test;
   testId: Scalars['ID']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  user?: Maybe<User>;
   userId?: Maybe<Scalars['ID']['output']>;
 };
 

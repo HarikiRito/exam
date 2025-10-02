@@ -6,3 +6,7 @@ This is a full-stack application with separate backend and frontend codebases.
 
 - **Backend:** See [backend/CLAUDE.md](backend/CLAUDE.md)
 - **Frontend:** See [frontend/CLAUDE.md](frontend/CLAUDE.md)
+
+## Critical
+
+Rule add to every CLAUDE.md must be compact and concise

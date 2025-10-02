@@ -389,6 +389,7 @@ type TestSession {
   test: Test!
   testId: ID!
   updatedAt: DateTime!
+  user: User
   userId: ID
 }
 

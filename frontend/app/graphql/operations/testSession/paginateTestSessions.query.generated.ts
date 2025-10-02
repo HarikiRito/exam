@@ -2,9 +2,11 @@ import type * as Types from '../../graphqlTypes';
 
 import type { PaginationFragment } from '../pagination.fragment.generated';
 import type { TestSessionFragmentFragment } from './testSession.fragment.generated';
+import type { UserFragment } from '../user/user.fragment.generated';
 import { gql } from '@apollo/client/index.js';
 import { PaginationFragmentDoc } from '../pagination.fragment.generated';
 import { TestSessionFragmentFragmentDoc } from './testSession.fragment.generated';
+import { UserFragmentDoc } from '../user/user.fragment.generated';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type PaginateTestSessionsQueryVariables = Types.Exact<{
@@ -38,7 +40,8 @@ export const PaginateTestSessionsDocument = gql`
   }
 }
     ${PaginationFragmentDoc}
-${TestSessionFragmentFragmentDoc}`;
+${TestSessionFragmentFragmentDoc}
+${UserFragmentDoc}`;
 
 /**
  * __usePaginateTestSessionsQuery__

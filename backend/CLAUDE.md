@@ -55,6 +55,15 @@ query.SetNillableName(input.Name).SetNillableTime(input.Time)
 func (r *entityResolver) User(ctx context.Context, obj *model.Entity) (*model.User, error) {
     return dataloader.GetUserByID(ctx, obj.UserID)
 }
+
+// With* edges: select specific fields using typed constants, not strings
+import entRole "template/internal/ent/role"
+
+client.User.Query().
+    WithRoles(func(rq *ent.RoleQuery) {
+        rq.Select(entRole.FieldID, entRole.FieldName) // ✓ typed constants
+    }).
+    Select(user.FieldID)
 ```
 
 ### Slice Operations

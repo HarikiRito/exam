@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"template/internal/ent"
 	"template/internal/ent/db"
+	entRole "template/internal/ent/role"
 	"template/internal/ent/user"
 	permissionFeat "template/internal/features/permission"
 
@@ -72,6 +73,36 @@ func CheckUserPermissions(ctx context.Context, userID uuid.UUID, permissions []p
 	}
 
 	return nil
+}
+
+// IsAdminOrOwner checks if a user has admin or owner role
+func IsAdminOrOwner(ctx context.Context, userID uuid.UUID) (bool, error) {
+	client, err := db.OpenClient()
+	if err != nil {
+		return false, err
+	}
+
+	// Get the user with their roles - select only needed fields
+	userWithRoles, err := client.User.Query().
+		Where(user.IDEQ(userID)).
+		WithRoles(func(rq *ent.RoleQuery) {
+			rq.Select(entRole.FieldID, entRole.FieldName)
+		}).
+		Select(user.FieldID).
+		Only(ctx)
+
+	if err != nil {
+		return false, fmt.Errorf("failed to get user with roles: %w", err)
+	}
+
+	// Check if user has admin or owner role
+	for _, r := range userWithRoles.Edges.Roles {
+		if r.Name == RoleAdmin || r.Name == RoleOwner {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // GetRolesByUserIDs fetches roles for multiple users and returns a map with user ID as key and roles array as value

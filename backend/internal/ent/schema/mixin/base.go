@@ -19,13 +19,19 @@ func (BaseMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(id.NextUUIDv7).Unique(),
 		field.Time("created_at").
-			Default(time.Now().UTC).
+			Default(func() time.Time {
+				return time.Now().UTC()
+			}).
 			SchemaType(map[string]string{
 				dialect.Postgres: "timestamp without time zone",
 			}),
 		field.Time("updated_at").
-			Default(time.Now().UTC).
-			UpdateDefault(time.Now().UTC).
+			Default(func() time.Time {
+				return time.Now().UTC()
+			}).
+			UpdateDefault(func() time.Time {
+				return time.Now().UTC()
+			}).
 			SchemaType(map[string]string{
 				dialect.Postgres: "timestamp without time zone",
 			}),

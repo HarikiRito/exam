@@ -83,7 +83,6 @@ func (r *queryResolver) PaginatedUsers(ctx context.Context, paginationInput *mod
 }
 
 // GetUserByID is the resolver for the getUserById field.
-// Fetches a single user by their unique ID with UserRead permission check.
 func (r *queryResolver) GetUserByID(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	_, err := CheckUserPermissions(ctx, []permission.Permission{
 		permission.UserRead,

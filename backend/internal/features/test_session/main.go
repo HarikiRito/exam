@@ -27,16 +27,22 @@ func GetTestSessionByID(ctx context.Context, sessionID uuid.UUID) (*ent.TestSess
 	return query.Select(selectFields...).Only(ctx)
 }
 
-// PaginatedTestSessions returns a paginated list of test sessions for the authenticated user.
-func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, paginationInput *model.PaginationInput) (*common.PaginatedResult[*ent.TestSession], error) {
+// PaginatedTestSessions returns a paginated list of test sessions.
+// For admin/owner: shows all sessions
+// For regular users: shows only their own sessions
+func PaginatedTestSessions(ctx context.Context, userId uuid.UUID, isAdminOrOwner bool, paginationInput *model.PaginationInput) (*common.PaginatedResult[*ent.TestSession], error) {
 	client, err := db.OpenClient()
 	if err != nil {
 		return nil, err
 	}
 
-	// Build the query with authorization filter
-	query := client.TestSession.Query().
-		Where(testsession.UserID(userId))
+	// Build the query with conditional user filter
+	query := client.TestSession.Query()
+
+	// Only filter by userId if not admin/owner
+	if !isAdminOrOwner {
+		query = query.Where(testsession.UserID(userId))
+	}
 
 	// Extract pagination parameters
 	page := common.DefaultPage

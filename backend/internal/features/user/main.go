@@ -36,7 +36,17 @@ func GetUsersByIDs(ctx context.Context, userIDs []uuid.UUID) ([]*ent.User, error
 		return nil, err
 	}
 
-	return client.User.Query().Where(user.IDIn(userIDs...)).All(ctx)
+	return client.User.Query().
+		Where(user.IDIn(userIDs...)).
+		Select(
+			user.FieldID,
+			user.FieldEmail,
+			user.FieldUsername,
+			user.FieldFirstName,
+			user.FieldLastName,
+			user.FieldIsActive,
+		).
+		All(ctx)
 }
 
 // PaginatedUsers returns a paginated list of users with search functionality for name or email
