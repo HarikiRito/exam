@@ -7,43 +7,29 @@ import { cn } from 'app/shared/utils/className';
 export function QuestionOverviewSheet() {
   const snapshot = testSessionStore.useStateSnapshot();
 
-  // Sort questions: incomplete (unanswered) first, then completed
-  const sortedQuestionsWithIndex = snapshot.questions
-    .map((question, index) => ({
-      question,
-      originalIndex: index,
-      isAnswered:
-        snapshot.selectedAnswers[question.id] &&
-        snapshot.selectedAnswers[question.id]!.size === question.correctOptionCount,
-    }))
-    .sort((a, b) => {
-      // Unanswered questions come first
-      if (!a.isAnswered && b.isAnswered) return -1;
-      if (a.isAnswered && !b.isAnswered) return 1;
-      // Maintain original order within each group
-      return a.originalIndex - b.originalIndex;
-    });
-
   return (
     <div className='flex flex-wrap gap-1'>
-      {sortedQuestionsWithIndex.map(({ question, originalIndex, isAnswered }) => {
-        const isCurrent = originalIndex === snapshot.currentQuestionIndex;
+      {snapshot.questions.map((question, index) => {
+        const isCurrent = index === snapshot.currentQuestionIndex;
         const isFlagged = snapshot.flaggedQuestions.has(question.id);
+        const isAnswered =
+          snapshot.selectedAnswers[question.id] &&
+          snapshot.selectedAnswers[question.id]!.size === question.correctOptionCount;
 
         return (
           <AppButton
             className={cn(
               isCurrent && 'border-blue-500 text-blue-500 hover:text-blue-500',
-              isAnswered && 'bg-blue-500 text-white hover:bg-blue-600',
+              isAnswered && 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white',
               isFlagged && 'border-transparent bg-yellow-500 text-white hover:bg-yellow-500 hover:text-white',
             )}
             key={question.id}
             variant='outline'
             size='icon'
-            onClick={() => testSessionState.handleJumpToQuestion(originalIndex)}
+            onClick={() => testSessionState.handleJumpToQuestion(index)}
             aria-current={isCurrent ? 'page' : undefined}
-            aria-label={`Question ${originalIndex + 1}, ${isAnswered ? 'answered' : 'unanswered'}${isFlagged ? ', flagged' : ''}`}>
-            {originalIndex + 1}
+            aria-label={`Question ${index + 1}, ${isAnswered ? 'answered' : 'unanswered'}${isFlagged ? ', flagged' : ''}`}>
+            {index + 1}
           </AppButton>
         );
       })}

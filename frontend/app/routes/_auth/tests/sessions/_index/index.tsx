@@ -105,6 +105,11 @@ export default function TestSessionsIndex() {
     });
   }
 
+  function handleStartSession(session: TestSessionEntity) {
+    selectedSession.current = session;
+    setIsStartConfirmModalOpen(true);
+  }
+
   function handleDeleteSession(session: TestSessionEntity) {
     selectedSession.current = session;
     setIsDeleteConfirmModalOpen(true);
@@ -214,7 +219,9 @@ export default function TestSessionsIndex() {
   }
 
   function renderTestSessionCard(session: TestSessionEntity) {
-    return <TestSessionCard key={session.id} session={session} onDelete={handleDeleteSession} />;
+    return (
+      <TestSessionCard key={session.id} session={session} onDelete={handleDeleteSession} onStart={handleStartSession} />
+    );
   }
 
   function renderSkeletonCard(index: number) {

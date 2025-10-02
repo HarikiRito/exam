@@ -17,6 +17,7 @@ type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['ite
 interface TestSessionCardProps {
   readonly session: TestSessionEntity;
   readonly onDelete: (session: TestSessionEntity) => void;
+  readonly onStart: (session: TestSessionEntity) => void;
 }
 
 // Convert decimal ratio to percentage
@@ -29,7 +30,7 @@ const PERCENTAGE_MULTIPLIER = 100;
  * - Renders "Resume Test" button for in-progress sessions
  * - Displays session metadata on hover
  */
-export function TestSessionCard({ session, onDelete }: TestSessionCardProps) {
+export function TestSessionCard({ session, onDelete, onStart }: TestSessionCardProps) {
   const navigate = useNavigate();
 
   function _formatDateTime(dateString: string | null | undefined) {
@@ -70,7 +71,11 @@ export function TestSessionCard({ session, onDelete }: TestSessionCardProps) {
     }
   }
 
-  function _handleSessionAction() {
+  function _handleStartTest() {
+    onStart(session);
+  }
+
+  function _handleResumeTest() {
     navigate(`/tests/sessions/${session.id}`);
   }
 
@@ -156,12 +161,12 @@ export function TestSessionCard({ session, onDelete }: TestSessionCardProps) {
 
           {/* Action Button - Only for Pending and InProgress */}
           {session.status === TestSessionStatus.Pending && (
-            <AppButton onClick={_handleSessionAction} className='w-full' size='sm'>
+            <AppButton onClick={_handleStartTest} className='w-full' size='sm'>
               Start Test
             </AppButton>
           )}
           {session.status === TestSessionStatus.InProgress && (
-            <AppButton onClick={_handleSessionAction} className='w-full' size='sm'>
+            <AppButton onClick={_handleResumeTest} className='w-full' size='sm'>
               Resume Test
             </AppButton>
           )}
