@@ -20,7 +20,7 @@ export function QuestionOverviewSheet() {
           <AppButton
             className={cn(
               isCurrent && 'border-blue-500 text-blue-500 hover:text-blue-500',
-              isAnswered && 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white',
+              isAnswered && 'bg-blue-500 text-white hover:bg-blue-600',
               isFlagged && 'border-transparent bg-yellow-500 text-white hover:bg-yellow-500 hover:text-white',
             )}
             key={question.id}

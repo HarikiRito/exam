@@ -152,7 +152,7 @@ export default function ExamInterface() {
 
       {/* Main Content Area */}
       <main className='flex flex-1 flex-col items-center justify-start bg-gray-50 px-4 py-6 sm:px-6 lg:px-8'>
-        <div className='max-w-[400px]'>
+        <div className='max-w-7xl'>
           <QuestionOverviewSheet />
         </div>
         <QuestionSection />

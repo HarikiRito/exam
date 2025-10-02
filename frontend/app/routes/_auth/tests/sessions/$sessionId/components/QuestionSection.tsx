@@ -1,6 +1,5 @@
 import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
-import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppCheckbox } from 'app/shared/components/ui/checkbox/AppCheckbox';
 import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
 import { cn } from 'app/shared/utils/className';
@@ -36,7 +35,7 @@ export function QuestionSection() {
   return (
     <div className='flex h-full w-full flex-col justify-end p-0'>
       <div className='mb-8 flex items-start justify-between'>
-        <AppMarkdown className='text-3xl'>{text}</AppMarkdown>
+        <AppMarkdown className='text-xl'>{text}</AppMarkdown>
         <div className='ml-4 flex flex-shrink-0 gap-2'>
           <AppButton
             variant='ghost'
@@ -61,30 +60,27 @@ export function QuestionSection() {
           </AppButton>
         </div>
       </div>
-      <div className='grid gap-4 md:grid-cols-2'>
+      <div className='grid gap-2 md:grid-cols-2'>
         {question.options.map((option, index) => {
           const isSelected = selectedAnswerByQuestionIdMap[question.id]?.has(option.id);
           return (
-            <AppCard.Root
+            <div
               key={index}
               className={cn(
-                'cursor-pointer transition-all duration-200 hover:border-blue-500 hover:shadow-sm',
-                isSelected && 'border-blue-500 ring-2 ring-blue-500',
+                'bg-card hover:bg-accent/50 flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2.5 transition-all hover:border-blue-400',
+                isSelected && 'border-blue-500 bg-blue-50 ring-1 ring-blue-500',
               )}
               onClick={() => testSessionState.handleSelectAnswer(question, option.id)}>
-              <AppCard.Content className='flex h-full min-h-24 items-center p-4'>
-                <AppCheckbox
-                  id={`option-${question.id}-${index}`}
-                  checked={isSelected}
-                  onCheckedChange={() => testSessionState.handleSelectAnswer(question, option.id)}
-                  className='mr-3'
-                  aria-labelledby={`label-option-${question.id}-${index}`}
-                />
-                <div className='flex-1 cursor-pointer flex-wrap text-base font-medium'>
-                  <AppMarkdown>{option.optionText}</AppMarkdown>
-                </div>
-              </AppCard.Content>
-            </AppCard.Root>
+              <AppCheckbox
+                id={`option-${question.id}-${index}`}
+                checked={isSelected}
+                className='pointer-events-none'
+                aria-labelledby={`label-option-${question.id}-${index}`}
+              />
+              <div className='flex-1 text-sm leading-snug'>
+                <AppMarkdown>{option.optionText}</AppMarkdown>
+              </div>
+            </div>
           );
         })}
       </div>
