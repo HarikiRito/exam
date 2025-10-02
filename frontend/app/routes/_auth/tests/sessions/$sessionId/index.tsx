@@ -57,7 +57,7 @@ export default function ExamInterface() {
 
     items.sort((a, b) => a.order - b.order);
 
-    testSessionState.questions = items.map((item) => item.question);
+    testSessionState.setQuestions(items.map((item) => item.question));
   }, [testSession]);
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import { GetTestSessionQuery } from 'app/graphql/operations/testSession/getTestS
 import { createProxyWithReset } from 'app/shared/utils/valtio';
 import { toast } from 'sonner';
 import { proxySet } from 'valtio/utils';
+import { shuffleArray } from 'app/shared/utils/random';
 
 type QuestionItem = GetTestSessionQuery['testSession']['questions'][number];
 
@@ -15,6 +16,13 @@ export class State {
   timerInterval: NodeJS.Timeout | null = null;
   questions = [] as QuestionItem[];
   timeLeft = 0;
+
+  setQuestions(questions: QuestionItem[]) {
+    this.questions = questions.map((question) => ({
+      ...question,
+      options: shuffleArray(question.options),
+    }));
+  }
 
   get isFirstQuestion() {
     return this.currentQuestionIndex === 0;

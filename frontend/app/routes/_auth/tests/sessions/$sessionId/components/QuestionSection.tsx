@@ -7,7 +7,6 @@ import { cn } from 'app/shared/utils/className';
 import { AlertCircle, Flag, FlagOff } from 'lucide-react';
 import { ReportQuestionDialog } from './ReportQuestionDialog';
 import { useMemo } from 'react';
-import { shuffleArray } from 'app/shared/utils/random';
 
 export function QuestionSection() {
   const snapshot = testSessionStore.useStateSnapshot();
@@ -26,11 +25,6 @@ export function QuestionSection() {
       questionText += `\n\n*(Select ${question.correctOptionCount} options)*`;
     }
     return questionText;
-  }, [question]);
-
-  const shuffledOptions = useMemo(() => {
-    if (!question) return [];
-    return shuffleArray(question.options);
   }, [question]);
 
   if (!question) {
@@ -68,7 +62,7 @@ export function QuestionSection() {
         </div>
       </div>
       <div className='grid gap-4 md:grid-cols-2'>
-        {shuffledOptions.map((option, index) => {
+        {question.options.map((option, index) => {
           const isSelected = selectedAnswerByQuestionIdMap[question.id]?.has(option.id);
           return (
             <AppCard.Root
