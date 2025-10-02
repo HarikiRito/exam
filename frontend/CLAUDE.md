@@ -65,6 +65,7 @@ formState.useResetHook(); // Auto-reset on unmount
 - **Package manager:** pnpm only
 - **Imports:** Absolute with `app/` prefix
 - **Styling:** TailwindCSS only, no custom classes on shared components
+  - **Exception:** Third-party components with inline styles (e.g., `react-syntax-highlighter`) may use `customStyle`/`style` props when Tailwind inheritance is blocked
 - **Forms:** React Hook Form + Zod + `mode: 'onBlur'`
 - **GraphQL:** .gql → codegen → hooks (no try-catch, Apollo handles errors)
 - **State:** `createProxyWithReset` for route-level state, `proxy(new Store())` only for global stores in `app/shared/`

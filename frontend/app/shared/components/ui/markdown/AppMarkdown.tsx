@@ -23,7 +23,13 @@ function CodeBlock({ className, children }: { readonly className?: string; reado
       .map((child) => (typeof child === 'string' ? child : ''))
       .join('');
     return (
-      <SyntaxHighlighter language={language} PreTag='div' className='rounded-md'>
+      <SyntaxHighlighter
+        language={language}
+        PreTag='div'
+        className='rounded-md'
+        customStyle={{
+          fontSize: '0.825rem',
+        }}>
         {codeString.replace(/\n$/, '')}
       </SyntaxHighlighter>
     );
