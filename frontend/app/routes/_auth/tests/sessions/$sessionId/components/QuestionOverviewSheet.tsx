@@ -7,13 +7,27 @@ import { cn } from 'app/shared/utils/className';
 export function QuestionOverviewSheet() {
   const snapshot = testSessionStore.useStateSnapshot();
 
+  // Sort questions: incomplete (unanswered) first, then completed
+  const sortedQuestionsWithIndex = snapshot.questions
+    .map((question, index) => ({
+      question,
+      originalIndex: index,
+      isAnswered:
+        snapshot.selectedAnswers[question.id] &&
+        snapshot.selectedAnswers[question.id]!.size === question.correctOptionCount,
+    }))
+    .sort((a, b) => {
+      // Unanswered questions come first
+      if (!a.isAnswered && b.isAnswered) return -1;
+      if (a.isAnswered && !b.isAnswered) return 1;
+      // Maintain original order within each group
+      return a.originalIndex - b.originalIndex;
+    });
+
   return (
     <div className='flex flex-wrap gap-1'>
-      {snapshot.questions.map((question, index) => {
-        const isAnswered =
-          snapshot.selectedAnswers[question.id] &&
-          snapshot.selectedAnswers[question.id]!.size === question.correctOptionCount;
-        const isCurrent = index === snapshot.currentQuestionIndex;
+      {sortedQuestionsWithIndex.map(({ question, originalIndex, isAnswered }) => {
+        const isCurrent = originalIndex === snapshot.currentQuestionIndex;
         const isFlagged = snapshot.flaggedQuestions.has(question.id);
 
         return (
@@ -26,10 +40,10 @@ export function QuestionOverviewSheet() {
             key={question.id}
             variant='outline'
             size='icon'
-            onClick={() => testSessionState.handleJumpToQuestion(index)}
+            onClick={() => testSessionState.handleJumpToQuestion(originalIndex)}
             aria-current={isCurrent ? 'page' : undefined}
-            aria-label={`Question ${index + 1}, ${isAnswered ? 'answered' : 'unanswered'}${isFlagged ? ', flagged' : ''}`}>
-            {index + 1}
+            aria-label={`Question ${originalIndex + 1}, ${isAnswered ? 'answered' : 'unanswered'}${isFlagged ? ', flagged' : ''}`}>
+            {originalIndex + 1}
           </AppButton>
         );
       })}

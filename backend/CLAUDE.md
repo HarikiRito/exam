@@ -87,7 +87,7 @@ items := slice.Map(result.Items, model.ConvertToModel)
 
 ```go
 func (r *mutationResolver) CreateEntity(ctx context.Context, input model.Input) (*model.Entity, error) {
-    // 1. Check permissions
+    // 1. Check permissions (ONLY in resolver layer)
     _, err := CheckUserPermissions(ctx, []permission.Permission{permission.EntityCreate})
 
     // 2. Delegate to feature
@@ -97,6 +97,11 @@ func (r *mutationResolver) CreateEntity(ctx context.Context, input model.Input) 
     return model.ConvertToModel(entity), nil
 }
 ```
+
+**Authorization Pattern:**
+- **Resolver layer**: Handle all permission checks using `CheckUserPermissions`
+- **Feature layer**: Focus purely on business logic, NO permission checks
+- Only add authorization logic in features if complex ownership scenarios exist beyond simple permission checks
 
 ## Key Rules
 

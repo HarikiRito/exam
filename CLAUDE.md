@@ -9,4 +9,4 @@ This is a full-stack application with separate backend and frontend codebases.
 
 ## Critical
 
-Rule add to every CLAUDE.md must be compact and concise
+**CLAUDE.md Rules:** All rules must be compact and concise - no verbose explanations

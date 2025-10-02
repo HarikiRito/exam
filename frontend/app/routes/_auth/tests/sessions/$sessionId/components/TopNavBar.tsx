@@ -27,7 +27,7 @@ export function TopNavBar() {
   }, []);
 
   return (
-    <header className='flex h-[60px] items-center justify-between border-b bg-white px-4'>
+    <header className='flex h-[60px] items-center justify-between border-b bg-white px-4 sm:px-6 lg:px-8'>
       <span className='invisible' style={{ width }}></span>
       <div className='flex flex-col items-center gap-1 md:flex-row md:gap-4'>
         <div className='text-lg font-semibold tabular-nums' aria-live='polite' aria-atomic='true'>

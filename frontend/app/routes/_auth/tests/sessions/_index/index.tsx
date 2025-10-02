@@ -1,15 +1,18 @@
 import { useNavigate } from '@remix-run/react';
-import { CalendarIcon, UserIcon } from 'lucide-react';
+import { CalendarIcon, Trash2Icon, UserIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import { TestSessionStatus } from 'app/graphql/graphqlTypes';
+import { PermissionEnum, TestSessionStatus } from 'app/graphql/graphqlTypes';
 import {
   PaginateTestSessionsDocument,
   PaginateTestSessionsQuery,
   usePaginateTestSessionsQuery,
 } from 'app/graphql/operations/testSession/paginateTestSessions.query.generated';
+import { useDeleteTestSessionMutation } from 'app/graphql/operations/testSession/deleteTestSession.mutation.generated';
 import { useStartTestSessionMutation } from 'app/graphql/operations/testSession/startTestSession.mutation.generated';
+import { Authorized } from 'app/shared/components/custom/Authorized';
+import { PaginationControls } from 'app/shared/components/custom/PaginationControls';
 import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
@@ -26,14 +29,19 @@ type TestSessionEntity = PaginateTestSessionsQuery['paginatedTestSessions']['ite
 export default function TestSessionsIndex() {
   const navigate = useNavigate();
   const [isStartConfirmModalOpen, setIsStartConfirmModalOpen] = useState(false);
+  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [optimisticDeletedId, setOptimisticDeletedId] = useState<string | null>(null);
 
   const selectedSession = useRef<TestSessionEntity | null>(null);
+
+  const itemsPerPage = 10;
 
   const { data, loading, error } = usePaginateTestSessionsQuery({
     variables: {
       paginationInput: {
-        page: 1,
-        limit: 5000, // Display more items since we're using cards
+        page: currentPage,
+        limit: itemsPerPage,
       },
     },
   });
@@ -50,6 +58,22 @@ export default function TestSessionsIndex() {
     },
     onError: (error) => {
       toast.error(`Failed to start test session: ${error.message}`);
+    },
+  });
+
+  // Delete test session mutation
+  const [deleteTestSession, { loading: deleteLoading }] = useDeleteTestSessionMutation({
+    onCompleted: () => {
+      toast.success('Test session deleted successfully!');
+      setIsDeleteConfirmModalOpen(false);
+      selectedSession.current = null;
+      setOptimisticDeletedId(null);
+      apolloService.invalidateQueries([PaginateTestSessionsDocument]);
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete test session: ${error.message}`);
+      setIsDeleteConfirmModalOpen(false);
+      setOptimisticDeletedId(null);
     },
   });
 
@@ -116,17 +140,22 @@ export default function TestSessionsIndex() {
     });
   }
 
-  function _getButtonTextForSessionStatus(status: TestSessionStatus) {
-    switch (status) {
-      case TestSessionStatus.InProgress:
-        return 'Resume Test';
-      case TestSessionStatus.Pending:
-        return 'Start Test';
-      case TestSessionStatus.Completed:
-        return 'View Results';
-      default:
-        return 'View Session';
-    }
+  function handleDeleteSession(session: TestSessionEntity) {
+    selectedSession.current = session;
+    setIsDeleteConfirmModalOpen(true);
+  }
+
+  function handleConfirmDeleteSession() {
+    if (!selectedSession.current) return;
+
+    const sessionId = selectedSession.current.id;
+
+    // Optimistic UI update - immediately hide the item
+    setOptimisticDeletedId(sessionId);
+
+    deleteTestSession({
+      variables: { id: sessionId },
+    });
   }
 
   function _renderStartConfirmationModal() {
@@ -174,6 +203,35 @@ export default function TestSessionsIndex() {
     );
   }
 
+  function _renderDeleteConfirmationModal() {
+    return (
+      <AppDialog.Root open={isDeleteConfirmModalOpen} onOpenChange={setIsDeleteConfirmModalOpen}>
+        <AppDialog.Content className='sm:max-w-md'>
+          <AppDialog.Header>
+            <AppDialog.Title>Delete Test Session</AppDialog.Title>
+            <AppDialog.Description>
+              This will permanently delete the test session and all associated data. This action cannot be undone.
+            </AppDialog.Description>
+          </AppDialog.Header>
+
+          <AppDialog.Footer>
+            <AppButton
+              variant='outline'
+              onClick={() => {
+                setIsDeleteConfirmModalOpen(false);
+                selectedSession.current = null;
+              }}>
+              Cancel
+            </AppButton>
+            <AppButton onClick={handleConfirmDeleteSession} disabled={deleteLoading} variant='destructive'>
+              {deleteLoading ? 'Deleting...' : 'Delete'}
+            </AppButton>
+          </AppDialog.Footer>
+        </AppDialog.Content>
+      </AppDialog.Root>
+    );
+  }
+
   function _renderTestSessionCard(session: TestSessionEntity) {
     const percentage = session.maxPoints > 0 ? Math.round((session.pointsEarned / session.maxPoints) * 100) : 0;
     const userName = session.user
@@ -189,7 +247,22 @@ export default function TestSessionsIndex() {
               <UserIcon className='text-muted-foreground h-4 w-4' />
               <span className='text-sm font-semibold'>{userName}</span>
             </div>
-            <AppBadge variant={getStatusVariant(session.status)}>{getStatusDisplay(session.status)}</AppBadge>
+            <div className='flex items-center gap-2'>
+              <AppBadge variant={getStatusVariant(session.status)}>{getStatusDisplay(session.status)}</AppBadge>
+              <Authorized permissions={[PermissionEnum.SessionDelete]}>
+                <AppButton
+                  variant='ghost'
+                  size='icon'
+                  className='h-8 w-8'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteSession(session);
+                  }}
+                  aria-label='Delete test session'>
+                  <Trash2Icon className='h-4 w-4' />
+                </AppButton>
+              </Authorized>
+            </div>
           </div>
 
           {/* Main Content */}
@@ -264,8 +337,8 @@ export default function TestSessionsIndex() {
     );
   }
 
-  function _renderSkeletonCards() {
-    return Array.from({ length: 6 }).map((_, index) => (
+  function _renderSkeletonCard(index: number) {
+    return (
       <AppCard.Root key={index}>
         <AppCard.Content className='p-0'>
           <div className='bg-muted/50 flex items-center justify-between px-4 py-3'>
@@ -291,7 +364,11 @@ export default function TestSessionsIndex() {
           </div>
         </AppCard.Content>
       </AppCard.Root>
-    ));
+    );
+  }
+
+  function _renderSkeletonCards() {
+    return Array.from({ length: 6 }).map((_, index) => _renderSkeletonCard(index));
   }
 
   if (loading) {
@@ -322,20 +399,17 @@ export default function TestSessionsIndex() {
     );
   }
 
-  const testSessions = data?.paginatedTestSessions.items || [];
-  const totalItems = data?.paginatedTestSessions.pagination.totalItems || 0;
+  const allSessions = data?.paginatedTestSessions.items || [];
+  const pagination = data?.paginatedTestSessions.pagination;
+  const totalItems = pagination?.totalItems || 0;
+
+  // Filter out optimistically deleted item
+  const testSessions = allSessions.filter((session) => session.id !== optimisticDeletedId);
 
   return (
     <div className='container mx-auto py-6'>
-      <div className='mb-6 flex items-center justify-between'>
-        <div>
-          <AppTypography.h1>Test Sessions</AppTypography.h1>
-          <AppTypography.p className='text-muted-foreground mt-2'>
-            {totalItems === 0
-              ? 'No test sessions found'
-              : `Showing ${testSessions.length} of ${totalItems} test sessions`}
-          </AppTypography.p>
-        </div>
+      <div className='mb-6'>
+        <AppTypography.h1>Test Sessions</AppTypography.h1>
       </div>
 
       {testSessions.length === 0 ? (
@@ -345,12 +419,31 @@ export default function TestSessionsIndex() {
           </AppCard.Content>
         </AppCard.Root>
       ) : (
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
-          {testSessions.map(_renderTestSessionCard)}
+        <div className='relative'>
+          {loading && (
+            <div className='absolute inset-0 z-10 flex items-center justify-center bg-white/80'>
+              <div className='flex flex-col items-center gap-2'>
+                <div className='border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent' />
+                <AppTypography.p className='muted-foreground text-sm'>Loading...</AppTypography.p>
+              </div>
+            </div>
+          )}
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+            {testSessions.map(_renderTestSessionCard)}
+          </div>
+          {pagination && (
+            <PaginationControls
+              pagination={pagination}
+              onPageChange={setCurrentPage}
+              totalItems={totalItems}
+              currentItemsCount={allSessions.length}
+            />
+          )}
         </div>
       )}
 
       {_renderStartConfirmationModal()}
+      {_renderDeleteConfirmationModal()}
     </div>
   );
 }

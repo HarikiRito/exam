@@ -151,7 +151,7 @@ export default function ExamInterface() {
       <TopNavBar />
 
       {/* Main Content Area */}
-      <main className='flex flex-1 flex-col items-center justify-start bg-gray-50 px-4 py-6 md:px-6 lg:px-8'>
+      <main className='flex flex-1 flex-col items-center justify-start bg-gray-50 px-4 py-6 sm:px-6 lg:px-8'>
         <div className='max-w-[400px]'>
           <QuestionOverviewSheet />
         </div>
@@ -159,7 +159,7 @@ export default function ExamInterface() {
       </main>
 
       {/* Bottom Navigation Buttons */}
-      <footer className='flex h-[80px] items-center justify-between border-t bg-white px-4 md:px-6 lg:px-8'>
+      <footer className='flex h-[80px] items-center justify-between border-t bg-white px-4 sm:px-6 lg:px-8'>
         <AppButton
           variant='outline'
           onClick={testSessionState.handlePrevious}
