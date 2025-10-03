@@ -24,4 +24,5 @@ export const APP_ROUTES = {
   adminUsers: '/admin/users',
   adminUserEdit: (userId: string) => `/admin/users/${userId}/edit`,
   testSessions: '/tests/sessions',
+  testSessionResult: (sessionId: string) => `/tests/sessions/${sessionId}/result`,
 };

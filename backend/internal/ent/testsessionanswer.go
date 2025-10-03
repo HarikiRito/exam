@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"template/internal/ent/question"
@@ -36,6 +37,8 @@ type TestSessionAnswer struct {
 	Order int `json:"order,omitempty"`
 	// IsCorrect holds the value of the "is_correct" field.
 	IsCorrect *bool `json:"is_correct,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TestSessionAnswerQuery when eager-loading is set.
 	Edges        TestSessionAnswerEdges `json:"edges"`
@@ -80,6 +83,8 @@ func (*TestSessionAnswer) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case testsessionanswer.FieldMetadata:
+			values[i] = new([]byte)
 		case testsessionanswer.FieldIsCorrect:
 			values[i] = new(sql.NullBool)
 		case testsessionanswer.FieldPoints, testsessionanswer.FieldOrder:
@@ -160,6 +165,14 @@ func (tsa *TestSessionAnswer) assignValues(columns []string, values []any) error
 				tsa.IsCorrect = new(bool)
 				*tsa.IsCorrect = value.Bool
 			}
+		case testsessionanswer.FieldMetadata:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field metadata", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &tsa.Metadata); err != nil {
+					return fmt.Errorf("unmarshal field metadata: %w", err)
+				}
+			}
 		default:
 			tsa.selectValues.Set(columns[i], values[i])
 		}
@@ -235,6 +248,9 @@ func (tsa *TestSessionAnswer) String() string {
 		builder.WriteString("is_correct=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("metadata=")
+	builder.WriteString(fmt.Sprintf("%v", tsa.Metadata))
 	builder.WriteByte(')')
 	return builder.String()
 }

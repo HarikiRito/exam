@@ -70,12 +70,12 @@ export function CollectionEditAndCreatePage({ mode }: CollectionEditAndCreatePag
           id: question.id,
           questionText: question.questionText,
           points: question.points,
-          options: question.options.map((option) => ({
+          options: (question.options ?? []).map((option) => ({
             optionText: option.optionText,
             isCorrect: option.isCorrect,
           })),
           allowMultipleCorrect: isMoreThanOrEqual({
-            list: question.options,
+            list: question.options ?? [],
             condition: (o) => o.isCorrect,
             num: 2,
           }),

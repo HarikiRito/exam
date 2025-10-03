@@ -30,4 +30,5 @@ export const PERMISSION_ROUTE: Record<keyof typeof APP_ROUTES, PermissionEnum[]>
   adminUsers: [PermissionEnum.UserRead],
   adminUserEdit: [PermissionEnum.UserCreate],
   testSessions: [PermissionEnum.SessionRead],
+  testSessionResult: [PermissionEnum.SessionRead],
 };

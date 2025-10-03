@@ -3,6 +3,7 @@
 ## Architecture
 
 - `app/routes/` - File-based routing (flat routes)
+  - Use `_index` folder for parent routes with child routes (e.g., `$sessionId/_index/` allows `$sessionId/result/`)
 - `app/shared/` - Reusable code (components, hooks, stores, services)
 - `app/graphql/` - GraphQL operations & generated types
 
@@ -41,8 +42,11 @@ const form = useForm({ resolver: zodResolver(schema), mode: 'onBlur' });
 
 ### GraphQL
 ```typescript
-// 1. Create .query.gql → 2. pnpm run graphql:codegen → 3. Use hooks
-const [mutation, { loading }] = useMutation({ onCompleted, onError });
+// 1. Create .query.gql → 2. pnpm run graphql:codegen → 3. Use generated hooks
+import { useGetTestQuery } from 'app/graphql/operations/test/getTest.query.generated';
+
+const { data, loading, error } = useGetTestQuery({ variables: { id } });
+const [mutation, { loading }] = useCreateTestMutation({ onCompleted, onError });
 ```
 
 ### State
@@ -50,12 +54,15 @@ const [mutation, { loading }] = useMutation({ onCompleted, onError });
 // Valtio - use createProxyWithReset for route-level state
 import { createProxyWithReset } from 'app/shared/utils/valtio';
 
-class FormState { count = 0; }
-export const formState = createProxyWithReset(new FormState());
+export const formStore = createProxyWithReset(
+  new (class FormState {
+    count = 0;
+  })()
+);
 
-// Usage
-const snap = formState.useStateSnapshot();
-formState.useResetHook(); // Auto-reset on unmount
+// Usage - use store's useStateSnapshot() method
+const snap = formStore.useStateSnapshot();
+formStore.useResetHook(); // Auto-reset on unmount
 
 // Only use proxy(new Store()) for global stores in app/shared/
 ```
@@ -67,11 +74,14 @@ formState.useResetHook(); // Auto-reset on unmount
 - **Styling:** TailwindCSS only, no custom classes on shared components
   - **Exception:** Third-party components with inline styles (e.g., `react-syntax-highlighter`) may use `customStyle`/`style` props when Tailwind inheritance is blocked
 - **Forms:** React Hook Form + Zod + `mode: 'onBlur'`
-- **GraphQL:** .gql → codegen → hooks (no try-catch, Apollo handles errors)
+- **GraphQL:** .gql → codegen → use generated hooks (no try-catch, no direct Apollo imports)
 - **State:** `createProxyWithReset` for route-level state, `proxy(new Store())` only for global stores in `app/shared/`
 - **SSR/Loaders:** FORBIDDEN (SPA mode)
 - **Icons:** lucide-react only
 - **Control flow:** Early returns over nested if-else
 - **Magic numbers:** Extract to named constants with comments
 - **Arrays:** `Array.from()` / spread over imperative loops
-- **Components:** Check existing before creating
+- **Components:** ALWAYS check `app/shared/components/ui/` for existing components before creating new ones
+  - Use `AppTypography` for text elements (h1-h4, p, muted, small, large, lead, etc.) instead of plain HTML
+  - All shared UI components use `App` prefix (AppCard, AppButton, AppTypography, etc.)
+- **Linting:** ALWAYS run `pnpm run ci:lint` after code changes to auto-fix ESLint/Prettier issues

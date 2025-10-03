@@ -15,10 +15,10 @@ export type GetQuestionQueryVariables = Types.Exact<{
 
 
 export type GetQuestionQuery = { __typename?: 'Query', question: (
-    { __typename?: 'Question', options: Array<(
+    { __typename?: 'Question', options?: Array<(
       { __typename?: 'QuestionOption' }
       & QuestionOptionItemFragment
-    )>, collection?: (
+    )> | null, collection?: (
       { __typename?: 'QuestionCollection' }
       & QuestionCollectionItemFragment
     ) | null }

@@ -278,6 +278,7 @@ type Query {
   questions(ids: [ID!]!): [Question!]!
   test(id: ID!): Test!
   testSession(id: ID!): TestSession!
+  testSessionResult(id: ID!): TestSessionResult!
   todos: [Todo!]!
 }
 
@@ -285,7 +286,7 @@ type Question {
   collection: QuestionCollection
   correctOptionCount: Int!
   id: ID!
-  options: [QuestionOption!]!
+  options: [QuestionOption!]
   points: Int!
   questionText: String!
 }
@@ -332,6 +333,12 @@ input QuestionPointsInput {
   questionId: ID!
 }
 
+type QuestionResult {
+  isCorrect: Boolean!
+  question: Question!
+  selectedOptions: [SelectedOption!]
+}
+
 input RegisterInput {
   email: String!
   password: String!
@@ -340,6 +347,10 @@ input RegisterInput {
 type Role {
   id: ID!
   name: String!
+}
+
+type SelectedOption {
+  optionText: String!
 }
 
 input StartTestSessionInput {
@@ -400,6 +411,12 @@ input TestSessionAnswerInput {
 
 input TestSessionFilterInput {
   statuses: [TestSessionStatus!]
+}
+
+type TestSessionResult {
+  id: ID!
+  questions: [QuestionResult!]!
+  testSession: TestSession!
 }
 
 enum TestSessionStatus {

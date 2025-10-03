@@ -16,10 +16,10 @@ export type GetTestQueryVariables = Types.Exact<{
 
 export type GetTestQuery = { __typename?: 'Query', test: (
     { __typename?: 'Test', questionCollections: Array<{ __typename?: 'QuestionCollection', id: string, title: string, description?: string | null, questions: Array<(
-        { __typename?: 'Question', options: Array<(
+        { __typename?: 'Question', options?: Array<(
           { __typename?: 'QuestionOption' }
           & QuestionOptionItemFragment
-        )> }
+        )> | null }
         & QuestionItemFragment
       )> }>, testQuestionCounts: Array<{ __typename?: 'TestQuestionCount', id: string, numberOfQuestions: number, points: number, testId: string }>, testIgnoreQuestions: Array<{ __typename?: 'TestIgnoreQuestion', id: string, questionId: string, reason?: string | null, testId: string, question?: (
         { __typename?: 'Question' }

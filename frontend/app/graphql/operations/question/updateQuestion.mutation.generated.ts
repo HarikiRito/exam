@@ -16,10 +16,10 @@ export type UpdateQuestionMutationVariables = Types.Exact<{
 
 
 export type UpdateQuestionMutation = { __typename?: 'Mutation', updateQuestion: (
-    { __typename?: 'Question', options: Array<(
+    { __typename?: 'Question', options?: Array<(
       { __typename?: 'QuestionOption' }
       & QuestionOptionItemFragment
-    )>, collection?: (
+    )> | null, collection?: (
       { __typename?: 'QuestionCollection' }
       & QuestionCollectionItemFragment
     ) | null }

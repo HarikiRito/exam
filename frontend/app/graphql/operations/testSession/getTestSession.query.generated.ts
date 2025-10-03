@@ -18,7 +18,7 @@ export type GetTestSessionQuery = { __typename?: 'Query', testSession: (
     { __typename?: 'TestSession', orderedQuestions: Array<{ __typename?: 'QuestionOrder', questionId: string, order: number }>, test: (
       { __typename?: 'Test' }
       & TestFragmentFragment
-    ), questions: Array<{ __typename?: 'Question', id: string, questionText: string, correctOptionCount: number, options: Array<{ __typename?: 'QuestionOption', id: string, optionText: string }> }> }
+    ), questions: Array<{ __typename?: 'Question', id: string, questionText: string, correctOptionCount: number, options?: Array<{ __typename?: 'QuestionOption', id: string, optionText: string }> | null }> }
     & TestSessionFragmentFragment
   ) };
 

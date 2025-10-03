@@ -124,7 +124,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
         questionText: question.questionText,
         questionCollectionId: question.collection?.id || '',
         points: question.points,
-        options: question.options.map((option) => ({
+        options: (question.options ?? []).map((option) => ({
           id: option.id,
           optionText: option.optionText,
           isCorrect: option.isCorrect,
@@ -134,7 +134,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
       form.reset(formData);
       mutation.questionText = question.questionText;
       mutation.questionCollectionId = question.collection?.id || '';
-      mutation.options = question.options.map((option) => ({
+      mutation.options = (question.options ?? []).map((option) => ({
         optionText: option.optionText,
         isCorrect: option.isCorrect,
       }));
@@ -147,7 +147,7 @@ export function QuestionEditAndCreatePage({ mode }: QuestionEditAndCreatePagePro
     if (!questionData?.question) return;
 
     let count = 0;
-    for (const option of questionData.question.options) {
+    for (const option of questionData.question.options ?? []) {
       if (option.isCorrect) {
         count++;
       }

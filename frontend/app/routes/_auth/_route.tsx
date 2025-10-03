@@ -16,7 +16,9 @@ export default function Page() {
     return <Navigate to={APP_ROUTES.login} />;
   }
 
-  if (location.pathname.startsWith('/tests/sessions/')) {
+  // UUID v7 pattern to match only session ID routes, not result pages
+  const sessionIdPattern = /^\/tests\/sessions\/[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (sessionIdPattern.test(location.pathname)) {
     return <Outlet />;
   }
 

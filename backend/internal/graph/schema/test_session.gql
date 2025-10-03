@@ -8,6 +8,7 @@ extend type Mutation {
 extend type Query {
   testSession(id: ID!): TestSession!
   paginatedTestSessions(paginationInput: PaginationInput, filterInput: TestSessionFilterInput): PaginatedTestSession!
+  testSessionResult(id: ID!): TestSessionResult!
 }
 
 enum TestSessionStatus {
@@ -73,4 +74,20 @@ input StartTestSessionInput {
 
 input TestSessionFilterInput {
   statuses: [TestSessionStatus!]
+}
+
+type TestSessionResult {
+  id: ID!
+  testSession: TestSession!
+  questions: [QuestionResult!]!
+}
+
+type QuestionResult {
+  question: Question!
+  isCorrect: Boolean!
+  selectedOptions: [SelectedOption!]
+}
+
+type SelectedOption {
+  optionText: String!
 } 

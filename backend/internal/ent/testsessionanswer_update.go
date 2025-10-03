@@ -167,6 +167,18 @@ func (tsau *TestSessionAnswerUpdate) ClearIsCorrect() *TestSessionAnswerUpdate {
 	return tsau
 }
 
+// SetMetadata sets the "metadata" field.
+func (tsau *TestSessionAnswerUpdate) SetMetadata(m map[string]interface{}) *TestSessionAnswerUpdate {
+	tsau.mutation.SetMetadata(m)
+	return tsau
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (tsau *TestSessionAnswerUpdate) ClearMetadata() *TestSessionAnswerUpdate {
+	tsau.mutation.ClearMetadata()
+	return tsau
+}
+
 // SetQuestion sets the "question" edge to the Question entity.
 func (tsau *TestSessionAnswerUpdate) SetQuestion(q *Question) *TestSessionAnswerUpdate {
 	return tsau.SetQuestionID(q.ID)
@@ -302,6 +314,12 @@ func (tsau *TestSessionAnswerUpdate) sqlSave(ctx context.Context) (n int, err er
 	}
 	if tsau.mutation.IsCorrectCleared() {
 		_spec.ClearField(testsessionanswer.FieldIsCorrect, field.TypeBool)
+	}
+	if value, ok := tsau.mutation.Metadata(); ok {
+		_spec.SetField(testsessionanswer.FieldMetadata, field.TypeJSON, value)
+	}
+	if tsau.mutation.MetadataCleared() {
+		_spec.ClearField(testsessionanswer.FieldMetadata, field.TypeJSON)
 	}
 	if tsau.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -517,6 +535,18 @@ func (tsauo *TestSessionAnswerUpdateOne) ClearIsCorrect() *TestSessionAnswerUpda
 	return tsauo
 }
 
+// SetMetadata sets the "metadata" field.
+func (tsauo *TestSessionAnswerUpdateOne) SetMetadata(m map[string]interface{}) *TestSessionAnswerUpdateOne {
+	tsauo.mutation.SetMetadata(m)
+	return tsauo
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (tsauo *TestSessionAnswerUpdateOne) ClearMetadata() *TestSessionAnswerUpdateOne {
+	tsauo.mutation.ClearMetadata()
+	return tsauo
+}
+
 // SetQuestion sets the "question" edge to the Question entity.
 func (tsauo *TestSessionAnswerUpdateOne) SetQuestion(q *Question) *TestSessionAnswerUpdateOne {
 	return tsauo.SetQuestionID(q.ID)
@@ -682,6 +712,12 @@ func (tsauo *TestSessionAnswerUpdateOne) sqlSave(ctx context.Context) (_node *Te
 	}
 	if tsauo.mutation.IsCorrectCleared() {
 		_spec.ClearField(testsessionanswer.FieldIsCorrect, field.TypeBool)
+	}
+	if value, ok := tsauo.mutation.Metadata(); ok {
+		_spec.SetField(testsessionanswer.FieldMetadata, field.TypeJSON, value)
+	}
+	if tsauo.mutation.MetadataCleared() {
+		_spec.ClearField(testsessionanswer.FieldMetadata, field.TypeJSON)
 	}
 	if tsauo.mutation.QuestionCleared() {
 		edge := &sqlgraph.EdgeSpec{

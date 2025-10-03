@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 	"template/internal/features/permission"
 	"template/internal/features/role"
 	"template/internal/features/test_session"
@@ -140,6 +141,39 @@ func (r *queryResolver) PaginatedTestSessions(ctx context.Context, paginationInp
 	}, nil
 }
 
+// TestSessionResult is the resolver for the testSessionResult field.
+func (r *queryResolver) TestSessionResult(ctx context.Context, id uuid.UUID) (*model.TestSessionResult, error) {
+	userID, err := CheckUserPermissions(ctx, []permission.Permission{
+		permission.SessionRead,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if user is admin or owner
+	isAdminOrOwner, err := role.IsAdminOrOwner(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get test session result
+	result, err := test_session.GetTestSessionResult(ctx, userID, id, isAdminOrOwner)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// Question is the resolver for the question field.
+func (r *questionResultResolver) Question(ctx context.Context, obj *model.QuestionResult) (*model.Question, error) {
+	// Get questionID from the QuestionResult (stored during GetTestSessionResult)
+	if obj.Question != nil && obj.Question.ID != uuid.Nil {
+		return dataloader.GetQuestion(ctx, obj.Question.ID)
+	}
+	return nil, fmt.Errorf("question ID not found in QuestionResult")
+}
+
 // Test is the resolver for the test field.
 func (r *testSessionResolver) Test(ctx context.Context, obj *model.TestSession) (*model.Test, error) {
 	return dataloader.GetTest(ctx, obj.TestID)
@@ -163,7 +197,11 @@ func (r *testSessionResolver) OrderedQuestions(ctx context.Context, obj *model.T
 	return dataloader.GetOrderedQuestionsBySessionID(ctx, obj.ID)
 }
 
+// QuestionResult returns QuestionResultResolver implementation.
+func (r *Resolver) QuestionResult() QuestionResultResolver { return &questionResultResolver{r} }
+
 // TestSession returns TestSessionResolver implementation.
 func (r *Resolver) TestSession() TestSessionResolver { return &testSessionResolver{r} }
 
+type questionResultResolver struct{ *Resolver }
 type testSessionResolver struct{ *Resolver }

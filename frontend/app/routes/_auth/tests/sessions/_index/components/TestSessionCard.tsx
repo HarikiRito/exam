@@ -9,6 +9,7 @@ import { AppBadge } from 'app/shared/components/ui/badge/AppBadge';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppTypography } from 'app/shared/components/ui/typography/AppTypography';
+import { APP_ROUTES } from 'app/shared/constants/routes';
 
 import { ScoreRing } from './ScoreRing';
 
@@ -77,6 +78,10 @@ export function TestSessionCard({ session, onDelete, onStart }: TestSessionCardP
 
   function _handleResumeTest() {
     navigate(`/tests/sessions/${session.id}`);
+  }
+
+  function _handleViewResult() {
+    navigate(APP_ROUTES.testSessionResult(session.id));
   }
 
   const percentage =
@@ -159,7 +164,7 @@ export function TestSessionCard({ session, onDelete, onStart }: TestSessionCardP
             </div>
           </div>
 
-          {/* Action Button - Only for Pending and InProgress */}
+          {/* Action Button - Only for Pending, InProgress, and Completed */}
           {session.status === TestSessionStatus.Pending && (
             <AppButton onClick={_handleStartTest} className='w-full' size='sm'>
               Start Test
@@ -168,6 +173,11 @@ export function TestSessionCard({ session, onDelete, onStart }: TestSessionCardP
           {session.status === TestSessionStatus.InProgress && (
             <AppButton onClick={_handleResumeTest} className='w-full' size='sm'>
               Resume Test
+            </AppButton>
+          )}
+          {session.status === TestSessionStatus.Completed && (
+            <AppButton onClick={_handleViewResult} className='w-full' size='sm' variant='outline'>
+              View Result
             </AppButton>
           )}
         </div>

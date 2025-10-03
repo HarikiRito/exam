@@ -23,6 +23,7 @@ func (TestSessionAnswer) Fields() []ent.Field {
 		field.Int("points").Optional().Nillable(),
 		field.Int("order").Default(1).Positive(),
 		field.Bool("is_correct").Optional().Nillable(),
+		field.JSON("metadata", map[string]interface{}{}).Optional(),
 	}
 }
 

@@ -12636,6 +12636,7 @@ type TestSessionAnswerMutation struct {
 	_order              *int
 	add_order           *int
 	is_correct          *bool
+	metadata            *map[string]interface{}
 	clearedFields       map[string]struct{}
 	question            *uuid.UUID
 	clearedquestion     bool
@@ -13118,6 +13119,55 @@ func (m *TestSessionAnswerMutation) ResetIsCorrect() {
 	delete(m.clearedFields, testsessionanswer.FieldIsCorrect)
 }
 
+// SetMetadata sets the "metadata" field.
+func (m *TestSessionAnswerMutation) SetMetadata(value map[string]interface{}) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *TestSessionAnswerMutation) Metadata() (r map[string]interface{}, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the TestSessionAnswer entity.
+// If the TestSessionAnswer object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TestSessionAnswerMutation) OldMetadata(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *TestSessionAnswerMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[testsessionanswer.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *TestSessionAnswerMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[testsessionanswer.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *TestSessionAnswerMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, testsessionanswer.FieldMetadata)
+}
+
 // ClearQuestion clears the "question" edge to the Question entity.
 func (m *TestSessionAnswerMutation) ClearQuestion() {
 	m.clearedquestion = true
@@ -13219,7 +13269,7 @@ func (m *TestSessionAnswerMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TestSessionAnswerMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, testsessionanswer.FieldCreatedAt)
 	}
@@ -13243,6 +13293,9 @@ func (m *TestSessionAnswerMutation) Fields() []string {
 	}
 	if m.is_correct != nil {
 		fields = append(fields, testsessionanswer.FieldIsCorrect)
+	}
+	if m.metadata != nil {
+		fields = append(fields, testsessionanswer.FieldMetadata)
 	}
 	return fields
 }
@@ -13268,6 +13321,8 @@ func (m *TestSessionAnswerMutation) Field(name string) (ent.Value, bool) {
 		return m.Order()
 	case testsessionanswer.FieldIsCorrect:
 		return m.IsCorrect()
+	case testsessionanswer.FieldMetadata:
+		return m.Metadata()
 	}
 	return nil, false
 }
@@ -13293,6 +13348,8 @@ func (m *TestSessionAnswerMutation) OldField(ctx context.Context, name string) (
 		return m.OldOrder(ctx)
 	case testsessionanswer.FieldIsCorrect:
 		return m.OldIsCorrect(ctx)
+	case testsessionanswer.FieldMetadata:
+		return m.OldMetadata(ctx)
 	}
 	return nil, fmt.Errorf("unknown TestSessionAnswer field %s", name)
 }
@@ -13357,6 +13414,13 @@ func (m *TestSessionAnswerMutation) SetField(name string, value ent.Value) error
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsCorrect(v)
+		return nil
+	case testsessionanswer.FieldMetadata:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TestSessionAnswer field %s", name)
@@ -13424,6 +13488,9 @@ func (m *TestSessionAnswerMutation) ClearedFields() []string {
 	if m.FieldCleared(testsessionanswer.FieldIsCorrect) {
 		fields = append(fields, testsessionanswer.FieldIsCorrect)
 	}
+	if m.FieldCleared(testsessionanswer.FieldMetadata) {
+		fields = append(fields, testsessionanswer.FieldMetadata)
+	}
 	return fields
 }
 
@@ -13446,6 +13513,9 @@ func (m *TestSessionAnswerMutation) ClearField(name string) error {
 		return nil
 	case testsessionanswer.FieldIsCorrect:
 		m.ClearIsCorrect()
+		return nil
+	case testsessionanswer.FieldMetadata:
+		m.ClearMetadata()
 		return nil
 	}
 	return fmt.Errorf("unknown TestSessionAnswer nullable field %s", name)
@@ -13478,6 +13548,9 @@ func (m *TestSessionAnswerMutation) ResetField(name string) error {
 		return nil
 	case testsessionanswer.FieldIsCorrect:
 		m.ResetIsCorrect()
+		return nil
+	case testsessionanswer.FieldMetadata:
+		m.ResetMetadata()
 		return nil
 	}
 	return fmt.Errorf("unknown TestSessionAnswer field %s", name)

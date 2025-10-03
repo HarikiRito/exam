@@ -376,6 +376,16 @@ func IsCorrectNotNil() predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldIsCorrect))
 }
 
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.TestSessionAnswer {
+	return predicate.TestSessionAnswer(sql.FieldNotNull(FieldMetadata))
+}
+
 // HasQuestion applies the HasEdge predicate on the "question" edge.
 func HasQuestion() predicate.TestSessionAnswer {
 	return predicate.TestSessionAnswer(func(s *sql.Selector) {

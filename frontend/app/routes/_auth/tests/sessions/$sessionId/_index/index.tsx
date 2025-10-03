@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from '@remix-run/react';
 import { TestSessionStatus } from 'app/graphql/graphqlTypes';
 import { useGetTestSessionQuery } from 'app/graphql/operations/testSession/getTestSession.query.generated';
-import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
+import { testSessionState, testSessionStore } from './state';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCard } from 'app/shared/components/ui/card/AppCard';
 import { AppSkeleton } from 'app/shared/components/ui/skeleton/AppSkeleton';
@@ -170,7 +170,11 @@ export default function ExamInterface() {
           Previous
         </AppButton>
 
-        <AppButton size='sm' onClick={testSessionState.handleNext} disabled={snapshot.isLastQuestion} aria-label='Next question'>
+        <AppButton
+          size='sm'
+          onClick={testSessionState.handleNext}
+          disabled={snapshot.isLastQuestion}
+          aria-label='Next question'>
           Next
           <ChevronRight className='ml-1 h-4 w-4' />
         </AppButton>

@@ -185,6 +185,12 @@ type QuestionPointsInput struct {
 	Points     int       `json:"points"`
 }
 
+type QuestionResult struct {
+	Question        *Question         `json:"question"`
+	IsCorrect       bool              `json:"isCorrect"`
+	SelectedOptions []*SelectedOption `json:"selectedOptions,omitempty"`
+}
+
 type RegisterInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -193,6 +199,10 @@ type RegisterInput struct {
 type Role struct {
 	ID   uuid.UUID `json:"id"`
 	Name string    `json:"name"`
+}
+
+type SelectedOption struct {
+	OptionText string `json:"optionText"`
 }
 
 type StartTestSessionInput struct {
@@ -226,6 +236,12 @@ type TestSessionAnswerInput struct {
 
 type TestSessionFilterInput struct {
 	Statuses []TestSessionStatus `json:"statuses,omitempty"`
+}
+
+type TestSessionResult struct {
+	ID          uuid.UUID         `json:"id"`
+	TestSession *TestSession      `json:"testSession"`
+	Questions   []*QuestionResult `json:"questions"`
 }
 
 type Todo struct {

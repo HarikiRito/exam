@@ -5,15 +5,21 @@ import (
 	"fmt"
 	"template/internal/ent"
 	"template/internal/ent/db"
-	"template/internal/ent/question"
-	"template/internal/ent/testsession"
-	"template/internal/ent/testsessionanswer"
+	entQuestion "template/internal/ent/question"
+	entQuestionOption "template/internal/ent/questionoption"
+	entTestSession "template/internal/ent/testsession"
+	entTestSessionAnswer "template/internal/ent/testsessionanswer"
 	"template/internal/graph/model"
 	"template/internal/shared/utilities/slice"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+// AnswerMetadata represents the structured metadata stored in test_session_answers
+type AnswerMetadata struct {
+	SelectedOptions []string `json:"selected_options"`
+}
 
 // SubmitTestSession submits a test session with answers and calculates the score
 func SubmitTestSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, input model.SubmitTestSessionInput) (*ent.TestSession, error) {
@@ -24,14 +30,13 @@ func SubmitTestSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 
 	// Get the session and verify access
 	session, err := tx.TestSession.Query().
-		Where(testsession.ID(sessionID),
-			testsession.UserID(userID),
-			testsession.StatusEQ(testsession.StatusInProgress),
-			// testsession.ExpiredAtGTE(time.Now()),
+		Where(entTestSession.ID(sessionID),
+			entTestSession.UserID(userID),
+			entTestSession.StatusEQ(entTestSession.StatusInProgress),
 		).
 		Only(ctx)
 	if err != nil {
-		return nil, db.Rollback(tx, fmt.Errorf("test session not found not submit is not allowed: %w", err))
+		return nil, db.Rollback(tx, fmt.Errorf("test session not found or submit is not allowed: %w", err))
 	}
 
 	totalPoints, err := calculatePoints(ctx, tx, session, input)
@@ -44,12 +49,12 @@ func SubmitTestSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 	selectFields := TestSessionSelectFields(ctx)
 
 	updateSessionQuery := tx.TestSession.UpdateOneID(sessionID).
-		SetStatus(testsession.StatusCompleted).
+		SetStatus(entTestSession.StatusCompleted).
 		SetCompletedAt(time.Now()).
 		SetPointsEarned(totalPoints)
 
 	if len(selectFields) > 0 {
-		updateSessionQuery = updateSessionQuery.Select(testsession.FieldID, selectFields...)
+		updateSessionQuery = updateSessionQuery.Select(entTestSession.FieldID, selectFields...)
 	}
 
 	updatedSession, err := updateSessionQuery.Save(ctx)
@@ -68,7 +73,7 @@ func calculatePoints(ctx context.Context, tx *ent.Tx, session *ent.TestSession, 
 	totalPoints := 0
 
 	blankAnswers, err := tx.TestSessionAnswer.Query().
-		Where(testsessionanswer.SessionID(session.ID), testsessionanswer.PointsIsNil()).Select(testsessionanswer.FieldID, testsessionanswer.FieldQuestionID).
+		Where(entTestSessionAnswer.SessionID(session.ID), entTestSessionAnswer.PointsIsNil()).Select(entTestSessionAnswer.FieldID, entTestSessionAnswer.FieldQuestionID).
 		All(ctx)
 
 	if err != nil {
@@ -83,19 +88,34 @@ func calculatePoints(ctx context.Context, tx *ent.Tx, session *ent.TestSession, 
 	questionIDs := slice.Map(blankAnswers, func(a *ent.TestSessionAnswer) uuid.UUID { return a.QuestionID })
 
 	questions, err := tx.Question.Query().
-		Where(question.IDIn(questionIDs...)).
-		Select(question.FieldID, question.FieldPoints).
-		WithQuestionOptions().
+		Where(entQuestion.IDIn(questionIDs...)).
+		Select(entQuestion.FieldID, entQuestion.FieldPoints).
 		All(ctx)
 
 	if err != nil {
 		return 0, err
 	}
 
+	// Fetch question options separately
+	questionOptions, err := tx.QuestionOption.Query().
+		Where(entQuestionOption.QuestionIDIn(questionIDs...)).
+		All(ctx)
+
+	if err != nil {
+		return 0, err
+	}
+
+	// Group options by question ID
+	optionsByQuestion := make(map[uuid.UUID][]*ent.QuestionOption)
+	for _, opt := range questionOptions {
+		optionsByQuestion[opt.QuestionID] = append(optionsByQuestion[opt.QuestionID], opt)
+	}
+
 	type Answer struct {
-		QuestionID uuid.UUID
-		IsCorrect  bool
-		Points     int
+		QuestionID      uuid.UUID
+		IsCorrect       bool
+		Points          int
+		SelectedOptions []string
 	}
 
 	answers := make([]Answer, 0, len(input.Answers))
@@ -110,7 +130,7 @@ func calculatePoints(ctx context.Context, tx *ent.Tx, session *ent.TestSession, 
 			return 0, fmt.Errorf("answer of user doesn't match the question")
 		}
 
-		questionOptions := question.Edges.QuestionOptions
+		questionOptions := optionsByQuestion[question.ID]
 		userAnswerOptionIds := answerOfUser.QuestionOptionIds
 		correctOptions := slice.Filter(questionOptions, func(qo *ent.QuestionOption) bool {
 			return qo.IsCorrect
@@ -131,10 +151,22 @@ func calculatePoints(ctx context.Context, tx *ent.Tx, session *ent.TestSession, 
 			points = question.Points
 		}
 
+		// Build metadata with selected option texts
+		selectedOptions := make([]string, 0, len(userAnswerOptionIds))
+		for _, optionID := range userAnswerOptionIds {
+			for _, option := range questionOptions {
+				if option.ID == optionID {
+					selectedOptions = append(selectedOptions, option.OptionText)
+					break
+				}
+			}
+		}
+
 		answer := Answer{
-			QuestionID: question.ID,
-			IsCorrect:  isUserAnswerCorrect,
-			Points:     points,
+			QuestionID:      question.ID,
+			IsCorrect:       isUserAnswerCorrect,
+			Points:          points,
+			SelectedOptions: selectedOptions,
 		}
 
 		answers = append(answers, answer)
@@ -145,11 +177,16 @@ func calculatePoints(ctx context.Context, tx *ent.Tx, session *ent.TestSession, 
 	// Batch update the answers record in the table
 
 	for _, answer := range answers {
+		metadata := map[string]interface{}{
+			"selected_options": answer.SelectedOptions,
+		}
+
 		updatedCount, err := tx.TestSessionAnswer.Update().
-			Where(testsessionanswer.QuestionID(answer.QuestionID),
-				testsessionanswer.SessionID(session.ID)).
+			Where(entTestSessionAnswer.QuestionID(answer.QuestionID),
+				entTestSessionAnswer.SessionID(session.ID)).
 			SetIsCorrect(answer.IsCorrect).
 			SetPoints(answer.Points).
+			SetMetadata(metadata).
 			Save(ctx)
 
 		if err != nil {

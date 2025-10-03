@@ -1,0 +1,29 @@
+#import "./testSession.fragment.gql"
+
+query GetTestSessionResult($id: ID!) {
+  testSessionResult(id: $id) {
+    id
+    testSession {
+      ...TestSessionFragment
+      test {
+        id
+        name
+        totalTime
+      }
+      user {
+        id
+        email
+      }
+    }
+    questions {
+      isCorrect
+      selectedOptions {
+        optionText
+      }
+      question {
+        id
+        questionText
+      }
+    }
+  }
+}

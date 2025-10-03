@@ -119,6 +119,12 @@ func (tsac *TestSessionAnswerCreate) SetNillableIsCorrect(b *bool) *TestSessionA
 	return tsac
 }
 
+// SetMetadata sets the "metadata" field.
+func (tsac *TestSessionAnswerCreate) SetMetadata(m map[string]interface{}) *TestSessionAnswerCreate {
+	tsac.mutation.SetMetadata(m)
+	return tsac
+}
+
 // SetID sets the "id" field.
 func (tsac *TestSessionAnswerCreate) SetID(u uuid.UUID) *TestSessionAnswerCreate {
 	tsac.mutation.SetID(u)
@@ -300,6 +306,10 @@ func (tsac *TestSessionAnswerCreate) createSpec() (*TestSessionAnswer, *sqlgraph
 	if value, ok := tsac.mutation.IsCorrect(); ok {
 		_spec.SetField(testsessionanswer.FieldIsCorrect, field.TypeBool, value)
 		_node.IsCorrect = &value
+	}
+	if value, ok := tsac.mutation.Metadata(); ok {
+		_spec.SetField(testsessionanswer.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	if nodes := tsac.mutation.QuestionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

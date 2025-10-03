@@ -4,9 +4,9 @@ const RING_RADIUS = 28;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 interface ScoreRingProps {
-  percentage: number;
-  pointsEarned: number;
-  maxPoints: number;
+  readonly percentage: number;
+  readonly pointsEarned: number;
+  readonly maxPoints: number;
 }
 
 export function ScoreRing({ percentage, pointsEarned, maxPoints }: ScoreRingProps) {

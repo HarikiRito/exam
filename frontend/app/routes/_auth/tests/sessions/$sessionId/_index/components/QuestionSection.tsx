@@ -1,4 +1,4 @@
-import { testSessionState, testSessionStore } from 'app/routes/_auth/tests/sessions/$sessionId/state';
+import { testSessionState, testSessionStore } from '../state';
 import { AppButton } from 'app/shared/components/ui/button/AppButton';
 import { AppCheckbox } from 'app/shared/components/ui/checkbox/AppCheckbox';
 import { AppMarkdown } from 'app/shared/components/ui/markdown/AppMarkdown';
@@ -61,7 +61,7 @@ export function QuestionSection() {
         </div>
       </div>
       <div className='grid gap-2 md:grid-cols-2'>
-        {question.options.map((option, index) => {
+        {(question.options ?? []).map((option, index) => {
           const isSelected = selectedAnswerByQuestionIdMap[question.id]?.has(option.id);
           return (
             <div

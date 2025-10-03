@@ -16,10 +16,10 @@ export type GetQuestionsByCollectionIdQueryVariables = Types.Exact<{
 
 export type GetQuestionsByCollectionIdQuery = { __typename?: 'Query', questionCollection: (
     { __typename?: 'QuestionCollection', questions: Array<(
-      { __typename?: 'Question', options: Array<(
+      { __typename?: 'Question', options?: Array<(
         { __typename?: 'QuestionOption' }
         & QuestionOptionItemFragment
-      )> }
+      )> | null }
       & QuestionItemFragment
     )> }
     & QuestionCollectionItemFragment

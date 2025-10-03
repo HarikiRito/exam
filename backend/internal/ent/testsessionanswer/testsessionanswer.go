@@ -32,6 +32,8 @@ const (
 	FieldOrder = "order"
 	// FieldIsCorrect holds the string denoting the is_correct field in the database.
 	FieldIsCorrect = "is_correct"
+	// FieldMetadata holds the string denoting the metadata field in the database.
+	FieldMetadata = "metadata"
 	// EdgeQuestion holds the string denoting the question edge name in mutations.
 	EdgeQuestion = "question"
 	// EdgeTestSession holds the string denoting the test_session edge name in mutations.
@@ -65,6 +67,7 @@ var Columns = []string{
 	FieldPoints,
 	FieldOrder,
 	FieldIsCorrect,
+	FieldMetadata,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

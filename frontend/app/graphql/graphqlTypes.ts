@@ -460,6 +460,7 @@ export type Query = {
   questions: Array<Question>;
   test: Test;
   testSession: TestSession;
+  testSessionResult: TestSessionResult;
   todos: Array<Todo>;
 };
 
@@ -555,12 +556,17 @@ export type QueryTestSessionArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryTestSessionResultArgs = {
+  id: Scalars['ID']['input'];
+};
+
 export type Question = {
   __typename?: 'Question';
   collection?: Maybe<QuestionCollection>;
   correctOptionCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
-  options: Array<QuestionOption>;
+  options?: Maybe<Array<QuestionOption>>;
   points: Scalars['Int']['output'];
   questionText: Scalars['String']['output'];
 };
@@ -611,6 +617,13 @@ export type QuestionPointsInput = {
   questionId: Scalars['ID']['input'];
 };
 
+export type QuestionResult = {
+  __typename?: 'QuestionResult';
+  isCorrect: Scalars['Boolean']['output'];
+  question: Question;
+  selectedOptions?: Maybe<Array<SelectedOption>>;
+};
+
 export type RegisterInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -620,6 +633,11 @@ export type Role = {
   __typename?: 'Role';
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+};
+
+export type SelectedOption = {
+  __typename?: 'SelectedOption';
+  optionText: Scalars['String']['output'];
 };
 
 export type StartTestSessionInput = {
@@ -684,6 +702,13 @@ export type TestSessionAnswerInput = {
 
 export type TestSessionFilterInput = {
   statuses?: InputMaybe<Array<TestSessionStatus>>;
+};
+
+export type TestSessionResult = {
+  __typename?: 'TestSessionResult';
+  id: Scalars['ID']['output'];
+  questions: Array<QuestionResult>;
+  testSession: TestSession;
 };
 
 export enum TestSessionStatus {

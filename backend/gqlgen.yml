@@ -127,3 +127,7 @@ models:
   User:
     model:
       - template/internal/graph/model.User
+  QuestionResult:
+    fields:
+      question:
+        resolver: true

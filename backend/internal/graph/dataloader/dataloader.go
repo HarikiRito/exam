@@ -18,6 +18,7 @@ const loadersKey = ctxKey("dataloaders")
 // Loaders wraps the dataloader instances.
 type Loaders struct {
 	UserLoader                      *dataloadgen.Loader[uuid.UUID, *model.User]
+	QuestionLoader                  *dataloadgen.Loader[uuid.UUID, *model.Question]
 	RolesByUserLoader               *dataloadgen.Loader[uuid.UUID, []*model.Role]
 	PermissionsByUserLoader         *dataloadgen.Loader[uuid.UUID, []permission.Permission]
 	CourseSectionLoader             *dataloadgen.Loader[uuid.UUID, *model.CourseSection]
@@ -37,6 +38,7 @@ type Loaders struct {
 func NewLoaders() *Loaders {
 	return &Loaders{
 		UserLoader:                      dataloadgen.NewLoader(getUsers, dataloadgen.WithWait(time.Millisecond)),
+		QuestionLoader:                  dataloadgen.NewLoader(getQuestions, dataloadgen.WithWait(time.Millisecond)),
 		RolesByUserLoader:               dataloadgen.NewLoader(getRolesByUserIDs, dataloadgen.WithWait(time.Millisecond)),
 		PermissionsByUserLoader:         dataloadgen.NewLoader(getPermissionsByUserIDs, dataloadgen.WithWait(time.Millisecond)),
 		CourseSectionLoader:             dataloadgen.NewLoader(getCourseSections, dataloadgen.WithWait(time.Millisecond)),

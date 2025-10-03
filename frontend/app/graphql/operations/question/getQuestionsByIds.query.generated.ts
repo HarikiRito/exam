@@ -11,7 +11,7 @@ export type GetQuestionsByIdsQueryVariables = Types.Exact<{
 
 
 export type GetQuestionsByIdsQuery = { __typename?: 'Query', questions: Array<(
-    { __typename?: 'Question', correctOptionCount: number, options: Array<{ __typename?: 'QuestionOption', id: string, optionText: string }> }
+    { __typename?: 'Question', correctOptionCount: number, options?: Array<{ __typename?: 'QuestionOption', id: string, optionText: string }> | null }
     & QuestionItemFragment
   )> };
 

@@ -20,7 +20,7 @@ export class State {
   setQuestions(questions: QuestionItem[]) {
     this.questions = questions.map((question) => ({
       ...question,
-      options: shuffleArray(question.options),
+      options: shuffleArray(question.options ?? []),
     }));
   }
 
