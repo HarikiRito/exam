@@ -13,8 +13,10 @@ interface GroupedQuestionsListProps {
 export function GroupedQuestionsList({ questions }: GroupedQuestionsListProps) {
   const snap = resultStore.useStateSnapshot();
 
-  const correctQuestions = questions.filter((q) => q.isCorrect);
-  const incorrectQuestions = questions.filter((q) => !q.isCorrect);
+  const sortedQuestions = [...questions].sort((a, b) => a.order - b.order);
+
+  const correctQuestions = sortedQuestions.filter((q) => q.isCorrect);
+  const incorrectQuestions = sortedQuestions.filter((q) => !q.isCorrect);
 
   function handleTabChange(value: string) {
     resultStore.proxyState.setFilterTab(value as FilterTab);
@@ -27,7 +29,7 @@ export function GroupedQuestionsList({ questions }: GroupedQuestionsListProps) {
       case 'incorrect':
         return incorrectQuestions;
       default:
-        return questions;
+        return sortedQuestions;
     }
   }
 
@@ -37,7 +39,7 @@ export function GroupedQuestionsList({ questions }: GroupedQuestionsListProps) {
     <div>
       <AppTabs.Root value={snap.filterTab} onValueChange={handleTabChange}>
         <AppTabs.List>
-          <AppTabs.Trigger value='all'>All ({questions.length})</AppTabs.Trigger>
+          <AppTabs.Trigger value='all'>All ({sortedQuestions.length})</AppTabs.Trigger>
           <AppTabs.Trigger value='correct'>Correct ({correctQuestions.length})</AppTabs.Trigger>
           <AppTabs.Trigger value='incorrect'>Incorrect ({incorrectQuestions.length})</AppTabs.Trigger>
         </AppTabs.List>
@@ -46,15 +48,11 @@ export function GroupedQuestionsList({ questions }: GroupedQuestionsListProps) {
           {displayQuestions.length === 0 ? (
             <AppTypography.muted className='py-8 text-center'>No questions in this category</AppTypography.muted>
           ) : (
-            displayQuestions.map((questionResult, index) => (
+            displayQuestions.map((questionResult) => (
               <QuestionResultCard
                 key={questionResult.question.id}
                 questionResult={questionResult}
-                questionNumber={
-                  snap.filterTab === 'all'
-                    ? index + 1
-                    : questions.findIndex((q) => q.question.id === questionResult.question.id) + 1
-                }
+                questionNumber={questionResult.order}
               />
             ))
           )}
