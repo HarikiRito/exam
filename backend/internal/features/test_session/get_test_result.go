@@ -57,7 +57,9 @@ func GetTestSessionResult(ctx context.Context, userID uuid.UUID, sessionID uuid.
 			entTestSessionAnswer.FieldQuestionID,
 			entTestSessionAnswer.FieldIsCorrect,
 			entTestSessionAnswer.FieldMetadata,
+			entTestSessionAnswer.FieldOrder,
 		).
+		Order(entTestSessionAnswer.ByOrder()).
 		All(ctx)
 
 	if err != nil {
@@ -92,6 +94,7 @@ func GetTestSessionResult(ctx context.Context, userID uuid.UUID, sessionID uuid.
 			Question:        &model.Question{ID: answer.QuestionID},
 			IsCorrect:       isCorrect,
 			SelectedOptions: selectedOptions,
+			Order:           answer.Order,
 		})
 	}
 
