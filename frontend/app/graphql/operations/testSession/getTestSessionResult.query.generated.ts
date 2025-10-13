@@ -15,7 +15,7 @@ export type GetTestSessionResultQueryVariables = Types.Exact<{
 export type GetTestSessionResultQuery = { __typename?: 'Query', testSessionResult: { __typename?: 'TestSessionResult', id: string, testSession: (
       { __typename?: 'TestSession', test: { __typename?: 'Test', id: string, name: string, totalTime?: number | null }, user?: { __typename?: 'User', id: string, email: string } | null }
       & TestSessionFragmentFragment
-    ), questions: Array<{ __typename?: 'QuestionResult', isCorrect: boolean, selectedOptions?: Array<{ __typename?: 'SelectedOption', optionText: string }> | null, question: { __typename?: 'Question', id: string, questionText: string } }> } };
+    ), questions: Array<{ __typename?: 'QuestionResult', isCorrect: boolean, order: number, selectedOptions?: Array<{ __typename?: 'SelectedOption', optionText: string }> | null, question: { __typename?: 'Question', id: string, questionText: string } }> } };
 
 
 export const GetTestSessionResultDocument = gql`
@@ -36,6 +36,7 @@ export const GetTestSessionResultDocument = gql`
     }
     questions {
       isCorrect
+      order
       selectedOptions {
         optionText
       }

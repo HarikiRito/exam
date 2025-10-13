@@ -620,6 +620,7 @@ export type QuestionPointsInput = {
 export type QuestionResult = {
   __typename?: 'QuestionResult';
   isCorrect: Scalars['Boolean']['output'];
+  order: Scalars['Int']['output'];
   question: Question;
   selectedOptions?: Maybe<Array<SelectedOption>>;
 };

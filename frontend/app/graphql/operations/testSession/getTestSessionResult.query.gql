@@ -17,6 +17,7 @@ query GetTestSessionResult($id: ID!) {
     }
     questions {
       isCorrect
+      order
       selectedOptions {
         optionText
       }

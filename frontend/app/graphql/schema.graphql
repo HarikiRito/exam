@@ -335,6 +335,7 @@ input QuestionPointsInput {
 
 type QuestionResult {
   isCorrect: Boolean!
+  order: Int!
   question: Question!
   selectedOptions: [SelectedOption!]
 }
