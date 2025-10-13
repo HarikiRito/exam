@@ -86,6 +86,7 @@ type QuestionResult {
   question: Question!
   isCorrect: Boolean!
   selectedOptions: [SelectedOption!]
+  order: Int!
 }
 
 type SelectedOption {

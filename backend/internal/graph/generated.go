@@ -226,6 +226,7 @@ type ComplexityRoot struct {
 
 	QuestionResult struct {
 		IsCorrect       func(childComplexity int) int
+		Order           func(childComplexity int) int
 		Question        func(childComplexity int) int
 		SelectedOptions func(childComplexity int) int
 	}
@@ -1457,6 +1458,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.QuestionResult.IsCorrect(childComplexity), true
+
+	case "QuestionResult.order":
+		if e.complexity.QuestionResult.Order == nil {
+			break
+		}
+
+		return e.complexity.QuestionResult.Order(childComplexity), true
 
 	case "QuestionResult.question":
 		if e.complexity.QuestionResult.Question == nil {
@@ -9968,6 +9976,50 @@ func (ec *executionContext) fieldContext_QuestionResult_selectedOptions(_ contex
 	return fc, nil
 }
 
+func (ec *executionContext) _QuestionResult_order(ctx context.Context, field graphql.CollectedField, obj *model.QuestionResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_QuestionResult_order(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Order, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_QuestionResult_order(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Role_id(ctx context.Context, field graphql.CollectedField, obj *model.Role) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Role_id(ctx, field)
 	if err != nil {
@@ -11665,6 +11717,8 @@ func (ec *executionContext) fieldContext_TestSessionResult_questions(_ context.C
 				return ec.fieldContext_QuestionResult_isCorrect(ctx, field)
 			case "selectedOptions":
 				return ec.fieldContext_QuestionResult_selectedOptions(ctx, field)
+			case "order":
+				return ec.fieldContext_QuestionResult_order(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type QuestionResult", field.Name)
 		},
@@ -17136,6 +17190,11 @@ func (ec *executionContext) _QuestionResult(ctx context.Context, sel ast.Selecti
 			}
 		case "selectedOptions":
 			out.Values[i] = ec._QuestionResult_selectedOptions(ctx, field, obj)
+		case "order":
+			out.Values[i] = ec._QuestionResult_order(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

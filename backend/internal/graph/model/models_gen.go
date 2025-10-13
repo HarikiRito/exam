@@ -189,6 +189,7 @@ type QuestionResult struct {
 	Question        *Question         `json:"question"`
 	IsCorrect       bool              `json:"isCorrect"`
 	SelectedOptions []*SelectedOption `json:"selectedOptions,omitempty"`
+	Order           int               `json:"order"`
 }
 
 type RegisterInput struct {
